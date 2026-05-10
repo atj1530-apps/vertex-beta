@@ -1,5 +1,10 @@
 {
   "name": "vertex-workout-builder",
   "version": "13.60.1",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@capacitor/cli": "^8.3.3",
+    "@capacitor/core": "^8.3.3",
+    "@capacitor/ios": "^8.3.3"
+  }
 }

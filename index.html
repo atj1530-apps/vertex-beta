@@ -9025,7 +9025,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-ba';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-az';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10748,31 +10748,32 @@ window.testAppleHealth = async function () {
       html=`<div class="coach-card" style="margin:0"><div class="label">Deload Protocol — This Week</div><div class="coach-list">${coachBox('Volume','Reduce all sets by 40%. Keep exercise selection the same.')}${coachBox('Intensity','Cap loads at 70% of your normal working weight.')}${coachBox('Frequency','Keep training days the same — just lower the dose.')}${coachBox('Sleep','Prioritize 8+ hours every night this week.')}${coachBox('When to Resume','Return to full training next week if readiness rises above 65.')}</div></div>`;
 
     } else if(action==='workout'){
-      html=`<div class="coach-card" style="margin:0">
-        <div class="label">Choose Workout Location</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
-          <button class="btn acc" type="button" onclick="vertexAiAction('_generate_home')">🏠 Home</button>
-          <button class="btn" type="button" onclick="vertexAiAction('_generate_gym')">🏋️ Gym</button>
-        </div>
-      </div>`;
-
-    } else if(action==='_generate_home' || action==='_generate_gym'){
-      const isHome = action==='_generate_home';
-      const focus = isHome ? 'Home' : 'Gym';
-      const intensity = r.score>=75?'High':r.score>=55?'Moderate':'Light';
-      const sets = r.score>=75?4:r.score>=55?3:2;
-      const reps = r.score>=75?'6–8':r.score>=55?'8–12':'12–15';
-      const rpe = r.score>=75?'RPE 8–9':r.score>=55?'RPE 7–8':'RPE 6–7';
-      const rest = r.score>=75?'2–3 min':r.score>=55?'90 sec':'60 sec';
-      const focusExercises = isHome
-        ? ['Goblet Squat','Dumbbell Romanian Deadlift','Push-Up','One-Arm Dumbbell Row','Walking Lunges']
-        : ['Barbell Back Squat','Romanian Deadlift','Leg Press','Walking Lunges','Leg Curl'];
-      window._aiWorkoutReady={names:focusExercises.slice(0,5),name:focus+' · '+intensity};
-      const warmup=isHome?'Dynamic mobility, bodyweight squat x10, light dumbbell ramp-up':'Hip circles, leg swings, goblet squat x10';
+      let snap={};
+      try{snap=typeof getIntelligenceSnapshot==='function'?getIntelligenceSnapshot():{};}catch(e){}
+      const planned=snap.plannedMoves||[];
+      const hasLegs=planned.some(m=>/squat|leg|lunge|deadlift|hip|glute|hamstring|calf/i.test(m));
+      const hasUpper=planned.some(m=>/press|row|pull|curl|dip|bench|shoulder|chest|back/i.test(m));
+      const focus=!hasLegs?'Lower Body':!hasUpper?'Upper Body':'Full Body';
+      const sets=r.score>=75?4:r.score>=55?3:2;
+      const reps=r.score>=75?'6–8':r.score>=55?'8–12':'12–15';
+      const rpe=r.score>=75?'RPE 8–9':r.score>=55?'RPE 7–8':'RPE 6–7';
+      const rest=r.score>=75?'2–3 min':r.score>=55?'90 sec':'60 sec';
+      const intensity=r.score>=75?'High':r.score>=55?'Moderate':'Light';
+      const allSaved=(typeof state!=='undefined'&&state.savedWorkouts)?state.savedWorkouts:[];
+      const exercisePool={};
+      allSaved.forEach(w=>{(w.exercises||[]).forEach(e=>{if(e.name&&e.muscle)exercisePool[e.name]=e.muscle;});});
+      const focusFilter=focus==='Lower Body'?/leg|glute|hamstring|quad|calf|hip|squat|lunge|deadlift/i:focus==='Upper Body'?/chest|back|shoulder|bicep|tricep|press|row|pull|curl|dip|bench/i:/.*/;
+      let focusExercises=Object.entries(exercisePool).filter(([name,muscle])=>focusFilter.test(name)||focusFilter.test(muscle)).map(([name])=>name).slice(0,6);
+      if(focusExercises.length<3){
+        if(focus==='Lower Body') focusExercises=['Barbell Back Squat','Romanian Deadlift','Leg Press','Walking Lunges','Leg Curl'];
+        else if(focus==='Upper Body') focusExercises=['Bench Press','Barbell Row','Overhead Press','Pull-Up','Dumbbell Curl'];
+        else focusExercises=['Squat','Bench Press','Deadlift','Barbell Row','Overhead Press','Lunge'];
+      }
+      const warmup=focus==='Lower Body'?'Hip circles, leg swings, goblet squat x10':focus==='Upper Body'?'Band pull-aparts, arm circles, push-up x10':'Jump rope 3 min + dynamic stretches';
       const exRows=focusExercises.slice(0,5).map((name,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:12px">${i+1}. ${esc(name)}</span><span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${sets} x ${reps} · ${rpe}</span></div>`).join('');
-      const loadBtn=`<button class="btn acc" style="margin-top:12px;width:100%" onclick="vertexLoadAiWorkout()">⚡ Load into Workout Builder</button>`;
+      const loadBtn=`<button class="btn acc" style="margin-top:12px;width:100%" onclick="vertexLoadAiWorkout(${JSON.stringify(focusExercises.slice(0,5))},${JSON.stringify(focus+' · '+intensity)})">⚡ Load into Workout Builder</button>`;
       html=`<div class="coach-card" style="margin:0"><div class="label">Today's Workout — ${focus} · ${intensity}</div><div style="margin:8px 0"><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Warm-Up — 5 min</div><div style="font-size:12px;color:var(--muted);margin-bottom:12px">${esc(warmup)}</div><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Main Work · Rest ${rest}</div>${exRows}<div style="margin-top:10px;font-size:11px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div></div>${loadBtn}<div class="coach-list" style="margin-top:8px">${coachBox('Readiness','Score '+r.score+' — '+esc(r.action))}</div></div>`;
-
+    }
 
     out.style.display='block';
     out.innerHTML=html;
@@ -10781,10 +10782,6 @@ window.testAppleHealth = async function () {
 
   window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
     try{
-      if(!exerciseNames && window._aiWorkoutReady){
-        exerciseNames=window._aiWorkoutReady.names;
-        workoutName=window._aiWorkoutReady.name;
-      }
       const exercises=[];
       (exerciseNames||[]).forEach(name=>{
         try{
@@ -10793,17 +10790,34 @@ window.testAppleHealth = async function () {
           exercises.push(normalizeStrengthExercise(base));
         }catch(err){}
       });
-      if(!exercises.length){ toast('No exercises found to load'); return; }
-      const w={name:'AI: '+(workoutName||'Generated Workout'),type:'strength',source:'ai',exercises,assignedDay:null};
+
+      if(!exercises.length){
+        toast('No exercises found to load');
+        return;
+      }
+
+      const w={
+        name:'AI: '+(workoutName||'Generated Workout'),
+        type:'strength',
+        source:'ai',
+        exercises,
+        assignedDay:null
+      };
+
+      // CRITICAL: set page BEFORE setCurrent(), because setCurrent() calls renderAll().
       state.page='workout';
       setCurrent(w);
       state.page='workout';
+
       renderAll();
       document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
       document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
       window.scrollTo({top:0,behavior:'smooth'});
       toast(exercises.length+' exercises loaded into builder');
-    }catch(e){console.error('vertexLoadAiWorkout error:',e); toast('AI workout load failed');}
+    }catch(e){
+      console.error('vertexLoadAiWorkout error:',e);
+      toast('AI workout load failed');
+    }
   };
     const r=buildReadinessScore();
     let snap={};
@@ -11017,6 +11031,33 @@ window.testAppleHealth = async function () {
 
 
 
+
+
+<style>
+/* v13.61.15 — Home readiness alignment lock */
+@media (min-width: 901px){
+  body.app-page-home #homePage .progress-head,
+  body.app-page-home .progress-head{
+    display:grid !important;
+    grid-template-columns:1fr minmax(360px, 440px) 1fr !important;
+    align-items:center !important;
+    gap:16px !important;
+  }
+  body.app-page-home #homePage .progress-head > *:first-child,
+  body.app-page-home .progress-head > *:first-child{
+    justify-self:start !important;
+  }
+  body.app-page-home #vertex-home-readiness{
+    justify-self:center !important;
+    width:100% !important;
+    max-width:440px !important;
+  }
+  body.app-page-home #homePage .progress-head .btn,
+  body.app-page-home .progress-head .btn{
+    justify-self:end !important;
+  }
+}
+</style>
 
 
 

@@ -9028,7 +9028,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-ao';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-ap';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10821,7 +10821,9 @@ window.testAppleHealth = async function () {
       setTimeout(()=>{
         if(!window._pendingAiWorkout) return;
         const w=window._pendingAiWorkout; window._pendingAiWorkout=null;
-        setCurrent(w); state.page='workout'; renderAll();
+        // Set page BEFORE setCurrent so renderAll inside setCurrent renders workout tab
+        state.page='workout';
+        setCurrent(w);
         document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
         document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
         window.scrollTo({top:0,behavior:'smooth'});

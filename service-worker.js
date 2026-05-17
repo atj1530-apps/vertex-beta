@@ -9,7 +9,7 @@
    v20260506 \'97 bump CACHE_NAME date on every deploy to bust old caches.\
    Network-first for HTML so new deploys are always visible immediately. */\
 \
-const CACHE_NAME = 'vertex-v20260515';\
+const CACHE_NAME = 'vertex-v202605157-b';\
 const APP_SHELL = [\
   './',\
   './index.html',\

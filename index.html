@@ -9027,7 +9027,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-be';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bf';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10790,7 +10790,7 @@ window.testAppleHealth = async function () {
       });
 
       if(!exercises.length){
-        toast('No exercises found to load');
+        if(typeof toast==='function') toast('No exercises found to load');
         return;
       }
 
@@ -10809,10 +10809,10 @@ window.testAppleHealth = async function () {
       document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
       document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
       window.scrollTo({top:0,behavior:'smooth'});
-      toast(exercises.length+' exercises loaded into builder');
+      if(typeof toast==='function') toast(exercises.length+' exercises loaded into builder'); else if(typeof window.toast==='function') window.toast(exercises.length+' exercises loaded into builder');
     }catch(e){
       console.error('vertexLoadAiWorkout error:',e);
-      toast('AI workout load failed');
+      if(typeof toast==='function') toast('AI workout load failed');
     }
   };
     const r=buildReadinessScore();

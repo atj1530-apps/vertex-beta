@@ -11216,5 +11216,74 @@ window.testAppleHealth = async function () {
 })();
 </script>
 
+
+<script>
+/* v13.61.16 — Home Today/Tomorrow Load-Edit hard fix */
+(function(){
+  function todayKeySafe(){
+    if(typeof todayKey === 'function') return todayKey();
+    const keys = ['sun','mon','tue','wed','thu','fri','sat'];
+    return keys[new Date().getDay()];
+  }
+  function tomorrowKeySafe(){
+    const keys = ['sun','mon','tue','wed','thu','fri','sat'];
+    return keys[(new Date().getDay()+1)%7];
+  }
+  function validWorkout(w){
+    return !!(w && (
+      (Array.isArray(w.exercises) && w.exercises.length) ||
+      (Array.isArray(w.moves) && w.moves.length) ||
+      (Array.isArray(w.blocks) && w.blocks.length)
+    ));
+  }
+  function cloneSafe(w){
+    try{ return JSON.parse(JSON.stringify(w || {})); }catch(e){ return Object.assign({}, w || {}); }
+  }
+  function normalizeWorkout(w, day){
+    const out = cloneSafe(w);
+    out.assignedDay = day;
+    if(!out.type) out.type = 'strength';
+    if(out.type === 'strength' && !Array.isArray(out.exercises)) out.exercises = [];
+    if((out.type === 'flow' || out.type === 'interval') && !Array.isArray(out.moves)) out.moves = [];
+    return out;
+  }
+  function loadPlannerDayIntoBuilder(day){
+    if(!window.state) return false;
+    const planner = window.state.planner || {};
+    const w = planner[day];
+    if(!validWorkout(w)){
+      if(typeof toast === 'function') toast('No workout planned for this day');
+      return false;
+    }
+    const normalized = normalizeWorkout(w, day);
+    if(typeof setCurrent === 'function') setCurrent(normalized);
+    else window.state.current = normalized;
+    window.state.page = 'workout';
+    if(typeof renderAll === 'function') renderAll();
+    window.scrollTo({top:0, behavior:'smooth'});
+    if(typeof toast === 'function') toast('Workout loaded');
+    return true;
+  }
+  window.vertexLoadTodayIntoBuilder = function(){ return loadPlannerDayIntoBuilder(todayKeySafe()); };
+  window.vertexLoadTomorrowIntoBuilder = function(){ return loadPlannerDayIntoBuilder(tomorrowKeySafe()); };
+
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const label = (btn.textContent || '').trim().toLowerCase();
+    if(label === 'load / edit' || label === 'start today'){
+      const card = btn.closest('.today-card, .day-card, .panel, [class*="today"], [class*="tomorrow"]');
+      const cardText = (card ? card.textContent : '').toLowerCase();
+      let day = todayKeySafe();
+      if(cardText.includes('tomorrow')) day = tomorrowKeySafe();
+
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      loadPlannerDayIntoBuilder(day);
+    }
+  }, true);
+})();
+</script>
+
 </body>
 </html>

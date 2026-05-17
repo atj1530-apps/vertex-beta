@@ -7500,10 +7500,6 @@ function renderHomeDashboard(){
 
     // Build readiness + weight card HTML inline
     const _vCards = (typeof vertexGetSettings==='function' ? vertexGetSettings().cards : null) || {};
-    // If VertexReadiness not yet loaded, retry after it's available
-    if(typeof window.VertexReadiness !== 'object'){
-      setTimeout(()=>{ try{ if(typeof renderHomeDashboard==='function') renderHomeDashboard(); }catch(e){} }, 200);
-    }
     let _readinessCardHtml = '';
     let _weightCardHtml = '';
     try {
@@ -9029,7 +9025,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-ak';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-al';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

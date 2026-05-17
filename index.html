@@ -23,6 +23,8 @@
 button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
 .btn{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:5px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.btn:hover{border-color:var(--acc);color:var(--acc)}.btn.acc{background:var(--acc);border-color:var(--acc);color:#000}.btn.red{color:var(--red);border-color:rgba(255,77,77,.4);background:transparent}.btn.small{padding:6px 9px;font-size:11px}.btn:disabled{opacity:.45;cursor:not-allowed}
 #app-header{position:fixed;top:0;left:0;right:0;height:58px;background:#070707;border-bottom:1px solid var(--line);display:grid;grid-template-columns:260px 1fr 560px;align-items:center;padding:0 16px;z-index:50}.logo{display:flex;align-items:center;gap:10px}.logo-main{font-family:'Bebas Neue';font-size:26px;letter-spacing:5px;color:var(--acc)}.logo-sub{font-family:'DM Mono';font-size:10px;letter-spacing:3px;color:var(--dim)}.nav{justify-self:center;display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}.nav button{background:var(--panel2);color:var(--muted);border:0;border-right:1px solid var(--line);padding:8px 12px;font-size:12px;cursor:pointer}.nav button:last-child{border-right:0}.nav button.on{background:var(--acc);color:#000;font-weight:700}.hdr-actions{justify-self:end;display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;overflow:visible}.hdr-actions .btn{flex-shrink:0}body.app-page-nonworkout #btn-save,body.app-page-nonworkout #btn-log{display:none!important}#btn-log.btn.acc{background:var(--panel2);color:var(--acc);border:1px solid rgba(232,255,71,.45)}#btn-log.btn.acc.armed{background:var(--acc);color:#000;border-color:var(--acc)}.sync-pill{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap}.sync-dot{width:8px;height:8px;border-radius:99px;background:var(--dim);box-shadow:0 0 0 2px rgba(255,255,255,.03)}.sync-pill.synced{color:var(--green);border-color:rgba(72,255,138,.28)}.sync-pill.synced .sync-dot{background:var(--green)}.sync-pill.unsaved{color:var(--orange);border-color:rgba(255,176,71,.35)}.sync-pill.unsaved .sync-dot{background:var(--orange)}.sync-pill.failed{color:var(--red);border-color:rgba(255,77,77,.35)}.sync-pill.failed .sync-dot{background:var(--red)}.sync-pill.syncing{color:var(--acc);border-color:rgba(232,255,71,.35)}.sync-pill.syncing .sync-dot{background:var(--acc)}.account-menu{position:fixed;top:64px;right:16px;z-index:120;background:var(--panel);border:1px solid var(--line2);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.55);padding:12px;min-width:210px;display:none}.account-menu.on{display:block}.account-menu .acct-title{font-weight:800;margin-bottom:4px}.account-menu .acct-sub{font-size:12px;color:var(--muted);line-height:1.4}.account-menu .acct-row{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;font-family:'DM Mono';font-size:10px;color:var(--green);letter-spacing:1px}.account-menu input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:5px;margin-top:8px;font-size:12px}.account-menu .acct-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.account-menu .acct-error{font-family:'DM Mono';font-size:10px;color:var(--red);min-height:14px;margin-top:8px;line-height:1.35}.account-menu .acct-email{font-family:'DM Mono';font-size:11px;color:var(--acc);letter-spacing:.5px;word-break:break-all;margin-top:6px}.account-menu .acct-muted{font-size:11px;color:var(--dim);line-height:1.45;margin-top:8px}
+#vertex-offline-banner{display:none;position:fixed;top:58px;left:0;right:0;z-index:200;background:#1a0a0a;border-bottom:1px solid rgba(255,77,77,.4);padding:7px 16px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.8px;color:#ff6b6b;text-align:center;text-transform:uppercase}
+#vertex-offline-banner.on{display:block}
 #app{position:relative;top:58px;left:0;right:0;height:calc(100vh - 58px);display:grid;grid-template-columns:290px minmax(520px,1fr) 310px;overflow:hidden}#app.page-mode{grid-template-columns:1fr}.sidebar,.main,.right{min-height:0;overflow:auto}.sidebar{border-right:1px solid var(--line);padding:16px;background:#0b0b0b}.main{padding:18px 24px 24px}.right{border-left:1px solid var(--line);padding:16px;background:#0b0b0b}.sidebar::-webkit-scrollbar,.main::-webkit-scrollbar,.right::-webkit-scrollbar{width:5px}.sidebar::-webkit-scrollbar-thumb,.main::-webkit-scrollbar-thumb,.right::-webkit-scrollbar-thumb{background:var(--line2)}
 .panel{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:14px;margin-bottom:14px}.panel.hl{border-color:rgba(232,255,71,.55);background:linear-gradient(90deg,rgba(232,255,71,.07),rgba(232,255,71,.015))}.panel.green{border-color:rgba(72,255,138,.35);background:rgba(72,255,138,.035)}
 .segment{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}.seg-btn{background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:5px;padding:10px;font-weight:700;cursor:pointer}.seg-btn.on{background:var(--panel2);color:var(--acc);border-color:rgba(232,255,71,.45)}.segment.user-picked .seg-btn.on{background:var(--acc);color:#000;border-color:var(--acc)}
@@ -2400,6 +2402,7 @@ button.acc-hint {
   <div class="hdr-actions"><div id="syncStatus" class="sync-pill local" id="syncStatus" style="cursor:pointer" onclick="if(this.classList.contains('failed')){window.vertexRetrySync&&window.vertexRetrySync()}" title="Click to retry sync"><span class="sync-dot"></span><span id="syncStatusText">Local mode</span></div><button id="btn-save" class="btn small hdr-workout-btn">Save</button><button id="btn-log" class="btn acc small hdr-workout-btn">Log Workout</button><button class="btn small" id="btn-account" aria-label="Account menu">Account</button></div>
 </header>
 <div id="account-menu" class="account-menu"></div>
+<div id="vertex-offline-banner">⚠ Offline — changes saved locally, will sync on reconnect</div>
 <div id="app">
   <aside class="sidebar">
     <div class="label">Category</div><div class="segment"><button class="seg-btn" data-env="gym">🏋️ Gym</button><button class="seg-btn on" data-env="home">🏠 Home</button></div><div id="equipmentPanel" class="equip-panel"></div>
@@ -4123,10 +4126,16 @@ async function saveWorkoutToSupabase(w=state.current){
   return true;
 }
 async function saveCurrentWorkout(){
-  if(cloudEnabled()) setSyncStatus('syncing','Syncing...');
+  if(!cloudEnabled()){
+    // Save locally only
+    try{ const lk=authUser?`vertex_saved_workouts_${authUser.id}`:'vertex_saved_workouts_guest'; const arr=JSON.parse(localStorage.getItem(lk)||'[]'); arr.unshift({workout_payload:state.current,saved_at:new Date().toISOString()}); localStorage.setItem(lk,JSON.stringify(arr.slice(0,20))); }catch(e){}
+    if(!navigator.onLine && authUser) window.vertexQueueWrite&&window.vertexQueueWrite('saveWorkout', state.current);
+    setSyncStatus('local', navigator.onLine ? 'Local mode' : 'Offline'); renderAll(); return;
+  }
+  setSyncStatus('syncing','Syncing...');
   try{
     const ok=await saveWorkoutToSupabase(state.current);
-    if(!ok){ setSyncStatus('failed','Sync failed'); return; }
+    if(!ok){ setSyncStatus('failed','Sync failed'); window.vertexQueueWrite&&window.vertexQueueWrite('saveWorkout', state.current); return; }
     if(state.current && state.current.assignedDay){
       await persistPlannerDay(state.current.assignedDay,state.current);
     }
@@ -4134,6 +4143,7 @@ async function saveCurrentWorkout(){
   }catch(err){
     console.error('saveCurrentWorkout error:',err);
     setSyncStatus('failed','Sync failed');
+    window.vertexQueueWrite&&window.vertexQueueWrite('saveWorkout', state.current);
   }
   renderAll();
 }
@@ -4284,6 +4294,7 @@ async function persistPlannerDay(day,w){
     return true;
   }catch(err){
     console.warn('Vertex cloud planner save failed. Local copy remains intact.',err);
+    if(!navigator.onLine) window.vertexQueueWrite&&window.vertexQueueWrite('plannerDay',{day,workout:w});
     return false;
   }
 }
@@ -4607,6 +4618,7 @@ async function applyAuthenticatedSession(session){
     window.__vertexVisibilityListenerAdded = true;
     document.addEventListener('visibilitychange', ()=>{
       if(document.visibilityState==='visible' && authUser){
+        vertexDrainOfflineQueue&&vertexDrainOfflineQueue();
         const last = window.__vertexLastHealthRefresh || 0;
         if(Date.now() - last > 5 * 60 * 1000){
           window.__vertexLastHealthRefresh = Date.now();
@@ -8648,9 +8660,7 @@ function vertexClearCacheAndReload(){
 }
 window.vertexClearCacheAndReload=vertexClearCacheAndReload;
 
-document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex-item,.acc-head'); if(!t) return; if(t.id==='btn-account'){renderAccountMenu(); document.getElementById('account-menu')?.classList.toggle('on'); return} if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(confirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} if(t.matches('.acc-head')){const acc=t.parentElement; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const add=t.getAttribute('data-add'); if(add){addExerciseByName(add); return} const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){loadTemplate(tpl,true); return} const sd=t.getAttribute('data-save-day'); if(sd){await saveDay(sd); return} const ail=t.getAttribute('data-ai-load'); if(ail){if(typeof window.vertexLoadAiWorkout==='function') window.vertexLoadAiWorkout(); return}
- const aie=t.getAttribute('data-ai-env'); if(aie){localStorage.setItem('vertex_ai_location',aie); const ao=document.getElementById('aiActionOutput'); if(ao) ao.innerHTML=''; if(window.vertexAiAction) window.vertexAiAction('_generate_'+aie); return}
- const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return} if(t.id==='btn-apple-health-sync'){
+document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex-item,.acc-head'); if(!t) return; if(t.id==='btn-account'){renderAccountMenu(); document.getElementById('account-menu')?.classList.toggle('on'); return} if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(confirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} if(t.matches('.acc-head')){const acc=t.parentElement; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const add=t.getAttribute('data-add'); if(add){addExerciseByName(add); return} const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){loadTemplate(tpl,true); return} const sd=t.getAttribute('data-save-day'); if(sd){await saveDay(sd); return} const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return} if(t.id==='btn-apple-health-sync'){
   await window.testAppleHealth();
   await refreshAppleHealthMetrics();
   vertexCrossFillCheckinWeight();
@@ -8786,31 +8796,72 @@ bindAuthButtons();
  updateAccordionHints();
 initAuth();
 
-// AI Coach load workout — defined here to access toast, state, setCurrent, EXERCISES etc.
-window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
+// ── Vertex Offline Mode ───────────────────────────────────────────────────────
+
+function vertexOpenOfflineDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open('vertex_offline_q',1);
+    req.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains('writes')) db.createObjectStore('writes',{keyPath:'id',autoIncrement:true});
+    };
+    req.onsuccess=e=>resolve(e.target.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+async function vertexQueueWrite(type,payload){
   try{
-    if(!exerciseNames && window._aiWorkoutReady){
-      exerciseNames=window._aiWorkoutReady.names;
-      workoutName=window._aiWorkoutReady.name;
-    }
-    const exercises=[];
-    (exerciseNames||[]).forEach(name=>{
-      try{
-        const found=EXERCISES.find(x=>x.name===name);
-        const base=found?clone(found):{name,muscle:'',kind:'push',equip:'Dumbbells'};
-        exercises.push(normalizeStrengthExercise(base));
-      }catch(err){}
-    });
-    if(!exercises.length){ toast('No exercises found'); return; }
-    const w={name:'AI: '+(workoutName||'Generated Workout'),type:'strength',source:'ai',exercises,assignedDay:null};
-    state.page='workout';
-    setCurrent(w);
-    document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
-    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
-    window.scrollTo({top:0,behavior:'smooth'});
-    toast(exercises.length+' exercises loaded');
-  }catch(e){ console.error('vertexLoadAiWorkout:',e); toast('Load failed'); }
-};
+    const db=await vertexOpenOfflineDB();
+    const tx=db.transaction('writes','readwrite');
+    tx.objectStore('writes').add({type,payload,ts:Date.now()});
+  }catch(e){console.warn('vertexQueueWrite:',e);}
+}
+window.vertexQueueWrite=vertexQueueWrite;
+
+async function vertexDrainOfflineQueue(){
+  if(!cloudEnabled()) return;
+  let db;
+  try{db=await vertexOpenOfflineDB();}catch(e){return;}
+  const all=await new Promise((res,rej)=>{
+    const tx=db.transaction('writes','readonly');
+    const r=tx.objectStore('writes').getAll();
+    r.onsuccess=()=>res(r.result);
+    r.onerror=()=>rej(r.error);
+  });
+  if(!all||!all.length) return;
+  console.log('Vertex: draining',all.length,'offline writes');
+  for(const item of all){
+    let ok=false;
+    try{
+      if(item.type==='saveWorkout') ok=await saveWorkoutToSupabase(item.payload);
+      else if(item.type==='plannerDay') ok=await persistPlannerDay(item.payload.day,item.payload.workout);
+      else if(item.type==='logWorkout'){const r=await getSupa().from('vertex_workout_logs').insert(item.payload);ok=!r.error;}
+      else if(item.type==='deletePlannerDay'){const r=await getSupa().from('vertex_planner_days').delete().eq('user_id',authUser.id).eq('day',item.payload.day);ok=!r.error;}
+    }catch(e){ok=false;}
+    if(ok){const dt=db.transaction('writes','readwrite');dt.objectStore('writes').delete(item.id);}
+  }
+  try{await loadSavedWorkoutsFromCloud();}catch(e){}
+  try{await hydratePlannerFromCloud();savePlanner();renderPlanner();renderToday();}catch(e){}
+  setSyncStatus('synced','Supabase synced');
+  toast('Offline changes synced');
+}
+window.vertexDrainOfflineQueue=vertexDrainOfflineQueue;
+
+function vertexSetOfflineBanner(offline){
+  const b=document.getElementById('vertex-offline-banner');
+  if(b) b.classList.toggle('on',offline);
+}
+
+window.addEventListener('online',()=>{
+  vertexSetOfflineBanner(false);
+  if(authUser) vertexDrainOfflineQueue();
+});
+window.addEventListener('offline',()=>{
+  vertexSetOfflineBanner(true);
+  setSyncStatus('local','Offline');
+});
+if(!navigator.onLine) vertexSetOfflineBanner(true);
 
 })();
 </script>
@@ -9054,7 +9105,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bh';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bi';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10778,11 +10829,11 @@ window.testAppleHealth = async function () {
       const warmup=env==='home'?'Dynamic mobility, bodyweight squat x10, light dumbbell ramp-up':'Hip circles, leg swings, goblet squat x10';
       window._aiWorkoutReady={names:focusExercises.slice(0,5),name:focus+' · '+intensity};
       const exRows=focusExercises.slice(0,5).map((name,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:12px">${i+1}. ${esc(name)}</span><span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${sets} x ${reps} · ${rpe}</span></div>`).join('');
-      return `<div class="coach-card" style="margin:0"><div class="label">Today's Workout — ${focus} · ${intensity}</div><div style="margin:8px 0"><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Warm-Up — 5 min</div><div style="font-size:12px;color:var(--muted);margin-bottom:12px">${esc(warmup)}</div><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Main Work · Rest ${rest}</div>${exRows}<div style="margin-top:10px;font-size:11px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div></div><button class="btn acc" style="margin-top:12px;width:100%" data-ai-load="1">⚡ Load into Workout Builder</button><div class="coach-list" style="margin-top:8px">${localCoachBox('Readiness','Score '+r.score+' — '+esc(r.action))}</div></div>`;
+      return `<div class="coach-card" style="margin:0"><div class="label">Today's Workout — ${focus} · ${intensity}</div><div style="margin:8px 0"><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Warm-Up — 5 min</div><div style="font-size:12px;color:var(--muted);margin-bottom:12px">${esc(warmup)}</div><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Main Work · Rest ${rest}</div>${exRows}<div style="margin-top:10px;font-size:11px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div></div><button class="btn acc" style="margin-top:12px;width:100%" onclick="vertexLoadAiWorkout()">⚡ Load into Workout Builder</button><div class="coach-list" style="margin-top:8px">${localCoachBox('Readiness','Score '+r.score+' — '+esc(r.action))}</div></div>`;
     }
 
     if(action==='workout'){
-      html=`<div class="coach-card" style="margin:0"><div class="label">Choose Workout Location</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn acc" type="button" data-ai-env="home">🏠 Home</button><button class="btn" type="button" data-ai-env="gym">🏋️ Gym</button></div></div>`;
+      html=`<div class="coach-card" style="margin:0"><div class="label">Choose Workout Location</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn acc" type="button" onclick="vertexAiAction('_generate_home')">🏠 Home</button><button class="btn" type="button" onclick="vertexAiAction('_generate_gym')">🏋️ Gym</button></div></div>`;
     } else if(action==='_generate_home'){
       html=generatedWorkoutHtml('home');
     } else if(action==='_generate_gym'){
@@ -10801,7 +10852,47 @@ window.testAppleHealth = async function () {
     out.scrollIntoView({behavior:'smooth',block:'nearest'});
   };
 
+  window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
+    try{
+      if(!exerciseNames && window._aiWorkoutReady){
+        exerciseNames=window._aiWorkoutReady.names;
+        workoutName=window._aiWorkoutReady.name;
+      }
+      const exercises=[];
+      (exerciseNames||[]).forEach(name=>{
+        try{
+          const found=EXERCISES.find(x=>x.name===name);
+          const base=found?clone(found):{name,muscle:'',kind:'push',equip:'Dumbbells'};
+          exercises.push(normalizeStrengthExercise(base));
+        }catch(err){}
+      });
 
+      if(!exercises.length){
+        toast('No exercises found to load');
+        return;
+      }
+
+      const w={
+        name:'AI: '+(workoutName||'Generated Workout'),
+        type:'strength',
+        source:'ai',
+        exercises,
+        assignedDay:null
+      };
+
+      state.page='workout';
+      setCurrent(w);
+      state.page='workout';
+      renderAll();
+      document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
+      document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
+      window.scrollTo({top:0,behavior:'smooth'});
+      toast(exercises.length+' exercises loaded into builder');
+    }catch(e){
+      console.error('vertexLoadAiWorkout error:',e);
+      toast('AI workout load failed');
+    }
+  };
     const r=buildReadinessScore();
     let snap={};
     try{ snap = typeof getIntelligenceSnapshot==='function' ? getIntelligenceSnapshot() : {}; }catch(e){}

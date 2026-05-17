@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -11018,7 +11019,7 @@ window.testAppleHealth = async function () {
 
 
 
-  /* v13.61.14 AI Coach Load Fix — single authoritative loader.
+  /* v13.61.15 AI Coach Load Fix — single authoritative loader.
      Root fix: the generated workout button was relying on the transient
      _lastVertexAiWorkoutPayload. In some refresh/PWA states the visible
      workout card remained but that in-memory payload was empty, so the click
@@ -11096,17 +11097,25 @@ window.testAppleHealth = async function () {
         assignedDay:null,
         exercises:exercises
       };
+      // Load exactly like a template/program load: make Workout the active page first,
+      // then set the current workout and re-render the builder under the Workout tab.
       if(typeof state!=='undefined') state.page='workout';
       if(typeof setCurrent==='function') setCurrent(w);
       else if(typeof state!=='undefined') state.current=w;
       if(typeof state!=='undefined') state.page='workout';
       if(typeof renderAll==='function') renderAll();
       if(typeof setPage==='function') setPage('workout');
-      document.querySelectorAll('.sidebar,.right,.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(function(el){el.style.display='';});
+      if(typeof renderBuilder==='function') renderBuilder();
+      if(typeof renderRight==='function') renderRight();
+      document.querySelectorAll('[data-nav]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-nav')==='workout');});
+      ['progressPage','wellnessPage','aiPage','home-dashboard','homePage','today','plannerAcc'].forEach(function(id){const el=document.getElementById(id); if(el) el.style.display='none';});
+      const app=document.getElementById('app'); if(app) app.classList.remove('page-mode');
+      document.body.classList.remove('app-page-nonworkout','app-page-home');
+      document.querySelectorAll('.sidebar,.right,.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder,#templatesAcc').forEach(function(el){el.style.display='';});
       const btn=document.getElementById('btn-load-ai-workout');
       if(btn) btn.blur();
       toast(exercises.length+' exercises loaded into Workout Builder');
-      setTimeout(function(){try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}},50);
+      setTimeout(function(){try{document.getElementById('builder')?.scrollIntoView({top:0,behavior:'smooth',block:'start'});}catch(e){try{window.scrollTo({top:0,behavior:'smooth'});}catch(_){}}},50);
       return true;
     }catch(e){
       console.error('AI Coach load failed:',e);
@@ -11125,6 +11134,7 @@ window.testAppleHealth = async function () {
     if(!btn) return;
     e.preventDefault();
     e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
     window.vertexLoadGeneratedAiWorkout();
   },true);
 

@@ -9025,7 +9025,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-af';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-aw';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -11042,97 +11042,36 @@ window.testAppleHealth = async function () {
 }
 </style>
 
+
+
+<style>
+/* v13.61.17 — AI picker/buttons styled inside app, no browser confirm */
+.vertex-ai-picker{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin:10px 0 8px;
+  padding:10px;
+  border:1px solid rgba(232,255,71,.25);
+  background:rgba(232,255,71,.035);
+  border-radius:8px;
+}
+.vertex-ai-picker .label{margin-right:4px}
+.vertex-ai-picker .btn{min-width:110px}
+</style>
+
 <script>
-/* v13.61.15 — Local AI workout generator + builder loader, Anthropic-independent */
+/* v13.61.17 — AI Coach Home/Gym picker + guaranteed builder load */
 (function(){
-  function getState(){ return window.state || {}; }
-  function esc(v){ 
+  function esc(v){
     return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
-  function norm(v){
-    return String(v || '').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
-  }
-  function lib(){
-    return Array.isArray(window.EXERCISES) ? window.EXERCISES :
-      Array.isArray(window.exercises) ? window.exercises :
-      Array.isArray(window.exerciseLibrary) ? window.exerciseLibrary : [];
-  }
-  function currentCategory(){
-    const st = getState();
-    const c = String(st.category || st.env || st.equipmentMode || '').toLowerCase();
-    if(c.includes('home')) return 'home';
-    if(c.includes('gym')) return 'gym';
-    const homeOn = document.querySelector('.seg-btn.on,.chip.on,.equip-toggle.on');
-    const txt = homeOn ? (homeOn.textContent || '').toLowerCase() : '';
-    if(txt.includes('home')) return 'home';
-    if(txt.includes('gym')) return 'gym';
-    return localStorage.getItem('vertex_ai_workout_location') || '';
-  }
-  function isHomeExercise(ex){
-    const s = norm([ex.name, ex.equipment, ex.equip, ex.env, ex.location, ex.category].join(' '));
-    if(/barbell|leg press|machine|cable|smith|hack squat|lat pulldown|pec deck|sled/.test(s)) return false;
-    if(/bodyweight|dumbbell|kettlebell|band|home|mat|yoga|floor|none/.test(s)) return true;
-    return false;
-  }
-  function isGymExercise(ex){
-    const s = norm([ex.name, ex.equipment, ex.equip, ex.env, ex.location, ex.category].join(' '));
-    return !/stretch|mobility|breathing/.test(s);
-  }
-  function muscleText(ex){ return norm([ex.muscle, ex.group, ex.primary, ex.name].join(' ')); }
-  function pickFromLibrary(location){
-    const all = lib().filter(Boolean);
-    let pool = all.filter(ex => location === 'home' ? isHomeExercise(ex) : isGymExercise(ex));
-    if(!pool.length) pool = all;
-
-    const st = getState();
-    const training = norm(st.trainingType || st.type || 'strength');
-    const lowerBias = /leg|lower|squat|deadlift|lunge|hamstring|quad|glute|calf/.test(norm(document.body.innerText || ''));
-    const targets = lowerBias ? ['quad','hamstring','glute','leg','calf'] : ['chest','back','shoulder','tricep','bicep','leg'];
-
-    const chosen = [];
-    targets.forEach(t => {
-      const found = pool.find(ex => !chosen.includes(ex) && muscleText(ex).includes(t));
-      if(found) chosen.push(found);
-    });
-    pool.forEach(ex => { if(chosen.length < 5 && !chosen.includes(ex)) chosen.push(ex); });
-    return chosen.slice(0,5);
-  }
-  function makeWorkout(location){
-    const chosen = pickFromLibrary(location);
-    const fallbackHome = ['Goblet Squat','Dumbbell Romanian Deadlift','Push-Up','One-Arm Dumbbell Row','Walking Lunges'];
-    const fallbackGym = ['Barbell Back Squat','Romanian Deadlift','Leg Press','Walking Lunges','Leg Curl'];
-    const names = chosen.length ? chosen.map(ex => ex.name || 'Exercise') : (location === 'home' ? fallbackHome : fallbackGym);
-
-    return {
-      name: (location === 'home' ? 'AI Home Workout' : 'AI Gym Workout'),
-      type: 'strength',
-      source: 'ai_coach_local',
-      location: location,
-      exercises: names.slice(0,5).map(function(name){
-        const ex = typeof name === 'string' ? findExercise(name) : name;
-        const display = typeof name === 'string' ? name : (name.name || 'Exercise');
-        return {
-          name: ex && ex.name ? ex.name : display,
-          muscle: ex && (ex.muscle || ex.group || ex.primary) ? (ex.muscle || ex.group || ex.primary) : '',
-          equipment: ex && (ex.equipment || ex.equip) ? (ex.equipment || ex.equip) : '',
-          sets: [{reps:'8-12',weight:''},{reps:'8-12',weight:''},{reps:'8-12',weight:''}],
-          target: '8-12',
-          notes: 'AI Coach'
-        };
-      })
-    };
-  }
-  function findExercise(name){
-    const target = norm(name);
-    return lib().find(ex => norm(ex.name) === target)
-      || lib().find(ex => norm(ex.name).includes(target))
-      || lib().find(ex => target.includes(norm(ex.name)));
-  }
-  function outputEl(){
-    let out = document.getElementById('aiActionOutput');
-    const actions = document.getElementById('aiCoachActions');
+  function getOut(){
+    var out = document.getElementById('aiActionOutput');
+    var actions = document.getElementById('aiCoachActions');
     if(!out && actions){
       out = document.createElement('div');
       out.id = 'aiActionOutput';
@@ -11141,145 +11080,118 @@ window.testAppleHealth = async function () {
     }
     return out;
   }
-  function renderAiCard(workout, readinessScore){
-    const out = outputEl();
+  function setPageWorkout(){
+    if(window.state) window.state.page = 'workout';
+    try{
+      if(typeof setPage === 'function') setPage('workout');
+    }catch(e){}
+  }
+  function aiWorkout(env){
+    var home = env === 'home';
+    var names = home
+      ? ['Goblet Squat','Dumbbell Romanian Deadlift','Push-Up','One-Arm Dumbbell Row','Walking Lunges']
+      : ['Barbell Back Squat','Romanian Deadlift','Leg Press','Walking Lunges','Leg Curl'];
+    return {
+      name: home ? 'AI Home Workout' : 'AI Gym Workout',
+      type: 'strength',
+      source: 'ai_coach',
+      location: env,
+      exercises: names.map(function(n){
+        return {
+          name:n,
+          muscle:'',
+          equipment: home ? 'Home' : 'Gym',
+          sets:[{reps:'8-12',weight:''},{reps:'8-12',weight:''},{reps:'8-12',weight:''}],
+          target:'8-12',
+          notes:'AI Coach'
+        };
+      })
+    };
+  }
+  function renderWorkoutCard(w){
+    var out = getOut();
     if(!out) return;
-    window.vertexLastAiWorkout = workout;
-    try{ localStorage.setItem('vertex_last_ai_workout', JSON.stringify(workout)); }catch(e){}
-    const locLabel = workout.location === 'home' ? 'HOME' : 'GYM';
+    window._aiWorkoutReady = w;
+    try{ localStorage.setItem('vertex_ai_workout_ready', JSON.stringify(w)); }catch(e){}
     out.style.display = 'block';
-    out.innerHTML = '<div class="coach-card" style="margin-top:12px">' +
-      '<div class="label">TODAY’S WORKOUT — ' + locLabel + ' · MODERATE</div>' +
-      '<div style="margin-top:10px;color:var(--muted)">Warm-up — 5 min<br>Easy movement, mobility, and ramp-up sets.</div>' +
-      '<div class="label" style="margin-top:14px">MAIN WORK · REST 90 SEC</div>' +
-      workout.exercises.map(function(ex,i){
-        return '<div style="display:grid;grid-template-columns:1fr auto;gap:12px;border-bottom:1px solid var(--line);padding:9px 0">' +
-          '<b>'+(i+1)+'. '+esc(ex.name)+'</b><span class="mono" style="color:var(--muted);font-size:11px">3 × 8-12 · RPE 7-8</span></div>';
-      }).join('') +
-      '<div style="margin-top:12px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div>' +
-      '<button class="btn acc" type="button" onclick="vertexLoadAiWorkout()" style="width:100%;margin-top:16px">⚡ Load into Workout Builder</button>' +
-      '<div class="coach-item" style="margin-top:8px"><b>Readiness</b><span>Score '+esc(readinessScore || 72)+' — Train, but avoid unnecessary max-effort work.</span></div>' +
+    out.innerHTML =
+      '<div class="coach-card" style="margin-top:12px">' +
+        '<div class="label">TODAY\\'S WORKOUT — '+esc((w.location||'home').toUpperCase())+' · MODERATE</div>' +
+        '<div style="margin-top:10px;color:var(--muted)">Warm-up — 5 min<br>Easy movement, mobility, and ramp-up sets.</div>' +
+        '<div class="label" style="margin-top:14px">MAIN WORK · REST 90 SEC</div>' +
+        w.exercises.map(function(ex,i){
+          return '<div style="display:grid;grid-template-columns:1fr auto;gap:12px;border-bottom:1px solid var(--line);padding:9px 0">' +
+            '<b>'+(i+1)+'. '+esc(ex.name)+'</b><span class="mono" style="color:var(--muted);font-size:11px">3 × 8-12 · RPE 7-8</span></div>';
+        }).join('') +
+        '<div style="margin-top:12px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div>' +
+        '<button class="btn acc" type="button" onclick="window.vertexLoadAiWorkout()" style="width:100%;margin-top:16px">⚡ Load into Workout Builder</button>' +
+        '<div class="coach-item" style="margin-top:8px"><b>Readiness</b><span>Score 72 — Train, but avoid unnecessary max-effort work.</span></div>' +
       '</div>';
   }
-  function askLocationAndGenerate(){
-    const existing = currentCategory();
-    let location = existing;
-    if(location !== 'home' && location !== 'gym'){
-      const useHome = window.confirm("Generate for HOME equipment?\\n\\nOK = Home\\nCancel = Gym");
-      location = useHome ? 'home' : 'gym';
-    } else {
-      const keep = window.confirm("Generate today's workout for " + location.toUpperCase() + "?\\n\\nOK = Yes\\nCancel = Choose the other option");
-      if(!keep) location = location === 'home' ? 'gym' : 'home';
-    }
-    localStorage.setItem('vertex_ai_workout_location', location);
-    let score = 72;
-    try{ if(window.VertexReadiness && typeof window.VertexReadiness.cached === 'function') score = window.VertexReadiness.cached().score || score; }catch(e){}
-    const workout = makeWorkout(location);
-    renderAiCard(workout, score);
-    if(typeof toast === 'function') toast('AI '+location+' workout generated');
-    return workout;
-  }
+  window.vertexShowAiEnvPicker = function(){
+    var out = getOut();
+    if(!out) return;
+    out.style.display = 'block';
+    out.innerHTML =
+      '<div class="vertex-ai-picker">' +
+        '<span class="label">Choose workout location</span>' +
+        '<button class="btn acc" type="button" onclick="window.vertexPickEnv(&quot;home&quot;)">🏠 Home</button>' +
+        '<button class="btn" type="button" onclick="window.vertexPickEnv(&quot;gym&quot;)">🏋️ Gym</button>' +
+      '</div>';
+  };
+  window.vertexPickEnv = function(env){
+    var w = aiWorkout(env === 'gym' ? 'gym' : 'home');
+    renderWorkoutCard(w);
+    if(typeof toast === 'function') toast((env === 'gym' ? 'Gym' : 'Home') + ' workout generated');
+  };
   window.vertexLoadAiWorkout = function(){
-    let workout = window.vertexLastAiWorkout;
-    if(!workout){
-      try{ workout = JSON.parse(localStorage.getItem('vertex_last_ai_workout') || 'null'); }catch(e){}
+    var w = window._aiWorkoutReady;
+    if(!w){
+      try{ w = JSON.parse(localStorage.getItem('vertex_ai_workout_ready') || 'null'); }catch(e){}
     }
-    if(!workout || !Array.isArray(workout.exercises) || !workout.exercises.length){
-      workout = makeWorkout(currentCategory() || 'home');
+    if(!w || !Array.isArray(w.exercises) || !w.exercises.length){
+      if(typeof toast === 'function') toast('Generate a workout first');
+      return false;
     }
-    if(typeof setCurrent === 'function') setCurrent(workout);
-    else if(window.state) window.state.current = workout;
-    if(window.state) window.state.page = 'workout';
-    if(typeof markUnsaved === 'function') markUnsaved();
-    if(typeof renderAll === 'function') renderAll();
-    window.scrollTo({top:0, behavior:'smooth'});
+
+    setPageWorkout();
+
+    if(typeof setCurrent === 'function'){
+      setCurrent(w);
+      if(window.state) window.state.page = 'workout';
+    } else if(window.state){
+      window.state.current = w;
+    }
+
+    setPageWorkout();
+
+    try{ if(typeof markUnsaved === 'function') markUnsaved(); }catch(e){}
+    try{ if(typeof renderAll === 'function') renderAll(); }catch(e){}
+    setTimeout(function(){
+      setPageWorkout();
+      try{ if(typeof renderBuilder === 'function') renderBuilder(); }catch(e){}
+      window.scrollTo({top:0,behavior:'smooth'});
+    }, 50);
+
     if(typeof toast === 'function') toast('AI workout loaded');
     return true;
   };
-  window.vertexGenerateLocalAiWorkout = askLocationAndGenerate;
 
   document.addEventListener('click', function(e){
-    const btn = e.target.closest('button');
+    var btn = e.target.closest && e.target.closest('button');
     if(!btn) return;
-    const text = btn.textContent || '';
-    if(text.includes("Generate Today's Workout")){
+    var text = btn.textContent || '';
+    if(text.indexOf("Generate Today's Workout") !== -1){
       e.preventDefault();
       e.stopImmediatePropagation();
-      askLocationAndGenerate();
+      window.vertexShowAiEnvPicker();
+      return;
     }
-    if(text.includes('Load into Workout Builder')){
+    if(text.indexOf('Load into Workout Builder') !== -1){
       e.preventDefault();
       e.stopImmediatePropagation();
       window.vertexLoadAiWorkout();
-    }
-  }, true);
-})();
-</script>
-
-
-<script>
-/* v13.61.16 — Home Today/Tomorrow Load-Edit hard fix */
-(function(){
-  function todayKeySafe(){
-    if(typeof todayKey === 'function') return todayKey();
-    const keys = ['sun','mon','tue','wed','thu','fri','sat'];
-    return keys[new Date().getDay()];
-  }
-  function tomorrowKeySafe(){
-    const keys = ['sun','mon','tue','wed','thu','fri','sat'];
-    return keys[(new Date().getDay()+1)%7];
-  }
-  function validWorkout(w){
-    return !!(w && (
-      (Array.isArray(w.exercises) && w.exercises.length) ||
-      (Array.isArray(w.moves) && w.moves.length) ||
-      (Array.isArray(w.blocks) && w.blocks.length)
-    ));
-  }
-  function cloneSafe(w){
-    try{ return JSON.parse(JSON.stringify(w || {})); }catch(e){ return Object.assign({}, w || {}); }
-  }
-  function normalizeWorkout(w, day){
-    const out = cloneSafe(w);
-    out.assignedDay = day;
-    if(!out.type) out.type = 'strength';
-    if(out.type === 'strength' && !Array.isArray(out.exercises)) out.exercises = [];
-    if((out.type === 'flow' || out.type === 'interval') && !Array.isArray(out.moves)) out.moves = [];
-    return out;
-  }
-  function loadPlannerDayIntoBuilder(day){
-    if(!window.state) return false;
-    const planner = window.state.planner || {};
-    const w = planner[day];
-    if(!validWorkout(w)){
-      if(typeof toast === 'function') toast('No workout planned for this day');
-      return false;
-    }
-    const normalized = normalizeWorkout(w, day);
-    if(typeof setCurrent === 'function') setCurrent(normalized);
-    else window.state.current = normalized;
-    window.state.page = 'workout';
-    if(typeof renderAll === 'function') renderAll();
-    window.scrollTo({top:0, behavior:'smooth'});
-    if(typeof toast === 'function') toast('Workout loaded');
-    return true;
-  }
-  window.vertexLoadTodayIntoBuilder = function(){ return loadPlannerDayIntoBuilder(todayKeySafe()); };
-  window.vertexLoadTomorrowIntoBuilder = function(){ return loadPlannerDayIntoBuilder(tomorrowKeySafe()); };
-
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest('button');
-    if(!btn) return;
-    const label = (btn.textContent || '').trim().toLowerCase();
-    if(label === 'load / edit' || label === 'start today'){
-      const card = btn.closest('.today-card, .day-card, .panel, [class*="today"], [class*="tomorrow"]');
-      const cardText = (card ? card.textContent : '').toLowerCase();
-      let day = todayKeySafe();
-      if(cardText.includes('tomorrow')) day = tomorrowKeySafe();
-
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      loadPlannerDayIntoBuilder(day);
+      return;
     }
   }, true);
 })();

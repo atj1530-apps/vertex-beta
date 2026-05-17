@@ -9025,7 +9025,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-ae';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-af';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10790,17 +10790,16 @@ window.testAppleHealth = async function () {
           exercises.push(normalizeStrengthExercise(base));
         }catch(err){}
       });
-      const w={name:'AI: '+(workoutName||'Generated Workout'),type:'strength',source:'ai',exercises,assignedDay:null};
-      setCurrent(w);
-      toast(exercises.length+' exercises loaded — switching to Workout Builder…');
-      // Defer navigation so current render cycle completes first
+      window._pendingAiWorkout={name:'AI: '+(workoutName||'Generated Workout'),type:'strength',source:'ai',exercises,assignedDay:null};
+      toast(exercises.length+' exercises — switching to builder…');
       setTimeout(()=>{
-        state.page='workout';
-        renderAll();
+        if(!window._pendingAiWorkout) return;
+        const w=window._pendingAiWorkout; window._pendingAiWorkout=null;
+        setCurrent(w); state.page='workout'; renderAll();
         document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
         document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
         window.scrollTo({top:0,behavior:'smooth'});
-      },50);
+      },100);
     }catch(e){console.error('vertexLoadAiWorkout error:',e);}
   };
     const r=buildReadinessScore();

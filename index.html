@@ -22,7 +22,12 @@
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;overflow:auto}
 button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
 .btn{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:5px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.btn:hover{border-color:var(--acc);color:var(--acc)}.btn.acc{background:var(--acc);border-color:var(--acc);color:#000}.btn.red{color:var(--red);border-color:rgba(255,77,77,.4);background:transparent}.btn.small{padding:6px 9px;font-size:11px}.btn:disabled{opacity:.45;cursor:not-allowed}
-#app-header{position:fixed;top:0;left:0;right:0;height:58px;background:#070707;border-bottom:1px solid var(--line);display:grid;grid-template-columns:260px 1fr 560px;align-items:center;padding:0 16px;z-index:50}.logo{display:flex;align-items:center;gap:10px}.logo-main{font-family:'Bebas Neue';font-size:26px;letter-spacing:5px;color:var(--acc)}.logo-sub{font-family:'DM Mono';font-size:10px;letter-spacing:3px;color:var(--dim)}.nav{justify-self:center;display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}.nav button{background:var(--panel2);color:var(--muted);border:0;border-right:1px solid var(--line);padding:8px 12px;font-size:12px;cursor:pointer}.nav button:last-child{border-right:0}.nav button.on{background:var(--acc);color:#000;font-weight:700}.hdr-actions{justify-self:end;display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;overflow:visible}.hdr-actions .btn{flex-shrink:0}body.app-page-nonworkout #btn-save,body.app-page-nonworkout #btn-log{display:none!important}#btn-log.btn.acc{background:var(--panel2);color:var(--acc);border:1px solid rgba(232,255,71,.45)}#btn-log.btn.acc.armed{background:var(--acc);color:#000;border-color:var(--acc)}.sync-pill{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap}.sync-dot{width:8px;height:8px;border-radius:99px;background:var(--dim);box-shadow:0 0 0 2px rgba(255,255,255,.03)}.sync-pill.synced{color:var(--green);border-color:rgba(72,255,138,.28)}.sync-pill.synced .sync-dot{background:var(--green)}.sync-pill.unsaved{color:var(--orange);border-color:rgba(255,176,71,.35)}.sync-pill.unsaved .sync-dot{background:var(--orange)}.sync-pill.failed{color:var(--red);border-color:rgba(255,77,77,.35)}.sync-pill.failed .sync-dot{background:var(--red)}.sync-pill.syncing{color:var(--acc);border-color:rgba(232,255,71,.35)}.sync-pill.syncing .sync-dot{background:var(--acc)}.account-menu{position:fixed;top:64px;right:16px;z-index:120;background:var(--panel);border:1px solid var(--line2);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.55);padding:12px;min-width:210px;display:none}.account-menu.on{display:block}.account-menu .acct-title{font-weight:800;margin-bottom:4px}.account-menu .acct-sub{font-size:12px;color:var(--muted);line-height:1.4}.account-menu .acct-row{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;font-family:'DM Mono';font-size:10px;color:var(--green);letter-spacing:1px}.account-menu input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:5px;margin-top:8px;font-size:12px}.account-menu .acct-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.account-menu .acct-error{font-family:'DM Mono';font-size:10px;color:var(--red);min-height:14px;margin-top:8px;line-height:1.35}.account-menu .acct-email{font-family:'DM Mono';font-size:11px;color:var(--acc);letter-spacing:.5px;word-break:break-all;margin-top:6px}.account-menu .acct-muted{font-size:11px;color:var(--dim);line-height:1.45;margin-top:8px}
+#app-header{position:fixed;top:0;left:0;right:0;height:58px;background:#070707;border-bottom:1px solid var(--line);display:grid;grid-template-columns:260px 1fr 560px;align-items:center;padding:0 16px;z-index:50}.logo{display:flex;align-items:center;gap:10px}.logo-main{font-family:'Bebas Neue';font-size:26px;letter-spacing:5px;color:var(--acc)}.logo-sub{font-family:'DM Mono';font-size:10px;letter-spacing:3px;color:var(--dim)}.nav{justify-self:center;display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}.nav button{background:var(--panel2);color:var(--muted);border:0;border-right:1px solid var(--line);padding:8px 12px;font-size:12px;cursor:pointer}.nav button:last-child{border-right:0}.nav button.on{background:var(--acc);color:#000;font-weight:700}.hdr-actions{justify-self:end;display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;overflow:visible}.hdr-actions .btn{flex-shrink:0}body.app-page-nonworkout #btn-save,body.app-page-nonworkout #btn-log,body.app-page-nonworkout #btn-share{display:none!important}#btn-log.btn.acc{background:var(--panel2);color:var(--acc);border:1px solid rgba(232,255,71,.45)}#btn-log.btn.acc.armed{background:var(--acc);color:#000;border-color:var(--acc)}.sync-pill{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap}.sync-dot{width:8px;height:8px;border-radius:99px;background:var(--dim);box-shadow:0 0 0 2px rgba(255,255,255,.03)}.sync-pill.synced{color:var(--green);border-color:rgba(72,255,138,.28)}.sync-pill.synced .sync-dot{background:var(--green)}.sync-pill.unsaved{color:var(--orange);border-color:rgba(255,176,71,.35)}.sync-pill.unsaved .sync-dot{background:var(--orange)}.sync-pill.failed{color:var(--red);border-color:rgba(255,77,77,.35)}.sync-pill.failed .sync-dot{background:var(--red)}.sync-pill.syncing{color:var(--acc);border-color:rgba(232,255,71,.35)}.sync-pill.syncing .sync-dot{background:var(--acc)}.account-menu{position:fixed;top:64px;right:16px;z-index:120;background:var(--panel);border:1px solid var(--line2);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.55);padding:12px;min-width:210px;display:none}.account-menu.on{display:block}.account-menu .acct-title{font-weight:800;margin-bottom:4px}.account-menu .acct-sub{font-size:12px;color:var(--muted);line-height:1.4}.account-menu .acct-row{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;font-family:'DM Mono';font-size:10px;color:var(--green);letter-spacing:1px}.account-menu input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:5px;margin-top:8px;font-size:12px}.account-menu .acct-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.account-menu .acct-error{font-family:'DM Mono';font-size:10px;color:var(--red);min-height:14px;margin-top:8px;line-height:1.35}.account-menu .acct-email{font-family:'DM Mono';font-size:11px;color:var(--acc);letter-spacing:.5px;word-break:break-all;margin-top:6px}.account-menu .acct-muted{font-size:11px;color:var(--dim);line-height:1.45;margin-top:8px}
+#vertex-notif-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:14px 18px;z-index:300;min-width:280px;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none}
+#vertex-notif-toast.on{display:block}
+#vertex-notif-toast .vnt-title{font-weight:800;margin-bottom:4px}
+#vertex-notif-toast .vnt-body{font-size:13px;color:var(--muted);margin-bottom:12px}
+#vertex-notif-toast .vnt-btns{display:flex;gap:8px}
 #vertex-offline-banner{display:none;position:fixed;top:58px;left:0;right:0;z-index:199;background:#1a0505;border-bottom:1px solid rgba(255,77,77,.4);padding:6px 16px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.8px;color:#ff6b6b;text-align:center;text-transform:uppercase;pointer-events:none}#vertex-offline-banner.on{display:block}
 #app{position:relative;top:58px;left:0;right:0;height:calc(100vh - 58px);display:grid;grid-template-columns:290px minmax(520px,1fr) 310px;overflow:hidden}#app.page-mode{grid-template-columns:1fr}.sidebar,.main,.right{min-height:0;overflow:auto}.sidebar{border-right:1px solid var(--line);padding:16px;background:#0b0b0b}.main{padding:18px 24px 24px}.right{border-left:1px solid var(--line);padding:16px;background:#0b0b0b}.sidebar::-webkit-scrollbar,.main::-webkit-scrollbar,.right::-webkit-scrollbar{width:5px}.sidebar::-webkit-scrollbar-thumb,.main::-webkit-scrollbar-thumb,.right::-webkit-scrollbar-thumb{background:var(--line2)}
 .panel{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:14px;margin-bottom:14px}.panel.hl{border-color:rgba(232,255,71,.55);background:linear-gradient(90deg,rgba(232,255,71,.07),rgba(232,255,71,.015))}.panel.green{border-color:rgba(72,255,138,.35);background:rgba(72,255,138,.035)}
@@ -2398,9 +2403,17 @@ button.acc-hint {
 <header id="app-header">
   <div class="logo"><span class="logo-main">ATJ</span><span class="logo-sub">/ WORKOUT BUILDER</span></div>
   <nav class="nav"><button data-nav="home">Home</button><button data-nav="workout" class="on">Workout</button><button data-nav="progress">Progress</button><button data-nav="wellness">Wellness</button><button data-nav="ai">✦ AI Plan</button></nav>
-  <div class="hdr-actions"><div id="syncStatus" class="sync-pill local" id="syncStatus" style="cursor:pointer" onclick="if(this.classList.contains('failed')){window.vertexRetrySync&&window.vertexRetrySync()}" title="Click to retry sync"><span class="sync-dot"></span><span id="syncStatusText">Local mode</span></div><button id="btn-save" class="btn small hdr-workout-btn">Save</button><button id="btn-log" class="btn acc small hdr-workout-btn">Log Workout</button><button class="btn small" id="btn-account" aria-label="Account menu">Account</button></div>
+  <div class="hdr-actions"><div id="syncStatus" class="sync-pill local" id="syncStatus" style="cursor:pointer" onclick="if(this.classList.contains('failed')){window.vertexRetrySync&&window.vertexRetrySync()}" title="Click to retry sync"><span class="sync-dot"></span><span id="syncStatusText">Local mode</span></div><button id="btn-share" class="btn small hdr-workout-btn">↗ Share</button><button id="btn-save" class="btn small hdr-workout-btn">Save</button><button id="btn-log" class="btn acc small hdr-workout-btn">Log Workout</button><button class="btn small" id="btn-account" aria-label="Account menu">Account</button></div>
 </header>
 <div id="account-menu" class="account-menu"></div>
+<div id="vertex-notif-toast">
+  <div class="vnt-title" id="vnt-title">Enable Workout Reminders</div>
+  <div class="vnt-body" id="vnt-body">Get notified when it's time to train and log your check-in.</div>
+  <div class="vnt-btns">
+    <button class="btn acc small" id="btn-notif-allow">Enable</button>
+    <button class="btn small" id="btn-notif-dismiss">Not Now</button>
+  </div>
+</div>
 <div id="vertex-offline-banner">⚠ Offline — changes saved locally and will sync when reconnected</div>
 <div id="app">
   <aside class="sidebar">
@@ -5192,7 +5205,7 @@ function renderProgressPage(){
 }
 
 function syncAuthShell(){document.body.classList.toggle('authenticated',!!authUser)}
-function renderAccountMenu(){syncAuthShell();const menu=document.getElementById('account-menu'); const btn=document.getElementById('btn-account'); if(!menu) return; if(btn) btn.textContent=authUser?'Account':'Sign In'; if(authUser){menu.innerHTML=`<div class="acct-title">Account</div><div class="acct-sub">Signed in with Supabase${authUser.provider==='google'?' / Google':''}</div><div class="acct-email">${escapeHtml(authUser.email)}</div><div class="acct-row">● REAL AUTH ACTIVE · CLOUD SYNC ENABLED</div><div class="acct-muted">Planner days and completed workout logs sync through Supabase when the v13.51 tables are present. Local fallback remains active.</div><button type="button" class="btn small" id="btn-open-settings" style="width:100%;margin-top:8px">⚙ Settings</button><button type="button" class="btn small" id="btn-generate-pdf-report" style="width:100%;margin-top:6px">↓ Export PDF Report</button><button type="button" class="btn small" onclick="window.vertexShowErrorLog&&window.vertexShowErrorLog()" style="width:100%;margin-top:6px;font-size:10px;color:var(--muted)">🔍 Error Log</button><button type="button" class="btn small" id="acct-signout" onclick="window.VertexSignOut && window.VertexSignOut(); return false;" style="width:100%;margin-top:6px">Sign Out</button>`; return;} menu.innerHTML=`<div class="acct-title">Sign in / Create Account</div><div class="acct-sub">Real Supabase auth. Use Google or email/password.</div><button type="button" class="btn acc small" id="acct-google" onclick="signInGoogle(this).then(err=>{const eb=document.getElementById('landing-error');if(eb)eb.textContent=err||'';})" style="width:100%;margin-top:10px">Continue with Google</button><div class="acct-muted" style="text-align:center;margin:10px 0 2px">or use email</div><input id="acct-email" type="email" name="vertex-menu-email" autocomplete="off" autocapitalize="none" spellcheck="false" value="" placeholder="Email"><input id="acct-pass" type="password" name="vertex-menu-pass" autocomplete="new-password" value="" placeholder="Password"><div class="acct-actions"><button class="btn acc small" id="acct-signin">Sign In</button><button class="btn small" id="acct-create">Create</button></div><div id="acct-error" class="acct-error"></div><div class="acct-muted">OAuth redirects back to this Vertex URL after Google confirms the account.</div>`;}
+function renderAccountMenu(){syncAuthShell();const menu=document.getElementById('account-menu'); const btn=document.getElementById('btn-account'); if(!menu) return; if(btn) btn.textContent=authUser?'Account':'Sign In'; if(authUser){menu.innerHTML=`<div class="acct-title">Account</div><div class="acct-sub">Signed in with Supabase${authUser.provider==='google'?' / Google':''}</div><div class="acct-email">${escapeHtml(authUser.email)}</div><div class="acct-row">● REAL AUTH ACTIVE · CLOUD SYNC ENABLED</div><div class="acct-muted">Planner days and completed workout logs sync through Supabase when the v13.51 tables are present. Local fallback remains active.</div><button type="button" class="btn small" id="btn-open-settings" style="width:100%;margin-top:8px">⚙ Settings</button><button type="button" class="btn small" id="btn-notif-setup" style="width:100%;margin-top:6px">🔔 Notifications</button><button type="button" class="btn small" id="btn-generate-pdf-report" style="width:100%;margin-top:6px">↓ Export PDF Report</button><button type="button" class="btn small" onclick="window.vertexShowErrorLog&&window.vertexShowErrorLog()" style="width:100%;margin-top:6px;font-size:10px;color:var(--muted)">🔍 Error Log</button><button type="button" class="btn small" id="acct-signout" onclick="window.VertexSignOut && window.VertexSignOut(); return false;" style="width:100%;margin-top:6px">Sign Out</button>`; return;} menu.innerHTML=`<div class="acct-title">Sign in / Create Account</div><div class="acct-sub">Real Supabase auth. Use Google or email/password.</div><button type="button" class="btn acc small" id="acct-google" onclick="signInGoogle(this).then(err=>{const eb=document.getElementById('landing-error');if(eb)eb.textContent=err||'';})" style="width:100%;margin-top:10px">Continue with Google</button><div class="acct-muted" style="text-align:center;margin:10px 0 2px">or use email</div><input id="acct-email" type="email" name="vertex-menu-email" autocomplete="off" autocapitalize="none" spellcheck="false" value="" placeholder="Email"><input id="acct-pass" type="password" name="vertex-menu-pass" autocomplete="new-password" value="" placeholder="Password"><div class="acct-actions"><button class="btn acc small" id="acct-signin">Sign In</button><button class="btn small" id="acct-create">Create</button></div><div id="acct-error" class="acct-error"></div><div class="acct-muted">OAuth redirects back to this Vertex URL after Google confirms the account.</div>`;}
 function programWorkout(name, exercises){return {name,type:'strength',source:'program',assignedDay:null,exercises:exercises.map(n=>normalizeStrengthExercise(byName(n))).filter(Boolean)}}
 function getProgramPlans(){return {
   '3-Day':{monday:programWorkout('3-Day Full Body A',['Bench Press (Normal)','One-Arm Row','Goblet Squat','RDL','Overhead Press']),wednesday:programWorkout('3-Day Full Body B',['Incline Bench Press','Lat Pulldown','Bulgarian Split Squat','Arnold Press','Hammer Curl']),friday:programWorkout('3-Day Full Body C',['Hex Press','Seated Cable Row','Leg Press','Lateral Raise','Tricep Pushdown'])},
@@ -8655,7 +8668,10 @@ window.vertexClearCacheAndReload=vertexClearCacheAndReload;
 
 document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex-item,.acc-head'); if(!t) return; if(t.id==='btn-account'){renderAccountMenu(); document.getElementById('account-menu')?.classList.toggle('on'); return} if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(confirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} if(t.matches('.acc-head')){const acc=t.parentElement; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const add=t.getAttribute('data-add'); if(add){addExerciseByName(add); return} const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){loadTemplate(tpl,true); return} const sd=t.getAttribute('data-save-day'); if(sd){await saveDay(sd); return} const ail=t.getAttribute('data-ai-load'); if(ail){if(typeof window.vertexLoadAiWorkout==='function') window.vertexLoadAiWorkout(); return}
  const aie=t.getAttribute('data-ai-env'); if(aie){localStorage.setItem('vertex_ai_location',aie); const ao=document.getElementById('aiActionOutput'); if(ao) ao.innerHTML=''; if(window.vertexAiAction) window.vertexAiAction('_generate_'+aie); return}
- const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return} if(t.id==='btn-apple-health-sync'){
+ const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-share'){ vertexShareWorkout(); return}
+ if(t.id==='btn-notif-setup'){ document.getElementById('account-menu')?.classList.remove('on'); vertexShowNotifPrompt(); return}
+ if(t.id==='btn-notif-allow'){ vertexRequestNotifPermission(); return}
+ if(t.id==='btn-notif-dismiss'){ document.getElementById('vertex-notif-toast')?.classList.remove('on'); localStorage.setItem('vertex_notif_dismissed','1'); return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return} if(t.id==='btn-apple-health-sync'){
   await window.testAppleHealth();
   await refreshAppleHealthMetrics();
   vertexCrossFillCheckinWeight();
@@ -8791,6 +8807,167 @@ bindAuthButtons();
  updateAccordionHints();
 initAuth();
 
+// ── Vertex Shareable Link ────────────────────────────────────────────────────
+
+function vertexShareWorkout(){
+  try{
+    if(!hasWorkout()) return toast('No workout to share');
+    const payload=safeWorkoutPayload(state.current);
+    const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    const url=location.origin+location.pathname+'?share='+encoded;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(()=>toast('Share link copied to clipboard')).catch(()=>vertexShareFallback(url));
+    } else {
+      vertexShareFallback(url);
+    }
+  }catch(e){ console.error('vertexShareWorkout:',e); toast('Share failed'); }
+}
+
+function vertexShareFallback(url){
+  const ta=document.createElement('textarea');
+  ta.value=url; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('Share link copied'); }
+  catch(e){ toast('Copy failed — check URL bar'); }
+  document.body.removeChild(ta);
+}
+
+function vertexLoadSharedWorkout(){
+  try{
+    const params=new URLSearchParams(location.search);
+    const shared=params.get('share');
+    if(!shared) return;
+    const payload=JSON.parse(decodeURIComponent(escape(atob(shared))));
+    if(!payload||!payload.name) return;
+    // Strip personal data
+    payload.assignedDay=null; payload.source='shared';
+    state.current=clone(payload);
+    state.page='workout';
+    markUnsaved();
+    toast('Shared workout loaded — save it to keep it');
+    // Clean URL without reloading
+    history.replaceState(null,'',location.pathname);
+  }catch(e){ console.error('vertexLoadSharedWorkout:',e); }
+}
+
+// ── Vertex Push Notifications (client-side scheduled) ────────────────────────
+
+const VERTEX_NOTIF_KEY = 'vertex_notif_prefs';
+
+function vertexGetNotifPrefs(){
+  try{ return JSON.parse(localStorage.getItem(VERTEX_NOTIF_KEY)||'{}'); }catch(e){ return {}; }
+}
+function vertexSaveNotifPrefs(prefs){
+  try{ localStorage.setItem(VERTEX_NOTIF_KEY, JSON.stringify(prefs)); }catch(e){}
+}
+
+function vertexShowNotifPrompt(){
+  if(!('Notification' in window)){ toast('Notifications not supported on this browser'); return; }
+  if(Notification.permission==='granted'){ vertexShowNotifSettings(); return; }
+  if(Notification.permission==='denied'){ toast('Notifications blocked — enable in browser settings'); return; }
+  const t=document.getElementById('vertex-notif-toast');
+  if(t) t.classList.add('on');
+}
+
+async function vertexRequestNotifPermission(){
+  const t=document.getElementById('vertex-notif-toast');
+  if(t) t.classList.remove('on');
+  if(!('Notification' in window)){ toast('Notifications not supported'); return; }
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){
+    vertexSaveNotifPrefs({enabled:true,workoutHour:8,checkinHour:20});
+    vertexScheduleNotifications();
+    toast('Notifications enabled');
+    vertexShowNotifSettings();
+  } else {
+    toast('Notification permission denied');
+  }
+}
+
+function vertexShowNotifSettings(){
+  const prefs=vertexGetNotifPrefs();
+  const existing=document.getElementById('vertex-notif-settings-modal');
+  if(existing) existing.remove();
+  const modal=document.createElement('div');
+  modal.id='vertex-notif-settings-modal';
+  modal.className='modal-overlay on';
+  modal.innerHTML=`<div class="modal" style="max-width:420px">
+    <div class="label" style="color:var(--acc)">Notifications</div>
+    <h2>Reminder Settings</h2>
+    <div style="margin:16px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div><div style="font-weight:700">Workout Reminder</div><div style="font-size:12px;color:var(--muted)">Daily reminder to train</div></div>
+        <input type="time" id="vn-workout-time" value="${String(prefs.workoutHour||8).padStart(2,'0')}:00" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px;font-size:14px">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div><div style="font-weight:700">Check-In Reminder</div><div style="font-size:12px;color:var(--muted)">Evening wellness check-in</div></div>
+        <input type="time" id="vn-checkin-time" value="${String(prefs.checkinHour||20).padStart(2,'0')}:00" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px;font-size:14px">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn acc" id="vn-save" style="flex:1">Save</button>
+      <button class="btn" id="vn-test" style="flex:1">Send Test</button>
+      <button class="btn" id="vn-close">Cancel</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.querySelector('#vn-close').onclick=()=>modal.remove();
+  modal.querySelector('#vn-test').onclick=()=>{
+    new Notification('Vertex Workout',{body:'Notifications are working!',icon:'/icons/icon-192.png'});
+  };
+  modal.querySelector('#vn-save').onclick=()=>{
+    const wt=modal.querySelector('#vn-workout-time').value||'08:00';
+    const ct=modal.querySelector('#vn-checkin-time').value||'20:00';
+    const prefs={enabled:true,workoutHour:parseInt(wt.split(':')[0]),checkinHour:parseInt(ct.split(':')[0])};
+    vertexSaveNotifPrefs(prefs);
+    vertexScheduleNotifications();
+    toast('Notification preferences saved');
+    modal.remove();
+  };
+}
+
+function vertexScheduleNotifications(){
+  if(!('Notification' in window)||Notification.permission!=='granted') return;
+  const prefs=vertexGetNotifPrefs();
+  if(!prefs.enabled) return;
+  // Clear existing timers
+  if(window._vertexNotifTimers) window._vertexNotifTimers.forEach(t=>clearTimeout(t));
+  window._vertexNotifTimers=[];
+  const now=new Date();
+  function scheduleAt(hour, title, body){
+    const target=new Date(now);
+    target.setHours(hour,0,0,0);
+    if(target<=now) target.setDate(target.getDate()+1);
+    const ms=target-now;
+    const timer=setTimeout(()=>{
+      if(Notification.permission==='granted'){
+        new Notification(title,{body,icon:'/icons/icon-192.png',badge:'/icons/icon-192.png'});
+      }
+      // Reschedule for tomorrow
+      vertexScheduleNotifications();
+    }, ms);
+    window._vertexNotifTimers.push(timer);
+  }
+  scheduleAt(prefs.workoutHour||8, 'Vertex Workout', 'Time to train. Your planner is ready.');
+  scheduleAt(prefs.checkinHour||20, 'Vertex Check-In', 'Log your wellness check-in for today.');
+}
+
+// Auto-schedule on load if permission already granted
+if(typeof Notification!=='undefined' && Notification.permission==='granted'){
+  const _vp=vertexGetNotifPrefs();
+  if(_vp.enabled) setTimeout(vertexScheduleNotifications, 1000);
+}
+
+// Show prompt once to new users after first login (5 second delay)
+setTimeout(()=>{
+  if(!authUser) return;
+  if(typeof Notification==='undefined') return;
+  if(Notification.permission!=='default') return;
+  if(localStorage.getItem('vertex_notif_dismissed')) return;
+  const t=document.getElementById('vertex-notif-toast');
+  if(t) t.classList.add('on');
+}, 5000);
+
 // ── Vertex Offline Mode ───────────────────────────────────────────────────────
 
 function vertexOpenOfflineDB(){
@@ -8858,6 +9035,8 @@ window.addEventListener('offline',()=>{
   setSyncStatus('local','Offline');
 });
 if(!navigator.onLine) vertexSetOfflineBanner(true);
+// Load shared workout from URL if present
+try{ vertexLoadSharedWorkout(); }catch(e){}
 
 // AI Coach load workout — defined here to access toast, state, setCurrent, EXERCISES etc.
 window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
@@ -9127,7 +9306,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bk';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bl';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

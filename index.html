@@ -54,13 +54,9 @@ button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}
 .rest-btn-inline{background:rgba(72,255,138,.08);border:1px solid rgba(72,255,138,.25);color:var(--acc);border-radius:5px;padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;margin-left:6px;letter-spacing:.5px}.rest-btn-inline:hover{background:rgba(72,255,138,.18)}.session-card{width:min(760px,100%);max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:28px}.session-title{font-family:'Bebas Neue';font-size:50px;letter-spacing:4px}.timer{font-family:'Bebas Neue';font-size:82px;color:var(--acc);line-height:1}.session-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.tracking-pill{display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(72,255,138,.06);border:1px solid rgba(72,255,138,.2);border-radius:6px;margin-bottom:12px;font-size:12px;color:var(--muted)}.tracking-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse-dot 1.8s ease-in-out infinite}@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.35}}
 
 .login-screen{position:fixed;inset:0;z-index:200;background:radial-gradient(circle at top right,rgba(232,255,71,.11),transparent 34%),#070707;display:flex;align-items:center;justify-content:center;padding:24px}.login-card{width:min(420px,100%);background:rgba(17,17,17,.92);border:1px solid var(--line2);border-radius:16px;padding:38px 32px;box-shadow:0 24px 80px rgba(0,0,0,.55);text-align:center}.login-brand{font-family:'Bebas Neue';font-size:64px;letter-spacing:8px;color:var(--acc);line-height:1;margin:0}.login-tagline{font-family:'DM Mono';font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin:10px 0 32px}.login-card .btn{width:100%}.login-form-fields{margin-top:16px;text-align:left}.login-form-fields input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:12px;border-radius:6px;margin-bottom:9px;font-size:15px}.login-divider{display:flex;align-items:center;gap:10px;margin:20px 0 14px;color:var(--dim);font-family:'DM Mono';font-size:10px;letter-spacing:2px}.login-divider:before,.login-divider:after{content:'';height:1px;background:var(--line);flex:1}.login-error{font-family:'DM Mono';font-size:10px;color:var(--red);min-height:15px;margin-top:8px;text-align:center}.login-footer{margin-top:18px;color:var(--dim);font-size:11px;line-height:1.55;text-align:center}body.authenticated .login-screen{display:none}
-/* Shared view mode */
 body.shared-view #app-header .nav{display:none}
-body.shared-view #app-header .hdr-actions #btn-save,
-body.shared-view #app-header .hdr-actions #btn-log,
-body.shared-view #app-header .hdr-actions #btn-share,
-body.shared-view #app-header .hdr-actions #syncStatus{display:none!important}
-body.shared-view .sidebar,.body.shared-view .right{display:none!important}
+body.shared-view #app-header #btn-save,body.shared-view #app-header #btn-log,body.shared-view #app-header #btn-share,body.shared-view #app-header #syncStatus{display:none!important}
+body.shared-view .sidebar,body.shared-view .right{display:none!important}
 #vertex-share-banner{display:none;background:rgba(232,255,71,.08);border-bottom:1px solid rgba(232,255,71,.25);padding:8px 16px;text-align:center;font-size:13px}
 body.shared-view #vertex-share-banner{display:block}body:not(.authenticated) #app-header,body:not(.authenticated) #app{display:none}.manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.manual-grid input,.manual-grid select{width:100%;background:var(--panel2);border:1px solid var(--line2);color:var(--text);padding:10px;border-radius:6px;margin-top:6px}.manual-grid .wide{grid-column:1/-1}.manual-help{border:1px solid rgba(232,255,71,.25);background:rgba(232,255,71,.04);border-radius:8px;padding:10px 12px;color:var(--muted);font-size:12px;line-height:1.45;margin-top:12px}
 
@@ -2415,17 +2411,6 @@ button.acc-hint {
   <div class="hdr-actions"><div id="syncStatus" class="sync-pill local" id="syncStatus" style="cursor:pointer" onclick="if(this.classList.contains('failed')){window.vertexRetrySync&&window.vertexRetrySync()}" title="Click to retry sync"><span class="sync-dot"></span><span id="syncStatusText">Local mode</span></div><button id="btn-share" class="btn small hdr-workout-btn">↗ Share</button><button id="btn-save" class="btn small hdr-workout-btn">Save</button><button id="btn-log" class="btn acc small hdr-workout-btn">Log Workout</button><button class="btn small" id="btn-account" aria-label="Account menu">Account</button></div>
 </header>
 <div id="account-menu" class="account-menu"></div>
-<div id="vertex-notif-toast">
-  <div class="vnt-title" id="vnt-title">🔔 Workout Reminders</div>
-  <div class="vnt-body">Get notified when it's time to train and log your check-in.</div>
-  <div class="vnt-btns">
-    <button class="btn acc small" id="btn-notif-allow">Enable</button>
-    <button class="btn small" id="btn-notif-dismiss">Not Now</button>
-  </div>
-</div>
-<div id="vertex-share-banner">
-  👀 Shared workout — <strong>view only</strong>. <a href="/" style="color:var(--acc);text-decoration:none;font-weight:700">Create an account</a> to save and build your own.
-</div>
 <div id="vertex-offline-banner">⚠ Offline — changes saved locally and will sync when reconnected</div>
 <div id="app">
   <aside class="sidebar">
@@ -8684,6 +8669,8 @@ document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex
  if(t.id==='btn-notif-setup'){ document.getElementById('account-menu')?.classList.remove('on'); vertexShowNotifPrompt(); return}
  if(t.id==='btn-notif-allow'){ vertexRequestNotifPermission(); return}
  if(t.id==='btn-notif-dismiss'){ document.getElementById('vertex-notif-toast')?.classList.remove('on'); localStorage.setItem('vertex_notif_dismissed','1'); return}
+ const ail=t.getAttribute('data-ai-load'); if(ail){if(typeof window.vertexLoadAiWorkout==='function') window.vertexLoadAiWorkout(); return}
+ const aie=t.getAttribute('data-ai-env'); if(aie){localStorage.setItem('vertex_ai_location',aie); const ao=document.getElementById('aiActionOutput'); if(ao) ao.innerHTML=''; if(window.vertexAiAction) window.vertexAiAction('_generate_'+aie); return}
  const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return} if(t.id==='btn-apple-health-sync'){
   await window.testAppleHealth();
   await refreshAppleHealthMetrics();
@@ -8820,6 +8807,23 @@ bindAuthButtons();
  updateAccordionHints();
 initAuth();
 
+// AI Coach load workout — defined here to access toast, state, setCurrent, EXERCISES etc.
+window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
+  try{
+    if(!exerciseNames && window._aiWorkoutReady){ exerciseNames=window._aiWorkoutReady.names; workoutName=window._aiWorkoutReady.name; }
+    const exercises=[];
+    (exerciseNames||[]).forEach(name=>{
+      try{ const found=EXERCISES.find(x=>x.name===name); const base=found?clone(found):{name,muscle:'',kind:'push',equip:'Dumbbells'}; exercises.push(normalizeStrengthExercise(base)); }catch(err){}
+    });
+    if(!exercises.length){ toast('No exercises found'); return; }
+    const w={name:'AI: '+(workoutName||'Generated Workout'),type:'strength',source:'ai',exercises,assignedDay:null};
+    state.page='workout'; setCurrent(w);
+    document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
+    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
+    window.scrollTo({top:0,behavior:'smooth'}); toast(exercises.length+' exercises loaded');
+  }catch(e){ console.error('vertexLoadAiWorkout:',e); toast('Load failed'); }
+};
+
 // ── Vertex Shareable Link ────────────────────────────────────────────────────
 
 function vertexShareWorkout(){
@@ -8828,8 +8832,17 @@ function vertexShareWorkout(){
     const payload=safeWorkoutPayload(state.current);
     const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
     const url=location.origin+location.pathname+'?share='+encoded;
+    const dateStr=new Date().toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});
+    const title='Vertex Workout — '+dateStr;
+    const text=(payload.name||'Workout')+' · '+((payload.exercises||[]).length)+' exercises';
+    // Web Share API — shows title in Messages/Mail on iOS/Mac
+    if(navigator.share){
+      navigator.share({title,text,url}).catch(()=>{});
+      return;
+    }
+    // Clipboard fallback
     if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(url).then(()=>toast('Share link copied — send it to anyone')).catch(()=>vertexShareFallback(url));
+      navigator.clipboard.writeText(url).then(()=>toast('Share link copied')).catch(()=>vertexShareFallback(url));
     } else { vertexShareFallback(url); }
   }catch(e){ toast('Share failed'); }
 }
@@ -8841,37 +8854,30 @@ function vertexShareFallback(url){
   document.body.removeChild(ta);
 }
 function vertexInitSharedView(){
-  const params=new URLSearchParams(location.search);
-  const shared=params.get('share');
+  const shared=new URLSearchParams(location.search).get('share');
   if(!shared) return;
   try{
     const payload=JSON.parse(decodeURIComponent(escape(atob(shared))));
     if(!payload||!payload.name) return;
     payload.assignedDay=null; payload.source='shared';
-    // Apply shared view mode — read only, no nav
     document.body.classList.add('shared-view','authenticated');
-    state.current=clone(payload);
-    state.page='workout';
+    state.current=clone(payload); state.page='workout';
     history.replaceState(null,'',location.pathname);
-    // Render after short delay so DOM is ready
     setTimeout(()=>{ renderAll(); markUnsaved(); },200);
-  }catch(e){ console.error('vertexInitSharedView:',e); }
+  }catch(e){}
 }
-// Run on load
 vertexInitSharedView();
 
 // ── Vertex Push Notifications ─────────────────────────────────────────────────
 
-const VERTEX_NOTIF_KEY='vertex_notif_prefs';
-function vertexGetNotifPrefs(){ try{ return JSON.parse(localStorage.getItem(VERTEX_NOTIF_KEY)||'{}'); }catch(e){ return {}; } }
-function vertexSaveNotifPrefs(p){ try{ localStorage.setItem(VERTEX_NOTIF_KEY,JSON.stringify(p)); }catch(e){} }
+function vertexGetNotifPrefs(){ try{ return JSON.parse(localStorage.getItem('vertex_notif_prefs')||'{}'); }catch(e){ return {}; } }
+function vertexSaveNotifPrefs(p){ try{ localStorage.setItem('vertex_notif_prefs',JSON.stringify(p)); }catch(e){} }
 
 function vertexShowNotifPrompt(){
-  if(!('Notification' in window)){ toast('Notifications not supported on this browser'); return; }
+  if(!('Notification' in window)){ toast('Notifications not supported'); return; }
   if(Notification.permission==='granted'){ vertexShowNotifSettings(); return; }
   if(Notification.permission==='denied'){ toast('Notifications blocked — enable in browser settings'); return; }
-  const t=document.getElementById('vertex-notif-toast');
-  if(t) t.classList.add('on');
+  document.getElementById('vertex-notif-toast')?.classList.add('on');
 }
 async function vertexRequestNotifPermission(){
   document.getElementById('vertex-notif-toast')?.classList.remove('on');
@@ -8879,21 +8885,17 @@ async function vertexRequestNotifPermission(){
   const perm=await Notification.requestPermission();
   if(perm==='granted'){
     vertexSaveNotifPrefs({enabled:true,workoutHour:8,checkinHour:20});
-    vertexScheduleNotifications();
-    toast('Notifications enabled');
-    vertexShowNotifSettings();
-  } else { toast('Notification permission denied'); }
+    vertexScheduleNotifications(); toast('Notifications enabled'); vertexShowNotifSettings();
+  } else { toast('Permission denied'); }
 }
 function vertexShowNotifSettings(){
   const prefs=vertexGetNotifPrefs();
-  const old=document.getElementById('vertex-notif-modal');
-  if(old) old.remove();
-  const m=document.createElement('div');
-  m.id='vertex-notif-modal'; m.className='modal-overlay on';
+  document.getElementById('vertex-notif-modal')?.remove();
+  const m=document.createElement('div'); m.id='vertex-notif-modal'; m.className='modal-overlay on';
   m.innerHTML=`<div class="modal" style="max-width:400px">
     <div class="label" style="color:var(--acc)">Notifications</div>
     <h2>Reminder Times</h2>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Reminders fire while Vertex is open in your browser. For background push on mobile, APNs setup is required.</p>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Active while Vertex is open in your browser. Background push on mobile requires APNs setup.</p>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
       <div><div style="font-weight:700">Workout Reminder</div><div style="font-size:12px;color:var(--muted)">Daily reminder to train</div></div>
       <input type="time" id="vn-wt" value="${String(prefs.workoutHour||8).padStart(2,'0')}:00" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
@@ -8910,40 +8912,29 @@ function vertexShowNotifSettings(){
   </div>`;
   document.body.appendChild(m);
   m.querySelector('#vn-close').onclick=()=>m.remove();
-  m.querySelector('#vn-test').onclick=()=>{ new Notification('Vertex',{body:'Notifications are working!',icon:'/icons/icon-192.png'}); };
+  m.querySelector('#vn-test').onclick=()=>{ if(Notification.permission==='granted') new Notification('Vertex',{body:'Notifications working!',icon:'/icons/icon-192.png'}); };
   m.querySelector('#vn-save').onclick=()=>{
-    const wt=m.querySelector('#vn-wt').value||'08:00';
-    const ct=m.querySelector('#vn-ct').value||'20:00';
-    vertexSaveNotifPrefs({enabled:true,workoutHour:parseInt(wt),checkinHour:parseInt(ct)});
-    vertexScheduleNotifications();
-    toast('Reminder times saved');
-    m.remove();
+    const wh=parseInt(m.querySelector('#vn-wt').value||'08'); const ch=parseInt(m.querySelector('#vn-ct').value||'20');
+    vertexSaveNotifPrefs({enabled:true,workoutHour:wh,checkinHour:ch});
+    vertexScheduleNotifications(); toast('Reminder times saved'); m.remove();
   };
 }
 function vertexScheduleNotifications(){
   if(!('Notification' in window)||Notification.permission!=='granted') return;
-  const prefs=vertexGetNotifPrefs();
-  if(!prefs.enabled) return;
-  if(window._vertexNotifTimers) window._vertexNotifTimers.forEach(t=>clearTimeout(t));
-  window._vertexNotifTimers=[];
-  function scheduleAt(hour,title,body){
-    const now=new Date(); const target=new Date(now);
-    target.setHours(hour,0,0,0);
-    if(target<=now) target.setDate(target.getDate()+1);
-    const timer=setTimeout(()=>{
-      if(Notification.permission==='granted') new Notification(title,{body,icon:'/icons/icon-192.png'});
-      vertexScheduleNotifications();
-    }, target-now);
-    window._vertexNotifTimers.push(timer);
+  const prefs=vertexGetNotifPrefs(); if(!prefs.enabled) return;
+  if(window._vnTimers) window._vnTimers.forEach(t=>clearTimeout(t));
+  window._vnTimers=[];
+  function at(hour,title,body){
+    const now=new Date(); const tgt=new Date(now); tgt.setHours(hour,0,0,0);
+    if(tgt<=now) tgt.setDate(tgt.getDate()+1);
+    window._vnTimers.push(setTimeout(()=>{ new Notification(title,{body,icon:'/icons/icon-192.png'}); vertexScheduleNotifications(); },tgt-now));
   }
-  scheduleAt(prefs.workoutHour||8,'Vertex Workout','Time to train. Your planner is ready.');
-  scheduleAt(prefs.checkinHour||20,'Vertex Check-In','Log your wellness check-in for today.');
+  at(prefs.workoutHour||8,'Vertex Workout','Time to train. Your planner is ready.');
+  at(prefs.checkinHour||20,'Vertex Check-In','Log your wellness check-in for today.');
 }
-// Auto-schedule if already granted
 if(typeof Notification!=='undefined'&&Notification.permission==='granted'){
   const _p=vertexGetNotifPrefs(); if(_p.enabled) setTimeout(vertexScheduleNotifications,1000);
 }
-// Show prompt once after login
 setTimeout(()=>{
   if(!authUser||document.body.classList.contains('shared-view')) return;
   if(typeof Notification==='undefined'||Notification.permission!=='default') return;
@@ -9287,7 +9278,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bm';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bn';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

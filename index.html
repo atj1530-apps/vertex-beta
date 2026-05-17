@@ -7549,12 +7549,12 @@ function renderHomeDashboard(){
     const _sleepAvg7 = (()=>{ try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null'); return s&&s.avg7Minutes?Math.round(s.avg7Minutes/60*10)/10:null; }catch(e){return null;} })();
     const _hrvAvg7 = (()=>{ try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null'); return s&&s.avg7?Math.round(s.avg7):null; }catch(e){return null;} })();
     el.innerHTML = `
-<div style="margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;flex-wrap:nowrap">
+<div style="margin-bottom:10px;display:flex;align-items:stretch;gap:12px;flex-wrap:nowrap">
   <div style="flex-shrink:0;display:flex;flex-direction:column;justify-content:center">
     <h1 class="page-title" style="margin:0 0 2px">Vertex</h1>
     <p class="page-copy" style="margin:0;font-size:12px">${new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})}</p>
   </div>
-  <div style="flex:1;display:flex;justify-content:center;min-width:0">${_readinessCardHtml||''}</div>
+  ${_readinessCardHtml ? `<div style="flex:1;min-width:0;display:flex;align-items:stretch">${_readinessCardHtml}</div>` : '<div style="flex:1"></div>'}
   <div style="flex-shrink:0;display:flex;align-items:center">
     <button class="btn small" id="btn-home-refresh-metrics" style="white-space:nowrap">Refresh</button>
   </div>
@@ -9025,7 +9025,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-ag';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-ah';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10748,6 +10748,22 @@ window.testAppleHealth = async function () {
       html=`<div class="coach-card" style="margin:0"><div class="label">Deload Protocol — This Week</div><div class="coach-list">${coachBox('Volume','Reduce all sets by 40%. Keep exercise selection the same.')}${coachBox('Intensity','Cap loads at 70% of your normal working weight.')}${coachBox('Frequency','Keep training days the same — just lower the dose.')}${coachBox('Sleep','Prioritize 8+ hours every night this week.')}${coachBox('When to Resume','Return to full training next week if readiness rises above 65.')}</div></div>`;
 
     } else if(action==='workout'){
+      const savedLoc=localStorage.getItem('vertex_ai_location')||'';
+      if(savedLoc!=='home'&&savedLoc!=='gym'){
+        out.style.display='block';
+        out.innerHTML='<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:24px;text-align:center">'
+          +'<div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Choose Workout Environment</div>'
+          +'<div style="font-size:16px;font-weight:800;margin-bottom:20px">Where are you training today?</div>'
+          +'<div style="display:flex;gap:12px;justify-content:center;margin-bottom:12px">'
+          +'<button class="btn acc" style="flex:1;max-width:160px;padding:14px 0;font-size:14px;font-weight:700" onclick="localStorage.setItem('vertex_ai_location','home');document.getElementById('aiActionOutput').style.display='none';vertexAiAction('workout')">Home</button>'
+          +'<button class="btn" style="flex:1;max-width:160px;padding:14px 0;font-size:14px;font-weight:700;border:1px solid var(--line2);color:var(--text)" onclick="localStorage.setItem('vertex_ai_location','gym');document.getElementById('aiActionOutput').style.display='none';vertexAiAction('workout')">Gym</button>'
+          +'</div>'
+          +'<div style="font-size:10px;color:var(--muted)">Preference saved for next time</div>'
+          +'</div>';
+        out.scrollIntoView({behavior:'smooth',block:'nearest'});
+        return;
+      }
+      const loc=savedLoc;
       let snap={}; try{snap=typeof getIntelligenceSnapshot==='function'?getIntelligenceSnapshot():{};}catch(e){}
       const planned=snap.plannedMoves||[];
       const hasLegs=planned.some(m=>/squat|leg|lunge|deadlift|hip|glute|hamstring|calf/i.test(m));
@@ -10758,32 +10774,27 @@ window.testAppleHealth = async function () {
       const rpe=r.score>=75?'RPE 8–9':r.score>=55?'RPE 7–8':'RPE 6–7';
       const rest=r.score>=75?'2–3 min':r.score>=55?'90 sec':'60 sec';
       const intensity=r.score>=75?'High':r.score>=55?'Moderate':'Light';
-      // Ask home/gym
-      const savedLoc=localStorage.getItem('vertex_ai_location')||'';
-      let loc=savedLoc;
-      if(loc!=='home'&&loc!=='gym'){
-        loc=window.confirm('Generate for HOME equipment?\n\nOK = Home  |  Cancel = Gym')?'home':'gym';
-        localStorage.setItem('vertex_ai_location',loc);
-      }
-      // Filter EXERCISES library by location + focus
+      const allEx=EXERCISES||[];
       const focusFilter=focus==='Lower Body'?/leg|glute|hamstring|quad|calf|hip|squat|lunge|deadlift/i:focus==='Upper Body'?/chest|back|shoulder|bicep|tricep|press|row|pull|curl|dip|bench/i:/.*/;
       const isHome=ex=>{const s=[ex.equip||'',ex.env||''].join(' ').toLowerCase();return !/barbell|machine|cable|smith|lat pulldown|leg press|hack squat|pec deck/.test(s);};
-      let pool=(EXERCISES||[]).filter(ex=>loc==='home'?isHome(ex):true).filter(ex=>focusFilter.test(ex.name||'')||focusFilter.test(ex.muscle||''));
-      if(!pool.length) pool=(EXERCISES||[]).filter(ex=>loc==='home'?isHome(ex):true);
-      if(!pool.length) pool=EXERCISES||[];
+      let pool=allEx.filter(ex=>loc==='home'?isHome(ex):true).filter(ex=>focusFilter.test(ex.name||'')||focusFilter.test(ex.muscle||''));
+      if(!pool.length) pool=allEx.filter(ex=>loc==='home'?isHome(ex):true);
+      if(!pool.length) pool=allEx;
       const chosen=[]; const seen=new Set();
       ['Legs','Back','Chest','Shoulders','Arms'].forEach(m=>{const ex=pool.find(e=>!seen.has(e.name)&&(e.muscle||'').includes(m));if(ex){chosen.push(ex);seen.add(ex.name);}});
       pool.forEach(ex=>{if(chosen.length<5&&!seen.has(ex.name)){chosen.push(ex);seen.add(ex.name);}});
       let focusExercises=chosen.slice(0,5).map(e=>e.name);
       if(focusExercises.length<3){
-        if(loc==='home') focusExercises=['Goblet Squat','Push-Up','Dumbbell Romanian Deadlift','One-Arm Row','Hammer Curl'];
-        else if(focus==='Lower Body') focusExercises=['Squat','Leg Press','Romanian Deadlift','Walking Lunge','Leg Curl'];
-        else focusExercises=['Bench Press (Normal)','Lawn Mower','Overhead Press','Alternating Curl','Tricep Extension'];
+        focusExercises=loc==='home'
+          ?['Goblet Squat','Push-Up','Dumbbell Romanian Deadlift','One-Arm Row','Hammer Curl']
+          :['Bench Press (Normal)','Lawn Mower','Overhead Press','Alternating Curl','Tricep Extension'];
       }
+      const exNames=focusExercises.slice(0,5);
       const warmup=focus==='Lower Body'?'Hip circles, leg swings, goblet squat x10':focus==='Upper Body'?'Band pull-aparts, arm circles, push-up x10':'Jump rope 3 min + dynamic stretches';
-      const exRows=focusExercises.slice(0,5).map((name,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:12px">${i+1}. ${esc(name)}</span><span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${sets} x ${reps} · ${rpe}</span></div>`).join('');
-      const loadBtn=`<button class="btn acc" style="margin-top:12px;width:100%" onclick="vertexLoadAiWorkout(${JSON.stringify(focusExercises.slice(0,5))},${JSON.stringify(focus+' · '+intensity+' · '+loc.toUpperCase())})">⚡ Load into Workout Builder</button>`;
-      html=`<div class="coach-card" style="margin:0"><div class="label">Today's Workout — ${focus} · ${intensity} · ${loc.toUpperCase()}</div><div style="margin:8px 0"><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Warm-Up — 5 min</div><div style="font-size:12px;color:var(--muted);margin-bottom:12px">${esc(warmup)}</div><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Main Work · Rest ${rest}</div>${exRows}<div style="margin-top:10px;font-size:11px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div></div>${loadBtn}<div class="coach-list" style="margin-top:8px">${coachBox('Readiness','Score '+r.score+' — '+esc(r.action))}</div></div>`;
+      const switchBtn='<button class="btn small" style="font-size:10px;margin-top:4px" onclick="localStorage.removeItem('vertex_ai_location');document.getElementById('aiActionOutput').style.display='none';vertexAiAction('workout')">Switch to '+(loc==='home'?'Gym':'Home')+'</button>';
+      const exRows=exNames.map((name,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:12px;font-weight:600">'+(i+1)+'. '+esc(name)+'</span><span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">'+sets+' x '+reps+' · '+rpe+'</span></div>').join('');
+      const loadBtn='<button class="btn acc" style="margin-top:12px;width:100%;padding:12px 0;font-size:14px;font-weight:700" onclick="vertexLoadAiWorkout('+JSON.stringify(exNames)+','+JSON.stringify(focus+' · '+intensity+' · '+loc.toUpperCase())+')">⚡ Load into Workout Builder</button>';
+      html='<div class="coach-card" style="margin:0"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div class="label" style="margin:0">'+loc.toUpperCase()+' · '+focus+' · '+intensity+'</div>'+switchBtn+'</div><div style="margin:8px 0"><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Warm-Up — 5 min</div><div style="font-size:12px;color:var(--muted);margin-bottom:12px">'+esc(warmup)+'</div><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Main Work · Rest '+rest+'</div>'+exRows+'<div style="margin-top:10px;font-size:11px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div></div>'+loadBtn+'<div class="coach-list" style="margin-top:8px">'+coachBox('Readiness','Score '+r.score+' — '+esc(r.action))+'</div></div>'
     }
 
     out.style.display='block';

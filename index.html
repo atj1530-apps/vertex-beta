@@ -7115,80 +7115,6 @@ function protoSelectDate(dateStr){
           <tbody>${items.map(s=>`<tr><td><b>${escapeHtml(s.name||'')}</b></td><td>${escapeHtml(s.supplement_type||'')}</td><td>${s.dose||'—'} ${escapeHtml(s.unit||'')}</td><td>${escapeHtml(vertexFrequencyLabel(s))}</td><td>${escapeHtml(s.timing||'Morning')}</td><td>${s.cycle_start_date||'—'}</td><td>${escapeHtml(s.notes||'—')}</td></tr>`).join('')}
           </tbody></table>
 
-
-<script>
-/* v13.61.13 — AI Coach → Workout Builder loader */
-(function(){
-  function findExerciseByName(name){
-    if(!Array.isArray(window.EXERCISES)) return null;
-    const target = String(name || '').trim().toLowerCase();
-    return window.EXERCISES.find(ex => String(ex.name || '').trim().toLowerCase() === target)
-        || window.EXERCISES.find(ex => String(ex.name || '').trim().toLowerCase().includes(target))
-        || window.EXERCISES.find(ex => target.includes(String(ex.name || '').trim().toLowerCase()));
-  }
-
-  function buildWorkoutFromAiCard(){
-    const out = document.getElementById('aiActionOutput');
-    if(!out) return null;
-    const text = out.innerText || '';
-    const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
-    const exercises = [];
-    for(const line of lines){
-      const m = line.match(/^\d+\.\s+(.+?)\s*$/);
-      if(!m) continue;
-      const name = m[1].replace(/\s{2,}.*/, '').trim();
-      const ex = findExerciseByName(name);
-      if(!ex) continue;
-      exercises.push({
-        name: ex.name,
-        muscle: ex.muscle || '',
-        equipment: ex.equipment || '',
-        sets: Array.from({length:3}, () => ({ reps: '8-12', weight: '' })),
-        target: '8-12',
-        notes: 'AI Coach'
-      });
-    }
-    if(!exercises.length) return null;
-    return {
-      name: "AI Coach Workout",
-      type: "strength",
-      source: "ai_coach",
-      exercises
-    };
-  }
-
-  window.vertexLoadAiWorkout = function(){
-    try{
-      const workout = buildWorkoutFromAiCard();
-      if(!workout){
-        if(typeof toast === 'function') toast('No matching exercises found in library');
-        return;
-      }
-      if(typeof setCurrent === 'function') setCurrent(workout);
-      else if(window.state) window.state.current = workout;
-      if(window.state) window.state.page = 'workout';
-      if(typeof markUnsaved === 'function') markUnsaved();
-      if(typeof renderAll === 'function') renderAll();
-      window.scrollTo({top:0, behavior:'smooth'});
-      if(typeof toast === 'function') toast('AI workout loaded');
-    }catch(err){
-      console.error('AI workout load failed:', err);
-      if(typeof toast === 'function') toast('AI workout load failed');
-    }
-  };
-
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest('button');
-    if(!btn) return;
-    if((btn.textContent || '').includes('Load into Workout Builder')){
-      e.preventDefault();
-      e.stopPropagation();
-      window.vertexLoadAiWorkout();
-    }
-  }, true);
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -8336,80 +8262,6 @@ ${recentLogs.length ? `<table>
 </table>` : '<p style="color:#888;font-size:13px">No workout logs yet.</p>'}
 
 <div class="footer">Vertex · ${dateStr} · vertex-beta-five.vercel.app</div>
-
-<script>
-/* v13.61.13 — AI Coach → Workout Builder loader */
-(function(){
-  function findExerciseByName(name){
-    if(!Array.isArray(window.EXERCISES)) return null;
-    const target = String(name || '').trim().toLowerCase();
-    return window.EXERCISES.find(ex => String(ex.name || '').trim().toLowerCase() === target)
-        || window.EXERCISES.find(ex => String(ex.name || '').trim().toLowerCase().includes(target))
-        || window.EXERCISES.find(ex => target.includes(String(ex.name || '').trim().toLowerCase()));
-  }
-
-  function buildWorkoutFromAiCard(){
-    const out = document.getElementById('aiActionOutput');
-    if(!out) return null;
-    const text = out.innerText || '';
-    const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
-    const exercises = [];
-    for(const line of lines){
-      const m = line.match(/^\d+\.\s+(.+?)\s*$/);
-      if(!m) continue;
-      const name = m[1].replace(/\s{2,}.*/, '').trim();
-      const ex = findExerciseByName(name);
-      if(!ex) continue;
-      exercises.push({
-        name: ex.name,
-        muscle: ex.muscle || '',
-        equipment: ex.equipment || '',
-        sets: Array.from({length:3}, () => ({ reps: '8-12', weight: '' })),
-        target: '8-12',
-        notes: 'AI Coach'
-      });
-    }
-    if(!exercises.length) return null;
-    return {
-      name: "AI Coach Workout",
-      type: "strength",
-      source: "ai_coach",
-      exercises
-    };
-  }
-
-  window.vertexLoadAiWorkout = function(){
-    try{
-      const workout = buildWorkoutFromAiCard();
-      if(!workout){
-        if(typeof toast === 'function') toast('No matching exercises found in library');
-        return;
-      }
-      if(typeof setCurrent === 'function') setCurrent(workout);
-      else if(window.state) window.state.current = workout;
-      if(window.state) window.state.page = 'workout';
-      if(typeof markUnsaved === 'function') markUnsaved();
-      if(typeof renderAll === 'function') renderAll();
-      window.scrollTo({top:0, behavior:'smooth'});
-      if(typeof toast === 'function') toast('AI workout loaded');
-    }catch(err){
-      console.error('AI workout load failed:', err);
-      if(typeof toast === 'function') toast('AI workout load failed');
-    }
-  };
-
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest('button');
-    if(!btn) return;
-    if((btn.textContent || '').includes('Load into Workout Builder')){
-      e.preventDefault();
-      e.stopPropagation();
-      window.vertexLoadAiWorkout();
-    }
-  }, true);
-})();
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -8635,81 +8487,7 @@ window.renderSymmetry = renderSymmetry;
     const w = window.open('','_blank');
     if(!w) return;
     const rows = log.length ? log.map(e=>`<tr><td style="white-space:nowrap;color:#888;font-size:11px">${e.ts?.slice(0,19).replace('T',' ')||'—'}</td><td><span style="font-size:10px;background:${e.type==='error'?'#fee2e2':'#fef9c3'};padding:1px 6px;border-radius:3px;font-weight:700">${e.type}</span></td><td style="font-size:12px">${e.msg||''}</td><td style="font-size:11px;color:#999">${e.src||''}${e.line?':'+e.line:''}</td></tr>`).join('') : '<tr><td colspan="4" style="color:#888;text-align:center;padding:20px">No errors logged.</td></tr>';
-    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
-<script>
-/* v13.61.13 — AI Coach → Workout Builder loader */
-(function(){
-  function findExerciseByName(name){
-    if(!Array.isArray(window.EXERCISES)) return null;
-    const target = String(name || '').trim().toLowerCase();
-    return window.EXERCISES.find(ex => String(ex.name || '').trim().toLowerCase() === target)
-        || window.EXERCISES.find(ex => String(ex.name || '').trim().toLowerCase().includes(target))
-        || window.EXERCISES.find(ex => target.includes(String(ex.name || '').trim().toLowerCase()));
-  }
-
-  function buildWorkoutFromAiCard(){
-    const out = document.getElementById('aiActionOutput');
-    if(!out) return null;
-    const text = out.innerText || '';
-    const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
-    const exercises = [];
-    for(const line of lines){
-      const m = line.match(/^\d+\.\s+(.+?)\s*$/);
-      if(!m) continue;
-      const name = m[1].replace(/\s{2,}.*/, '').trim();
-      const ex = findExerciseByName(name);
-      if(!ex) continue;
-      exercises.push({
-        name: ex.name,
-        muscle: ex.muscle || '',
-        equipment: ex.equipment || '',
-        sets: Array.from({length:3}, () => ({ reps: '8-12', weight: '' })),
-        target: '8-12',
-        notes: 'AI Coach'
-      });
-    }
-    if(!exercises.length) return null;
-    return {
-      name: "AI Coach Workout",
-      type: "strength",
-      source: "ai_coach",
-      exercises
-    };
-  }
-
-  window.vertexLoadAiWorkout = function(){
-    try{
-      const workout = buildWorkoutFromAiCard();
-      if(!workout){
-        if(typeof toast === 'function') toast('No matching exercises found in library');
-        return;
-      }
-      if(typeof setCurrent === 'function') setCurrent(workout);
-      else if(window.state) window.state.current = workout;
-      if(window.state) window.state.page = 'workout';
-      if(typeof markUnsaved === 'function') markUnsaved();
-      if(typeof renderAll === 'function') renderAll();
-      window.scrollTo({top:0, behavior:'smooth'});
-      if(typeof toast === 'function') toast('AI workout loaded');
-    }catch(err){
-      console.error('AI workout load failed:', err);
-      if(typeof toast === 'function') toast('AI workout load failed');
-    }
-  };
-
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest('button');
-    if(!btn) return;
-    if((btn.textContent || '').includes('Load into Workout Builder')){
-      e.preventDefault();
-      e.stopPropagation();
-      window.vertexLoadAiWorkout();
-    }
-  }, true);
-})();
-</script>
-
-</body></html>`);
+    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
     w.document.close();
   };
 })();
@@ -8858,81 +8636,7 @@ function vertexShowSyncDiag(){
   }).join('');
   const w=window.open('','_blank');
   if(!w) return;
-  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
-<script>
-/* v13.61.13 — AI Coach → Workout Builder loader */
-(function(){
-  function findExerciseByName(name){
-    if(!Array.isArray(window.EXERCISES)) return null;
-    const target = String(name || '').trim().toLowerCase();
-    return window.EXERCISES.find(ex => String(ex.name || '').trim().toLowerCase() === target)
-        || window.EXERCISES.find(ex => String(ex.name || '').trim().toLowerCase().includes(target))
-        || window.EXERCISES.find(ex => target.includes(String(ex.name || '').trim().toLowerCase()));
-  }
-
-  function buildWorkoutFromAiCard(){
-    const out = document.getElementById('aiActionOutput');
-    if(!out) return null;
-    const text = out.innerText || '';
-    const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
-    const exercises = [];
-    for(const line of lines){
-      const m = line.match(/^\d+\.\s+(.+?)\s*$/);
-      if(!m) continue;
-      const name = m[1].replace(/\s{2,}.*/, '').trim();
-      const ex = findExerciseByName(name);
-      if(!ex) continue;
-      exercises.push({
-        name: ex.name,
-        muscle: ex.muscle || '',
-        equipment: ex.equipment || '',
-        sets: Array.from({length:3}, () => ({ reps: '8-12', weight: '' })),
-        target: '8-12',
-        notes: 'AI Coach'
-      });
-    }
-    if(!exercises.length) return null;
-    return {
-      name: "AI Coach Workout",
-      type: "strength",
-      source: "ai_coach",
-      exercises
-    };
-  }
-
-  window.vertexLoadAiWorkout = function(){
-    try{
-      const workout = buildWorkoutFromAiCard();
-      if(!workout){
-        if(typeof toast === 'function') toast('No matching exercises found in library');
-        return;
-      }
-      if(typeof setCurrent === 'function') setCurrent(workout);
-      else if(window.state) window.state.current = workout;
-      if(window.state) window.state.page = 'workout';
-      if(typeof markUnsaved === 'function') markUnsaved();
-      if(typeof renderAll === 'function') renderAll();
-      window.scrollTo({top:0, behavior:'smooth'});
-      if(typeof toast === 'function') toast('AI workout loaded');
-    }catch(err){
-      console.error('AI workout load failed:', err);
-      if(typeof toast === 'function') toast('AI workout load failed');
-    }
-  };
-
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest('button');
-    if(!btn) return;
-    if((btn.textContent || '').includes('Load into Workout Builder')){
-      e.preventDefault();
-      e.stopPropagation();
-      window.vertexLoadAiWorkout();
-    }
-  }, true);
-})();
-</script>
-
-</body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button></body></html>`);
   w.document.close();
 }
 window.vertexShowSyncDiag=vertexShowSyncDiag;
@@ -11313,63 +11017,104 @@ window.testAppleHealth = async function () {
 
 
 <script>
-/* v13.61.13 — AI Coach → Workout Builder loader */
+/* v13.61.14 — AI Coach → Workout Builder loader, final-body safe */
 (function(){
+  function getExerciseLibrary(){
+    return Array.isArray(window.EXERCISES) ? window.EXERCISES
+      : Array.isArray(window.exercises) ? window.exercises
+      : Array.isArray(window.exerciseLibrary) ? window.exerciseLibrary
+      : [];
+  }
+
+  function normalizeName(v){
+    return String(v || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   function findExerciseByName(name){
-    if(!Array.isArray(window.EXERCISES)) return null;
-    const target = String(name || '').trim().toLowerCase();
-    return window.EXERCISES.find(ex => String(ex.name || '').trim().toLowerCase() === target)
-        || window.EXERCISES.find(ex => String(ex.name || '').trim().toLowerCase().includes(target))
-        || window.EXERCISES.find(ex => target.includes(String(ex.name || '').trim().toLowerCase()));
+    const lib = getExerciseLibrary();
+    const target = normalizeName(name);
+    if(!target || !lib.length) return null;
+
+    return lib.find(ex => normalizeName(ex.name) === target)
+        || lib.find(ex => normalizeName(ex.name).includes(target))
+        || lib.find(ex => target.includes(normalizeName(ex.name)));
+  }
+
+  function extractAiExerciseLines(){
+    const out = document.getElementById('aiActionOutput');
+    if(!out) return [];
+    const text = out.innerText || '';
+    return text.split('\n').map(s => s.trim()).filter(Boolean);
   }
 
   function buildWorkoutFromAiCard(){
-    const out = document.getElementById('aiActionOutput');
-    if(!out) return null;
-    const text = out.innerText || '';
-    const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
+    const lines = extractAiExerciseLines();
     const exercises = [];
+
     for(const line of lines){
-      const m = line.match(/^\d+\.\s+(.+?)\s*$/);
+      const m = line.match(/^\d+\.\s+(.+?)(?:\s+3\s*x|\s+\d+\s*x|\s*$)/i);
       if(!m) continue;
-      const name = m[1].replace(/\s{2,}.*/, '').trim();
-      const ex = findExerciseByName(name);
-      if(!ex) continue;
+
+      const displayName = m[1].trim();
+      const ex = findExerciseByName(displayName);
+
+      const base = ex || {
+        name: displayName,
+        muscle: '',
+        equipment: '',
+        category: 'strength'
+      };
+
       exercises.push({
-        name: ex.name,
-        muscle: ex.muscle || '',
-        equipment: ex.equipment || '',
-        sets: Array.from({length:3}, () => ({ reps: '8-12', weight: '' })),
+        name: base.name || displayName,
+        muscle: base.muscle || base.group || '',
+        equipment: base.equipment || base.equip || '',
+        sets: Array.from({length:3}, function(){ return {reps:'8-12', weight:''}; }),
         target: '8-12',
         notes: 'AI Coach'
       });
     }
+
     if(!exercises.length) return null;
+
     return {
       name: "AI Coach Workout",
       type: "strength",
       source: "ai_coach",
-      exercises
+      exercises: exercises
     };
   }
 
   window.vertexLoadAiWorkout = function(){
     try{
       const workout = buildWorkoutFromAiCard();
+
       if(!workout){
-        if(typeof toast === 'function') toast('No matching exercises found in library');
-        return;
+        if(typeof toast === 'function') toast('No AI workout exercises found');
+        return false;
       }
-      if(typeof setCurrent === 'function') setCurrent(workout);
-      else if(window.state) window.state.current = workout;
+
+      if(typeof setCurrent === 'function') {
+        setCurrent(workout);
+      } else if(window.state) {
+        window.state.current = workout;
+      }
+
       if(window.state) window.state.page = 'workout';
       if(typeof markUnsaved === 'function') markUnsaved();
       if(typeof renderAll === 'function') renderAll();
+
       window.scrollTo({top:0, behavior:'smooth'});
       if(typeof toast === 'function') toast('AI workout loaded');
+      return true;
     }catch(err){
       console.error('AI workout load failed:', err);
       if(typeof toast === 'function') toast('AI workout load failed');
+      return false;
     }
   };
 
@@ -11378,7 +11123,7 @@ window.testAppleHealth = async function () {
     if(!btn) return;
     if((btn.textContent || '').includes('Load into Workout Builder')){
       e.preventDefault();
-      e.stopPropagation();
+      e.stopImmediatePropagation();
       window.vertexLoadAiWorkout();
     }
   }, true);

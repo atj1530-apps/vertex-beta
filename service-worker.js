@@ -1,8 +1,8 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260517-ba
-   Network-first for HTML; cache-first assets.
-*/
-const CACHE_NAME = 'vertex-v20260517-ba';
+   Bump CACHE_NAME on every deploy to bust old caches.
+   Network-first for HTML so new deploys are always visible immediately. */
+
+const CACHE_NAME = 'vertex-v20260517-bb';
 const APP_SHELL = [
   './',
   './index.html',
@@ -29,14 +29,19 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
+
+  // Never intercept Supabase, Anthropic, unpkg, YouTube
   if (
     url.hostname.includes('supabase') ||
     url.hostname.includes('anthropic') ||
     url.hostname.includes('unpkg') ||
     url.hostname.includes('youtube') ||
     url.hostname.includes('googleapis')
-  ) return;
+  ) {
+    return;
+  }
 
+  // Network-first for HTML
   if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
     event.respondWith(
       fetch(event.request)
@@ -50,6 +55,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Cache-first for other assets
   event.respondWith(
     caches.match(event.request).then((cached) =>
       cached || fetch(event.request).then((response) => {

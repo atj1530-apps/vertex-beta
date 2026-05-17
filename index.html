@@ -9025,7 +9025,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-aw';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-af';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -11045,7 +11045,7 @@ window.testAppleHealth = async function () {
 
 
 <style>
-/* v13.61.17 — AI picker/buttons styled inside app, no browser confirm */
+/* v13.61.18 — AI Coach picker */
 .vertex-ai-picker{
   display:flex;
   gap:8px;
@@ -11057,120 +11057,131 @@ window.testAppleHealth = async function () {
   background:rgba(232,255,71,.035);
   border-radius:8px;
 }
-.vertex-ai-picker .label{margin-right:4px}
 .vertex-ai-picker .btn{min-width:110px}
 </style>
 
 <script>
-/* v13.61.17 — AI Coach Home/Gym picker + guaranteed builder load */
+/* v13.61.18 — Safe AI Coach picker + load */
 (function(){
-  function esc(v){
-    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
-  }
-  function getOut(){
+  function ensureOutput(){
     var out = document.getElementById('aiActionOutput');
     var actions = document.getElementById('aiCoachActions');
     if(!out && actions){
       out = document.createElement('div');
       out.id = 'aiActionOutput';
       out.style.cssText = 'margin:0 0 12px;display:none';
-      actions.after(out);
+      actions.parentNode.insertBefore(out, actions.nextSibling);
     }
     return out;
   }
-  function setPageWorkout(){
-    if(window.state) window.state.page = 'workout';
-    try{
-      if(typeof setPage === 'function') setPage('workout');
-    }catch(e){}
-  }
-  function aiWorkout(env){
-    var home = env === 'home';
-    var names = home
+
+  function buildWorkout(env){
+    var names = env === 'home'
       ? ['Goblet Squat','Dumbbell Romanian Deadlift','Push-Up','One-Arm Dumbbell Row','Walking Lunges']
       : ['Barbell Back Squat','Romanian Deadlift','Leg Press','Walking Lunges','Leg Curl'];
+
     return {
-      name: home ? 'AI Home Workout' : 'AI Gym Workout',
+      name: env === 'home' ? 'AI Home Workout' : 'AI Gym Workout',
       type: 'strength',
       source: 'ai_coach',
       location: env,
       exercises: names.map(function(n){
         return {
-          name:n,
-          muscle:'',
-          equipment: home ? 'Home' : 'Gym',
-          sets:[{reps:'8-12',weight:''},{reps:'8-12',weight:''},{reps:'8-12',weight:''}],
-          target:'8-12',
-          notes:'AI Coach'
+          name: n,
+          muscle: '',
+          equipment: env === 'home' ? 'Home' : 'Gym',
+          sets: [
+            { reps: '8-12', weight: '' },
+            { reps: '8-12', weight: '' },
+            { reps: '8-12', weight: '' }
+          ],
+          target: '8-12',
+          notes: 'AI Coach'
         };
       })
     };
   }
-  function renderWorkoutCard(w){
-    var out = getOut();
-    if(!out) return;
-    window._aiWorkoutReady = w;
-    try{ localStorage.setItem('vertex_ai_workout_ready', JSON.stringify(w)); }catch(e){}
-    out.style.display = 'block';
-    out.innerHTML =
-      '<div class="coach-card" style="margin-top:12px">' +
-        '<div class="label">TODAY\\'S WORKOUT — '+esc((w.location||'home').toUpperCase())+' · MODERATE</div>' +
-        '<div style="margin-top:10px;color:var(--muted)">Warm-up — 5 min<br>Easy movement, mobility, and ramp-up sets.</div>' +
-        '<div class="label" style="margin-top:14px">MAIN WORK · REST 90 SEC</div>' +
-        w.exercises.map(function(ex,i){
-          return '<div style="display:grid;grid-template-columns:1fr auto;gap:12px;border-bottom:1px solid var(--line);padding:9px 0">' +
-            '<b>'+(i+1)+'. '+esc(ex.name)+'</b><span class="mono" style="color:var(--muted);font-size:11px">3 × 8-12 · RPE 7-8</span></div>';
-        }).join('') +
-        '<div style="margin-top:12px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div>' +
-        '<button class="btn acc" type="button" onclick="window.vertexLoadAiWorkout()" style="width:100%;margin-top:16px">⚡ Load into Workout Builder</button>' +
-        '<div class="coach-item" style="margin-top:8px"><b>Readiness</b><span>Score 72 — Train, but avoid unnecessary max-effort work.</span></div>' +
-      '</div>';
-  }
-  window.vertexShowAiEnvPicker = function(){
-    var out = getOut();
+
+  function renderPicker(){
+    var out = ensureOutput();
     if(!out) return;
     out.style.display = 'block';
     out.innerHTML =
       '<div class="vertex-ai-picker">' +
-        '<span class="label">Choose workout location</span>' +
-        '<button class="btn acc" type="button" onclick="window.vertexPickEnv(&quot;home&quot;)">🏠 Home</button>' +
-        '<button class="btn" type="button" onclick="window.vertexPickEnv(&quot;gym&quot;)">🏋️ Gym</button>' +
+      '<span class="label">Choose workout location</span>' +
+      '<button class="btn acc" type="button" data-ai-env="home">🏠 Home</button>' +
+      '<button class="btn" type="button" data-ai-env="gym">🏋️ Gym</button>' +
       '</div>';
-  };
-  window.vertexPickEnv = function(env){
-    var w = aiWorkout(env === 'gym' ? 'gym' : 'home');
-    renderWorkoutCard(w);
-    if(typeof toast === 'function') toast((env === 'gym' ? 'Gym' : 'Home') + ' workout generated');
-  };
-  window.vertexLoadAiWorkout = function(){
-    var w = window._aiWorkoutReady;
-    if(!w){
-      try{ w = JSON.parse(localStorage.getItem('vertex_ai_workout_ready') || 'null'); }catch(e){}
+  }
+
+  function renderWorkout(workout){
+    var out = ensureOutput();
+    if(!out) return;
+
+    window._aiWorkoutReady = workout;
+    try {
+      localStorage.setItem('vertex_ai_workout_ready', JSON.stringify(workout));
+    } catch(e) {}
+
+    var rows = '';
+    for(var i=0; i<workout.exercises.length; i++){
+      rows +=
+        '<div style="display:grid;grid-template-columns:1fr auto;gap:12px;border-bottom:1px solid var(--line);padding:9px 0">' +
+        '<b>' + (i+1) + '. ' + workout.exercises[i].name + '</b>' +
+        '<span class="mono" style="color:var(--muted);font-size:11px">3 × 8-12 · RPE 7-8</span>' +
+        '</div>';
     }
-    if(!w || !Array.isArray(w.exercises) || !w.exercises.length){
+
+    out.style.display = 'block';
+    out.innerHTML =
+      '<div class="coach-card" style="margin-top:12px">' +
+      '<div class="label">TODAY\'S WORKOUT — ' + workout.location.toUpperCase() + ' · MODERATE</div>' +
+      '<div style="margin-top:10px;color:var(--muted)">Warm-up — 5 min<br>Easy movement, mobility, and ramp-up sets.</div>' +
+      '<div class="label" style="margin-top:14px">MAIN WORK · REST 90 SEC</div>' +
+      rows +
+      '<div style="margin-top:12px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div>' +
+      '<button class="btn acc" type="button" data-ai-load="1" style="width:100%;margin-top:16px">⚡ Load into Workout Builder</button>' +
+      '<div class="coach-item" style="margin-top:8px"><b>Readiness</b><span>Score 72 — Train, but avoid unnecessary max-effort work.</span></div>' +
+      '</div>';
+  }
+
+  window.vertexPickEnv = function(env){
+    renderWorkout(buildWorkout(env === 'gym' ? 'gym' : 'home'));
+    if(typeof toast === 'function'){
+      toast((env === 'gym' ? 'Gym' : 'Home') + ' workout generated');
+    }
+  };
+
+  window.vertexLoadAiWorkout = function(){
+    var workout = window._aiWorkoutReady;
+    if(!workout){
+      try {
+        workout = JSON.parse(localStorage.getItem('vertex_ai_workout_ready') || 'null');
+      } catch(e) {}
+    }
+
+    if(!workout || !workout.exercises || !workout.exercises.length){
       if(typeof toast === 'function') toast('Generate a workout first');
       return false;
     }
 
-    setPageWorkout();
+    if(window.state) window.state.page = 'workout';
 
     if(typeof setCurrent === 'function'){
-      setCurrent(w);
-      if(window.state) window.state.page = 'workout';
+      setCurrent(workout);
     } else if(window.state){
-      window.state.current = w;
+      window.state.current = workout;
     }
 
-    setPageWorkout();
+    if(window.state) window.state.page = 'workout';
 
-    try{ if(typeof markUnsaved === 'function') markUnsaved(); }catch(e){}
-    try{ if(typeof renderAll === 'function') renderAll(); }catch(e){}
+    try { if(typeof markUnsaved === 'function') markUnsaved(); } catch(e) {}
+    try { if(typeof renderAll === 'function') renderAll(); } catch(e) {}
+    try { if(typeof setPage === 'function') setPage('workout'); } catch(e) {}
+
     setTimeout(function(){
-      setPageWorkout();
-      try{ if(typeof renderBuilder === 'function') renderBuilder(); }catch(e){}
-      window.scrollTo({top:0,behavior:'smooth'});
+      try { if(typeof setPage === 'function') setPage('workout'); } catch(e) {}
+      try { if(typeof renderBuilder === 'function') renderBuilder(); } catch(e) {}
     }, 50);
 
     if(typeof toast === 'function') toast('AI workout loaded');
@@ -11178,20 +11189,28 @@ window.testAppleHealth = async function () {
   };
 
   document.addEventListener('click', function(e){
-    var btn = e.target.closest && e.target.closest('button');
+    var btn = e.target.closest ? e.target.closest('button') : null;
     if(!btn) return;
-    var text = btn.textContent || '';
-    if(text.indexOf("Generate Today's Workout") !== -1){
+
+    if(btn.hasAttribute('data-ai-env')){
       e.preventDefault();
       e.stopImmediatePropagation();
-      window.vertexShowAiEnvPicker();
+      window.vertexPickEnv(btn.getAttribute('data-ai-env'));
       return;
     }
-    if(text.indexOf('Load into Workout Builder') !== -1){
+
+    if(btn.hasAttribute('data-ai-load')){
       e.preventDefault();
       e.stopImmediatePropagation();
       window.vertexLoadAiWorkout();
       return;
+    }
+
+    var text = (btn.textContent || '').trim();
+    if(text === "Generate Today's Workout"){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      renderPicker();
     }
   }, true);
 })();

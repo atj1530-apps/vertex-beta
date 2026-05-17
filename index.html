@@ -1,6 +1,4 @@
-<!d// Re-render home so readiness card appears
-try{if(typeof renderHomeDashboard==='function'&&(state.page==='home'||!state.page)) setTimeout(renderHomeDashboard,50);}catch(e){}
-octype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -7552,11 +7550,11 @@ function renderHomeDashboard(){
     const _hrvAvg7 = (()=>{ try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null'); return s&&s.avg7?Math.round(s.avg7):null; }catch(e){return null;} })();
     el.innerHTML = `
 <div style="margin-bottom:10px;display:flex;align-items:stretch;gap:12px;flex-wrap:nowrap">
-  <div style="flex-shrink:0;display:flex;flex-direction:column;justify-content:center">
+  <div style="flex-shrink:0">
     <h1 class="page-title" style="margin:0 0 2px">Vertex</h1>
     <p class="page-copy" style="margin:0;font-size:12px">${new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})}</p>
   </div>
-  ${_readinessCardHtml ? `<div style="flex:1;min-width:0;display:flex;align-items:stretch">${_readinessCardHtml}</div>` : '<div style="flex:1"></div>'}
+  <div style="flex:1;min-width:0;display:flex;justify-content:center;align-items:flex-start">${_readinessCardHtml||''}</div>
   <div style="flex-shrink:0;display:flex;align-items:center">
     <button class="btn small" id="btn-home-refresh-metrics" style="white-space:nowrap">Refresh</button>
   </div>
@@ -9027,7 +9025,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-ai';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-aj';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10563,6 +10561,8 @@ window.testAppleHealth = async function () {
   }
 
   window.VertexReadiness = { build: buildReadinessScore, cached: getCachedReadinessScore };
+  // Trigger home re-render so readiness card appears
+  try{if(typeof renderHomeDashboard==='function'&&(typeof state==='undefined'||state.page==='home'||!state.page)) setTimeout(renderHomeDashboard,80);}catch(e){}
 
   // v13.60.67 Weight projection: merge health_logs/bodyWeight + checkin_logs/weight by date.
   let vertexWeightProjectionRefreshInFlight = false;

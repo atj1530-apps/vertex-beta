@@ -8785,6 +8785,33 @@ document.addEventListener('change', e=>{
 bindAuthButtons();
  updateAccordionHints();
 initAuth();
+
+// AI Coach load workout — defined here to access toast, state, setCurrent, EXERCISES etc.
+window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
+  try{
+    if(!exerciseNames && window._aiWorkoutReady){
+      exerciseNames=window._aiWorkoutReady.names;
+      workoutName=window._aiWorkoutReady.name;
+    }
+    const exercises=[];
+    (exerciseNames||[]).forEach(name=>{
+      try{
+        const found=EXERCISES.find(x=>x.name===name);
+        const base=found?clone(found):{name,muscle:'',kind:'push',equip:'Dumbbells'};
+        exercises.push(normalizeStrengthExercise(base));
+      }catch(err){}
+    });
+    if(!exercises.length){ toast('No exercises found'); return; }
+    const w={name:'AI: '+(workoutName||'Generated Workout'),type:'strength',source:'ai',exercises,assignedDay:null};
+    state.page='workout';
+    setCurrent(w);
+    document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
+    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
+    window.scrollTo({top:0,behavior:'smooth'});
+    toast(exercises.length+' exercises loaded');
+  }catch(e){ console.error('vertexLoadAiWorkout:',e); toast('Load failed'); }
+};
+
 })();
 </script>
 
@@ -9027,7 +9054,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bg';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bh';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -9987,32 +10014,6 @@ window.testAppleHealth = async function () {
   }
 
   document.addEventListener('DOMContentLoaded', function(){ setTimeout(cleanPeptideStackHeader, 250); });
-  // AI Coach — load workout into builder (needs access to toast, state, setCurrent etc.)
-  window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
-    try{
-      if(!exerciseNames && window._aiWorkoutReady){
-        exerciseNames=window._aiWorkoutReady.names;
-        workoutName=window._aiWorkoutReady.name;
-      }
-      const exercises=[];
-      (exerciseNames||[]).forEach(name=>{
-        try{
-          const found=EXERCISES.find(x=>x.name===name);
-          const base=found?clone(found):{name,muscle:'',kind:'push',equip:'Dumbbells'};
-          exercises.push(normalizeStrengthExercise(base));
-        }catch(err){}
-      });
-      if(!exercises.length){ toast('No exercises found'); return; }
-      const w={name:'AI: '+(workoutName||'Generated Workout'),type:'strength',source:'ai',exercises,assignedDay:null};
-      state.page='workout';
-      setCurrent(w);
-      document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
-      document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
-      window.scrollTo({top:0,behavior:'smooth'});
-      toast(exercises.length+' exercises loaded');
-    }catch(e){ console.error('vertexLoadAiWorkout:',e); toast('Load failed'); }
-  };
-
   window.addEventListener('load', function(){ setTimeout(cleanPeptideStackHeader, 250); });
 })();
 </script>
@@ -10800,7 +10801,7 @@ window.testAppleHealth = async function () {
     out.scrollIntoView({behavior:'smooth',block:'nearest'});
   };
 
-  // vertexLoadAiWorkout moved to main IIFE
+
     const r=buildReadinessScore();
     let snap={};
     try{ snap = typeof getIntelligenceSnapshot==='function' ? getIntelligenceSnapshot() : {}; }catch(e){}

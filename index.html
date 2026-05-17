@@ -1,4 +1,6 @@
-<!doctype html>
+<!d// Re-render home so readiness card appears
+try{if(typeof renderHomeDashboard==='function'&&(state.page==='home'||!state.page)) setTimeout(renderHomeDashboard,50);}catch(e){}
+octype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -9025,7 +9027,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-ah';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-ai';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10755,10 +10757,10 @@ window.testAppleHealth = async function () {
           +'<div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Choose Workout Environment</div>'
           +'<div style="font-size:16px;font-weight:800;margin-bottom:20px">Where are you training today?</div>'
           +'<div style="display:flex;gap:12px;justify-content:center;margin-bottom:12px">'
-          +'<button class="btn acc" style="flex:1;max-width:160px;padding:14px 0;font-size:14px;font-weight:700" onclick="localStorage.setItem('vertex_ai_location','home');document.getElementById('aiActionOutput').style.display='none';vertexAiAction('workout')">Home</button>'
-          +'<button class="btn" style="flex:1;max-width:160px;padding:14px 0;font-size:14px;font-weight:700;border:1px solid var(--line2);color:var(--text)" onclick="localStorage.setItem('vertex_ai_location','gym');document.getElementById('aiActionOutput').style.display='none';vertexAiAction('workout')">Gym</button>'
+          +'<button class="btn acc" style="flex:1;max-width:160px;padding:14px 0;font-size:14px;font-weight:700" onclick="localStorage.setItem('vertex_ai_location','home');document.getElementById('aiActionOutput').innerHTML='';vertexAiAction('workout')">Home</button>'
+          +'<button class="btn" style="flex:1;max-width:160px;padding:14px 0;font-size:14px;font-weight:700;border:1px solid var(--line2)" onclick="localStorage.setItem('vertex_ai_location','gym');document.getElementById('aiActionOutput').innerHTML='';vertexAiAction('workout')">Gym</button>'
           +'</div>'
-          +'<div style="font-size:10px;color:var(--muted)">Preference saved for next time</div>'
+          +'<div style="font-size:10px;color:var(--muted)">Saved for next time</div>'
           +'</div>';
         out.scrollIntoView({behavior:'smooth',block:'nearest'});
         return;
@@ -10776,22 +10778,18 @@ window.testAppleHealth = async function () {
       const intensity=r.score>=75?'High':r.score>=55?'Moderate':'Light';
       const allEx=EXERCISES||[];
       const focusFilter=focus==='Lower Body'?/leg|glute|hamstring|quad|calf|hip|squat|lunge|deadlift/i:focus==='Upper Body'?/chest|back|shoulder|bicep|tricep|press|row|pull|curl|dip|bench/i:/.*/;
-      const isHome=ex=>{const s=[ex.equip||'',ex.env||''].join(' ').toLowerCase();return !/barbell|machine|cable|smith|lat pulldown|leg press|hack squat|pec deck/.test(s);};
-      let pool=allEx.filter(ex=>loc==='home'?isHome(ex):true).filter(ex=>focusFilter.test(ex.name||'')||focusFilter.test(ex.muscle||''));
-      if(!pool.length) pool=allEx.filter(ex=>loc==='home'?isHome(ex):true);
+      const isHomeEx=ex=>{const s=[ex.equip||'',ex.env||''].join(' ').toLowerCase();return !/barbell|machine|cable|smith|lat pulldown|leg press|hack squat|pec deck/.test(s);};
+      let pool=allEx.filter(ex=>loc==='home'?isHomeEx(ex):true).filter(ex=>focusFilter.test(ex.name||'')||focusFilter.test(ex.muscle||''));
+      if(!pool.length) pool=allEx.filter(ex=>loc==='home'?isHomeEx(ex):true);
       if(!pool.length) pool=allEx;
       const chosen=[]; const seen=new Set();
       ['Legs','Back','Chest','Shoulders','Arms'].forEach(m=>{const ex=pool.find(e=>!seen.has(e.name)&&(e.muscle||'').includes(m));if(ex){chosen.push(ex);seen.add(ex.name);}});
       pool.forEach(ex=>{if(chosen.length<5&&!seen.has(ex.name)){chosen.push(ex);seen.add(ex.name);}});
       let focusExercises=chosen.slice(0,5).map(e=>e.name);
-      if(focusExercises.length<3){
-        focusExercises=loc==='home'
-          ?['Goblet Squat','Push-Up','Dumbbell Romanian Deadlift','One-Arm Row','Hammer Curl']
-          :['Bench Press (Normal)','Lawn Mower','Overhead Press','Alternating Curl','Tricep Extension'];
-      }
+      if(focusExercises.length<3){focusExercises=loc==='home'?['Goblet Squat','Push-Up','Dumbbell Romanian Deadlift','One-Arm Row','Hammer Curl']:['Bench Press (Normal)','Lawn Mower','Overhead Press','Alternating Curl','Tricep Extension'];}
       const exNames=focusExercises.slice(0,5);
       const warmup=focus==='Lower Body'?'Hip circles, leg swings, goblet squat x10':focus==='Upper Body'?'Band pull-aparts, arm circles, push-up x10':'Jump rope 3 min + dynamic stretches';
-      const switchBtn='<button class="btn small" style="font-size:10px;margin-top:4px" onclick="localStorage.removeItem('vertex_ai_location');document.getElementById('aiActionOutput').style.display='none';vertexAiAction('workout')">Switch to '+(loc==='home'?'Gym':'Home')+'</button>';
+      const switchBtn='<button class="btn small" style="font-size:10px" onclick="localStorage.removeItem('vertex_ai_location');document.getElementById('aiActionOutput').innerHTML='';vertexAiAction('workout')">Switch to '+(loc==='home'?'Gym':'Home')+'</button>';
       const exRows=exNames.map((name,i)=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:12px;font-weight:600">'+(i+1)+'. '+esc(name)+'</span><span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">'+sets+' x '+reps+' · '+rpe+'</span></div>').join('');
       const loadBtn='<button class="btn acc" style="margin-top:12px;width:100%;padding:12px 0;font-size:14px;font-weight:700" onclick="vertexLoadAiWorkout('+JSON.stringify(exNames)+','+JSON.stringify(focus+' · '+intensity+' · '+loc.toUpperCase())+')">⚡ Load into Workout Builder</button>';
       html='<div class="coach-card" style="margin:0"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div class="label" style="margin:0">'+loc.toUpperCase()+' · '+focus+' · '+intensity+'</div>'+switchBtn+'</div><div style="margin:8px 0"><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Warm-Up — 5 min</div><div style="font-size:12px;color:var(--muted);margin-bottom:12px">'+esc(warmup)+'</div><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Main Work · Rest '+rest+'</div>'+exRows+'<div style="margin-top:10px;font-size:11px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div></div>'+loadBtn+'<div class="coach-list" style="margin-top:8px">'+coachBox('Readiness','Score '+r.score+' — '+esc(r.action))+'</div></div>'
@@ -10804,16 +10802,17 @@ window.testAppleHealth = async function () {
 
   window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
     try{
+      const allEx=EXERCISES||[];
       const exercises=[];
       (exerciseNames||[]).forEach(name=>{
         try{
-          const found=EXERCISES.find(x=>x.name===name);
+          const found=allEx.find(x=>x.name===name);
           const base=found?clone(found):{name,muscle:'',kind:'push',equip:'Dumbbells'};
           exercises.push(normalizeStrengthExercise(base));
         }catch(err){}
       });
       window._pendingAiWorkout={name:'AI: '+(workoutName||'Generated Workout'),type:'strength',source:'ai',exercises,assignedDay:null};
-      toast(exercises.length+' exercises — switching to builder…');
+      toast(exercises.length+' exercises ready — loading…');
       setTimeout(()=>{
         if(!window._pendingAiWorkout) return;
         const w=window._pendingAiWorkout; window._pendingAiWorkout=null;
@@ -10821,9 +10820,10 @@ window.testAppleHealth = async function () {
         document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
         document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
         window.scrollTo({top:0,behavior:'smooth'});
-      },100);
+      },120);
     }catch(e){console.error('vertexLoadAiWorkout error:',e);}
   };
+;
     const r=buildReadinessScore();
     let snap={};
     try{ snap = typeof getIntelligenceSnapshot==='function' ? getIntelligenceSnapshot() : {}; }catch(e){}

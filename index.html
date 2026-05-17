@@ -8825,24 +8825,32 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
 
 // ── Vertex Shareable Link ────────────────────────────────────────────────────
 
-function vertexShareWorkout(){
+async function vertexShareWorkout(){
   try{
     if(!hasWorkout()) return toast('No workout to share');
     const payload=safeWorkoutPayload(state.current);
     const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-    const url=location.origin+location.pathname+'?share='+encoded;
+    const longUrl=location.origin+location.pathname+'?share='+encoded;
     const dateStr=new Date().toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});
-    const title='Vertex Workout — '+dateStr;
-    const text=(payload.name||'Workout')+' · '+((payload.exercises||[]).length)+' exercises';
-    // Web Share API — shows title in Messages/Mail on iOS/Mac
+    const title='Vertex Workout - '+dateStr;
+    const text=(payload.name||'Workout')+' - '+((payload.exercises||[]).length)+' exercises';
+    // Shorten via Vercel proxy
+    toast('Creating share link...');
+    let shareUrl=longUrl;
+    try{
+      const r=await fetch('/api/shorten',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:longUrl})});
+      const d=await r.json();
+      if(d.short_url) shareUrl=d.short_url;
+    }catch(e){ /* fall back to long url */ }
+    // Web Share API — native share sheet on iOS/Mac
     if(navigator.share){
-      navigator.share({title,text,url}).catch(()=>{});
+      navigator.share({title,text,url:shareUrl}).catch(()=>{});
       return;
     }
     // Clipboard fallback
     if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(url).then(()=>toast('Share link copied')).catch(()=>vertexShareFallback(url));
-    } else { vertexShareFallback(url); }
+      navigator.clipboard.writeText(shareUrl).then(()=>toast('Share link copied')).catch(()=>vertexShareFallback(shareUrl));
+    } else { vertexShareFallback(shareUrl); }
   }catch(e){ toast('Share failed'); }
 }
 function vertexShareFallback(url){
@@ -9310,7 +9318,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bq';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-br';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

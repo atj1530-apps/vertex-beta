@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="screen-orientation" content="portrait">
-<title>Vertex Workout Builder v13.61.12</title>
+<title>Vertex Workout Builder v13.61.17</title>
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -3306,7 +3306,6 @@ const EXPANDED_NON_STRENGTH_EXERCISES=[
 {name:'Kettlebell Carry',muscle:'Core',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'}
 ];
 EXPANDED_NON_STRENGTH_EXERCISES.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERCISES.push(ex);});
-window.EXERCISES=EXERCISES;
 
 
 
@@ -8649,8 +8648,7 @@ function vertexClearCacheAndReload(){
 }
 window.vertexClearCacheAndReload=vertexClearCacheAndReload;
 
-document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex-item,.acc-head'); if(!t) return; if(t.id==='btn-account'){renderAccountMenu(); document.getElementById('account-menu')?.classList.toggle('on'); return} if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(confirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} if(t.matches('.acc-head')){const acc=t.parentElement; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const add=t.getAttribute('data-add'); if(add){addExerciseByName(add); return} const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){loadTemplate(tpl,true); return} const sd=t.getAttribute('data-save-day'); if(sd){await saveDay(sd); return} const aiLoad=t.getAttribute('data-ai-load'); if(aiLoad||t.id==='btn-ai-load'){ if(window._aiWorkoutReady){var d=window._aiWorkoutReady;window._aiWorkoutReady=null;if(typeof vertexLoadAiWorkout==='function')vertexLoadAiWorkout(d.names,d.title);}else{toast('Generate a workout first');} return}
- const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return} if(t.id==='btn-apple-health-sync'){
+document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex-item,.acc-head'); if(!t) return; if(t.id==='btn-account'){renderAccountMenu(); document.getElementById('account-menu')?.classList.toggle('on'); return} if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(confirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} if(t.matches('.acc-head')){const acc=t.parentElement; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const add=t.getAttribute('data-add'); if(add){addExerciseByName(add); return} const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){loadTemplate(tpl,true); return} const sd=t.getAttribute('data-save-day'); if(sd){await saveDay(sd); return} const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return} if(t.id==='btn-apple-health-sync'){
   await window.testAppleHealth();
   await refreshAppleHealthMetrics();
   vertexCrossFillCheckinWeight();
@@ -9027,7 +9025,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-au';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-af';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10563,7 +10561,6 @@ window.testAppleHealth = async function () {
   }
 
   window.VertexReadiness = { build: buildReadinessScore, cached: getCachedReadinessScore };
-  try{if(typeof renderHomeDashboard==='function'&&(typeof state==='undefined'||state.page==='home'||!state.page)) setTimeout(renderHomeDashboard,200);}catch(e){}
 
   // v13.60.67 Weight projection: merge health_logs/bodyWeight + checkin_logs/weight by date.
   let vertexWeightProjectionRefreshInFlight = false;
@@ -10750,42 +10747,32 @@ window.testAppleHealth = async function () {
     } else if(action==='deload'){
       html=`<div class="coach-card" style="margin:0"><div class="label">Deload Protocol — This Week</div><div class="coach-list">${coachBox('Volume','Reduce all sets by 40%. Keep exercise selection the same.')}${coachBox('Intensity','Cap loads at 70% of your normal working weight.')}${coachBox('Frequency','Keep training days the same — just lower the dose.')}${coachBox('Sleep','Prioritize 8+ hours every night this week.')}${coachBox('When to Resume','Return to full training next week if readiness rises above 65.')}</div></div>`;
 
-    } else if(action==='workout'||action.startsWith('_generate_')){
-      var loc=action.startsWith('_generate_')?action.replace('_generate_',''):(localStorage.getItem('vertex_ai_location')||'');
-      if(!loc||loc==='null'){
-        out.style.display='block';
-        out.innerHTML='<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:20px;text-align:center"><div style="font-family:DM Mono,monospace;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Choose Workout Environment</div><div style="font-size:15px;font-weight:800;margin-bottom:16px">Where are you training today?</div><div style="display:flex;gap:12px;justify-content:center"><button onclick="window.vertexPickEnv('home')" style="flex:1;max-width:160px;padding:14px 0;font-size:14px;font-weight:700;background:var(--acc);color:#000;border:none;border-radius:8px;cursor:pointer;font-family:inherit">Home</button><button onclick="window.vertexPickEnv('gym')" style="flex:1;max-width:160px;padding:14px 0;font-size:14px;font-weight:700;background:var(--panel2);color:var(--text);border:1px solid var(--line2);border-radius:8px;cursor:pointer;font-family:inherit">Gym</button></div></div>';
-        out.scrollIntoView({behavior:'smooth',block:'nearest'});
-        return;
+    } else if(action==='workout'){
+      let snap={};
+      try{snap=typeof getIntelligenceSnapshot==='function'?getIntelligenceSnapshot():{};}catch(e){}
+      const planned=snap.plannedMoves||[];
+      const hasLegs=planned.some(m=>/squat|leg|lunge|deadlift|hip|glute|hamstring|calf/i.test(m));
+      const hasUpper=planned.some(m=>/press|row|pull|curl|dip|bench|shoulder|chest|back/i.test(m));
+      const focus=!hasLegs?'Lower Body':!hasUpper?'Upper Body':'Full Body';
+      const sets=r.score>=75?4:r.score>=55?3:2;
+      const reps=r.score>=75?'6–8':r.score>=55?'8–12':'12–15';
+      const rpe=r.score>=75?'RPE 8–9':r.score>=55?'RPE 7–8':'RPE 6–7';
+      const rest=r.score>=75?'2–3 min':r.score>=55?'90 sec':'60 sec';
+      const intensity=r.score>=75?'High':r.score>=55?'Moderate':'Light';
+      const allSaved=(typeof state!=='undefined'&&state.savedWorkouts)?state.savedWorkouts:[];
+      const exercisePool={};
+      allSaved.forEach(w=>{(w.exercises||[]).forEach(e=>{if(e.name&&e.muscle)exercisePool[e.name]=e.muscle;});});
+      const focusFilter=focus==='Lower Body'?/leg|glute|hamstring|quad|calf|hip|squat|lunge|deadlift/i:focus==='Upper Body'?/chest|back|shoulder|bicep|tricep|press|row|pull|curl|dip|bench/i:/.*/;
+      let focusExercises=Object.entries(exercisePool).filter(([name,muscle])=>focusFilter.test(name)||focusFilter.test(muscle)).map(([name])=>name).slice(0,6);
+      if(focusExercises.length<3){
+        if(focus==='Lower Body') focusExercises=['Barbell Back Squat','Romanian Deadlift','Leg Press','Walking Lunges','Leg Curl'];
+        else if(focus==='Upper Body') focusExercises=['Bench Press','Barbell Row','Overhead Press','Pull-Up','Dumbbell Curl'];
+        else focusExercises=['Squat','Bench Press','Deadlift','Barbell Row','Overhead Press','Lunge'];
       }
-      var snap={}; try{snap=typeof getIntelligenceSnapshot==='function'?getIntelligenceSnapshot():{};}catch(e){}
-      var planned=snap.plannedMoves||[];
-      var hasLegs=planned.some(function(m){return /squat|leg|lunge|deadlift|hip|glute|hamstring|calf/i.test(m);});
-      var hasUpper=planned.some(function(m){return /press|row|pull|curl|dip|bench|shoulder|chest|back/i.test(m);});
-      var focus=!hasLegs?'Lower Body':!hasUpper?'Upper Body':'Full Body';
-      var sets=r.score>=75?4:r.score>=55?3:2;
-      var reps=r.score>=75?'6–8':r.score>=55?'8–12':'12–15';
-      var rpe=r.score>=75?'RPE 8–9':r.score>=55?'RPE 7–8':'RPE 6–7';
-      var rest=r.score>=75?'2–3 min':r.score>=55?'90 sec':'60 sec';
-      var intensity=r.score>=75?'High':r.score>=55?'Moderate':'Light';
-      var allEx2=window.EXERCISES||[];
-      var focusFilter=focus==='Lower Body'?/leg|glute|hamstring|quad|calf|hip|squat|lunge|deadlift/i:focus==='Upper Body'?/chest|back|shoulder|bicep|tricep|press|row|pull|curl|dip|bench/i:/.*/;
-      var isHomeEx=function(ex){var s=[ex.equip||'',ex.env||''].join(' ').toLowerCase();return !/barbell|machine|cable|smith|lat pulldown|leg press|hack squat|pec deck/.test(s);};
-      var pool=allEx2.filter(function(ex){return loc==='home'?isHomeEx(ex):true;}).filter(function(ex){return focusFilter.test(ex.name||'')||focusFilter.test(ex.muscle||'');});
-      if(!pool.length) pool=allEx2.filter(function(ex){return loc==='home'?isHomeEx(ex):true;});
-      if(!pool.length) pool=allEx2;
-      var chosen=[]; var seen=new Set();
-      ['Legs','Back','Chest','Shoulders','Arms'].forEach(function(m){var ex=pool.find(function(e){return !seen.has(e.name)&&(e.muscle||'').includes(m);});if(ex){chosen.push(ex);seen.add(ex.name);}});
-      pool.forEach(function(ex){if(chosen.length<5&&!seen.has(ex.name)){chosen.push(ex);seen.add(ex.name);}});
-      var focusExercises=chosen.slice(0,5).map(function(e){return e.name;});
-      if(focusExercises.length<3){focusExercises=loc==='home'?['Goblet Squat','Push-Up','Dumbbell Romanian Deadlift','One-Arm Row','Hammer Curl']:['Bench Press (Normal)','Lawn Mower','Overhead Press','Alternating Curl','Tricep Extension'];}
-      var exNames=focusExercises.slice(0,5);
-      var warmup=focus==='Lower Body'?'Hip circles, leg swings, goblet squat x10':focus==='Upper Body'?'Band pull-aparts, arm circles, push-up x10':'Jump rope 3 min + dynamic stretches';
-      var switchBtn='<button onclick="window.vertexPickEnv('')" style="font-size:10px;background:none;border:none;color:var(--muted);cursor:pointer;text-decoration:underline;padding:0">Switch to '+(loc==='home'?'Gym':'Home')+'</button>';
-      var exRows=exNames.map(function(name,i){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:12px;font-weight:600">'+(i+1)+'. '+esc(name)+'</span><span style="font-family:DM Mono,monospace;font-size:10px;color:var(--muted)">'+sets+' x '+reps+' · '+rpe+'</span></div>';}).join('');
-      window._aiWorkoutReady={names:exNames,title:focus+' · '+intensity+' · '+loc.toUpperCase()};
-      var loadBtn='<button onclick="if(window._aiWorkoutReady){var d=window._aiWorkoutReady;window._aiWorkoutReady=null;window.vertexLoadAiWorkout(d.names,d.title);}" style="margin-top:12px;width:100%;padding:12px 0;font-size:14px;font-weight:700;background:var(--acc);color:#000;border:none;border-radius:8px;cursor:pointer;font-family:inherit">⚡ Load into Workout Builder</button>';
-      html='<div class="coach-card" style="margin:0"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div class="label" style="margin:0">'+loc.toUpperCase()+' · '+focus+' · '+intensity+'</div>'+switchBtn+'</div><div style="margin:8px 0"><div style="font-size:10px;color:var(--muted);font-family:DM Mono,monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Warm-Up — 5 min</div><div style="font-size:12px;color:var(--muted);margin-bottom:12px">'+esc(warmup)+'</div><div style="font-size:10px;color:var(--muted);font-family:DM Mono,monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Main Work · Rest '+rest+'</div>'+exRows+'<div style="margin-top:10px;font-size:11px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div></div>'+loadBtn+'<div class="coach-list" style="margin-top:8px">'+coachBox('Readiness','Score '+r.score+' — '+esc(r.action))+'</div></div>'
+      const warmup=focus==='Lower Body'?'Hip circles, leg swings, goblet squat x10':focus==='Upper Body'?'Band pull-aparts, arm circles, push-up x10':'Jump rope 3 min + dynamic stretches';
+      const exRows=focusExercises.slice(0,5).map((name,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:12px">${i+1}. ${esc(name)}</span><span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${sets} x ${reps} · ${rpe}</span></div>`).join('');
+      const loadBtn=`<button class="btn acc" style="margin-top:12px;width:100%" onclick="vertexLoadAiWorkout(${JSON.stringify(focusExercises.slice(0,5))},${JSON.stringify(focus+' · '+intensity)})">⚡ Load into Workout Builder</button>`;
+      html=`<div class="coach-card" style="margin:0"><div class="label">Today's Workout — ${focus} · ${intensity}</div><div style="margin:8px 0"><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Warm-Up — 5 min</div><div style="font-size:12px;color:var(--muted);margin-bottom:12px">${esc(warmup)}</div><div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Main Work · Rest ${rest}</div>${exRows}<div style="margin-top:10px;font-size:11px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div></div>${loadBtn}<div class="coach-list" style="margin-top:8px">${coachBox('Readiness','Score '+r.score+' — '+esc(r.action))}</div></div>`;
     }
 
     out.style.display='block';
@@ -10793,34 +10780,28 @@ window.testAppleHealth = async function () {
     out.scrollIntoView({behavior:'smooth',block:'nearest'});
   };
 
-  window.vertexPickEnv = function(loc){
-    localStorage.setItem('vertex_ai_location', loc||'');
-    var aOut=document.getElementById('aiActionOutput');
-    if(aOut) aOut.innerHTML='';
-    window.vertexAiAction('_generate_'+(loc||''));
-  };
-
   window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
     try{
-      var allEx=window.EXERCISES||[];
-      var exercises=[];
-      (exerciseNames||[]).forEach(function(name){
+      const exercises=[];
+      (exerciseNames||[]).forEach(name=>{
         try{
-          var found=allEx.find(function(x){return x.name===name;});
-          var base=found?clone(found):{name:name,muscle:'',kind:'push',equip:'Dumbbells'};
+          const found=EXERCISES.find(x=>x.name===name);
+          const base=found?clone(found):{name,muscle:'',kind:'push',equip:'Dumbbells'};
           exercises.push(normalizeStrengthExercise(base));
         }catch(err){}
       });
-      var w={name:'AI: '+(workoutName||'Generated Workout'),type:'strength',source:'ai',exercises:exercises,assignedDay:null};
-      state.page='workout';
-      setCurrent(w);
-      document.querySelectorAll('.sidebar,.right').forEach(function(el){el.style.display='';});
-      document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(function(el){el.style.display='';});
-      window.scrollTo({top:0,behavior:'smooth'});
-      toast(exercises.length+' exercises loaded into Workout Builder');
+      window._pendingAiWorkout={name:'AI: '+(workoutName||'Generated Workout'),type:'strength',source:'ai',exercises,assignedDay:null};
+      toast(exercises.length+' exercises — switching to builder…');
+      setTimeout(()=>{
+        if(!window._pendingAiWorkout) return;
+        const w=window._pendingAiWorkout; window._pendingAiWorkout=null;
+        setCurrent(w); state.page='workout'; renderAll();
+        document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
+        document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
+        window.scrollTo({top:0,behavior:'smooth'});
+      },100);
     }catch(e){console.error('vertexLoadAiWorkout error:',e);}
   };
-;
     const r=buildReadinessScore();
     let snap={};
     try{ snap = typeof getIntelligenceSnapshot==='function' ? getIntelligenceSnapshot() : {}; }catch(e){}
@@ -11025,4 +11006,284 @@ window.testAppleHealth = async function () {
   console.log('Vertex Academy + AI Coach readiness layer loaded', VERSION);
 })();
 </script>
-</body></html>
+
+
+
+
+
+
+
+
+
+
+<style>
+/* v13.61.15 — Home readiness alignment lock */
+@media (min-width: 901px){
+  body.app-page-home #homePage .progress-head,
+  body.app-page-home .progress-head{
+    display:grid !important;
+    grid-template-columns:1fr minmax(360px, 440px) 1fr !important;
+    align-items:center !important;
+    gap:16px !important;
+  }
+  body.app-page-home #homePage .progress-head > *:first-child,
+  body.app-page-home .progress-head > *:first-child{
+    justify-self:start !important;
+  }
+  body.app-page-home #vertex-home-readiness{
+    justify-self:center !important;
+    width:100% !important;
+    max-width:440px !important;
+  }
+  body.app-page-home #homePage .progress-head .btn,
+  body.app-page-home .progress-head .btn{
+    justify-self:end !important;
+  }
+}
+</style>
+
+<script>
+/* v13.61.15 — Local AI workout generator + builder loader, Anthropic-independent */
+(function(){
+  function getState(){ return window.state || {}; }
+  function esc(v){ 
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function norm(v){
+    return String(v || '').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+  }
+  function lib(){
+    return Array.isArray(window.EXERCISES) ? window.EXERCISES :
+      Array.isArray(window.exercises) ? window.exercises :
+      Array.isArray(window.exerciseLibrary) ? window.exerciseLibrary : [];
+  }
+  function currentCategory(){
+    const st = getState();
+    const c = String(st.category || st.env || st.equipmentMode || '').toLowerCase();
+    if(c.includes('home')) return 'home';
+    if(c.includes('gym')) return 'gym';
+    const homeOn = document.querySelector('.seg-btn.on,.chip.on,.equip-toggle.on');
+    const txt = homeOn ? (homeOn.textContent || '').toLowerCase() : '';
+    if(txt.includes('home')) return 'home';
+    if(txt.includes('gym')) return 'gym';
+    return localStorage.getItem('vertex_ai_workout_location') || '';
+  }
+  function isHomeExercise(ex){
+    const s = norm([ex.name, ex.equipment, ex.equip, ex.env, ex.location, ex.category].join(' '));
+    if(/barbell|leg press|machine|cable|smith|hack squat|lat pulldown|pec deck|sled/.test(s)) return false;
+    if(/bodyweight|dumbbell|kettlebell|band|home|mat|yoga|floor|none/.test(s)) return true;
+    return false;
+  }
+  function isGymExercise(ex){
+    const s = norm([ex.name, ex.equipment, ex.equip, ex.env, ex.location, ex.category].join(' '));
+    return !/stretch|mobility|breathing/.test(s);
+  }
+  function muscleText(ex){ return norm([ex.muscle, ex.group, ex.primary, ex.name].join(' ')); }
+  function pickFromLibrary(location){
+    const all = lib().filter(Boolean);
+    let pool = all.filter(ex => location === 'home' ? isHomeExercise(ex) : isGymExercise(ex));
+    if(!pool.length) pool = all;
+
+    const st = getState();
+    const training = norm(st.trainingType || st.type || 'strength');
+    const lowerBias = /leg|lower|squat|deadlift|lunge|hamstring|quad|glute|calf/.test(norm(document.body.innerText || ''));
+    const targets = lowerBias ? ['quad','hamstring','glute','leg','calf'] : ['chest','back','shoulder','tricep','bicep','leg'];
+
+    const chosen = [];
+    targets.forEach(t => {
+      const found = pool.find(ex => !chosen.includes(ex) && muscleText(ex).includes(t));
+      if(found) chosen.push(found);
+    });
+    pool.forEach(ex => { if(chosen.length < 5 && !chosen.includes(ex)) chosen.push(ex); });
+    return chosen.slice(0,5);
+  }
+  function makeWorkout(location){
+    const chosen = pickFromLibrary(location);
+    const fallbackHome = ['Goblet Squat','Dumbbell Romanian Deadlift','Push-Up','One-Arm Dumbbell Row','Walking Lunges'];
+    const fallbackGym = ['Barbell Back Squat','Romanian Deadlift','Leg Press','Walking Lunges','Leg Curl'];
+    const names = chosen.length ? chosen.map(ex => ex.name || 'Exercise') : (location === 'home' ? fallbackHome : fallbackGym);
+
+    return {
+      name: (location === 'home' ? 'AI Home Workout' : 'AI Gym Workout'),
+      type: 'strength',
+      source: 'ai_coach_local',
+      location: location,
+      exercises: names.slice(0,5).map(function(name){
+        const ex = typeof name === 'string' ? findExercise(name) : name;
+        const display = typeof name === 'string' ? name : (name.name || 'Exercise');
+        return {
+          name: ex && ex.name ? ex.name : display,
+          muscle: ex && (ex.muscle || ex.group || ex.primary) ? (ex.muscle || ex.group || ex.primary) : '',
+          equipment: ex && (ex.equipment || ex.equip) ? (ex.equipment || ex.equip) : '',
+          sets: [{reps:'8-12',weight:''},{reps:'8-12',weight:''},{reps:'8-12',weight:''}],
+          target: '8-12',
+          notes: 'AI Coach'
+        };
+      })
+    };
+  }
+  function findExercise(name){
+    const target = norm(name);
+    return lib().find(ex => norm(ex.name) === target)
+      || lib().find(ex => norm(ex.name).includes(target))
+      || lib().find(ex => target.includes(norm(ex.name)));
+  }
+  function outputEl(){
+    let out = document.getElementById('aiActionOutput');
+    const actions = document.getElementById('aiCoachActions');
+    if(!out && actions){
+      out = document.createElement('div');
+      out.id = 'aiActionOutput';
+      out.style.cssText = 'margin:0 0 12px;display:none';
+      actions.after(out);
+    }
+    return out;
+  }
+  function renderAiCard(workout, readinessScore){
+    const out = outputEl();
+    if(!out) return;
+    window.vertexLastAiWorkout = workout;
+    try{ localStorage.setItem('vertex_last_ai_workout', JSON.stringify(workout)); }catch(e){}
+    const locLabel = workout.location === 'home' ? 'HOME' : 'GYM';
+    out.style.display = 'block';
+    out.innerHTML = '<div class="coach-card" style="margin-top:12px">' +
+      '<div class="label">TODAY’S WORKOUT — ' + locLabel + ' · MODERATE</div>' +
+      '<div style="margin-top:10px;color:var(--muted)">Warm-up — 5 min<br>Easy movement, mobility, and ramp-up sets.</div>' +
+      '<div class="label" style="margin-top:14px">MAIN WORK · REST 90 SEC</div>' +
+      workout.exercises.map(function(ex,i){
+        return '<div style="display:grid;grid-template-columns:1fr auto;gap:12px;border-bottom:1px solid var(--line);padding:9px 0">' +
+          '<b>'+(i+1)+'. '+esc(ex.name)+'</b><span class="mono" style="color:var(--muted);font-size:11px">3 × 8-12 · RPE 7-8</span></div>';
+      }).join('') +
+      '<div style="margin-top:12px;color:var(--muted)">Cool-down: 5 min walk + stretch target muscles.</div>' +
+      '<button class="btn acc" type="button" onclick="vertexLoadAiWorkout()" style="width:100%;margin-top:16px">⚡ Load into Workout Builder</button>' +
+      '<div class="coach-item" style="margin-top:8px"><b>Readiness</b><span>Score '+esc(readinessScore || 72)+' — Train, but avoid unnecessary max-effort work.</span></div>' +
+      '</div>';
+  }
+  function askLocationAndGenerate(){
+    const existing = currentCategory();
+    let location = existing;
+    if(location !== 'home' && location !== 'gym'){
+      const useHome = window.confirm("Generate for HOME equipment?\\n\\nOK = Home\\nCancel = Gym");
+      location = useHome ? 'home' : 'gym';
+    } else {
+      const keep = window.confirm("Generate today's workout for " + location.toUpperCase() + "?\\n\\nOK = Yes\\nCancel = Choose the other option");
+      if(!keep) location = location === 'home' ? 'gym' : 'home';
+    }
+    localStorage.setItem('vertex_ai_workout_location', location);
+    let score = 72;
+    try{ if(window.VertexReadiness && typeof window.VertexReadiness.cached === 'function') score = window.VertexReadiness.cached().score || score; }catch(e){}
+    const workout = makeWorkout(location);
+    renderAiCard(workout, score);
+    if(typeof toast === 'function') toast('AI '+location+' workout generated');
+    return workout;
+  }
+  window.vertexLoadAiWorkout = function(){
+    let workout = window.vertexLastAiWorkout;
+    if(!workout){
+      try{ workout = JSON.parse(localStorage.getItem('vertex_last_ai_workout') || 'null'); }catch(e){}
+    }
+    if(!workout || !Array.isArray(workout.exercises) || !workout.exercises.length){
+      workout = makeWorkout(currentCategory() || 'home');
+    }
+    if(typeof setCurrent === 'function') setCurrent(workout);
+    else if(window.state) window.state.current = workout;
+    if(window.state) window.state.page = 'workout';
+    if(typeof markUnsaved === 'function') markUnsaved();
+    if(typeof renderAll === 'function') renderAll();
+    window.scrollTo({top:0, behavior:'smooth'});
+    if(typeof toast === 'function') toast('AI workout loaded');
+    return true;
+  };
+  window.vertexGenerateLocalAiWorkout = askLocationAndGenerate;
+
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const text = btn.textContent || '';
+    if(text.includes("Generate Today's Workout")){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      askLocationAndGenerate();
+    }
+    if(text.includes('Load into Workout Builder')){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      window.vertexLoadAiWorkout();
+    }
+  }, true);
+})();
+</script>
+
+
+<script>
+/* v13.61.16 — Home Today/Tomorrow Load-Edit hard fix */
+(function(){
+  function todayKeySafe(){
+    if(typeof todayKey === 'function') return todayKey();
+    const keys = ['sun','mon','tue','wed','thu','fri','sat'];
+    return keys[new Date().getDay()];
+  }
+  function tomorrowKeySafe(){
+    const keys = ['sun','mon','tue','wed','thu','fri','sat'];
+    return keys[(new Date().getDay()+1)%7];
+  }
+  function validWorkout(w){
+    return !!(w && (
+      (Array.isArray(w.exercises) && w.exercises.length) ||
+      (Array.isArray(w.moves) && w.moves.length) ||
+      (Array.isArray(w.blocks) && w.blocks.length)
+    ));
+  }
+  function cloneSafe(w){
+    try{ return JSON.parse(JSON.stringify(w || {})); }catch(e){ return Object.assign({}, w || {}); }
+  }
+  function normalizeWorkout(w, day){
+    const out = cloneSafe(w);
+    out.assignedDay = day;
+    if(!out.type) out.type = 'strength';
+    if(out.type === 'strength' && !Array.isArray(out.exercises)) out.exercises = [];
+    if((out.type === 'flow' || out.type === 'interval') && !Array.isArray(out.moves)) out.moves = [];
+    return out;
+  }
+  function loadPlannerDayIntoBuilder(day){
+    if(!window.state) return false;
+    const planner = window.state.planner || {};
+    const w = planner[day];
+    if(!validWorkout(w)){
+      if(typeof toast === 'function') toast('No workout planned for this day');
+      return false;
+    }
+    const normalized = normalizeWorkout(w, day);
+    if(typeof setCurrent === 'function') setCurrent(normalized);
+    else window.state.current = normalized;
+    window.state.page = 'workout';
+    if(typeof renderAll === 'function') renderAll();
+    window.scrollTo({top:0, behavior:'smooth'});
+    if(typeof toast === 'function') toast('Workout loaded');
+    return true;
+  }
+  window.vertexLoadTodayIntoBuilder = function(){ return loadPlannerDayIntoBuilder(todayKeySafe()); };
+  window.vertexLoadTomorrowIntoBuilder = function(){ return loadPlannerDayIntoBuilder(tomorrowKeySafe()); };
+
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const label = (btn.textContent || '').trim().toLowerCase();
+    if(label === 'load / edit' || label === 'start today'){
+      const card = btn.closest('.today-card, .day-card, .panel, [class*="today"], [class*="tomorrow"]');
+      const cardText = (card ? card.textContent : '').toLowerCase();
+      let day = todayKeySafe();
+      if(cardText.includes('tomorrow')) day = tomorrowKeySafe();
+
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      loadPlannerDayIntoBuilder(day);
+    }
+  }, true);
+})();
+</script>
+
+</body>
+</html>

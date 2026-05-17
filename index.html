@@ -9025,7 +9025,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-af';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-ay';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -11044,8 +11044,9 @@ window.testAppleHealth = async function () {
 
 
 
+
 <style>
-/* v13.61.18 — AI Coach picker */
+/* v13.61.19 — AI Coach picker */
 .vertex-ai-picker{
   display:flex;
   gap:8px;
@@ -11061,8 +11062,13 @@ window.testAppleHealth = async function () {
 </style>
 
 <script>
-/* v13.61.18 — Safe AI Coach picker + load */
+/* v13.61.19 — Safe AI Coach picker + builder load using lexical app state */
 (function(){
+  function appState(){
+    try { if(typeof state !== 'undefined') return state; } catch(e) {}
+    return window.state || null;
+  }
+
   function ensureOutput(){
     var out = document.getElementById('aiActionOutput');
     var actions = document.getElementById('aiCoachActions');
@@ -11119,9 +11125,7 @@ window.testAppleHealth = async function () {
     if(!out) return;
 
     window._aiWorkoutReady = workout;
-    try {
-      localStorage.setItem('vertex_ai_workout_ready', JSON.stringify(workout));
-    } catch(e) {}
+    try { localStorage.setItem('vertex_ai_workout_ready', JSON.stringify(workout)); } catch(e) {}
 
     var rows = '';
     for(var i=0; i<workout.exercises.length; i++){
@@ -11147,42 +11151,50 @@ window.testAppleHealth = async function () {
 
   window.vertexPickEnv = function(env){
     renderWorkout(buildWorkout(env === 'gym' ? 'gym' : 'home'));
-    if(typeof toast === 'function'){
-      toast((env === 'gym' ? 'Gym' : 'Home') + ' workout generated');
-    }
+    if(typeof toast === 'function') toast((env === 'gym' ? 'Gym' : 'Home') + ' workout generated');
   };
 
   window.vertexLoadAiWorkout = function(){
     var workout = window._aiWorkoutReady;
     if(!workout){
-      try {
-        workout = JSON.parse(localStorage.getItem('vertex_ai_workout_ready') || 'null');
-      } catch(e) {}
+      try { workout = JSON.parse(localStorage.getItem('vertex_ai_workout_ready') || 'null'); } catch(e) {}
     }
-
     if(!workout || !workout.exercises || !workout.exercises.length){
       if(typeof toast === 'function') toast('Generate a workout first');
       return false;
     }
 
-    if(window.state) window.state.page = 'workout';
+    var s = appState();
+    if(s) s.page = 'workout';
 
-    if(typeof setCurrent === 'function'){
-      setCurrent(workout);
-    } else if(window.state){
-      window.state.current = workout;
+    try {
+      if(typeof setCurrent === 'function') {
+        setCurrent(workout);
+      } else if(s) {
+        s.current = workout;
+      }
+    } catch(err) {
+      console.error('AI setCurrent failed', err);
+      if(s) s.current = workout;
     }
 
-    if(window.state) window.state.page = 'workout';
+    s = appState();
+    if(s) {
+      s.current = workout;
+      s.page = 'workout';
+    }
 
     try { if(typeof markUnsaved === 'function') markUnsaved(); } catch(e) {}
-    try { if(typeof renderAll === 'function') renderAll(); } catch(e) {}
     try { if(typeof setPage === 'function') setPage('workout'); } catch(e) {}
+    try { if(typeof renderAll === 'function') renderAll(); } catch(e) {}
 
     setTimeout(function(){
+      var s2 = appState();
+      if(s2) s2.page = 'workout';
       try { if(typeof setPage === 'function') setPage('workout'); } catch(e) {}
       try { if(typeof renderBuilder === 'function') renderBuilder(); } catch(e) {}
-    }, 50);
+      window.scrollTo({top:0,behavior:'smooth'});
+    }, 75);
 
     if(typeof toast === 'function') toast('AI workout loaded');
     return true;

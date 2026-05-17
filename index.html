@@ -7500,6 +7500,10 @@ function renderHomeDashboard(){
 
     // Build readiness + weight card HTML inline
     const _vCards = (typeof vertexGetSettings==='function' ? vertexGetSettings().cards : null) || {};
+    // If VertexReadiness not yet loaded, retry after it's available
+    if(typeof window.VertexReadiness !== 'object'){
+      setTimeout(()=>{ try{ if(typeof renderHomeDashboard==='function') renderHomeDashboard(); }catch(e){} }, 200);
+    }
     let _readinessCardHtml = '';
     let _weightCardHtml = '';
     try {
@@ -9025,7 +9029,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-aj';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260516-ak';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10562,7 +10566,7 @@ window.testAppleHealth = async function () {
 
   window.VertexReadiness = { build: buildReadinessScore, cached: getCachedReadinessScore };
   // Trigger home re-render so readiness card appears
-  try{if(typeof renderHomeDashboard==='function'&&(typeof state==='undefined'||state.page==='home'||!state.page)) setTimeout(renderHomeDashboard,80);}catch(e){}
+  try{if(typeof renderHomeDashboard==='function'&&(typeof state==='undefined'||state.page==='home'||!state.page)) setTimeout(renderHomeDashboard,200);}catch(e){}
 
   // v13.60.67 Weight projection: merge health_logs/bodyWeight + checkin_logs/weight by date.
   let vertexWeightProjectionRefreshInFlight = false;

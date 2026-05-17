@@ -7842,6 +7842,7 @@ function renderAiCoachPage(){
   const focus=document.getElementById('aiWeeklyFocus');
   if(focus) focus.innerHTML=`${coachItem(c.focus, c.missed.length?('Prioritize: '+c.missed.slice(0,4).join(', ')): 'Maintain balanced weekly coverage.')}${coachItem('Volume Change', `${c.volChange>=0?'+':''}${c.volChange}% vs prior week.`)}${coachItem('Most Trained', c.most?`${c.most[0]} · ${Math.round(c.most[1]).toLocaleString()} lb logged`:'Log workouts to detect training bias.')}`;
 
+  // Inject action buttons
   const _actionsId='aiCoachActions';
   let _actionsEl=document.getElementById(_actionsId);
   if(!_actionsEl){
@@ -7851,12 +7852,12 @@ function renderAiCoachPage(){
     const _head=document.querySelector('#aiPage .progress-head');
     if(_head) _head.after(_actionsEl);
   }
-  _actionsEl.innerHTML='<button class="btn small acc" onclick="vertexAiAction(\\'workout\\')">Generate Today\\'s Workout</button><button class="btn small" onclick="vertexAiAction(\\'deload\\')">Deload This Week</button><button class="btn small" onclick="vertexAiAction(\\'explain\\')">Explain My Readiness</button>';
+  _actionsEl.innerHTML='<button class="btn small acc" onclick="vertexAiAction(\'workout\')">Generate Today\'s Workout</button><button class="btn small" onclick="vertexAiAction(\'deload\')">Deload This Week</button><button class="btn small" onclick="vertexAiAction(\'explain\')">Explain My Readiness</button>';
   if(!document.getElementById('aiActionOutput')){
-    const out=document.createElement('div');
-    out.id='aiActionOutput';
-    out.style.cssText='margin:0 0 12px;display:none';
-    _actionsEl.after(out);
+    const _out=document.createElement('div');
+    _out.id='aiActionOutput';
+    _out.style.cssText='margin:0 0 12px;display:none';
+    _actionsEl.after(_out);
   }
 }
 function renderSmartBuilderSuggestion(){
@@ -9024,7 +9025,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bc';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bd';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

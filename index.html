@@ -9318,7 +9318,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-by';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bz';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -11310,7 +11310,7 @@ window.testAppleHealth = async function () {
 
 
 <style>
-/* v20260517-by — Visible Macro Tracking toggle + panel */
+/* v20260517-bz — Visible Macro Tracking toggle + panel */
 #vertexMacroToggleWrap{
   display:inline-flex;
   align-items:center;
@@ -11349,7 +11349,7 @@ window.testAppleHealth = async function () {
 </style>
 
 <script>
-/* v20260517-by — render Macro Tracking toggle physically inside Wellness */
+/* v20260517-bz — render Macro Tracking toggle physically inside Wellness */
 (function(){
   const ENABLED='vertex_macro_tracking_enabled';
   const GOAL='vertex_macro_goal_mode';
@@ -11505,10 +11505,12 @@ window.testAppleHealth = async function () {
   }
   function boot(){
     render();
-    setInterval(function(){
-      const txt=document.body?document.body.innerText:'';
-      if(/WELLNESS/i.test(txt))render();
-    },1000);
+    // Do not re-render on a timer; it closes native select dropdowns.
+    // Render once after navigation settles, then only on user actions.
+    setTimeout(render,250);
+    document.addEventListener('visibilitychange',function(){
+      if(!document.hidden) setTimeout(render,250);
+    });
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();

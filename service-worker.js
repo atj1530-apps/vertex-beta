@@ -1,7 +1,7 @@
 /* Vertex Workout Builder — PWA Service Worker
-   Cache bump: v13.61.15 mobile home and builder layout fix. */
+   Cache bump: v13.61.16 PWA auth recovery. */
 
-const CACHE_NAME = 'vertex-v20260517-mobile-home-builder-layout';
+const CACHE_NAME = 'vertex-v20260517-pwa-auth-recovery-v136116';
 const APP_SHELL = [
   './',
   './index.html',
@@ -28,13 +28,16 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
+
   if (
     url.hostname.includes('supabase') ||
     url.hostname.includes('anthropic') ||
     url.hostname.includes('unpkg') ||
     url.hostname.includes('youtube') ||
     url.hostname.includes('googleapis')
-  ) return;
+  ) {
+    return;
+  }
 
   if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
     event.respondWith(

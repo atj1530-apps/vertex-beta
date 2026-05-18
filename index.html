@@ -2364,27 +2364,47 @@ button.acc-hint {
 }
 
 
-/* ============================================================
-   v13.61.14 MOBILE AUTH + BUILDER ROUTING + WELLNESS COMPACT
-   ============================================================ */
-@media(max-width:760px){
-  html,body{max-width:100%!important;overflow-x:hidden!important;}
-  #app,.main,.page-panel,#home-dashboard,#wellnessPage{max-width:100%!important;overflow-x:hidden!important;}
-  /* Home: remove oversized AI Coach pill from readiness box on phones */
-  .vertex-home-pill[data-nav="ai"],
-  button[data-nav="ai"].vertex-home-pill{display:none!important;}
-  .vertex-home-readiness{grid-template-columns:1fr!important;max-width:100%!important;overflow:hidden!important;}
-  .vertex-home-readiness *{max-width:100%;}
-  .home-stat-strip{display:grid!important;grid-template-columns:repeat(4,minmax(72px,1fr))!important;gap:8px!important;overflow:visible!important;}
-  .home-stat-strip > *{min-width:0!important;}
-  /* Wellness: keep Macro Tracking as a tab-sized control, not a full-width row */
-  #wellnessPage .progress-tabs{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;}
-  #vertexMacroToggleWrap{display:contents!important;}
-  #vertexMacroToggleBtn{width:100%!important;min-height:42px!important;padding:9px 10px!important;border-radius:7px!important;font-size:13px!important;letter-spacing:.5px!important;}
-  #wellnessPage .progress-tab{width:100%!important;min-height:42px!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;}
-  #wellnessPage .progress-tabs .progress-tab[data-wtab="stack"]{grid-column:1/-1;}
-  .vertex-macro-controls{grid-template-columns:1fr!important;}
-  .vertex-macro-action-grid,.vertex-macro-trend{grid-template-columns:1fr 1fr!important;}
+/* v13.61.14 MOBILE LOGIN / HOME / WELLNESS FIX */
+@media(max-width:900px){
+  body.app-page-home #vertex-home-readiness .vertex-home-pill,
+  body.app-page-home .vertex-home-pill{
+    display:none!important;
+  }
+  body.app-page-home #vertex-home-readiness{
+    width:auto!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+  }
+  body.app-page-home .progress-head{
+    grid-template-columns:1fr auto!important;
+    gap:10px!important;
+  }
+  #wellnessPage .progress-tabs{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+  }
+  #wellnessPage .progress-tabs .progress-tab{
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+    justify-content:center!important;
+    text-align:center!important;
+  }
+  #vertexMacroToggleWrap{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+    width:100%!important;
+  }
+  #vertexMacroToggleWrap .btn{
+    min-width:0!important;
+    width:100%!important;
+  }
+  .vertex-mobile-bodycomp-shortcut{
+    display:block!important;
+    width:100%!important;
+  }
 }
 
 </style>
@@ -3158,7 +3178,7 @@ button.acc-hint {
 <div id="session" class="session"><div class="session-card"><div class="label">Guided Session</div><div id="sessionTitle" class="session-title">Workout</div><div id="sessionCue" style="color:var(--muted);font-size:16px;margin:8px 0 18px"></div><div id="sessionTimer" class="timer">00</div><div id="sessionNext" class="panel" style="color:var(--muted)"></div><div class="session-actions"><button id="sessionNextBtn" class="btn acc">Next</button><button class="btn" onclick="openRestTimer(60)">⏱ Rest</button><button class="btn" onclick="document.getElementById('plateCalcModal').classList.add('on')">🏋 Plates</button><button class="btn" onclick="document.getElementById('oneRMModal').classList.add('on')">📈 1RM</button><button id="sessionClose" class="btn">Close</button></div></div></div>
 <script>
 (()=>{'use strict';
-const VERSION='v13.60.95 — Adaptive coach cleanup';
+const VERSION='v13.61.14 — Mobile auth and builder routing fix';
 const DAYS=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
 const DAY_LABEL={monday:'Monday',tuesday:'Tuesday',wednesday:'Wednesday',thursday:'Thursday',friday:'Friday',saturday:'Saturday',sunday:'Sunday'};
 const todayKey=(()=>{const dayName=new Date().toLocaleDateString('en-US',{weekday:'long'}).toLowerCase();return DAYS.includes(dayName)?dayName:DAYS[(new Date().getDay()+6)%7];})();
@@ -4421,17 +4441,26 @@ async function signIn(email,password){
   email=normalizeEmail(email);
   if(!email||!password) return 'Email and password are required.';
   const supa=getSupa(); if(!supa) return 'Supabase could not load. Check your connection.';
-  const {data,error}=await supa.auth.signInWithPassword({email,password});
-  if(error) return error.message;
-  if(data && data.session && typeof applyAuthenticatedSession==='function'){
-    await applyAuthenticatedSession(data.session);
-  } else {
-    authUser=authFromUser(data.user);
-    window.authUser=authUser;
-    document.body.classList.add('authenticated');
-    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll();
+  try{
+    const result = await withTimeout(supa.auth.signInWithPassword({email,password}), 12000);
+    const data = result && result.data;
+    const error = result && result.error;
+    if(error) return error.message || 'Sign-in failed.';
+    if(!data || !data.user) return 'Sign-in failed. Please try again.';
+    if(data.session && typeof applyAuthenticatedSession==='function'){
+      await applyAuthenticatedSession(data.session);
+    } else {
+      authUser=authFromUser(data.user);
+      window.authUser=authUser;
+      document.body.classList.add('authenticated');
+      setSyncStatus('synced','Supabase synced');
+      renderAccountMenu(); syncAuthShell(); renderAll();
+    }
+    return '';
+  }catch(err){
+    console.error('Email sign-in failed:', err);
+    return (err && err.message) || 'Sign-in timed out. Check connection and try again.';
   }
-  return '';
 }
 async function createAccount(email,password){
   email=normalizeEmail(email);
@@ -4497,41 +4526,43 @@ async function createAccount(email,password){
 async function signInGoogle(btn){
   const originalText=btn?btn.textContent:"";
   try{
-    if(btn){btn.disabled=true; btn.textContent="Launching Google...";}
+    if(btn){btn.disabled=true; btn.textContent="Opening Google...";}
     localStorage.removeItem("vertex_guest_mode");
     const supa=getSupa();
     if(!supa) throw new Error("Supabase could not load. Check your connection.");
 
     const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-    // Native: redirect to custom scheme so iOS intercepts it via appUrlOpen.
-    // Web: redirect back to origin.
-    const redirectTo = (window.location.protocol === "file:")
-      ? window.location.href
-      : isNative
-        ? 'com.atj1530.vertex://login-callback'
-        : window.location.origin;
+    const redirectTo = isNative ? 'com.atj1530.vertex://login-callback' : window.location.origin;
 
-    const {data,error}=await supa.auth.signInWithOAuth({
+    const result = await withTimeout(supa.auth.signInWithOAuth({
       provider:'google',
       options:{
         redirectTo,
         scopes:'email profile',
-        // On native, open the OAuth URL in the system browser (not in-app WebView)
-        // so iOS can redirect back via the custom URL scheme
-        skipBrowserRedirect: false
+        queryParams:{prompt:'select_account'},
+        skipBrowserRedirect:true
       }
-    });
+    }), 12000);
+
+    const data = result && result.data;
+    const error = result && result.error;
     if(error) throw error;
-    if(data && data.url){
-      // On native, use window.open to force the system browser
-      if(isNative && window.open){
-        window.open(data.url, '_system');
+    if(!data || !data.url) return "Google sign-in did not return a redirect URL.";
+
+    if(isNative){
+      const Browser = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser;
+      if(Browser && typeof Browser.open === 'function'){
+        await Browser.open({url:data.url, presentationStyle:'fullscreen'});
+      } else if(window.open){
+        const opened = window.open(data.url, '_blank');
+        if(!opened) window.location.href = data.url;
       } else {
-        window.location.assign(data.url);
+        window.location.href = data.url;
       }
-      return "";
+    } else {
+      window.location.assign(data.url);
     }
-    return "Google sign-in did not return a redirect URL.";
+    return "";
   }catch(err){
     console.error("Google sign-in failed:",err);
     if(btn){btn.disabled=false; btn.textContent=originalText||"Continue with Google";}
@@ -4785,7 +4816,16 @@ function addManualEntry(){
   ['manualName','manualEquip','manualWeight'].forEach(id=>{const el=document.getElementById(id); if(el) el.value=''});
   renderAll(); collapseTopIfContent();
 }
-function loadTemplate(key, prompt=true){const w=workoutFromTemplate(key); if(!w) return; setCurrent(w); if(prompt) openAssign(w); else { state.page='workout'; renderAll(); window.scrollTo({top:0,behavior:'smooth'}); }}
+function loadTemplate(key, prompt=true){
+  const w=workoutFromTemplate(key); if(!w) return;
+  setCurrent(w);
+  state.page='workout';
+  renderAll();
+  document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
+  document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
+  setTimeout(()=>{(document.getElementById('builder')||document.getElementById('wkt-title')||document.querySelector('.wkt-name-row'))?.scrollIntoView({behavior:'smooth',block:'start'});},120);
+  if(prompt && window.innerWidth>900) openAssign(w);
+}
 async function saveDay(day=todayKey){const w=clone(state.current); if(!hasWorkout(w)) return toast('Nothing to save'); w.assignedDay=day; state.planner[day]=w; state.current.assignedDay=day; savePlanner(); unmarkDayCleared(day); renderAll(); const ok=await persistPlannerDay(day,w); toast('Saved to '+DAY_LABEL[day]+(authUser?(ok?' · cloud synced':' · local fallback') : ''));}
 function editDay(day){
   const w=state.planner[day];
@@ -5276,8 +5316,14 @@ async function loadPendingProgram(){
   const plan=getProgramPlans()[program]; if(!plan) return;
   state.program=program;
   Object.entries(plan).forEach(([day,w])=>{ if(w){ w.assignedDay=day; state.planner[day]=w; }});
+  const firstEntry=Object.entries(plan).find(([day,w])=>!!w);
+  if(firstEntry && firstEntry[1]) state.current=clone(firstEntry[1]);
   savePlanner();
+  state.page='workout';
   renderAll();
+  document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
+  document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
+  setTimeout(()=>{(document.getElementById('builder')||document.getElementById('wkt-title')||document.querySelector('.wkt-name-row'))?.scrollIntoView({behavior:'smooth',block:'start'});},120);
   for(const [day,w] of Object.entries(plan)){ if(w) await persistPlannerDay(day,w); }
   state.pendingProgram=null;
   document.getElementById('programModal')?.classList.remove('on');
@@ -7168,149 +7214,6 @@ function protoSelectDate(dateStr){
           <tbody>${items.map(s=>`<tr><td><b>${escapeHtml(s.name||'')}</b></td><td>${escapeHtml(s.supplement_type||'')}</td><td>${s.dose||'—'} ${escapeHtml(s.unit||'')}</td><td>${escapeHtml(vertexFrequencyLabel(s))}</td><td>${escapeHtml(s.timing||'Morning')}</td><td>${s.cycle_start_date||'—'}</td><td>${escapeHtml(s.notes||'—')}</td></tr>`).join('')}
           </tbody></table>
 
-
-<script>
-/* ============================================================
-   v13.61.14 — Mobile auth, Wellness compact layout, and true builder routing
-   ============================================================ */
-(function(){
-  if(window.__vertexMobileAuthBuilderFix136114) return;
-  window.__vertexMobileAuthBuilderFix136114=true;
-  function isMobile(){return (window.matchMedia&&window.matchMedia('(max-width:760px)').matches)||window.innerWidth<=760;}
-  function builderTarget(){return document.querySelector('#builder,.wkt-name-row,#wkt-title,.exercise-card,.empty');}
-  function goWorkout(scroll){
-    try{ if(typeof setPage==='function') setPage('workout'); else { state.page='workout'; renderAll&&renderAll(); } }catch(e){ try{state.page='workout'; renderAll&&renderAll();}catch(_){} }
-    setTimeout(function(){
-      document.querySelectorAll('.sidebar,.right').forEach(function(el){el.style.display='';});
-      var target=builderTarget();
-      if(scroll!==false && target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth',block:'start'});
-    },80);
-  }
-  window.vertexGoWorkoutBuilder=goWorkout;
-
-  function normalizeLoadedWorkout(w, day){
-    if(!w) return null;
-    if(!w.type) w.type='strength';
-    if(w.type==='strength' && !Array.isArray(w.exercises)) w.exercises=[];
-    if((w.type==='flow'||w.type==='interval') && !Array.isArray(w.moves)) w.moves=[];
-    if(day) w.assignedDay=day;
-    return w;
-  }
-
-  var originalEditDay=window.editDay;
-  window.editDay=function(day){
-    try{
-      var w=state && state.planner ? state.planner[day] : null;
-      if(w){
-        w=normalizeLoadedWorkout(w,day);
-        if(typeof setCurrent==='function') setCurrent(w); else { state.current=JSON.parse(JSON.stringify(w)); renderAll&&renderAll(); }
-      }else{
-        state.current={name:(DAY_LABEL&&DAY_LABEL[day]?DAY_LABEL[day]:day)+' Workout',type:'strength',exercises:[],source:'manual',assignedDay:day};
-        if(typeof renderAll==='function') renderAll();
-      }
-      goWorkout(true);
-      return;
-    }catch(e){console.error('mobile editDay fix failed',e); if(originalEditDay) return originalEditDay(day);}
-  };
-
-  var originalLoadTemplate=window.loadTemplate;
-  window.loadTemplate=function(key,prompt){
-    try{
-      var w=(typeof workoutFromTemplate==='function')?workoutFromTemplate(key):null;
-      if(!w){ return originalLoadTemplate?originalLoadTemplate(key,prompt):null; }
-      if(isMobile()){
-        if(typeof setCurrent==='function') setCurrent(w); else {state.current=JSON.parse(JSON.stringify(w)); renderAll&&renderAll();}
-        goWorkout(true);
-        try{ if(typeof toast==='function') toast((w.exercises?.length||w.moves?.length||w.phases?.length||0)+' items loaded'); }catch(_){ }
-        return;
-      }
-      return originalLoadTemplate?originalLoadTemplate(key,prompt):null;
-    }catch(e){console.error('mobile loadTemplate fix failed',e); return originalLoadTemplate?originalLoadTemplate(key,prompt):null;}
-  };
-
-  var originalLoadPendingProgram=window.loadPendingProgram;
-  window.loadPendingProgram=async function(){
-    try{
-      var program=state.pendingProgram;
-      var plans=(typeof getProgramPlans==='function')?getProgramPlans():{};
-      var plan=plans[program];
-      if(!plan){return originalLoadPendingProgram?originalLoadPendingProgram():null;}
-      state.program=program;
-      Object.entries(plan).forEach(function(pair){var day=pair[0],w=pair[1]; if(w){w.assignedDay=day; state.planner[day]=w;}});
-      if(typeof savePlanner==='function') savePlanner();
-      if(typeof renderAll==='function') renderAll();
-      if(typeof persistPlannerDay==='function'){
-        for(const pair of Object.entries(plan)){ if(pair[1]){ try{ await persistPlannerDay(pair[0],pair[1]); }catch(_){ } } }
-      }
-      state.pendingProgram=null;
-      document.getElementById('programModal')?.classList.remove('on');
-      if(isMobile()){
-        var firstDay=Object.keys(plan).find(function(d){return plan[d];});
-        if(firstDay && state.planner[firstDay]){
-          normalizeLoadedWorkout(state.planner[firstDay],firstDay);
-          if(typeof setCurrent==='function') setCurrent(state.planner[firstDay]);
-        }
-        goWorkout(true);
-      }
-    }catch(e){console.error('mobile loadPendingProgram fix failed',e); return originalLoadPendingProgram?originalLoadPendingProgram():null;}
-  };
-
-  var originalAi=window.vertexLoadAiWorkout;
-  window.vertexLoadAiWorkout=function(exerciseNames, workoutName){
-    try{
-      if(originalAi) originalAi(exerciseNames, workoutName);
-      setTimeout(function(){goWorkout(true);},120);
-    }catch(e){console.error('AI workout load fix failed',e);}
-  };
-
-  function compactWellnessControls(){
-    try{
-      var root=document.getElementById('wellnessPage'); if(!root) return;
-      var tabs=Array.from(root.querySelectorAll('.progress-tabs')).find(function(x){return x.querySelector('[data-wtab="dashboard"]');});
-      var wrap=document.getElementById('vertexMacroToggleWrap');
-      if(tabs && wrap && wrap.parentElement!==tabs){
-        var bodyBtn=tabs.querySelector('[data-wtab="bodycomp"]');
-        tabs.insertBefore(wrap, bodyBtn||tabs.firstChild);
-      }
-      var btn=document.getElementById('vertexMacroToggleBtn');
-      if(btn){btn.classList.add('progress-tab');}
-    }catch(e){console.warn('compactWellnessControls failed',e);}
-  }
-  var originalRenderWellness=window.renderWellnessPage;
-  if(originalRenderWellness){
-    window.renderWellnessPage=function(){var r=originalRenderWellness.apply(this,arguments); setTimeout(compactWellnessControls,0); return r;};
-  }
-  ['DOMContentLoaded','load'].forEach(function(ev){window.addEventListener(ev,function(){setTimeout(compactWellnessControls,250);});});
-  document.addEventListener('click',function(e){setTimeout(compactWellnessControls,80);},true);
-
-  // Native email/password login reliability patch. Capture prevents duplicate older listener behavior.
-  async function doEmailAuth(kind, scope){
-    var email=document.getElementById(scope==='account'?'acct-email':'landing-email')?.value||'';
-    var pass=document.getElementById(scope==='account'?'acct-pass':'landing-pass')?.value||'';
-    var errBox=document.getElementById(scope==='account'?'acct-error':'landing-error');
-    var btn=document.getElementById(scope==='account'?(kind==='create'?'acct-create':'acct-signin'):(kind==='create'?'landing-create':'landing-signin'));
-    var old=btn?btn.textContent:'';
-    try{
-      if(btn){btn.disabled=true; btn.textContent=kind==='create'?'Creating...':'Signing in...';}
-      var msg=kind==='create' ? await createAccount(email,pass) : await signIn(email,pass);
-      if(errBox) errBox.textContent=msg||'';
-      if(!msg){
-        try{document.body.classList.add('authenticated'); syncAuthShell&&syncAuthShell(); renderAll&&renderAll();}catch(_){ }
-      }
-    }catch(err){ if(errBox) errBox.textContent=(err&&err.message)||'Sign-in failed.'; }
-    finally{ if(btn){btn.disabled=false; btn.textContent=old || (kind==='create'?'Create Account':'Sign In');} }
-  }
-  document.addEventListener('click',function(e){
-    var b=e.target.closest('button'); if(!b) return;
-    if(['landing-signin','landing-create','acct-signin','acct-create'].indexOf(b.id)===-1) return;
-    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    var scope=b.id.indexOf('acct-')===0?'account':'landing';
-    var kind=b.id.indexOf('create')>-1?'create':'signin';
-    doEmailAuth(kind,scope);
-  },true);
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -8458,149 +8361,6 @@ ${recentLogs.length ? `<table>
 </table>` : '<p style="color:#888;font-size:13px">No workout logs yet.</p>'}
 
 <div class="footer">Vertex · ${dateStr} · vertex-beta-five.vercel.app</div>
-
-<script>
-/* ============================================================
-   v13.61.14 — Mobile auth, Wellness compact layout, and true builder routing
-   ============================================================ */
-(function(){
-  if(window.__vertexMobileAuthBuilderFix136114) return;
-  window.__vertexMobileAuthBuilderFix136114=true;
-  function isMobile(){return (window.matchMedia&&window.matchMedia('(max-width:760px)').matches)||window.innerWidth<=760;}
-  function builderTarget(){return document.querySelector('#builder,.wkt-name-row,#wkt-title,.exercise-card,.empty');}
-  function goWorkout(scroll){
-    try{ if(typeof setPage==='function') setPage('workout'); else { state.page='workout'; renderAll&&renderAll(); } }catch(e){ try{state.page='workout'; renderAll&&renderAll();}catch(_){} }
-    setTimeout(function(){
-      document.querySelectorAll('.sidebar,.right').forEach(function(el){el.style.display='';});
-      var target=builderTarget();
-      if(scroll!==false && target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth',block:'start'});
-    },80);
-  }
-  window.vertexGoWorkoutBuilder=goWorkout;
-
-  function normalizeLoadedWorkout(w, day){
-    if(!w) return null;
-    if(!w.type) w.type='strength';
-    if(w.type==='strength' && !Array.isArray(w.exercises)) w.exercises=[];
-    if((w.type==='flow'||w.type==='interval') && !Array.isArray(w.moves)) w.moves=[];
-    if(day) w.assignedDay=day;
-    return w;
-  }
-
-  var originalEditDay=window.editDay;
-  window.editDay=function(day){
-    try{
-      var w=state && state.planner ? state.planner[day] : null;
-      if(w){
-        w=normalizeLoadedWorkout(w,day);
-        if(typeof setCurrent==='function') setCurrent(w); else { state.current=JSON.parse(JSON.stringify(w)); renderAll&&renderAll(); }
-      }else{
-        state.current={name:(DAY_LABEL&&DAY_LABEL[day]?DAY_LABEL[day]:day)+' Workout',type:'strength',exercises:[],source:'manual',assignedDay:day};
-        if(typeof renderAll==='function') renderAll();
-      }
-      goWorkout(true);
-      return;
-    }catch(e){console.error('mobile editDay fix failed',e); if(originalEditDay) return originalEditDay(day);}
-  };
-
-  var originalLoadTemplate=window.loadTemplate;
-  window.loadTemplate=function(key,prompt){
-    try{
-      var w=(typeof workoutFromTemplate==='function')?workoutFromTemplate(key):null;
-      if(!w){ return originalLoadTemplate?originalLoadTemplate(key,prompt):null; }
-      if(isMobile()){
-        if(typeof setCurrent==='function') setCurrent(w); else {state.current=JSON.parse(JSON.stringify(w)); renderAll&&renderAll();}
-        goWorkout(true);
-        try{ if(typeof toast==='function') toast((w.exercises?.length||w.moves?.length||w.phases?.length||0)+' items loaded'); }catch(_){ }
-        return;
-      }
-      return originalLoadTemplate?originalLoadTemplate(key,prompt):null;
-    }catch(e){console.error('mobile loadTemplate fix failed',e); return originalLoadTemplate?originalLoadTemplate(key,prompt):null;}
-  };
-
-  var originalLoadPendingProgram=window.loadPendingProgram;
-  window.loadPendingProgram=async function(){
-    try{
-      var program=state.pendingProgram;
-      var plans=(typeof getProgramPlans==='function')?getProgramPlans():{};
-      var plan=plans[program];
-      if(!plan){return originalLoadPendingProgram?originalLoadPendingProgram():null;}
-      state.program=program;
-      Object.entries(plan).forEach(function(pair){var day=pair[0],w=pair[1]; if(w){w.assignedDay=day; state.planner[day]=w;}});
-      if(typeof savePlanner==='function') savePlanner();
-      if(typeof renderAll==='function') renderAll();
-      if(typeof persistPlannerDay==='function'){
-        for(const pair of Object.entries(plan)){ if(pair[1]){ try{ await persistPlannerDay(pair[0],pair[1]); }catch(_){ } } }
-      }
-      state.pendingProgram=null;
-      document.getElementById('programModal')?.classList.remove('on');
-      if(isMobile()){
-        var firstDay=Object.keys(plan).find(function(d){return plan[d];});
-        if(firstDay && state.planner[firstDay]){
-          normalizeLoadedWorkout(state.planner[firstDay],firstDay);
-          if(typeof setCurrent==='function') setCurrent(state.planner[firstDay]);
-        }
-        goWorkout(true);
-      }
-    }catch(e){console.error('mobile loadPendingProgram fix failed',e); return originalLoadPendingProgram?originalLoadPendingProgram():null;}
-  };
-
-  var originalAi=window.vertexLoadAiWorkout;
-  window.vertexLoadAiWorkout=function(exerciseNames, workoutName){
-    try{
-      if(originalAi) originalAi(exerciseNames, workoutName);
-      setTimeout(function(){goWorkout(true);},120);
-    }catch(e){console.error('AI workout load fix failed',e);}
-  };
-
-  function compactWellnessControls(){
-    try{
-      var root=document.getElementById('wellnessPage'); if(!root) return;
-      var tabs=Array.from(root.querySelectorAll('.progress-tabs')).find(function(x){return x.querySelector('[data-wtab="dashboard"]');});
-      var wrap=document.getElementById('vertexMacroToggleWrap');
-      if(tabs && wrap && wrap.parentElement!==tabs){
-        var bodyBtn=tabs.querySelector('[data-wtab="bodycomp"]');
-        tabs.insertBefore(wrap, bodyBtn||tabs.firstChild);
-      }
-      var btn=document.getElementById('vertexMacroToggleBtn');
-      if(btn){btn.classList.add('progress-tab');}
-    }catch(e){console.warn('compactWellnessControls failed',e);}
-  }
-  var originalRenderWellness=window.renderWellnessPage;
-  if(originalRenderWellness){
-    window.renderWellnessPage=function(){var r=originalRenderWellness.apply(this,arguments); setTimeout(compactWellnessControls,0); return r;};
-  }
-  ['DOMContentLoaded','load'].forEach(function(ev){window.addEventListener(ev,function(){setTimeout(compactWellnessControls,250);});});
-  document.addEventListener('click',function(e){setTimeout(compactWellnessControls,80);},true);
-
-  // Native email/password login reliability patch. Capture prevents duplicate older listener behavior.
-  async function doEmailAuth(kind, scope){
-    var email=document.getElementById(scope==='account'?'acct-email':'landing-email')?.value||'';
-    var pass=document.getElementById(scope==='account'?'acct-pass':'landing-pass')?.value||'';
-    var errBox=document.getElementById(scope==='account'?'acct-error':'landing-error');
-    var btn=document.getElementById(scope==='account'?(kind==='create'?'acct-create':'acct-signin'):(kind==='create'?'landing-create':'landing-signin'));
-    var old=btn?btn.textContent:'';
-    try{
-      if(btn){btn.disabled=true; btn.textContent=kind==='create'?'Creating...':'Signing in...';}
-      var msg=kind==='create' ? await createAccount(email,pass) : await signIn(email,pass);
-      if(errBox) errBox.textContent=msg||'';
-      if(!msg){
-        try{document.body.classList.add('authenticated'); syncAuthShell&&syncAuthShell(); renderAll&&renderAll();}catch(_){ }
-      }
-    }catch(err){ if(errBox) errBox.textContent=(err&&err.message)||'Sign-in failed.'; }
-    finally{ if(btn){btn.disabled=false; btn.textContent=old || (kind==='create'?'Create Account':'Sign In');} }
-  }
-  document.addEventListener('click',function(e){
-    var b=e.target.closest('button'); if(!b) return;
-    if(['landing-signin','landing-create','acct-signin','acct-create'].indexOf(b.id)===-1) return;
-    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    var scope=b.id.indexOf('acct-')===0?'account':'landing';
-    var kind=b.id.indexOf('create')>-1?'create':'signin';
-    doEmailAuth(kind,scope);
-  },true);
-})();
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -8826,150 +8586,7 @@ window.renderSymmetry = renderSymmetry;
     const w = window.open('','_blank');
     if(!w) return;
     const rows = log.length ? log.map(e=>`<tr><td style="white-space:nowrap;color:#888;font-size:11px">${e.ts?.slice(0,19).replace('T',' ')||'—'}</td><td><span style="font-size:10px;background:${e.type==='error'?'#fee2e2':'#fef9c3'};padding:1px 6px;border-radius:3px;font-weight:700">${e.type}</span></td><td style="font-size:12px">${e.msg||''}</td><td style="font-size:11px;color:#999">${e.src||''}${e.line?':'+e.line:''}</td></tr>`).join('') : '<tr><td colspan="4" style="color:#888;text-align:center;padding:20px">No errors logged.</td></tr>';
-    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
-<script>
-/* ============================================================
-   v13.61.14 — Mobile auth, Wellness compact layout, and true builder routing
-   ============================================================ */
-(function(){
-  if(window.__vertexMobileAuthBuilderFix136114) return;
-  window.__vertexMobileAuthBuilderFix136114=true;
-  function isMobile(){return (window.matchMedia&&window.matchMedia('(max-width:760px)').matches)||window.innerWidth<=760;}
-  function builderTarget(){return document.querySelector('#builder,.wkt-name-row,#wkt-title,.exercise-card,.empty');}
-  function goWorkout(scroll){
-    try{ if(typeof setPage==='function') setPage('workout'); else { state.page='workout'; renderAll&&renderAll(); } }catch(e){ try{state.page='workout'; renderAll&&renderAll();}catch(_){} }
-    setTimeout(function(){
-      document.querySelectorAll('.sidebar,.right').forEach(function(el){el.style.display='';});
-      var target=builderTarget();
-      if(scroll!==false && target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth',block:'start'});
-    },80);
-  }
-  window.vertexGoWorkoutBuilder=goWorkout;
-
-  function normalizeLoadedWorkout(w, day){
-    if(!w) return null;
-    if(!w.type) w.type='strength';
-    if(w.type==='strength' && !Array.isArray(w.exercises)) w.exercises=[];
-    if((w.type==='flow'||w.type==='interval') && !Array.isArray(w.moves)) w.moves=[];
-    if(day) w.assignedDay=day;
-    return w;
-  }
-
-  var originalEditDay=window.editDay;
-  window.editDay=function(day){
-    try{
-      var w=state && state.planner ? state.planner[day] : null;
-      if(w){
-        w=normalizeLoadedWorkout(w,day);
-        if(typeof setCurrent==='function') setCurrent(w); else { state.current=JSON.parse(JSON.stringify(w)); renderAll&&renderAll(); }
-      }else{
-        state.current={name:(DAY_LABEL&&DAY_LABEL[day]?DAY_LABEL[day]:day)+' Workout',type:'strength',exercises:[],source:'manual',assignedDay:day};
-        if(typeof renderAll==='function') renderAll();
-      }
-      goWorkout(true);
-      return;
-    }catch(e){console.error('mobile editDay fix failed',e); if(originalEditDay) return originalEditDay(day);}
-  };
-
-  var originalLoadTemplate=window.loadTemplate;
-  window.loadTemplate=function(key,prompt){
-    try{
-      var w=(typeof workoutFromTemplate==='function')?workoutFromTemplate(key):null;
-      if(!w){ return originalLoadTemplate?originalLoadTemplate(key,prompt):null; }
-      if(isMobile()){
-        if(typeof setCurrent==='function') setCurrent(w); else {state.current=JSON.parse(JSON.stringify(w)); renderAll&&renderAll();}
-        goWorkout(true);
-        try{ if(typeof toast==='function') toast((w.exercises?.length||w.moves?.length||w.phases?.length||0)+' items loaded'); }catch(_){ }
-        return;
-      }
-      return originalLoadTemplate?originalLoadTemplate(key,prompt):null;
-    }catch(e){console.error('mobile loadTemplate fix failed',e); return originalLoadTemplate?originalLoadTemplate(key,prompt):null;}
-  };
-
-  var originalLoadPendingProgram=window.loadPendingProgram;
-  window.loadPendingProgram=async function(){
-    try{
-      var program=state.pendingProgram;
-      var plans=(typeof getProgramPlans==='function')?getProgramPlans():{};
-      var plan=plans[program];
-      if(!plan){return originalLoadPendingProgram?originalLoadPendingProgram():null;}
-      state.program=program;
-      Object.entries(plan).forEach(function(pair){var day=pair[0],w=pair[1]; if(w){w.assignedDay=day; state.planner[day]=w;}});
-      if(typeof savePlanner==='function') savePlanner();
-      if(typeof renderAll==='function') renderAll();
-      if(typeof persistPlannerDay==='function'){
-        for(const pair of Object.entries(plan)){ if(pair[1]){ try{ await persistPlannerDay(pair[0],pair[1]); }catch(_){ } } }
-      }
-      state.pendingProgram=null;
-      document.getElementById('programModal')?.classList.remove('on');
-      if(isMobile()){
-        var firstDay=Object.keys(plan).find(function(d){return plan[d];});
-        if(firstDay && state.planner[firstDay]){
-          normalizeLoadedWorkout(state.planner[firstDay],firstDay);
-          if(typeof setCurrent==='function') setCurrent(state.planner[firstDay]);
-        }
-        goWorkout(true);
-      }
-    }catch(e){console.error('mobile loadPendingProgram fix failed',e); return originalLoadPendingProgram?originalLoadPendingProgram():null;}
-  };
-
-  var originalAi=window.vertexLoadAiWorkout;
-  window.vertexLoadAiWorkout=function(exerciseNames, workoutName){
-    try{
-      if(originalAi) originalAi(exerciseNames, workoutName);
-      setTimeout(function(){goWorkout(true);},120);
-    }catch(e){console.error('AI workout load fix failed',e);}
-  };
-
-  function compactWellnessControls(){
-    try{
-      var root=document.getElementById('wellnessPage'); if(!root) return;
-      var tabs=Array.from(root.querySelectorAll('.progress-tabs')).find(function(x){return x.querySelector('[data-wtab="dashboard"]');});
-      var wrap=document.getElementById('vertexMacroToggleWrap');
-      if(tabs && wrap && wrap.parentElement!==tabs){
-        var bodyBtn=tabs.querySelector('[data-wtab="bodycomp"]');
-        tabs.insertBefore(wrap, bodyBtn||tabs.firstChild);
-      }
-      var btn=document.getElementById('vertexMacroToggleBtn');
-      if(btn){btn.classList.add('progress-tab');}
-    }catch(e){console.warn('compactWellnessControls failed',e);}
-  }
-  var originalRenderWellness=window.renderWellnessPage;
-  if(originalRenderWellness){
-    window.renderWellnessPage=function(){var r=originalRenderWellness.apply(this,arguments); setTimeout(compactWellnessControls,0); return r;};
-  }
-  ['DOMContentLoaded','load'].forEach(function(ev){window.addEventListener(ev,function(){setTimeout(compactWellnessControls,250);});});
-  document.addEventListener('click',function(e){setTimeout(compactWellnessControls,80);},true);
-
-  // Native email/password login reliability patch. Capture prevents duplicate older listener behavior.
-  async function doEmailAuth(kind, scope){
-    var email=document.getElementById(scope==='account'?'acct-email':'landing-email')?.value||'';
-    var pass=document.getElementById(scope==='account'?'acct-pass':'landing-pass')?.value||'';
-    var errBox=document.getElementById(scope==='account'?'acct-error':'landing-error');
-    var btn=document.getElementById(scope==='account'?(kind==='create'?'acct-create':'acct-signin'):(kind==='create'?'landing-create':'landing-signin'));
-    var old=btn?btn.textContent:'';
-    try{
-      if(btn){btn.disabled=true; btn.textContent=kind==='create'?'Creating...':'Signing in...';}
-      var msg=kind==='create' ? await createAccount(email,pass) : await signIn(email,pass);
-      if(errBox) errBox.textContent=msg||'';
-      if(!msg){
-        try{document.body.classList.add('authenticated'); syncAuthShell&&syncAuthShell(); renderAll&&renderAll();}catch(_){ }
-      }
-    }catch(err){ if(errBox) errBox.textContent=(err&&err.message)||'Sign-in failed.'; }
-    finally{ if(btn){btn.disabled=false; btn.textContent=old || (kind==='create'?'Create Account':'Sign In');} }
-  }
-  document.addEventListener('click',function(e){
-    var b=e.target.closest('button'); if(!b) return;
-    if(['landing-signin','landing-create','acct-signin','acct-create'].indexOf(b.id)===-1) return;
-    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    var scope=b.id.indexOf('acct-')===0?'account':'landing';
-    var kind=b.id.indexOf('create')>-1?'create':'signin';
-    doEmailAuth(kind,scope);
-  },true);
-})();
-</script>
-
-</body></html>`);
+    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
     w.document.close();
   };
 })();
@@ -9118,150 +8735,7 @@ function vertexShowSyncDiag(){
   }).join('');
   const w=window.open('','_blank');
   if(!w) return;
-  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
-<script>
-/* ============================================================
-   v13.61.14 — Mobile auth, Wellness compact layout, and true builder routing
-   ============================================================ */
-(function(){
-  if(window.__vertexMobileAuthBuilderFix136114) return;
-  window.__vertexMobileAuthBuilderFix136114=true;
-  function isMobile(){return (window.matchMedia&&window.matchMedia('(max-width:760px)').matches)||window.innerWidth<=760;}
-  function builderTarget(){return document.querySelector('#builder,.wkt-name-row,#wkt-title,.exercise-card,.empty');}
-  function goWorkout(scroll){
-    try{ if(typeof setPage==='function') setPage('workout'); else { state.page='workout'; renderAll&&renderAll(); } }catch(e){ try{state.page='workout'; renderAll&&renderAll();}catch(_){} }
-    setTimeout(function(){
-      document.querySelectorAll('.sidebar,.right').forEach(function(el){el.style.display='';});
-      var target=builderTarget();
-      if(scroll!==false && target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth',block:'start'});
-    },80);
-  }
-  window.vertexGoWorkoutBuilder=goWorkout;
-
-  function normalizeLoadedWorkout(w, day){
-    if(!w) return null;
-    if(!w.type) w.type='strength';
-    if(w.type==='strength' && !Array.isArray(w.exercises)) w.exercises=[];
-    if((w.type==='flow'||w.type==='interval') && !Array.isArray(w.moves)) w.moves=[];
-    if(day) w.assignedDay=day;
-    return w;
-  }
-
-  var originalEditDay=window.editDay;
-  window.editDay=function(day){
-    try{
-      var w=state && state.planner ? state.planner[day] : null;
-      if(w){
-        w=normalizeLoadedWorkout(w,day);
-        if(typeof setCurrent==='function') setCurrent(w); else { state.current=JSON.parse(JSON.stringify(w)); renderAll&&renderAll(); }
-      }else{
-        state.current={name:(DAY_LABEL&&DAY_LABEL[day]?DAY_LABEL[day]:day)+' Workout',type:'strength',exercises:[],source:'manual',assignedDay:day};
-        if(typeof renderAll==='function') renderAll();
-      }
-      goWorkout(true);
-      return;
-    }catch(e){console.error('mobile editDay fix failed',e); if(originalEditDay) return originalEditDay(day);}
-  };
-
-  var originalLoadTemplate=window.loadTemplate;
-  window.loadTemplate=function(key,prompt){
-    try{
-      var w=(typeof workoutFromTemplate==='function')?workoutFromTemplate(key):null;
-      if(!w){ return originalLoadTemplate?originalLoadTemplate(key,prompt):null; }
-      if(isMobile()){
-        if(typeof setCurrent==='function') setCurrent(w); else {state.current=JSON.parse(JSON.stringify(w)); renderAll&&renderAll();}
-        goWorkout(true);
-        try{ if(typeof toast==='function') toast((w.exercises?.length||w.moves?.length||w.phases?.length||0)+' items loaded'); }catch(_){ }
-        return;
-      }
-      return originalLoadTemplate?originalLoadTemplate(key,prompt):null;
-    }catch(e){console.error('mobile loadTemplate fix failed',e); return originalLoadTemplate?originalLoadTemplate(key,prompt):null;}
-  };
-
-  var originalLoadPendingProgram=window.loadPendingProgram;
-  window.loadPendingProgram=async function(){
-    try{
-      var program=state.pendingProgram;
-      var plans=(typeof getProgramPlans==='function')?getProgramPlans():{};
-      var plan=plans[program];
-      if(!plan){return originalLoadPendingProgram?originalLoadPendingProgram():null;}
-      state.program=program;
-      Object.entries(plan).forEach(function(pair){var day=pair[0],w=pair[1]; if(w){w.assignedDay=day; state.planner[day]=w;}});
-      if(typeof savePlanner==='function') savePlanner();
-      if(typeof renderAll==='function') renderAll();
-      if(typeof persistPlannerDay==='function'){
-        for(const pair of Object.entries(plan)){ if(pair[1]){ try{ await persistPlannerDay(pair[0],pair[1]); }catch(_){ } } }
-      }
-      state.pendingProgram=null;
-      document.getElementById('programModal')?.classList.remove('on');
-      if(isMobile()){
-        var firstDay=Object.keys(plan).find(function(d){return plan[d];});
-        if(firstDay && state.planner[firstDay]){
-          normalizeLoadedWorkout(state.planner[firstDay],firstDay);
-          if(typeof setCurrent==='function') setCurrent(state.planner[firstDay]);
-        }
-        goWorkout(true);
-      }
-    }catch(e){console.error('mobile loadPendingProgram fix failed',e); return originalLoadPendingProgram?originalLoadPendingProgram():null;}
-  };
-
-  var originalAi=window.vertexLoadAiWorkout;
-  window.vertexLoadAiWorkout=function(exerciseNames, workoutName){
-    try{
-      if(originalAi) originalAi(exerciseNames, workoutName);
-      setTimeout(function(){goWorkout(true);},120);
-    }catch(e){console.error('AI workout load fix failed',e);}
-  };
-
-  function compactWellnessControls(){
-    try{
-      var root=document.getElementById('wellnessPage'); if(!root) return;
-      var tabs=Array.from(root.querySelectorAll('.progress-tabs')).find(function(x){return x.querySelector('[data-wtab="dashboard"]');});
-      var wrap=document.getElementById('vertexMacroToggleWrap');
-      if(tabs && wrap && wrap.parentElement!==tabs){
-        var bodyBtn=tabs.querySelector('[data-wtab="bodycomp"]');
-        tabs.insertBefore(wrap, bodyBtn||tabs.firstChild);
-      }
-      var btn=document.getElementById('vertexMacroToggleBtn');
-      if(btn){btn.classList.add('progress-tab');}
-    }catch(e){console.warn('compactWellnessControls failed',e);}
-  }
-  var originalRenderWellness=window.renderWellnessPage;
-  if(originalRenderWellness){
-    window.renderWellnessPage=function(){var r=originalRenderWellness.apply(this,arguments); setTimeout(compactWellnessControls,0); return r;};
-  }
-  ['DOMContentLoaded','load'].forEach(function(ev){window.addEventListener(ev,function(){setTimeout(compactWellnessControls,250);});});
-  document.addEventListener('click',function(e){setTimeout(compactWellnessControls,80);},true);
-
-  // Native email/password login reliability patch. Capture prevents duplicate older listener behavior.
-  async function doEmailAuth(kind, scope){
-    var email=document.getElementById(scope==='account'?'acct-email':'landing-email')?.value||'';
-    var pass=document.getElementById(scope==='account'?'acct-pass':'landing-pass')?.value||'';
-    var errBox=document.getElementById(scope==='account'?'acct-error':'landing-error');
-    var btn=document.getElementById(scope==='account'?(kind==='create'?'acct-create':'acct-signin'):(kind==='create'?'landing-create':'landing-signin'));
-    var old=btn?btn.textContent:'';
-    try{
-      if(btn){btn.disabled=true; btn.textContent=kind==='create'?'Creating...':'Signing in...';}
-      var msg=kind==='create' ? await createAccount(email,pass) : await signIn(email,pass);
-      if(errBox) errBox.textContent=msg||'';
-      if(!msg){
-        try{document.body.classList.add('authenticated'); syncAuthShell&&syncAuthShell(); renderAll&&renderAll();}catch(_){ }
-      }
-    }catch(err){ if(errBox) errBox.textContent=(err&&err.message)||'Sign-in failed.'; }
-    finally{ if(btn){btn.disabled=false; btn.textContent=old || (kind==='create'?'Create Account':'Sign In');} }
-  }
-  document.addEventListener('click',function(e){
-    var b=e.target.closest('button'); if(!b) return;
-    if(['landing-signin','landing-create','acct-signin','acct-create'].indexOf(b.id)===-1) return;
-    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    var scope=b.id.indexOf('acct-')===0?'account':'landing';
-    var kind=b.id.indexOf('create')>-1?'create':'signin';
-    doEmailAuth(kind,scope);
-  },true);
-})();
-</script>
-
-</body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button></body></html>`);
   w.document.close();
 }
 window.vertexShowSyncDiag=vertexShowSyncDiag;
@@ -12315,149 +11789,72 @@ window.testAppleHealth = async function () {
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
-})();
-</script>
 
-
-<script>
-/* ============================================================
-   v13.61.14 — Mobile auth, Wellness compact layout, and true builder routing
-   ============================================================ */
+/* v13.61.14 direct mobile auth handlers + wellness compact control injection */
 (function(){
-  if(window.__vertexMobileAuthBuilderFix136114) return;
-  window.__vertexMobileAuthBuilderFix136114=true;
-  function isMobile(){return (window.matchMedia&&window.matchMedia('(max-width:760px)').matches)||window.innerWidth<=760;}
-  function builderTarget(){return document.querySelector('#builder,.wkt-name-row,#wkt-title,.exercise-card,.empty');}
-  function goWorkout(scroll){
-    try{ if(typeof setPage==='function') setPage('workout'); else { state.page='workout'; renderAll&&renderAll(); } }catch(e){ try{state.page='workout'; renderAll&&renderAll();}catch(_){} }
-    setTimeout(function(){
-      document.querySelectorAll('.sidebar,.right').forEach(function(el){el.style.display='';});
-      var target=builderTarget();
-      if(scroll!==false && target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth',block:'start'});
-    },80);
+  function showLoginError(msg){
+    const ebox=document.getElementById('landing-error')||document.getElementById('acct-error');
+    if(ebox) ebox.textContent=msg||'';
   }
-  window.vertexGoWorkoutBuilder=goWorkout;
-
-  function normalizeLoadedWorkout(w, day){
-    if(!w) return null;
-    if(!w.type) w.type='strength';
-    if(w.type==='strength' && !Array.isArray(w.exercises)) w.exercises=[];
-    if((w.type==='flow'||w.type==='interval') && !Array.isArray(w.moves)) w.moves=[];
-    if(day) w.assignedDay=day;
-    return w;
+  async function runEmailLogin(btn, create){
+    try{
+      if(btn){btn.disabled=true; btn.textContent=create?'Creating...':'Signing in...';}
+      const email=document.getElementById('landing-email')?.value||document.getElementById('acct-email')?.value||'';
+      const pass=document.getElementById('landing-pass')?.value||document.getElementById('acct-pass')?.value||'';
+      const err=create?await createAccount(email,pass):await signIn(email,pass);
+      showLoginError(err);
+    } finally {
+      if(btn){btn.disabled=false; btn.textContent=create?'Create Account':'Sign In';}
+    }
   }
-
-  var originalEditDay=window.editDay;
-  window.editDay=function(day){
-    try{
-      var w=state && state.planner ? state.planner[day] : null;
-      if(w){
-        w=normalizeLoadedWorkout(w,day);
-        if(typeof setCurrent==='function') setCurrent(w); else { state.current=JSON.parse(JSON.stringify(w)); renderAll&&renderAll(); }
-      }else{
-        state.current={name:(DAY_LABEL&&DAY_LABEL[day]?DAY_LABEL[day]:day)+' Workout',type:'strength',exercises:[],source:'manual',assignedDay:day};
-        if(typeof renderAll==='function') renderAll();
-      }
-      goWorkout(true);
-      return;
-    }catch(e){console.error('mobile editDay fix failed',e); if(originalEditDay) return originalEditDay(day);}
-  };
-
-  var originalLoadTemplate=window.loadTemplate;
-  window.loadTemplate=function(key,prompt){
-    try{
-      var w=(typeof workoutFromTemplate==='function')?workoutFromTemplate(key):null;
-      if(!w){ return originalLoadTemplate?originalLoadTemplate(key,prompt):null; }
-      if(isMobile()){
-        if(typeof setCurrent==='function') setCurrent(w); else {state.current=JSON.parse(JSON.stringify(w)); renderAll&&renderAll();}
-        goWorkout(true);
-        try{ if(typeof toast==='function') toast((w.exercises?.length||w.moves?.length||w.phases?.length||0)+' items loaded'); }catch(_){ }
-        return;
-      }
-      return originalLoadTemplate?originalLoadTemplate(key,prompt):null;
-    }catch(e){console.error('mobile loadTemplate fix failed',e); return originalLoadTemplate?originalLoadTemplate(key,prompt):null;}
-  };
-
-  var originalLoadPendingProgram=window.loadPendingProgram;
-  window.loadPendingProgram=async function(){
-    try{
-      var program=state.pendingProgram;
-      var plans=(typeof getProgramPlans==='function')?getProgramPlans():{};
-      var plan=plans[program];
-      if(!plan){return originalLoadPendingProgram?originalLoadPendingProgram():null;}
-      state.program=program;
-      Object.entries(plan).forEach(function(pair){var day=pair[0],w=pair[1]; if(w){w.assignedDay=day; state.planner[day]=w;}});
-      if(typeof savePlanner==='function') savePlanner();
-      if(typeof renderAll==='function') renderAll();
-      if(typeof persistPlannerDay==='function'){
-        for(const pair of Object.entries(plan)){ if(pair[1]){ try{ await persistPlannerDay(pair[0],pair[1]); }catch(_){ } } }
-      }
-      state.pendingProgram=null;
-      document.getElementById('programModal')?.classList.remove('on');
-      if(isMobile()){
-        var firstDay=Object.keys(plan).find(function(d){return plan[d];});
-        if(firstDay && state.planner[firstDay]){
-          normalizeLoadedWorkout(state.planner[firstDay],firstDay);
-          if(typeof setCurrent==='function') setCurrent(state.planner[firstDay]);
-        }
-        goWorkout(true);
-      }
-    }catch(e){console.error('mobile loadPendingProgram fix failed',e); return originalLoadPendingProgram?originalLoadPendingProgram():null;}
-  };
-
-  var originalAi=window.vertexLoadAiWorkout;
-  window.vertexLoadAiWorkout=function(exerciseNames, workoutName){
-    try{
-      if(originalAi) originalAi(exerciseNames, workoutName);
-      setTimeout(function(){goWorkout(true);},120);
-    }catch(e){console.error('AI workout load fix failed',e);}
-  };
-
+  function bindLoginButtons(){
+    const google=document.getElementById('landing-google');
+    if(google && !google.__v136114){
+      google.__v136114=true;
+      google.addEventListener('click', async function(ev){
+        ev.preventDefault(); ev.stopPropagation();
+        const err=await signInGoogle(google);
+        showLoginError(err);
+      }, {capture:true});
+    }
+    const signin=document.getElementById('landing-signin');
+    if(signin && !signin.__v136114){
+      signin.__v136114=true;
+      signin.setAttribute('type','button');
+      signin.addEventListener('click', function(ev){ev.preventDefault(); ev.stopPropagation(); runEmailLogin(signin,false);}, {capture:true});
+    }
+    const create=document.getElementById('landing-create');
+    if(create && !create.__v136114){
+      create.__v136114=true;
+      create.setAttribute('type','button');
+      create.addEventListener('click', function(ev){ev.preventDefault(); ev.stopPropagation(); runEmailLogin(create,true);}, {capture:true});
+    }
+  }
   function compactWellnessControls(){
     try{
-      var root=document.getElementById('wellnessPage'); if(!root) return;
-      var tabs=Array.from(root.querySelectorAll('.progress-tabs')).find(function(x){return x.querySelector('[data-wtab="dashboard"]');});
-      var wrap=document.getElementById('vertexMacroToggleWrap');
-      if(tabs && wrap && wrap.parentElement!==tabs){
-        var bodyBtn=tabs.querySelector('[data-wtab="bodycomp"]');
-        tabs.insertBefore(wrap, bodyBtn||tabs.firstChild);
+      const wrap=document.getElementById('vertexMacroToggleWrap');
+      const tabs=document.querySelector('#wellnessPage .progress-tabs');
+      if(!wrap || !tabs || wrap.querySelector('.vertex-mobile-bodycomp-shortcut')) return;
+      const bodyBtn=tabs.querySelector('[data-wtab="bodycomp"]');
+      if(bodyBtn){
+        const clone=bodyBtn.cloneNode(true);
+        clone.classList.add('vertex-mobile-bodycomp-shortcut');
+        clone.addEventListener('click', function(e){e.preventDefault(); setWellnessTab('bodycomp');});
+        wrap.appendChild(clone);
       }
-      var btn=document.getElementById('vertexMacroToggleBtn');
-      if(btn){btn.classList.add('progress-tab');}
-    }catch(e){console.warn('compactWellnessControls failed',e);}
+    }catch(e){}
   }
-  var originalRenderWellness=window.renderWellnessPage;
-  if(originalRenderWellness){
-    window.renderWellnessPage=function(){var r=originalRenderWellness.apply(this,arguments); setTimeout(compactWellnessControls,0); return r;};
-  }
-  ['DOMContentLoaded','load'].forEach(function(ev){window.addEventListener(ev,function(){setTimeout(compactWellnessControls,250);});});
-  document.addEventListener('click',function(e){setTimeout(compactWellnessControls,80);},true);
+  const oldRenderWellnessPage=renderWellnessPage;
+  renderWellnessPage=function(){
+    const out=oldRenderWellnessPage.apply(this,arguments);
+    setTimeout(compactWellnessControls,40);
+    return out;
+  };
+  document.addEventListener('DOMContentLoaded', function(){bindLoginButtons(); setTimeout(compactWellnessControls,200);});
+  setTimeout(bindLoginButtons,100);
+  setTimeout(compactWellnessControls,300);
+})();
 
-  // Native email/password login reliability patch. Capture prevents duplicate older listener behavior.
-  async function doEmailAuth(kind, scope){
-    var email=document.getElementById(scope==='account'?'acct-email':'landing-email')?.value||'';
-    var pass=document.getElementById(scope==='account'?'acct-pass':'landing-pass')?.value||'';
-    var errBox=document.getElementById(scope==='account'?'acct-error':'landing-error');
-    var btn=document.getElementById(scope==='account'?(kind==='create'?'acct-create':'acct-signin'):(kind==='create'?'landing-create':'landing-signin'));
-    var old=btn?btn.textContent:'';
-    try{
-      if(btn){btn.disabled=true; btn.textContent=kind==='create'?'Creating...':'Signing in...';}
-      var msg=kind==='create' ? await createAccount(email,pass) : await signIn(email,pass);
-      if(errBox) errBox.textContent=msg||'';
-      if(!msg){
-        try{document.body.classList.add('authenticated'); syncAuthShell&&syncAuthShell(); renderAll&&renderAll();}catch(_){ }
-      }
-    }catch(err){ if(errBox) errBox.textContent=(err&&err.message)||'Sign-in failed.'; }
-    finally{ if(btn){btn.disabled=false; btn.textContent=old || (kind==='create'?'Create Account':'Sign In');} }
-  }
-  document.addEventListener('click',function(e){
-    var b=e.target.closest('button'); if(!b) return;
-    if(['landing-signin','landing-create','acct-signin','acct-create'].indexOf(b.id)===-1) return;
-    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    var scope=b.id.indexOf('acct-')===0?'account':'landing';
-    var kind=b.id.indexOf('create')>-1?'create':'signin';
-    doEmailAuth(kind,scope);
-  },true);
 })();
 </script>
 

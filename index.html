@@ -3134,7 +3134,7 @@ button.acc-hint {
 <div id="session" class="session"><div class="session-card"><div class="label">Guided Session</div><div id="sessionTitle" class="session-title">Workout</div><div id="sessionCue" style="color:var(--muted);font-size:16px;margin:8px 0 18px"></div><div id="sessionTimer" class="timer">00</div><div id="sessionNext" class="panel" style="color:var(--muted)"></div><div class="session-actions"><button id="sessionNextBtn" class="btn acc">Next</button><button class="btn" onclick="openRestTimer(60)">⏱ Rest</button><button class="btn" onclick="document.getElementById('plateCalcModal').classList.add('on')">🏋 Plates</button><button class="btn" onclick="document.getElementById('oneRMModal').classList.add('on')">📈 1RM</button><button id="sessionClose" class="btn">Close</button></div></div></div>
 <script>
 (()=>{'use strict';
-const VERSION='v13.60.92 — SyntaxError + Google btn fix';
+const VERSION='v13.60.93 — Macro tooltip + history';
 const DAYS=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
 const DAY_LABEL={monday:'Monday',tuesday:'Tuesday',wednesday:'Wednesday',thursday:'Thursday',friday:'Friday',saturday:'Saturday',sunday:'Sunday'};
 const todayKey=(()=>{const dayName=new Date().toLocaleDateString('en-US',{weekday:'long'}).toLowerCase();return DAYS.includes(dayName)?dayName:DAYS[(new Date().getDay()+6)%7];})();
@@ -9318,7 +9318,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bz';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-macro-history';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -11332,9 +11332,15 @@ window.testAppleHealth = async function () {
 .vertex-macro-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .vertex-macro-title{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px;line-height:1}
 .vertex-macro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.vertex-macro-kpi{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px}
+.vertex-macro-kpi{position:relative;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px}
 .vertex-macro-kpi b{display:block;font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--acc);line-height:1}
-.vertex-macro-kpi span{display:block;margin-top:4px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.vertex-macro-kpi span{display:block;margin-top:4px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding-right:24px}
+.vertex-macro-info{position:absolute;right:10px;bottom:10px;width:20px;height:20px;border-radius:50%;border:1px solid rgba(232,255,71,.45);background:rgba(232,255,71,.06);color:var(--acc);font-family:'DM Mono',monospace;font-size:11px;font-weight:800;line-height:18px;text-align:center;cursor:pointer;padding:0}
+.vertex-macro-info:hover{background:var(--acc);color:#000;border-color:var(--acc)}
+.vertex-macro-sticky{display:none;margin-top:10px;border:1px solid rgba(232,255,71,.35);background:rgba(232,255,71,.055);border-radius:8px;padding:10px 12px;color:var(--text);font-size:12px;line-height:1.45}
+.vertex-macro-sticky.on{display:block}
+.vertex-macro-sticky b{color:var(--acc)}
+.vertex-macro-history-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:8px}
 .vertex-macro-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
 .vertex-macro-controls label{display:block;border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:10px}
 .vertex-macro-controls small{display:block;font-family:'DM Mono',monospace;color:var(--muted);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
@@ -11414,7 +11420,55 @@ window.testAppleHealth = async function () {
     const protein=Math.round(target*.9);
     const fat=Math.round((cal*.25)/9);
     const carbs=Math.max(50,Math.round((cal-(protein*4)-(fat*9))/4));
-    return {current,target,goal,activity,cal,protein,fat,carbs};
+    return {current,target,goal,activity,mult,cal,protein,fat,carbs};
+  }
+  function macroHash(m){return [m.current.toFixed(1),m.target.toFixed(1),m.goal,m.activity,m.cal,m.protein,m.carbs,m.fat].join('|')}
+  function macroHistoryKey(){return 'vertex_macro_history_saved_'+macroHash(macro())}
+  function localMacroHistoryKey(){return 'vertex_macro_history_local'}
+  function supaClient(){
+    try{if(typeof getSupa==='function')return getSupa()}catch(e){}
+    try{
+      if(window.__vertexMacroSupa)return window.__vertexMacroSupa;
+      if(window.supabase){
+        window.__vertexMacroSupa=window.supabase.createClient('https://dwsrwsnzuiwnagjepgtj.supabase.co','sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E',{auth:{persistSession:true,detectSessionInUrl:true,storage:window.localStorage}});
+        return window.__vertexMacroSupa;
+      }
+    }catch(e){}
+    return null;
+  }
+  async function macroUser(supa){
+    try{if(typeof authUser!=='undefined'&&authUser)return authUser}catch(e){}
+    if(window.authUser)return window.authUser;
+    try{const r=await supa.auth.getUser(); return r&&r.data&&r.data.user?r.data.user:null}catch(e){return null}
+  }
+  async function saveMacroHistory(m,reason){
+    const key='vertex_macro_history_saved_'+macroHash(m);
+    if(localStorage.getItem(key)==='1')return 'Already saved';
+    const row={current_weight:m.current,target_weight:m.target,goal_type:m.goal,calories:m.cal,protein:m.protein,carbs:m.carbs,fat:m.fat};
+    try{
+      const local=JSON.parse(localStorage.getItem(localMacroHistoryKey())||'[]');
+      local.unshift(Object.assign({created_at:new Date().toISOString(),reason:reason||'render'},row));
+      localStorage.setItem(localMacroHistoryKey(),JSON.stringify(local.slice(0,30)));
+    }catch(e){}
+    const supa=supaClient();
+    if(!supa){localStorage.setItem(key,'1');return 'Saved locally';}
+    const user=await macroUser(supa);
+    if(!user||!user.id){localStorage.setItem(key,'1');return 'Saved locally';}
+    const {error}=await supa.from('macro_target_history').insert(Object.assign({user_id:user.id},row));
+    if(error){console.warn('Macro history save failed:',error);return 'History save failed';}
+    localStorage.setItem(key,'1');
+    return 'History saved';
+  }
+  function macroExplain(kind,m){
+    const goalText=m.goal==='cut'?'cut adjustment subtracts 400 calories':m.goal==='lean_bulk'?'lean-bulk adjustment adds 200 calories':m.goal==='bulk'?'aggressive bulk adjustment adds 400 calories':'maintenance uses no calorie adjustment';
+    const activityText=m.activity==='low'?'12':m.activity==='high'?'15':'13.5';
+    const map={
+      calories:`<b>Calories</b>: current weight (${m.current.toFixed(1)} lb) × activity multiplier (${activityText}) with goal mode applied. For this target, ${goalText}. Rounded to the nearest 25 calories, with a 1,400 calorie floor.`,
+      protein:`<b>Protein</b>: target body weight (${m.target.toFixed(1)} lb) × 0.9 g per lb. This keeps protein tied to the goal body weight, not just today’s scale weight.`,
+      carbs:`<b>Carbs</b>: remaining calories after protein and fat are assigned. Formula: (calories − protein calories − fat calories) ÷ 4. Minimum floor is 50 g.`,
+      fat:`<b>Fat</b>: 25% of calories assigned to fat, then divided by 9 calories per gram.`
+    };
+    return map[kind]||'';
   }
   function wellnessRoot(){
     return document.getElementById('wellnessPage')
@@ -11489,19 +11543,37 @@ window.testAppleHealth = async function () {
         </select></label>
       </div>
       <div class="vertex-macro-grid">
-        <div class="vertex-macro-kpi"><b>${m.cal}</b><span>Calories</span></div>
-        <div class="vertex-macro-kpi"><b>${m.protein}g</b><span>Protein</span></div>
-        <div class="vertex-macro-kpi"><b>${m.carbs}g</b><span>Carbs</span></div>
-        <div class="vertex-macro-kpi"><b>${m.fat}g</b><span>Fat</span></div>
+        <div class="vertex-macro-kpi"><b>${m.cal}</b><span>Calories</span><button class="vertex-macro-info" type="button" data-macro-info="calories" aria-label="How calories are calculated">i</button></div>
+        <div class="vertex-macro-kpi"><b>${m.protein}g</b><span>Protein</span><button class="vertex-macro-info" type="button" data-macro-info="protein" aria-label="How protein is calculated">i</button></div>
+        <div class="vertex-macro-kpi"><b>${m.carbs}g</b><span>Carbs</span><button class="vertex-macro-info" type="button" data-macro-info="carbs" aria-label="How carbs are calculated">i</button></div>
+        <div class="vertex-macro-kpi"><b>${m.fat}g</b><span>Fat</span><button class="vertex-macro-info" type="button" data-macro-info="fat" aria-label="How fat is calculated">i</button></div>
       </div>
+      <div id="vertexMacroSticky" class="vertex-macro-sticky"></div>
       <div class="vertex-macro-note">Using app truth values: current weight <b>${m.current.toFixed(1)} lb</b>, target weight <b>${m.target.toFixed(1)} lb</b>.</div>
+      <div id="vertexMacroHistoryStatus" class="vertex-macro-history-status">History: checking…</div>
     `;
     const g=document.getElementById('vertexMacroGoal');
     const a=document.getElementById('vertexMacroActivity');
     const r=document.getElementById('vertexMacroRefresh');
-    if(g)g.onchange=function(){localStorage.setItem(GOAL,this.value);render()};
-    if(a)a.onchange=function(){localStorage.setItem(ACTIVITY,this.value);render()};
-    if(r)r.onclick=render;
+    const sticky=document.getElementById('vertexMacroSticky');
+    panel.querySelectorAll('[data-macro-info]').forEach(btn=>{
+      btn.onclick=function(e){
+        e.preventDefault();
+        const kind=this.getAttribute('data-macro-info');
+        if(!sticky)return;
+        const next=macroExplain(kind,m);
+        const isOpen=sticky.classList.contains('on') && sticky.getAttribute('data-open')===kind;
+        sticky.innerHTML=isOpen?'':next;
+        sticky.setAttribute('data-open',isOpen?'':kind);
+        sticky.classList.toggle('on',!isOpen);
+      };
+    });
+    const saveAndRender=function(){render()};
+    if(g)g.onchange=function(){localStorage.setItem(GOAL,this.value);saveAndRender()};
+    if(a)a.onchange=function(){localStorage.setItem(ACTIVITY,this.value);saveAndRender()};
+    if(r)r.onclick=function(){render();try{if(typeof toast==='function')toast('Macro targets refreshed')}catch(_){}};
+    const status=document.getElementById('vertexMacroHistoryStatus');
+    saveMacroHistory(m,'render').then(msg=>{if(status)status.textContent='History: '+msg}).catch(()=>{if(status)status.textContent='History: not saved'});
   }
   function boot(){
     render();

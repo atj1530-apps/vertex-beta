@@ -3332,7 +3332,6 @@ const EXPANDED_NON_STRENGTH_EXERCISES=[
 {name:'Kettlebell Carry',muscle:'Core',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'}
 ];
 EXPANDED_NON_STRENGTH_EXERCISES.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERCISES.push(ex);});
-window.EXERCISES=EXERCISES;
 
 
 
@@ -4472,47 +4471,36 @@ async function createAccount(email,password){
 })();
 
 async function signInGoogle(btn){
-  const originalText=btn?btn.textContent:"";
+  const originalText=btn?btn.textContent:'';
   try{
-    if(btn){btn.disabled=true; btn.textContent="Launching Google...";}
-    localStorage.removeItem("vertex_guest_mode");
+    if(btn){btn.disabled=true; btn.textContent='Redirecting to Google...';}
+    // Fade login screen slightly to signal transition
+    const loginCard=document.querySelector('.login-card,.login-screen>div');
+    if(loginCard) loginCard.style.opacity='0.6';
+    localStorage.removeItem('vertex_guest_mode');
     const supa=getSupa();
-    if(!supa) throw new Error("Supabase could not load. Check your connection.");
-
-    const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-    // Native: redirect to custom scheme so iOS intercepts it via appUrlOpen.
-    // Web: redirect back to origin.
-    const redirectTo = (window.location.protocol === "file:")
-      ? window.location.href
-      : isNative
-        ? 'com.atj1530.vertex://login-callback'
-        : window.location.origin;
-
+    if(!supa) throw new Error('Supabase could not load. Check your connection.');
+    const isNative=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+    const redirectTo=(window.location.protocol==='file:')
+      ?window.location.href
+      :isNative?'com.atj1530.vertex://login-callback':window.location.origin;
     const {data,error}=await supa.auth.signInWithOAuth({
       provider:'google',
-      options:{
-        redirectTo,
-        scopes:'email profile',
-        // On native, open the OAuth URL in the system browser (not in-app WebView)
-        // so iOS can redirect back via the custom URL scheme
-        skipBrowserRedirect: false
-      }
+      options:{redirectTo,scopes:'email profile',skipBrowserRedirect:false}
     });
     if(error) throw error;
-    if(data && data.url){
-      // On native, use window.open to force the system browser
-      if(isNative && window.open){
-        window.open(data.url, '_system');
-      } else {
-        window.location.assign(data.url);
-      }
-      return "";
+    if(data&&data.url){
+      if(isNative&&window.open){ window.open(data.url,'_system'); }
+      else { window.location.assign(data.url); }
+      return '';
     }
-    return "Google sign-in did not return a redirect URL.";
+    return 'Google sign-in did not return a redirect URL.';
   }catch(err){
-    console.error("Google sign-in failed:",err);
-    if(btn){btn.disabled=false; btn.textContent=originalText||"Continue with Google";}
-    return (err && err.message) || "Google sign-in failed.";
+    console.error('Google sign-in failed:',err);
+    const loginCard=document.querySelector('.login-card,.login-screen>div');
+    if(loginCard) loginCard.style.opacity='';
+    if(btn){btn.disabled=false; btn.textContent=originalText||'Continue with Google';}
+    return (err&&err.message)||'Google sign-in failed.';
   }
 }
 window.VertexAuth={
@@ -9319,7 +9307,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ab';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ac';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10855,7 +10843,6 @@ window.testAppleHealth = async function () {
   }
 
   window.VertexReadiness = { build: buildReadinessScore, cached: getCachedReadinessScore };
-  try{if(typeof renderHomeDashboard==='function'&&(typeof state==='undefined'||state.page==='home'||!state.page)) setTimeout(renderHomeDashboard,200);}catch(e){}
 
   // v13.60.67 Weight projection: merge health_logs/bodyWeight + checkin_logs/weight by date.
   let vertexWeightProjectionRefreshInFlight = false;
@@ -11313,15 +11300,7 @@ window.testAppleHealth = async function () {
 
 <style>
 /* v20260517-bz — Visible Macro Tracking toggle + panel */
-#vertexMacroToggleWrap{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  margin:0 0 14px 0;
-}
-#vertexMacroToggleWrap .btn{
-  min-width:170px;
-}
+
 .vertex-macro-panel{
   display:none;
   border:1px solid var(--line);
@@ -11349,8 +11328,7 @@ window.testAppleHealth = async function () {
 .vertex-macro-controls select{width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:9px}
 .vertex-macro-note{color:var(--muted);font-size:12px;line-height:1.45;margin-top:10px}
 @media(max-width:760px){
-  #vertexMacroToggleWrap{display:flex;width:100%;margin:0 0 12px 0}
-  #vertexMacroToggleWrap .btn{width:100%}
+
   .vertex-macro-grid{grid-template-columns:1fr 1fr}
   .vertex-macro-controls{grid-template-columns:1fr}
 }
@@ -11488,14 +11466,17 @@ window.testAppleHealth = async function () {
   function ensureToggle(){
     const tabs=tabsContainer();
     if(!tabs)return null;
-    let wrap=document.getElementById('vertexMacroToggleWrap');
-    if(!wrap){
-      wrap=document.createElement('div');
-      wrap.id='vertexMacroToggleWrap';
-      wrap.innerHTML='<button id="vertexMacroToggleBtn" class="btn small" type="button">Macro Tracking: Off</button>';
-      tabs.parentNode.insertBefore(wrap,tabs);
+    // Inject as a progress-tab button directly in the tab row
+    let btn=document.getElementById('vertexMacroToggleBtn');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.id='vertexMacroToggleBtn';
+      btn.className='progress-tab';
+      btn.type='button';
+      btn.textContent='Macro Tracking: Off';
+      tabs.appendChild(btn);
     }
-    return wrap.querySelector('#vertexMacroToggleBtn');
+    return btn;
   }
   function ensurePanel(){
     const tabs=tabsContainer();
@@ -11513,7 +11494,7 @@ window.testAppleHealth = async function () {
     const btn=ensureToggle();
     if(btn){
       btn.textContent=on()?'Macro Tracking: On':'Macro Tracking: Off';
-      btn.classList.toggle('acc',on());
+      btn.classList.toggle('on',on());
       btn.onclick=function(e){
         e.preventDefault();
         setOn(!on());

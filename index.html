@@ -35,15 +35,15 @@
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;overflow:auto}
 button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
 .btn{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:5px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.btn:hover{border-color:var(--acc);color:var(--acc)}.btn.acc{background:var(--acc);border-color:var(--acc);color:#000}.btn.red{color:var(--red);border-color:rgba(255,77,77,.4);background:transparent}.btn.small{padding:6px 9px;font-size:11px}.btn:disabled{opacity:.45;cursor:not-allowed}
-#app-header{position:fixed;top:0;left:0;right:0;height:58px;background:#070707;border-bottom:1px solid var(--line);display:grid;grid-template-columns:260px 1fr 560px;align-items:center;padding:0 16px;z-index:50;padding-top:env(safe-area-inset-top,0px)}.logo{display:flex;align-items:center;gap:10px}.logo-main{font-family:'Bebas Neue';font-size:26px;letter-spacing:5px;color:var(--acc)}.logo-sub{font-family:'DM Mono';font-size:10px;letter-spacing:3px;color:var(--dim)}.nav{justify-self:center;display:flex;border:0;border-radius:0;overflow:hidden}.nav button{background:var(--panel2);color:var(--muted);border:0;border-right:1px solid var(--line);padding:8px 12px;font-size:12px;cursor:pointer}.nav button:last-child{border-right:0}.nav button.on{background:var(--acc);color:#000;font-weight:700}
+#app-header{position:fixed;top:0;left:0;right:0;height:58px;background:#070707;border-bottom:1px solid var(--line);display:grid;grid-template-columns:260px 1fr 560px;align-items:center;padding:0 16px;z-index:50;padding-top:env(safe-area-inset-top,0px)}.logo{display:flex;align-items:center;gap:10px}.logo-main{font-family:'Bebas Neue';font-size:26px;letter-spacing:5px;color:var(--acc)}.logo-sub{font-family:'DM Mono';font-size:10px;letter-spacing:3px;color:var(--dim)}.nav{justify-self:center;display:flex;border:0;border-radius:0;overflow:hidden}.nav button{background:var(--panel2);color:var(--muted);border:0;border-right:1px solid var(--line);padding:8px 12px;font-size:12px;cursor:pointer}.nav button:last-child{border-right:0}.nav button.on{background:transparent;color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
 /* Desktop: hide hamburger inside nav-row, show Account in hdr-actions */
 @media(min-width:901px){.nav-hamburger{display:none!important}.nav-row{border:1px solid var(--line);border-radius:5px}}
 @media(max-width:900px){.hdr-account-desktop{display:none!important}}.hdr-actions{justify-self:end;display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;overflow:visible}.hdr-actions .btn{flex-shrink:0}body.app-page-nonworkout #btn-save,body.app-page-nonworkout #btn-log,body.app-page-nonworkout #btn-share{display:none!important}#btn-log.btn.acc{background:var(--panel2);color:var(--acc);border:1px solid rgba(232,255,71,.45)}#btn-log.btn.acc.armed{background:var(--acc);color:#000;border-color:var(--acc)}.sync-pill{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap}.sync-dot{width:8px;height:8px;border-radius:99px;background:var(--dim);box-shadow:0 0 0 2px rgba(255,255,255,.03);transition:background 300ms ease,box-shadow 300ms ease}.sync-pill.synced{color:var(--green);border-color:rgba(72,255,138,.28)}.sync-pill.synced .sync-dot{background:var(--green);box-shadow:0 0 0 3px rgba(72,255,138,.18)}.sync-pill.unsaved{color:var(--orange);border-color:rgba(255,176,71,.35)}.sync-pill.unsaved .sync-dot{background:var(--orange)}.sync-pill.failed{color:var(--red);border-color:rgba(255,77,77,.35)}.sync-pill.failed .sync-dot{background:var(--red)}.sync-pill.syncing{color:var(--acc);border-color:rgba(232,255,71,.35)}.sync-pill.syncing .sync-dot{background:var(--acc)}
 /* Nav row wrapper: scrollable tabs + pinned hamburger */
-.nav-row{display:flex;align-items:stretch;justify-self:center;overflow:hidden;border:1px solid var(--line);border-radius:5px;max-width:100%}
+.nav-row{display:flex;align-items:stretch;justify-self:center;overflow:hidden;border:1px solid var(--line);border-radius:5px;max-width:100%;width:100%}
 .nav-row .nav{flex:1;border:none;border-radius:0;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:flex}
 .nav-row .nav::-webkit-scrollbar{display:none}
-.nav-hamburger{flex-shrink:0;border:none;border-left:1px solid var(--line);border-radius:0;background:var(--panel2);color:var(--text);font-size:20px;padding:0 18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;min-width:52px;letter-spacing:1px}
+.nav-hamburger{flex-shrink:0;border:none;border-left:1px solid var(--line);border-radius:0;background:var(--panel2);color:var(--text);font-size:20px;padding:0 16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;letter-spacing:1px;align-self:stretch}
 .nav-hamburger:hover,.nav-hamburger:active{background:var(--panel)}
 /* Safe area: push header below iOS notch/status bar on full-screen PWA */
 #app-header{padding-top:env(safe-area-inset-top,0px)}
@@ -91,7 +91,7 @@ body.shared-view .sidebar,body.shared-view .right{display:none!important}
 body.shared-view #vertex-share-banner{display:block}body:not(.authenticated) #app-header,body:not(.authenticated) #app{display:none}.manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.manual-grid input,.manual-grid select{width:100%;background:var(--panel2);border:1px solid var(--line2);color:var(--text);padding:10px;border-radius:6px;margin-top:6px}.manual-grid .wide{grid-column:1/-1}.manual-help{border:1px solid rgba(232,255,71,.25);background:rgba(232,255,71,.04);border-radius:8px;padding:10px 12px;color:var(--muted);font-size:12px;line-height:1.45;margin-top:12px}
 
 .equip-panel{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:12px;margin:0 0 12px}.equip-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.equip-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.equip-toggle{border:1px solid var(--line);background:var(--panel2);color:var(--muted);border-radius:6px;padding:7px 8px;font-size:11px;cursor:pointer;display:flex;gap:6px;align-items:center}.equip-toggle input{accent-color:#e8ff47}.equip-toggle.on{border-color:rgba(232,255,71,.45);color:var(--acc)}.library-note{color:var(--dim);font-size:11px;line-height:1.35;margin-top:8px}
-@media(max-width:1100px){#app-header{grid-template-columns:160px 1fr 300px}.templates{grid-template-columns:repeat(2,1fr)}#app{grid-template-columns:250px 1fr}.right{display:none}}@media(max-width:800px){.manual-grid{grid-template-columns:1fr}html,body{overflow:auto}#app-header{position:sticky;grid-template-columns:1fr;height:auto;gap:8px;padding:10px;padding-top:max(10px,env(safe-area-inset-top))}.nav-row,.hdr-actions{justify-self:stretch;width:100%}.nav-row{max-width:100%}.logo{justify-content:center}#app{position:static;display:block}.sidebar,.main,.right{overflow:visible}.right{display:block;border-left:0}.templates,.planner-grid,.intel-grid{grid-template-columns:1fr}.ex-head{grid-template-columns:26px 1fr auto auto auto}.ex-head .badge:not(.acc){display:none}.set-row{grid-template-columns:36px 1fr 1fr}.set-row .status{display:none}}
+@media(max-width:1100px){#app-header{grid-template-columns:160px 1fr 300px}.templates{grid-template-columns:repeat(2,1fr)}#app{grid-template-columns:250px 1fr}.right{display:none}}@media(max-width:800px){.manual-grid{grid-template-columns:1fr}html,body{overflow:auto;overflow-x:hidden;max-width:100vw}#app-header{position:sticky;grid-template-columns:1fr;height:auto;gap:8px;padding:10px;padding-top:max(10px,env(safe-area-inset-top));max-width:100vw;overflow:hidden}.nav-row,.hdr-actions{justify-self:stretch;width:100%;max-width:100%}.nav-row{max-width:100%;overflow:hidden}.logo{justify-content:center}#app{position:static;display:block}.sidebar,.main,.right{overflow:visible}.right{display:block;border-left:0}.templates,.planner-grid,.intel-grid{grid-template-columns:1fr}.ex-head{grid-template-columns:26px 1fr auto auto auto}.ex-head .badge:not(.acc){display:none}.set-row{grid-template-columns:36px 1fr 1fr}.set-row .status{display:none}}
 
 
 /* v13.59.3 NAVIGATION LOCK — mobile page tabs without changing desktop default */
@@ -804,7 +804,12 @@ body {
 }
 
 
-/* HealthKit workout rows */
+/* Wellness header compact on mobile */
+@media(max-width:900px){
+  #wellnessPage .progress-head { margin-bottom: 8px !important; }
+  #wellnessPage .page-title { font-size: 32px !important; margin-bottom: 4px !important; }
+  #wellnessPage .page-copy { font-size: 12px !important; margin-bottom: 6px !important; display: none; }
+}
 .hk-workout-row{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:10px 12px}
 .hk-workout-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center}
 .hk-workout-info{flex:1;min-width:0}
@@ -2551,7 +2556,7 @@ button.acc-hint {
     <nav class="nav"><button data-nav="home">Home</button><button data-nav="workout" class="on">Workout</button><button data-nav="progress">Progress</button><button data-nav="wellness">Wellness</button><button data-nav="ai">✦ AI Plan</button></nav>
     <button class="btn small nav-hamburger" id="btn-account" aria-label="Account menu">&#9776;</button>
   </div>
-  <div class="hdr-actions"><div id="syncStatus" class="sync-pill local" style="cursor:pointer" onclick="if(this.classList.contains('failed')){window.vertexRetrySync&&window.vertexRetrySync()}" title="Click to retry sync"><span class="sync-dot"></span><span id="syncStatusText">Local mode</span></div><button id="btn-share" class="btn small hdr-workout-btn">↗ Share</button><button id="btn-save" class="btn small hdr-workout-btn">Save</button><button id="btn-log" class="btn acc small hdr-workout-btn">Log Workout</button><button class="btn small hdr-account-desktop" id="btn-account-desktop" aria-label="Account menu">Account</button></div>
+  <div class="hdr-actions"><div id="syncStatus" class="sync-pill local" style="cursor:pointer" onclick="if(this.classList.contains('failed')){window.vertexRetrySync&&window.vertexRetrySync()}" title="Click to retry sync"><span class="sync-dot"></span><span id="syncStatusText">Local mode</span></div><button id="btn-save" class="btn small hdr-workout-btn">Save</button><button id="btn-log" class="btn acc small hdr-workout-btn">Log Workout</button><button class="btn small hdr-account-desktop" id="btn-account-desktop" aria-label="Account menu">Account</button></div>
 </header>
 <div id="account-menu" class="account-menu"></div>
 <div id="vertex-offline-banner">⚠ Offline — changes saved locally and will sync when reconnected</div>
@@ -2941,7 +2946,7 @@ button.acc-hint {
     <section id="templatesAcc" class="accordion"><div class="acc-head"><span class="acc-title">Workout Templates</span><span class="acc-hint">&#9658; EXPAND</span></div><div class="acc-body"><div class="label" style="margin-bottom:12px">Load a preset workout into today or drop it on any planner day.</div><div id="tpl-grid" class="templates"></div></div></section>
     <div id="coachBar" class="coachbar">Ready: Push intensity today.</div>
     <section id="autoCoachAcc" class="accordion open"><div class="acc-head"><span class="acc-title">Auto Coach</span><span class="acc-hint">▼ COLLAPSE</span></div><div class="acc-body"><div id="autoCoachBody"><div class="label" style="color:var(--acc)">Auto Coach</div><p style="color:var(--muted);margin:4px 0 12px">Optional plan guidance based on recovery, workout type, and live performance signals.</p><div class="panel" style="margin:0"><b>Recovery signal is favorable.</b><br><span style="color:var(--muted)">Add a small load or rep increase where form is stable.</span></div></div></div></section>
-    <div class="wkt-name-row"><h1 id="wkt-title" class="title">NAME YOUR WORKOUT</h1><button id="btn-edit-name" class="btn small">Edit Name</button></div>
+    <div class="wkt-name-row"><h1 id="wkt-title" class="title">NAME YOUR WORKOUT</h1><button id="btn-edit-name" class="btn small">Edit Name</button><button id="btn-share" class="btn small hdr-workout-btn" style="margin-left:auto">↗ Share</button></div>
     <div id="wkt-meta" class="meta"></div>
     <section id="builder"></section>
   </main>
@@ -8263,7 +8268,7 @@ function toast(msg){
   if(!el){
     el=document.createElement('div');
     el.id='vertex-toast';
-    el.style.cssText='position:fixed;right:18px;bottom:18px;z-index:300;background:#181818;border:1px solid var(--acc);color:var(--text);border-radius:8px;padding:12px 14px;font-weight:800;box-shadow:0 12px 40px rgba(0,0,0,.45);max-width:360px';
+    el.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:max(90px,calc(80px + env(safe-area-inset-bottom)));z-index:300;background:#181818;border:1px solid var(--acc);color:var(--text);border-radius:8px;padding:12px 18px;font-weight:800;box-shadow:0 12px 40px rgba(0,0,0,.55);max-width:320px;width:max-content;text-align:center;font-size:13px';
     document.body.appendChild(el);
   }
   el.textContent=msg;
@@ -9584,7 +9589,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ao';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ap';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -9864,14 +9869,14 @@ window.testAppleHealth = async function () {
             console.warn('Health local cache update failed:', cacheErr);
           }
 
-          (typeof toast === 'function' ? toast : alert)('Apple Health synced ✓');
+          (typeof toast === 'function' ? toast : console.log)('Apple Health synced ✓');
         }
       } catch(e) {
         console.warn('Supabase upsert failed:', e);
-        (typeof toast === 'function' ? toast : alert)('Synced locally — cloud save failed');
+        (typeof toast === 'function' ? toast : console.log)('Synced locally — cloud save failed');
       }
     } else {
-      (typeof toast === 'function' ? toast : alert)('Synced locally (sign in to save to cloud)');
+      (typeof toast === 'function' ? toast : console.log)('Synced locally (sign in to save to cloud)');
     }
 
     // Reload from cloud and refresh displays
@@ -9920,18 +9925,19 @@ window.testAppleHealth = async function () {
             const meta = [dur,cal,hr].filter(Boolean).join(' · ');
             const wid = w.startDate + '_' + w.activityType;
             const isImported = !!imported[wid];
-            return `<div class="hk-workout-row">
+            return `<div class="hk-workout-row" id="hk-row-${i}">
               <div class="hk-workout-icon">${icon}</div>
               <div class="hk-workout-info">
                 <div class="hk-workout-name">${w.activityName}</div>
                 <div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>
                 ${w.sourceDevice ? '<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>' : ''}
               </div>
-              <div class="hk-workout-import">
+              <div class="hk-workout-import" style="display:flex;align-items:center;gap:6px">
                 ${isImported
                   ? '<span class="hk-workout-imported">✓ Imported</span>'
                   : `<button class="btn small" onclick="window.vertexImportHKWorkout(${i})" style="font-size:10px;padding:4px 8px">Import</button>`
                 }
+                <button onclick="window.vertexDismissHKWorkout(${i})" style="background:none;border:none;color:var(--dim);font-size:16px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button>
               </div>
             </div>`;
           }).join('');
@@ -9986,6 +9992,11 @@ window.testAppleHealth = async function () {
 }
 
 // v13.60.32 — removed setInterval(renderAppleHealthRecoveryCards, 3000). Rewrote innerHTML every 3s causing repaints.
+
+window.vertexDismissHKWorkout = function(idx) {
+  const row = document.getElementById('hk-row-'+idx);
+  if(row) row.style.display = 'none';
+};
 
 // ── IMPORT HEALTHKIT WORKOUT TO VERTEX LOGS ──────────────────
 window.vertexImportHKWorkout = async function(idx) {

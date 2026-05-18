@@ -3134,7 +3134,7 @@ button.acc-hint {
 <div id="session" class="session"><div class="session-card"><div class="label">Guided Session</div><div id="sessionTitle" class="session-title">Workout</div><div id="sessionCue" style="color:var(--muted);font-size:16px;margin:8px 0 18px"></div><div id="sessionTimer" class="timer">00</div><div id="sessionNext" class="panel" style="color:var(--muted)"></div><div class="session-actions"><button id="sessionNextBtn" class="btn acc">Next</button><button class="btn" onclick="openRestTimer(60)">⏱ Rest</button><button class="btn" onclick="document.getElementById('plateCalcModal').classList.add('on')">🏋 Plates</button><button class="btn" onclick="document.getElementById('oneRMModal').classList.add('on')">📈 1RM</button><button id="sessionClose" class="btn">Close</button></div></div></div>
 <script>
 (()=>{'use strict';
-const VERSION='v13.60.93 — Macro tooltip + history';
+const VERSION='v13.60.94 — Macro adaptive coach';
 const DAYS=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
 const DAY_LABEL={monday:'Monday',tuesday:'Tuesday',wednesday:'Wednesday',thursday:'Thursday',friday:'Friday',saturday:'Saturday',sunday:'Sunday'};
 const todayKey=(()=>{const dayName=new Date().toLocaleDateString('en-US',{weekday:'long'}).toLowerCase();return DAYS.includes(dayName)?dayName:DAYS[(new Date().getDay()+6)%7];})();
@@ -11346,11 +11346,33 @@ window.testAppleHealth = async function () {
 .vertex-macro-controls small{display:block;font-family:'DM Mono',monospace;color:var(--muted);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
 .vertex-macro-controls select{width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:9px}
 .vertex-macro-note{color:var(--muted);font-size:12px;line-height:1.45;margin-top:10px}
+
+.vertex-macro-phase3{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+.vertex-macro-section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px 0}
+.vertex-macro-section-title b{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--acc)}
+.vertex-macro-section-title span{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.vertex-macro-trend{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.vertex-macro-trend-card{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:10px;min-height:96px}
+.vertex-macro-trend-card strong{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:var(--text);display:block;line-height:1}
+.vertex-macro-trend-card small{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:4px 0 8px}
+.vertex-macro-bars{height:38px;display:flex;align-items:flex-end;gap:3px}
+.vertex-macro-bar{flex:1;min-width:3px;background:var(--acc);border-radius:3px 3px 0 0;opacity:.85}
+.vertex-macro-insights{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vertex-macro-insight{border:1px solid rgba(232,255,71,.22);background:rgba(232,255,71,.035);border-radius:8px;padding:11px 12px}
+.vertex-macro-insight.warn{border-color:rgba(255,176,71,.45);background:rgba(255,176,71,.045)}
+.vertex-macro-insight.green{border-color:rgba(72,255,138,.35);background:rgba(72,255,138,.04)}
+.vertex-macro-insight.red{border-color:rgba(255,77,77,.42);background:rgba(255,77,77,.04)}
+.vertex-macro-insight b{display:block;margin-bottom:4px;color:var(--text)}
+.vertex-macro-insight span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+.vertex-macro-next{margin-top:10px;border:1px solid rgba(75,189,255,.35);background:rgba(75,189,255,.035);border-radius:8px;padding:11px 12px;color:var(--muted);font-size:12px;line-height:1.45}
+.vertex-macro-next b{color:var(--blue)}
 @media(max-width:760px){
   #vertexMacroToggleWrap{display:flex;width:100%;margin:0 0 12px 0}
   #vertexMacroToggleWrap .btn{width:100%}
   .vertex-macro-grid{grid-template-columns:1fr 1fr}
   .vertex-macro-controls{grid-template-columns:1fr}
+  .vertex-macro-trend{grid-template-columns:1fr 1fr}
+  .vertex-macro-insights{grid-template-columns:1fr}
 }
 </style>
 
@@ -11459,6 +11481,93 @@ window.testAppleHealth = async function () {
     localStorage.setItem(key,'1');
     return 'History saved';
   }
+  function formatDateShort(v){
+    try{return new Date(v).toLocaleDateString(undefined,{month:'short',day:'numeric'})}catch(e){return ''}
+  }
+  function normalizeHistoryRows(rows){
+    return (Array.isArray(rows)?rows:[]).map(r=>({
+      created_at:r.created_at||new Date().toISOString(),
+      current_weight:num(r.current_weight),
+      target_weight:num(r.target_weight),
+      goal_type:r.goal_type||'cut',
+      calories:num(r.calories),
+      protein:num(r.protein),
+      carbs:num(r.carbs),
+      fat:num(r.fat)
+    })).filter(r=>r.created_at&&(r.calories||r.current_weight)).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  }
+  async function loadMacroHistory(){
+    let rows=[];
+    try{rows=JSON.parse(localStorage.getItem(localMacroHistoryKey())||'[]')}catch(e){rows=[]}
+    const supa=supaClient();
+    if(supa){
+      const user=await macroUser(supa);
+      if(user&&user.id){
+        const {data,error}=await supa.from('macro_target_history').select('created_at,current_weight,target_weight,goal_type,calories,protein,carbs,fat').eq('user_id',user.id).order('created_at',{ascending:true}).limit(60);
+        if(!error&&Array.isArray(data))rows=data;
+      }
+    }
+    return normalizeHistoryRows(rows);
+  }
+  function barHtml(vals){
+    vals=(vals||[]).filter(v=>Number.isFinite(v));
+    if(!vals.length)return '<div class="vertex-macro-bar" style="height:6px"></div>';
+    const max=Math.max(...vals), min=Math.min(...vals), range=Math.max(1,max-min);
+    return vals.slice(-12).map(v=>'<div class="vertex-macro-bar" style="height:'+Math.max(6,Math.round(((v-min)/range)*32)+6)+'px"></div>').join('');
+  }
+  function macroPhase3Html(history,m){
+    history=normalizeHistoryRows(history);
+    const recent=history.slice(-12);
+    const latest=history[history.length-1]||null;
+    const weekAgo=history.slice().reverse().find(r=>new Date(latest?latest.created_at:Date.now())-new Date(r.created_at)>=6*86400000);
+    const twoWeeksAgo=history.slice().reverse().find(r=>new Date(latest?latest.created_at:Date.now())-new Date(r.created_at)>=13*86400000);
+    const deltaWeek=(latest&&weekAgo&&latest.current_weight&&weekAgo.current_weight)?latest.current_weight-weekAgo.current_weight:null;
+    const deltaTwo=(latest&&twoWeeksAgo&&latest.current_weight&&twoWeeksAgo.current_weight)?latest.current_weight-twoWeeksAgo.current_weight:null;
+    let pace='Need more history';
+    let adj='Keep current targets until Vertex has at least 7 days of saved weights.';
+    let plateau='Not enough data yet';
+    let cls='';
+    if(deltaWeek!==null){
+      const abs=Math.abs(deltaWeek);
+      pace=(deltaWeek<0?'-':'+')+abs.toFixed(1)+' lb / 7 days';
+      if(m.goal==='cut'){
+        if(deltaWeek<=-2.5){adj='Weight is moving fast. Consider increasing calories by 100–150 or holding targets if energy is strong.';cls='warn'}
+        else if(deltaWeek<=-0.7){adj='Pace is in range. Keep current targets for another week.';cls='green'}
+        else if(deltaWeek>-0.3){adj='Progress is slow. Consider reducing calories by 150–200 or adding 20–30 minutes of weekly cardio.';cls='warn'}
+        else {adj='Slight downward movement. Hold for 3–4 more days before changing calories.';}
+      }else if(m.goal==='maintenance'){
+        if(abs<=1){adj='Maintenance range looks controlled. Keep targets stable.';cls='green'}
+        else adj='Weight is drifting outside maintenance. Adjust calories by 100–150 in the opposite direction.';
+      }else{
+        if(deltaWeek>=0.25&&deltaWeek<=1.0){adj='Gain rate looks controlled. Keep current targets.';cls='green'}
+        else if(deltaWeek<0.25){adj='Gain rate is low. Consider adding 100–150 calories.';cls='warn'}
+        else {adj='Gain rate is aggressive. Consider reducing calories by 100–150.';cls='warn'}
+      }
+    }
+    if(deltaTwo!==null){
+      if(m.goal==='cut'&&Math.abs(deltaTwo)<0.5){plateau='Possible plateau: less than 0.5 lb movement across ~14 days.';cls=cls||'warn'}
+      else plateau='No clear 14-day plateau detected.';
+    }
+    const lastDate=latest?formatDateShort(latest.created_at):'No history';
+    return `
+      <div class="vertex-macro-phase3" id="vertexMacroAdaptiveCoach">
+        <div class="vertex-macro-section-title"><b>Adaptive Coach</b><span>${history.length} saved records · latest ${lastDate}</span></div>
+        <div class="vertex-macro-trend">
+          <div class="vertex-macro-trend-card"><strong>${m.cal}</strong><small>Calories Trend</small><div class="vertex-macro-bars">${barHtml(recent.map(r=>r.calories))}</div></div>
+          <div class="vertex-macro-trend-card"><strong>${m.protein}g</strong><small>Protein Trend</small><div class="vertex-macro-bars">${barHtml(recent.map(r=>r.protein))}</div></div>
+          <div class="vertex-macro-trend-card"><strong>${m.carbs}g</strong><small>Carbs Trend</small><div class="vertex-macro-bars">${barHtml(recent.map(r=>r.carbs))}</div></div>
+          <div class="vertex-macro-trend-card"><strong>${m.fat}g</strong><small>Fat Trend</small><div class="vertex-macro-bars">${barHtml(recent.map(r=>r.fat))}</div></div>
+        </div>
+        <div class="vertex-macro-insights">
+          <div class="vertex-macro-insight ${cls}"><b>Weekly Adjustment</b><span>${adj}</span></div>
+          <div class="vertex-macro-insight ${deltaTwo!==null&&m.goal==='cut'&&Math.abs(deltaTwo)<0.5?'warn':'green'}"><b>Plateau Check</b><span>${plateau}</span></div>
+          <div class="vertex-macro-insight"><b>Weight Pace</b><span>${pace}</span></div>
+          <div class="vertex-macro-insight"><b>Coaching Signal</b><span>${history.length<3?'Build more check-ins. Vertex gets smarter after several saved macro snapshots.':'Targets are now being compared against saved history for trend-based coaching.'}</span></div>
+        </div>
+        <div class="vertex-macro-next"><b>Next coach action:</b> ${adj}</div>
+      </div>`;
+  }
+
   function macroExplain(kind,m){
     const goalText=m.goal==='cut'?'cut adjustment subtracts 400 calories':m.goal==='lean_bulk'?'lean-bulk adjustment adds 200 calories':m.goal==='bulk'?'aggressive bulk adjustment adds 400 calories':'maintenance uses no calorie adjustment';
     const activityText=m.activity==='low'?'12':m.activity==='high'?'15':'13.5';
@@ -11551,6 +11660,7 @@ window.testAppleHealth = async function () {
       <div id="vertexMacroSticky" class="vertex-macro-sticky"></div>
       <div class="vertex-macro-note">Using app truth values: current weight <b>${m.current.toFixed(1)} lb</b>, target weight <b>${m.target.toFixed(1)} lb</b>.</div>
       <div id="vertexMacroHistoryStatus" class="vertex-macro-history-status">History: checking…</div>
+      <div id="vertexMacroPhase3Mount" class="vertex-macro-history-status">Adaptive coach: loading…</div>
     `;
     const g=document.getElementById('vertexMacroGoal');
     const a=document.getElementById('vertexMacroActivity');
@@ -11574,6 +11684,8 @@ window.testAppleHealth = async function () {
     if(r)r.onclick=function(){render();try{if(typeof toast==='function')toast('Macro targets refreshed')}catch(_){}};
     const status=document.getElementById('vertexMacroHistoryStatus');
     saveMacroHistory(m,'render').then(msg=>{if(status)status.textContent='History: '+msg}).catch(()=>{if(status)status.textContent='History: not saved'});
+    const phase3=document.getElementById('vertexMacroPhase3Mount');
+    loadMacroHistory().then(rows=>{if(phase3)phase3.outerHTML=macroPhase3Html(rows,m)}).catch(()=>{if(phase3)phase3.textContent='Adaptive coach: history unavailable'});
   }
   function boot(){
     render();

@@ -1510,6 +1510,9 @@ body {
 /* Mobile stat strip visibility */
 .home-stat-strip-desktop { display: grid; }
 .home-stat-strip-mobile { display: none; }
+/* Mobile/desktop header visibility */
+.home-hdr-desktop { display: flex; }
+.home-hdr-mobile { display: none; }
 @media (max-width: 900px) {
   .home-stat-strip-desktop { display: none !important; }
   .home-stat-strip-mobile {
@@ -1521,6 +1524,8 @@ body {
     padding: 6px 0;
     border-bottom: 1px solid var(--line);
   }
+  .home-hdr-desktop { display: none !important; }
+  .home-hdr-mobile { display: block !important; }
 }
 .home-mobile-stat {
   display: inline-flex;
@@ -7672,8 +7677,13 @@ function renderHomeDashboard(){
     const wDesc = w => { if(!w) return ''; try{ return summary(w); }catch(e){ const exCount=(w.exercises||[]).length; const sets=(w.exercises||[]).reduce((a,e)=>a+(e.sets||[]).length,0); const dur=w.estimatedMinutes||Math.max(8,sets*2+5); return dur+' min · '+exCount+' move'+(exCount===1?'':'s'); } };
     const _sleepAvg7 = (()=>{ try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null'); return s&&s.avg7Minutes?Math.round(s.avg7Minutes/60*10)/10:null; }catch(e){return null;} })();
     const _hrvAvg7 = (()=>{ try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null'); return s&&s.avg7?Math.round(s.avg7):null; }catch(e){return null;} })();
+    // Planned sessions count (any planner day with a workout)
+    const _plannedCount = DAYS.filter(d => state.planner && state.planner[d] && (state.planner[d].exercises||state.planner[d].moves||[]).length > 0).length;
+    // Latest weight for mobile stat strip
+    const _mobileWeight = ahWeight !== null ? ahWeight : null;
     el.innerHTML = `
-<div style="margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:nowrap">
+<!-- Desktop header: logo left, readiness center -->
+<div class="home-hdr-desktop" style="margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:nowrap">
   <div style="flex-shrink:0;display:flex;flex-direction:column;justify-content:center">
     <h1 class="page-title" style="margin:0 0 2px">Vertex</h1>
     <div style="display:flex;align-items:center;gap:6px">
@@ -7682,6 +7692,15 @@ function renderHomeDashboard(){
     </div>
   </div>
   <div style="flex:1;min-width:0;display:flex;justify-content:center">${_readinessCardHtml||''}</div>
+</div>
+<!-- Mobile header: logo + date on one line, readiness below full-width -->
+<div class="home-hdr-mobile" style="margin-bottom:10px">
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:8px">
+    <h1 class="page-title" style="margin:0;line-height:1">Vertex</h1>
+    <span style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px">${new Date().toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})}</span>
+    <button class="btn small" id="btn-home-refresh-metrics" style="margin-left:auto;padding:2px 7px;font-size:10px;border-radius:4px;background:transparent;border-color:rgba(255,255,255,.12);color:var(--dim)" title="Sync health metrics">↻</button>
+  </div>
+  ${_readinessCardHtml ? `<div style="width:100%">${_readinessCardHtml}</div>` : ''}
 </div>
 
 <!-- Desktop: full 8-card stat strip -->
@@ -7742,8 +7761,13 @@ function renderHomeDashboard(){
   <span class="home-mobile-stat-div">·</span>
   <span class="home-mobile-stat">
     <span class="home-mobile-stat-val">${sum.thisWeek.length}</span>
-    <span class="home-mobile-stat-lbl">sessions this wk</span>
+    <span class="home-mobile-stat-lbl">logged${_plannedCount > 0 ? ' / '+_plannedCount+' planned' : ' this wk'}</span>
   </span>
+  ${_mobileWeight !== null ? `<span class="home-mobile-stat-div">·</span>
+  <span class="home-mobile-stat">
+    <span class="home-mobile-stat-val">${_mobileWeight} lb</span>
+    <span class="home-mobile-stat-lbl">Weight</span>
+  </span>` : ''}
 </div>
 
 <div class="home-day-carousel-wrap" style="margin-bottom:12px">
@@ -8953,8 +8977,11 @@ document.addEventListener('change', e=>{
 (function initAccordionMobileDefaults(){
   const isMobile=window.matchMedia&&window.matchMedia('(max-width: 900px)').matches;
   const collapseByDefaultOnMobile=['plannerAcc','intelAcc','autoCoachAcc','savedWorkoutsAcc'];
+  // plannerAcc always starts collapsed on mobile — today/tomorrow carousel replaces it above the fold
+  const alwaysCollapseOnMobile=['plannerAcc'];
   document.querySelectorAll('.accordion').forEach(acc=>{
     if(!acc.id) return;
+    if(isMobile && alwaysCollapseOnMobile.includes(acc.id)){ acc.classList.remove('open'); return; }
     let saved=null;
     try{saved=localStorage.getItem('vertex_acc_'+acc.id);}catch(e){}
     if(saved==='1'){acc.classList.add('open');}
@@ -9482,7 +9509,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ae';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-af';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -11744,6 +11771,49 @@ window.testAppleHealth = async function () {
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
+})();
+</script>
+
+<!-- Mobile Back to Top button -->
+<button id="vertex-back-top" aria-label="Back to top" title="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<style>
+#vertex-back-top {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 16px;
+  z-index: 200;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--acc);
+  color: #000;
+  border: none;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  opacity: 0;
+  transition: opacity .2s;
+  align-items: center;
+  justify-content: center;
+}
+#vertex-back-top.visible {
+  opacity: 1;
+}
+@media (max-width: 900px) {
+  #vertex-back-top { display: flex; }
+}
+</style>
+<script>
+(function(){
+  var btn = document.getElementById('vertex-back-top');
+  if(!btn) return;
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 220){ btn.classList.add('visible'); }
+    else { btn.classList.remove('visible'); }
+  }, {passive:true});
 })();
 </script>
 

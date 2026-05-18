@@ -1,7 +1,7 @@
 /* Vertex Workout Builder — PWA Service Worker
-   Fresh cache bump for mobile navigation/layout fix. */
+   Fresh cache bump for v13.61.14 mobile auth/builder fix. */
 
-const CACHE_NAME = 'vertex-v20260517-mobile-nav-layout-fresh';
+const CACHE_NAME = 'vertex-v20260517-mobile-auth-builder-fix';
 const APP_SHELL = [
   './',
   './index.html',
@@ -28,37 +28,20 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-
   if (
     url.hostname.includes('supabase') ||
     url.hostname.includes('anthropic') ||
     url.hostname.includes('unpkg') ||
     url.hostname.includes('youtube') ||
     url.hostname.includes('googleapis')
-  ) {
-    return;
-  }
-
+  ) return;
   if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
     event.respondWith(
       fetch(event.request)
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          return response;
-        })
+        .then((response) => { const clone = response.clone(); caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)); return response; })
         .catch(() => caches.match(event.request))
     );
     return;
   }
-
-  event.respondWith(
-    caches.match(event.request).then((cached) =>
-      cached || fetch(event.request).then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        return response;
-      })
-    )
-  );
+  event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => { const clone = response.clone(); caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)); return response; })));
 });

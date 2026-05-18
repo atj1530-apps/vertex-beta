@@ -9318,7 +9318,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bx';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-by';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -11310,7 +11310,16 @@ window.testAppleHealth = async function () {
 
 
 <style>
-/* v20260517-bx — Macro Tracking visibility + truth-weight targets */
+/* v20260517-by — Visible Macro Tracking toggle + panel */
+#vertexMacroToggleWrap{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin:0 0 14px 0;
+}
+#vertexMacroToggleWrap .btn{
+  min-width:170px;
+}
 .vertex-macro-panel{
   display:none;
   border:1px solid var(--line);
@@ -11320,370 +11329,188 @@ window.testAppleHealth = async function () {
   margin:14px 0;
 }
 .vertex-macro-panel.on{display:block}
-.vertex-macro-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:12px;
-}
-.vertex-macro-title{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:34px;
-  letter-spacing:3px;
-  line-height:1;
-}
-.vertex-macro-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-}
-.vertex-macro-kpi{
-  background:var(--panel2);
-  border:1px solid var(--line);
-  border-radius:8px;
-  padding:12px;
-}
-.vertex-macro-kpi b{
-  display:block;
-  font-family:'Bebas Neue',sans-serif;
-  font-size:34px;
-  color:var(--acc);
-  line-height:1;
-}
-.vertex-macro-kpi span{
-  display:block;
-  margin-top:4px;
-  font-family:'DM Mono',monospace;
-  font-size:10px;
-  color:var(--muted);
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-}
-.vertex-macro-controls{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin:12px 0;
-}
-.vertex-macro-controls label{
-  display:block;
-  border:1px solid var(--line);
-  background:var(--panel2);
-  border-radius:8px;
-  padding:10px;
-}
-.vertex-macro-controls small{
-  display:block;
-  font-family:'DM Mono',monospace;
-  color:var(--muted);
-  font-size:10px;
-  letter-spacing:1.2px;
-  text-transform:uppercase;
-  margin-bottom:6px;
-}
-.vertex-macro-controls input,
-.vertex-macro-controls select{
-  width:100%;
-  background:var(--panel3);
-  color:var(--text);
-  border:1px solid var(--line2);
-  border-radius:6px;
-  padding:9px;
-}
-.vertex-macro-note{
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.45;
-  margin-top:10px;
-}
+.vertex-macro-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.vertex-macro-title{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px;line-height:1}
+.vertex-macro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.vertex-macro-kpi{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px}
+.vertex-macro-kpi b{display:block;font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--acc);line-height:1}
+.vertex-macro-kpi span{display:block;margin-top:4px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.vertex-macro-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.vertex-macro-controls label{display:block;border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:10px}
+.vertex-macro-controls small{display:block;font-family:'DM Mono',monospace;color:var(--muted);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
+.vertex-macro-controls select{width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:9px}
+.vertex-macro-note{color:var(--muted);font-size:12px;line-height:1.45;margin-top:10px}
 @media(max-width:760px){
+  #vertexMacroToggleWrap{display:flex;width:100%;margin:0 0 12px 0}
+  #vertexMacroToggleWrap .btn{width:100%}
   .vertex-macro-grid{grid-template-columns:1fr 1fr}
   .vertex-macro-controls{grid-template-columns:1fr}
 }
 </style>
 
 <script>
-/* v20260517-bx — Macro Tracking UI/logic patch */
+/* v20260517-by — render Macro Tracking toggle physically inside Wellness */
 (function(){
-  const MACRO_ENABLED_KEY='vertex_macro_tracking_enabled';
-  const MACRO_GOAL_KEY='vertex_macro_goal_mode';
-  const MACRO_ACTIVITY_KEY='vertex_macro_activity';
+  const ENABLED='vertex_macro_tracking_enabled';
+  const GOAL='vertex_macro_goal_mode';
+  const ACTIVITY='vertex_macro_activity';
 
-  function qs(sel){return document.querySelector(sel);}
-  function qsa(sel){return Array.from(document.querySelectorAll(sel));}
-  function safeNum(v){
-    const n=Number(String(v ?? '').replace(/[^0-9.\-]/g,''));
-    return Number.isFinite(n) && n>0 ? n : null;
-  }
-  function getLS(keys){
-    for(const k of keys){
-      try{
-        const raw=localStorage.getItem(k);
-        if(raw==null) continue;
-        const n=safeNum(raw);
-        if(n) return n;
-        try{
-          const obj=JSON.parse(raw);
-          if(obj && typeof obj==='object'){
-            for(const kk of ['weight','bodyWeight','currentWeight','weight_lbs','weightLb','value','targetWeight','target_weight']){
-              const nn=safeNum(obj[kk]);
-              if(nn) return nn;
-            }
-          }
-        }catch(e){}
-      }catch(e){}
+  function on(){return localStorage.getItem(ENABLED)==='1'}
+  function setOn(v){localStorage.setItem(ENABLED,v?'1':'0')}
+  function num(v){const n=Number(String(v??'').replace(/[^0-9.\-]/g,''));return Number.isFinite(n)&&n>0?n:null}
+  function st(){try{if(typeof state!=='undefined')return state}catch(e){} return window.state||null}
+  function firstNum(vals){for(const v of vals){const n=num(v);if(n)return n}return null}
+  function latest(arr,fields){
+    if(!Array.isArray(arr))return null;
+    for(const row of arr.slice().reverse()){
+      for(const f of fields){const n=num(row&&row[f]);if(n)return n}
     }
-    return null;
-  }
-  function latestFromArray(arr, fields){
-    if(!Array.isArray(arr) || !arr.length) return null;
     for(const row of arr){
-      for(const f of fields){
-        const n=safeNum(row && row[f]);
-        if(n) return n;
-      }
+      for(const f of fields){const n=num(row&&row[f]);if(n)return n}
     }
     return null;
   }
-  function appState(){
-    try{ if(typeof state !== 'undefined') return state; }catch(e){}
-    return window.state || null;
+  function currentWeight(){
+    const s=st();
+    return latest(s&&s.healthRows,['weight','weight_lbs','bodyWeight','body_weight'])
+      || latest(s&&s.wellnessRows,['weight','weight_lbs','bodyWeight','body_weight'])
+      || latest(s&&s.bodyCompRows,['weight','weight_lbs','bodyWeight','body_weight'])
+      || latest(s&&s.progressLogs,['weight','bodyWeight','weight_lbs'])
+      || firstNum([s&&s.weight,s&&s.currentWeight,s&&s.bodyWeight,s&&s.weight_lbs])
+      || (function(){
+        const txt=document.body?document.body.innerText:'';
+        const m=txt.match(/Weight[\s\S]{0,80}?([0-9]{2,3}(?:\.[0-9])?)\s*lb/i);
+        return m?num(m[1]):null;
+      })()
+      || 239.8;
   }
-  function currentWeightTruth(){
-    const s=appState();
-
-    // 1) Latest health/progress/body comp rows in app state
-    const fromState =
-      latestFromArray(s && s.healthRows, ['weight','weight_lbs','body_weight','bodyWeight']) ||
-      latestFromArray(s && s.wellnessRows, ['weight','weight_lbs','body_weight','bodyWeight']) ||
-      latestFromArray(s && s.bodyCompRows, ['weight','weight_lbs','body_weight','bodyWeight']) ||
-      latestFromArray(s && s.progressLogs, ['bodyWeight','weight','weight_lbs']);
-
-    if(fromState) return fromState;
-
-    // 2) Direct state goals/profile fields
-    const direct = safeNum(s && (s.weight || s.currentWeight || s.bodyWeight || s.weight_lbs));
-    if(direct) return direct;
-
-    // 3) Common localStorage truth keys
-    const fromLS=getLS([
-      'vertex_latest_health',
-      'vertex_health_latest',
-      'vertex_body_comp_latest',
-      'vertex_checkin_latest',
-      'vertex_weight',
-      'vertex_current_weight',
-      'vertex_body_weight',
-      'weight',
-      'currentWeight',
-      'bodyWeight'
+  function targetWeight(){
+    const s=st();
+    const fromState=firstNum([
+      s&&s.goals&&s.goals.weight,
+      s&&s.goals&&s.goals.targetWeight,
+      s&&s.profile&&s.profile.targetWeight,
+      s&&s.settings&&s.settings.targetWeight,
+      s&&s.targetWeight,
+      s&&s.weightGoal,
+      s&&s.goalWeight
     ]);
-    if(fromLS) return fromLS;
-
-    // 4) Parse visible Wellness/Home weight display as fallback
-    const text=document.body ? document.body.innerText : '';
-    const m=text.match(/Weight\s*(?:Goal)?\s*[\n\s]*([0-9]{2,3}(?:\.[0-9])?)/i);
-    if(m) return safeNum(m[1]);
-
-    return null;
+    if(fromState)return fromState;
+    const txt=document.body?document.body.innerText:'';
+    const m=txt.match(/Goal:\s*([0-9]{2,3}(?:\.[0-9])?)\s*lb/i);
+    return m?num(m[1]):195;
   }
-  function targetWeightTruth(){
-    const s=appState();
-
-    // 1) Goal Tracker state fields
-    const candidates=[
-      s && s.goals && s.goals.weight,
-      s && s.goals && s.goals.targetWeight,
-      s && s.profile && s.profile.targetWeight,
-      s && s.settings && s.settings.targetWeight,
-      s && s.targetWeight,
-      s && s.weightGoal,
-      s && s.goalWeight
-    ];
-    for(const c of candidates){
-      const n=safeNum(c);
-      if(n) return n;
+  function macro(){
+    const current=currentWeight();
+    const target=targetWeight();
+    const goal=localStorage.getItem(GOAL)||'cut';
+    const activity=localStorage.getItem(ACTIVITY)||'moderate';
+    const mult=activity==='low'?12:activity==='high'?15:13.5;
+    let cal=Math.round(current*mult);
+    if(goal==='cut')cal-=400;
+    if(goal==='lean_bulk')cal+=200;
+    if(goal==='bulk')cal+=400;
+    cal=Math.max(1400,Math.round(cal/25)*25);
+    const protein=Math.round(target*.9);
+    const fat=Math.round((cal*.25)/9);
+    const carbs=Math.max(50,Math.round((cal-(protein*4)-(fat*9))/4));
+    return {current,target,goal,activity,cal,protein,fat,carbs};
+  }
+  function wellnessRoot(){
+    return document.getElementById('wellnessPage')
+      || document.querySelector('#wellness')
+      || document.querySelector('[data-page="wellness"]')
+      || document.querySelector('.page-panel');
+  }
+  function tabsContainer(){
+    const root=wellnessRoot();
+    if(!root)return null;
+    const buttons=[...root.querySelectorAll('button')];
+    const dash=buttons.find(b=>(b.textContent||'').trim()==='Dashboard');
+    return dash?dash.parentElement:null;
+  }
+  function ensureToggle(){
+    const tabs=tabsContainer();
+    if(!tabs)return null;
+    let wrap=document.getElementById('vertexMacroToggleWrap');
+    if(!wrap){
+      wrap=document.createElement('div');
+      wrap.id='vertexMacroToggleWrap';
+      wrap.innerHTML='<button id="vertexMacroToggleBtn" class="btn small" type="button">Macro Tracking: Off</button>';
+      tabs.parentNode.insertBefore(wrap,tabs);
     }
-
-    // 2) Common localStorage goal keys
-    const fromLS=getLS([
-      'vertex_goals',
-      'vertex_goal_tracker',
-      'vertex_weight_goal',
-      'vertex_target_weight',
-      'targetWeight',
-      'weightGoal',
-      'goalWeight'
-    ]);
-    if(fromLS) return fromLS;
-
-    // 3) Parse visible Goal Tracker goal as fallback: "Goal: 195 lb"
-    const text=document.body ? document.body.innerText : '';
-    const m=text.match(/Goal:\s*([0-9]{2,3}(?:\.[0-9])?)\s*lb/i);
-    if(m) return safeNum(m[1]);
-
-    return null;
+    return wrap.querySelector('#vertexMacroToggleBtn');
   }
-  function macroGoal(){return localStorage.getItem(MACRO_GOAL_KEY) || 'cut';}
-  function macroActivity(){return localStorage.getItem(MACRO_ACTIVITY_KEY) || 'moderate';}
-  function isEnabled(){return localStorage.getItem(MACRO_ENABLED_KEY)==='1';}
-  function setEnabled(on){localStorage.setItem(MACRO_ENABLED_KEY,on?'1':'0');}
-
-  function calcMacros(){
-    const current=currentWeightTruth();
-    const target=targetWeightTruth();
-    const goal=macroGoal();
-    const activity=macroActivity();
-
-    const weight=current || target || 200;
-    const mult = activity==='low' ? 12 : activity==='high' ? 15 : 13.5;
-    let calories = Math.round(weight * mult);
-
-    if(goal==='cut') calories -= 400;
-    if(goal==='lean_bulk') calories += 200;
-    if(goal==='bulk') calories += 400;
-
-    calories=Math.max(1400, Math.round(calories/25)*25);
-
-    const protein=Math.round((target || weight) * 0.9);
-    const fat=Math.round((calories * 0.25) / 9);
-    const carbs=Math.max(50, Math.round((calories - (protein*4) - (fat*9)) / 4));
-
-    return {current,target,goal,activity,calories,protein,carbs,fat};
-  }
-
-  function ensureMacroPanel(){
-    const wellness=document.getElementById('wellnessPage') || qs('#wellness') || qs('[data-page="wellness"]') || qs('.main');
-    if(!wellness) return null;
-
+  function ensurePanel(){
+    const tabs=tabsContainer();
+    if(!tabs)return null;
     let panel=document.getElementById('vertexMacroPanel');
-    if(panel) return panel;
-
-    panel=document.createElement('div');
-    panel.id='vertexMacroPanel';
-    panel.className='vertex-macro-panel';
-    panel.innerHTML='<div id="vertexMacroInner"></div>';
-
-    // Prefer after Wellness tabs/buttons, otherwise near top
-    const tabs=qs('#wellnessTabs') || qs('.wellness-tabs') || qsa('#wellnessPage .btn').slice(-1)[0];
-    if(tabs && tabs.parentNode){
-      tabs.parentNode.insertBefore(panel, tabs.nextSibling);
-    } else {
-      wellness.insertBefore(panel, wellness.children[1] || null);
+    if(!panel){
+      panel=document.createElement('div');
+      panel.id='vertexMacroPanel';
+      panel.className='vertex-macro-panel';
+      tabs.parentNode.insertBefore(panel,tabs.nextSibling);
     }
     return panel;
   }
-
-  function renderMacroPanel(){
-    const panel=ensureMacroPanel();
-    if(!panel) return;
-    const on=isEnabled();
-    panel.classList.toggle('on', on);
-    if(!on) return;
-
-    const m=calcMacros();
-    const currentTxt=m.current ? `${m.current.toFixed(1)} lb` : '—';
-    const targetTxt=m.target ? `${m.target.toFixed(1)} lb` : '—';
-
-    panel.querySelector('#vertexMacroInner').innerHTML=`
+  function render(){
+    const btn=ensureToggle();
+    if(btn){
+      btn.textContent=on()?'Macro Tracking: On':'Macro Tracking: Off';
+      btn.classList.toggle('acc',on());
+      btn.onclick=function(e){
+        e.preventDefault();
+        setOn(!on());
+        render();
+        try{if(typeof toast==='function')toast(on()?'Macro Tracking enabled':'Macro Tracking disabled')}catch(_){}
+      };
+    }
+    const panel=ensurePanel();
+    if(!panel)return;
+    panel.classList.toggle('on',on());
+    if(!on()){panel.innerHTML='';return;}
+    const m=macro();
+    panel.innerHTML=`
       <div class="vertex-macro-head">
-        <div>
-          <div class="label">Nutrition</div>
-          <div class="vertex-macro-title">Macro Targets</div>
-        </div>
-        <button class="btn small" type="button" id="vertexMacroRecalc">Refresh Targets</button>
+        <div><div class="label">Nutrition</div><div class="vertex-macro-title">Macro Targets</div></div>
+        <button class="btn small" type="button" id="vertexMacroRefresh">Refresh Targets</button>
       </div>
-
       <div class="vertex-macro-controls">
-        <label><small>Goal Mode</small>
-          <select id="vertexMacroGoal">
-            <option value="cut"${m.goal==='cut'?' selected':''}>Cut</option>
-            <option value="maintenance"${m.goal==='maintenance'?' selected':''}>Maintenance</option>
-            <option value="lean_bulk"${m.goal==='lean_bulk'?' selected':''}>Lean Bulk</option>
-            <option value="bulk"${m.goal==='bulk'?' selected':''}>Aggressive Bulk</option>
-          </select>
-        </label>
-        <label><small>Activity Level</small>
-          <select id="vertexMacroActivity">
-            <option value="low"${m.activity==='low'?' selected':''}>Low</option>
-            <option value="moderate"${m.activity==='moderate'?' selected':''}>Moderate</option>
-            <option value="high"${m.activity==='high'?' selected':''}>High</option>
-          </select>
-        </label>
+        <label><small>Goal Mode</small><select id="vertexMacroGoal">
+          <option value="cut"${m.goal==='cut'?' selected':''}>Cut</option>
+          <option value="maintenance"${m.goal==='maintenance'?' selected':''}>Maintenance</option>
+          <option value="lean_bulk"${m.goal==='lean_bulk'?' selected':''}>Lean Bulk</option>
+          <option value="bulk"${m.goal==='bulk'?' selected':''}>Aggressive Bulk</option>
+        </select></label>
+        <label><small>Activity Level</small><select id="vertexMacroActivity">
+          <option value="low"${m.activity==='low'?' selected':''}>Low</option>
+          <option value="moderate"${m.activity==='moderate'?' selected':''}>Moderate</option>
+          <option value="high"${m.activity==='high'?' selected':''}>High</option>
+        </select></label>
       </div>
-
       <div class="vertex-macro-grid">
-        <div class="vertex-macro-kpi"><b>${m.calories}</b><span>Calories</span></div>
+        <div class="vertex-macro-kpi"><b>${m.cal}</b><span>Calories</span></div>
         <div class="vertex-macro-kpi"><b>${m.protein}g</b><span>Protein</span></div>
         <div class="vertex-macro-kpi"><b>${m.carbs}g</b><span>Carbs</span></div>
         <div class="vertex-macro-kpi"><b>${m.fat}g</b><span>Fat</span></div>
       </div>
-
-      <div class="vertex-macro-note">
-        Using app truth values: current weight <b>${currentTxt}</b>, target weight <b>${targetTxt}</b>.
-        Macro Tracking is optional and can stay off without affecting Wellness, Health Sync, Protocol, or Body Comp.
-      </div>
+      <div class="vertex-macro-note">Using app truth values: current weight <b>${m.current.toFixed(1)} lb</b>, target weight <b>${m.target.toFixed(1)} lb</b>.</div>
     `;
-
-    const goal=panel.querySelector('#vertexMacroGoal');
-    const activity=panel.querySelector('#vertexMacroActivity');
-    const recalc=panel.querySelector('#vertexMacroRecalc');
-    if(goal) goal.onchange=function(){localStorage.setItem(MACRO_GOAL_KEY,this.value); renderMacroPanel();};
-    if(activity) activity.onchange=function(){localStorage.setItem(MACRO_ACTIVITY_KEY,this.value); renderMacroPanel();};
-    if(recalc) recalc.onclick=renderMacroPanel;
+    const g=document.getElementById('vertexMacroGoal');
+    const a=document.getElementById('vertexMacroActivity');
+    const r=document.getElementById('vertexMacroRefresh');
+    if(g)g.onchange=function(){localStorage.setItem(GOAL,this.value);render()};
+    if(a)a.onchange=function(){localStorage.setItem(ACTIVITY,this.value);render()};
+    if(r)r.onclick=render;
   }
-
-  function findMacroToggle(){
-    const buttons=qsa('button,.btn');
-    return buttons.find(b=>/Macro Tracking/i.test(b.textContent || '')) || null;
-  }
-
-  function syncToggleLabel(){
-    const btn=findMacroToggle();
-    if(btn){
-      btn.textContent=isEnabled()?'Macro Tracking: On':'Macro Tracking: Off';
-      btn.classList.toggle('acc', isEnabled());
-    }
-  }
-
   function boot(){
-    syncToggleLabel();
-    renderMacroPanel();
-
-    document.addEventListener('click', function(e){
-      const btn=e.target && e.target.closest ? e.target.closest('button,.btn') : null;
-      if(!btn) return;
-      if(/Macro Tracking/i.test(btn.textContent || '')){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        setEnabled(!isEnabled());
-        syncToggleLabel();
-        renderMacroPanel();
-        try{ if(typeof toast==='function') toast(isEnabled()?'Macro Tracking enabled':'Macro Tracking disabled'); }catch(err){}
-      }
-    }, true);
-
-    // Re-render after app navigation/render cycles
-    const oldRenderAll=window.renderAll;
-    if(typeof oldRenderAll==='function' && !oldRenderAll.__macroPatched){
-      const wrapped=function(){
-        const result=oldRenderAll.apply(this, arguments);
-        setTimeout(function(){syncToggleLabel(); renderMacroPanel();}, 50);
-        return result;
-      };
-      wrapped.__macroPatched=true;
-      window.renderAll=wrapped;
-    }
+    render();
     setInterval(function(){
-      if(document.body && /Wellness/i.test(document.body.innerText || '')){
-        syncToggleLabel();
-        renderMacroPanel();
-      }
-    }, 1500);
+      const txt=document.body?document.body.innerText:'';
+      if(/WELLNESS/i.test(txt))render();
+    },1000);
   }
-
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
 })();
 </script>

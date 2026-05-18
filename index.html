@@ -804,6 +804,15 @@ body {
 }
 
 
+/* HealthKit workout rows */
+.hk-workout-row{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:10px 12px}
+.hk-workout-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center}
+.hk-workout-info{flex:1;min-width:0}
+.hk-workout-name{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hk-workout-meta{font-size:11px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace}
+.hk-workout-import{flex-shrink:0}
+.hk-workout-imported{font-size:10px;color:var(--green);font-family:'DM Mono',monospace;letter-spacing:.5px}
+
 /* v13.60.02 WELLNESS MOBILE POLISH */
 @media (max-width: 900px){
   #btn-apple-health-sync{
@@ -2562,9 +2571,11 @@ button.acc-hint {
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
     <div id="home-dashboard" style="display:none"></div>
 <section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Strength trends, volume charts, 1RM tracking, consistency, and full workout history.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1><p class="page-copy">Daily health recovery, weekly check-ins, and your supplement stack — all in one place.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small">Refresh</button></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;">
-  <div class="label">Latest Apple Health Workout</div>
-  <div id="appleHealthWorkoutSummary" style="font-size:18px;font-weight:700;color:#DFFF32;margin-top:8px;"></div>
-  <div id="appleHealthWorkoutMeta" style="font-size:13px;color:#999;margin-top:6px;"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
+    <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace"></span>
+  </div>
+  <div id="hkWorkoutList" style="display:flex;flex-direction:column;gap:8px"></div>
 </div><div class="progress-tabs"><button class="progress-tab on" data-wtab="dashboard">Dashboard</button><button class="progress-tab" data-wtab="health">Health</button><button class="progress-tab" data-wtab="protocol">Protocol</button><button class="progress-tab" data-wtab="checkin">Check-In</button><button class="progress-tab" data-wtab="history">History</button><button class="progress-tab" data-wtab="dexa">DEXA</button><button class="progress-tab" data-wtab="bodycomp">Body Comp</button><button class="progress-tab" data-wtab="stack">Peptide/Supplement Stack</button></div>
 
 <!-- HEALTH SUB-TAB -->
@@ -9573,7 +9584,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ak';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-al';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -9871,6 +9882,72 @@ window.testAppleHealth = async function () {
     if (typeof renderHomeDashboard === 'function') renderHomeDashboard();
     if (typeof renderHealthPage === 'function') renderHealthPage();
 
+    // ── QUERY & DISPLAY APPLE HEALTH WORKOUTS ──────────────────
+    try {
+      const wBtn = document.getElementById('btn-apple-health-sync');
+      if(wBtn){ wBtn.textContent = 'Reading workouts…'; }
+      const wResult = await plugin.queryWorkouts({ days: 60, limit: 30 });
+      const workouts = wResult?.workouts || [];
+      const card = document.getElementById('appleHealthWorkoutCard');
+      const list = document.getElementById('hkWorkoutList');
+      const syncTime = document.getElementById('hkWorkoutSyncTime');
+      if(card && list){
+        // Load previously imported IDs from localStorage
+        const importedKey = 'vertex_hk_imported_' + (currentUser?.id || 'guest');
+        let imported = {};
+        try{ imported = JSON.parse(localStorage.getItem(importedKey)||'{}'); }catch(e){}
+
+        const activityIcons = {
+          'Strength Training':'🏋️','Functional Strength':'🏋️','HIIT':'⚡',
+          'Running':'🏃','Cycling':'🚴','Walking':'🚶','Yoga':'🧘',
+          'Pilates':'🧘','Swimming':'🏊','Rowing':'🚣','Elliptical':'🔄',
+          'Stair Climbing':'🪜','Hiking':'🥾','Boxing':'🥊','Martial Arts':'🥋',
+          'Dance':'💃','Cooldown':'🧊','Mind & Body':'🧠','Core Training':'💪',
+          'Flexibility':'🤸','Jump Rope':'⚡','Workout':'💪'
+        };
+
+        if(!workouts.length){
+          list.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No workouts found in Apple Health for the last 60 days.</div>';
+        } else {
+          list.innerHTML = workouts.map((w,i) => {
+            const icon = activityIcons[w.activityName] || '💪';
+            const date = new Date(w.startDate).toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
+            const dur = w.durationMinutes ? w.durationMinutes+' min' : '';
+            const cal = w.calories ? w.calories+' cal' : '';
+            const hr = w.avgHeartRate ? w.avgHeartRate+' bpm' : '';
+            const meta = [dur,cal,hr].filter(Boolean).join(' · ');
+            const wid = w.startDate + '_' + w.activityType;
+            const isImported = !!imported[wid];
+            return `<div class="hk-workout-row">
+              <div class="hk-workout-icon">${icon}</div>
+              <div class="hk-workout-info">
+                <div class="hk-workout-name">${w.activityName}</div>
+                <div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>
+                ${w.sourceDevice ? '<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>' : ''}
+              </div>
+              <div class="hk-workout-import">
+                ${isImported
+                  ? '<span class="hk-workout-imported">✓ Imported</span>'
+                  : `<button class="btn small" onclick="window.vertexImportHKWorkout(${i})" style="font-size:10px;padding:4px 8px">Import</button>`
+                }
+              </div>
+            </div>`;
+          }).join('');
+        }
+
+        // Store workouts for import handler
+        window.__hkWorkouts = workouts;
+        window.__hkImportedKey = importedKey;
+        window.__hkCurrentUser = currentUser;
+
+        if(syncTime) syncTime.textContent = 'Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+        card.style.display = 'block';
+      }
+    } catch(wErr){
+      console.warn('queryWorkouts error:', wErr);
+      // Non-fatal — metrics sync already succeeded
+    }
+
     // Schedule background sync every 2 hours + store credentials
     try {
       const HealthKitPlugin = window.Capacitor?.Plugins?.HealthKitPlugin;
@@ -9907,6 +9984,74 @@ window.testAppleHealth = async function () {
 }
 
 // v13.60.32 — removed setInterval(renderAppleHealthRecoveryCards, 3000). Rewrote innerHTML every 3s causing repaints.
+
+// ── IMPORT HEALTHKIT WORKOUT TO VERTEX LOGS ──────────────────
+window.vertexImportHKWorkout = async function(idx) {
+  try {
+    const workouts = window.__hkWorkouts || [];
+    const w = workouts[idx];
+    if(!w) return;
+    const importedKey = window.__hkImportedKey || 'vertex_hk_imported_guest';
+    const currentUser = window.__hkCurrentUser;
+
+    // Build a Vertex log record from HealthKit data
+    const completedAt = w.endDate || w.startDate;
+    const logRecord = {
+      completed_at: completedAt,
+      workout_name: w.activityName || 'Apple Health Workout',
+      workout_type: 'strength',
+      source: 'healthkit',
+      workout_payload: { name: w.activityName, type: 'healthkit', source: 'healthkit', exercises:[] },
+      metrics: {
+        sets: 0,
+        reps: 0,
+        moves: 0,
+        est_minutes: w.durationMinutes || 0,
+        load_volume: 0,
+        calories: w.calories || 0,
+        avg_heart_rate: w.avgHeartRate || null,
+        source_device: w.sourceDevice || 'Apple Health',
+        muscles: {}
+      }
+    };
+
+    // Get Supabase client
+    const supa = (typeof getSupa === 'function') ? getSupa() : null;
+    let ok = false;
+
+    if(supa && currentUser) {
+      const { error } = await supa.from('vertex_workout_logs').insert({
+        user_id: currentUser.id,
+        ...logRecord
+      });
+      ok = !error;
+      if(error) console.warn('HK import error:', error);
+    }
+
+    // Mark as imported
+    const wid = w.startDate + '_' + w.activityType;
+    let imported = {};
+    try{ imported = JSON.parse(localStorage.getItem(importedKey)||'{}'); }catch(e){}
+    imported[wid] = completedAt;
+    localStorage.setItem(importedKey, JSON.stringify(imported));
+
+    // Update the button to ✓ Imported
+    const rows = document.querySelectorAll('.hk-workout-row');
+    const row = rows[idx];
+    if(row){
+      const btn = row.querySelector('.hk-workout-import');
+      if(btn) btn.innerHTML = '<span class="hk-workout-imported">✓ Imported</span>';
+    }
+
+    // Refresh progress logs so weekly count updates
+    if(typeof loadProgressLogs === 'function') loadProgressLogs().catch(()=>{});
+
+    if(typeof toast === 'function') toast(ok ? w.activityName+' imported ✓' : 'Saved locally — sync when online');
+  } catch(e) {
+    console.warn('vertexImportHKWorkout error:', e);
+    if(typeof toast === 'function') toast('Import failed: '+(e.message||'unknown'));
+  }
+};
 </script>
 
 <script>

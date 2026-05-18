@@ -7784,32 +7784,7 @@ function renderHomeDashboard(){
     <span class="home-day-dot" data-slide="1"></span>
   </div>
 </div>
-<script>
-(function(){
-  const carousel = document.getElementById('homeDayCarousel');
-  const dots = document.querySelectorAll('#homeDayDots .home-day-dot');
-  if(!carousel) return;
-  let cur = 0;
-  function updateDots(idx){
-    dots.forEach((d,i) => d.classList.toggle('active', i===idx));
-    cur = idx;
-  }
-  // Dot click
-  dots.forEach((d,i) => d.addEventListener('click', () => {
-    carousel.scrollTo({left: i * carousel.offsetWidth, behavior:'smooth'});
-    updateDots(i);
-  }));
-  // Scroll snap tracking
-  let scrollTimer;
-  carousel.addEventListener('scroll', () => {
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => {
-      const idx = Math.round(carousel.scrollLeft / carousel.offsetWidth);
-      updateDots(idx);
-    }, 80);
-  }, {passive:true});
-})();
-</script>
+
 
 ${dueToday.length ? `
 <div class="home-proto-strip">
@@ -7882,6 +7857,7 @@ ${dueToday.length ? `
     setTimeout(()=>{
       if(typeof renderDailyBrief==='function') renderDailyBrief();
       if(typeof renderGoalTracker==='function') renderGoalTracker();
+      initHomeDayCarousel();
     },0);
   }catch(e){
     console.warn('renderHomeDashboard error:', e);
@@ -7890,6 +7866,29 @@ ${dueToday.length ? `
 }
 
 function renderAll(){renderControls(); renderSidebar(); renderToday(); renderPlanner(); renderTemplates(); renderIntel(); renderBuilder(); renderRight(); setPage(state.page||defaultPage()); const logBtn=document.getElementById('btn-log'); if(logBtn) logBtn.classList.toggle('armed', !!hasWorkout()); refreshSaveButton(); if(state.page==='home'||!state.page) renderHomeDashboard();}
+
+function initHomeDayCarousel(){
+  const carousel = document.getElementById('homeDayCarousel');
+  if(!carousel) return;
+  const dots = document.querySelectorAll('#homeDayDots .home-day-dot');
+  function updateDots(idx){
+    dots.forEach(function(d,i){ d.classList.toggle('active', i===idx); });
+  }
+  dots.forEach(function(d,i){
+    d.onclick = function(){
+      carousel.scrollTo({left: i * carousel.offsetWidth, behavior:'smooth'});
+      updateDots(i);
+    };
+  });
+  var scrollTimer;
+  carousel.addEventListener('scroll', function(){
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(function(){
+      var idx = Math.round(carousel.scrollLeft / carousel.offsetWidth);
+      updateDots(idx);
+    }, 80);
+  }, {passive:true});
+}
 function refreshSaveButton(){
   const btn=document.getElementById('btn-save');
   if(!btn) return;
@@ -9483,7 +9482,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ad';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ae';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

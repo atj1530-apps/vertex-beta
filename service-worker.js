@@ -1,8 +1,7 @@
 /* Vertex Workout Builder — PWA Service Worker
-   Bump CACHE_NAME on every deploy to bust old caches.
-   Network-first for HTML so new deploys are always visible immediately. */
+   Fresh cache bump for mobile navigation/layout fix. */
 
-const CACHE_NAME = 'vertex-v20260517-adaptive-action-final';
+const CACHE_NAME = 'vertex-v20260517-mobile-nav-layout-fresh';
 const APP_SHELL = [
   './',
   './index.html',

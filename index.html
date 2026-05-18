@@ -43,7 +43,7 @@ button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}
 .nav-row{display:flex;align-items:stretch;justify-self:center;overflow:hidden;border:1px solid var(--line);border-radius:5px;max-width:100%}
 .nav-row .nav{flex:1;border:none;border-radius:0;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:flex}
 .nav-row .nav::-webkit-scrollbar{display:none}
-.nav-hamburger{flex-shrink:0;border:none;border-left:1px solid var(--line);border-radius:0;background:var(--panel2);color:var(--text);font-size:17px;padding:0 13px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.nav-hamburger{flex-shrink:0;border:none;border-left:1px solid var(--line);border-radius:0;background:var(--panel2);color:var(--text);font-size:17px;padding:0 18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;min-width:48px}
 .nav-hamburger:hover,.nav-hamburger:active{background:var(--panel)}
 /* Safe area: push header below iOS notch/status bar on full-screen PWA */
 #app-header{padding-top:env(safe-area-inset-top,0px)}
@@ -9584,7 +9584,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-al';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-am';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

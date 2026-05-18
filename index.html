@@ -4712,9 +4712,6 @@ async function applyAuthenticatedSession(session){
   _hydrationInFlight=false;
   _hydratedUserId=authUser.id;
   clearCurrent();
-  renderAccountMenu();
-  syncAuthShell();
-  renderAll();
   setSyncStatus('synced','Supabase synced');
 
   // All three loads happen in background — UI is already shown
@@ -4976,7 +4973,7 @@ function muscleVolume(w=state.current){const m={}; if(w.type==='strength') (w.ex
 
 function logStorageKey(){return authUser?`vertex_logs_${authUser.id}`:'vertex_logs_guest'}
 function setStartOfDay(d){const x=new Date(d); x.setHours(0,0,0,0); return x;}
-function weekStart(d=new Date()){const x=setStartOfDay(d); const offset=(x.getDay()+6)%7; x.setDate(x.getDate()-offset); return x;}
+function weekStart(d=new Date()){const x=setStartOfDay(d); const offset=x.getDay(); x.setDate(x.getDate()-offset); return x;}
 function estimateLoadVolume(w){if(!w || w.type!=='strength') return 0; return (w.exercises||[]).reduce((total,e)=>total+(e.sets||[]).reduce((sum,set)=>{const reps=Number(set.reps)||0; const weight=Number(String(set.weight||'').replace(/[^0-9.]/g,''))||0; return sum+(reps*weight);},0),0);}
 function workoutMuscleVolume(w){const out={}; if(w && w.type==='strength') (w.exercises||[]).forEach(e=>{const sets=(e.sets||[]).length; const reps=(e.sets||[]).reduce((a,s)=>a+(Number(s.reps)||0),0); const load=(e.sets||[]).reduce((a,s)=>a+((Number(s.reps)||0)*(Number(String(s.weight||'').replace(/[^0-9.]/g,''))||0)),0); const key=e.muscle||'Other'; if(!out[key]) out[key]={sets:0,reps:0,load:0}; out[key].sets+=sets; out[key].reps+=reps; out[key].load+=load; }); return out;}
 function buildSessionSteps(w){
@@ -9539,7 +9536,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ah';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ai';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

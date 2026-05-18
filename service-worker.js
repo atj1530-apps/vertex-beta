@@ -1,7 +1,7 @@
 /* Vertex Workout Builder — PWA Service Worker
    Cache bump: v13.61.16 PWA auth recovery. */
 
-const CACHE_NAME = 'vertex-v20260517-pwa-auth-recovery-v136116';
+const CACHE_NAME = 'vertex-v20260518-aa';
 const APP_SHELL = [
   './',
   './index.html',

@@ -3134,7 +3134,7 @@ button.acc-hint {
 <div id="session" class="session"><div class="session-card"><div class="label">Guided Session</div><div id="sessionTitle" class="session-title">Workout</div><div id="sessionCue" style="color:var(--muted);font-size:16px;margin:8px 0 18px"></div><div id="sessionTimer" class="timer">00</div><div id="sessionNext" class="panel" style="color:var(--muted)"></div><div class="session-actions"><button id="sessionNextBtn" class="btn acc">Next</button><button class="btn" onclick="openRestTimer(60)">⏱ Rest</button><button class="btn" onclick="document.getElementById('plateCalcModal').classList.add('on')">🏋 Plates</button><button class="btn" onclick="document.getElementById('oneRMModal').classList.add('on')">📈 1RM</button><button id="sessionClose" class="btn">Close</button></div></div></div>
 <script>
 (()=>{'use strict';
-const VERSION='v13.60.94 — Macro adaptive coach';
+const VERSION='v13.60.95 — Adaptive coach cleanup';
 const DAYS=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
 const DAY_LABEL={monday:'Monday',tuesday:'Tuesday',wednesday:'Wednesday',thursday:'Thursday',friday:'Friday',saturday:'Saturday',sunday:'Sunday'};
 const todayKey=(()=>{const dayName=new Date().toLocaleDateString('en-US',{weekday:'long'}).toLowerCase();return DAYS.includes(dayName)?dayName:DAYS[(new Date().getDay()+6)%7];})();
@@ -11517,52 +11517,57 @@ window.testAppleHealth = async function () {
   }
   function macroPhase3Html(history,m){
     history=normalizeHistoryRows(history);
-    const recent=history.slice(-12);
     const latest=history[history.length-1]||null;
     const weekAgo=history.slice().reverse().find(r=>new Date(latest?latest.created_at:Date.now())-new Date(r.created_at)>=6*86400000);
     const twoWeeksAgo=history.slice().reverse().find(r=>new Date(latest?latest.created_at:Date.now())-new Date(r.created_at)>=13*86400000);
     const deltaWeek=(latest&&weekAgo&&latest.current_weight&&weekAgo.current_weight)?latest.current_weight-weekAgo.current_weight:null;
     const deltaTwo=(latest&&twoWeeksAgo&&latest.current_weight&&twoWeeksAgo.current_weight)?latest.current_weight-twoWeeksAgo.current_weight:null;
+    const currentWeightText=(latest&&latest.current_weight)?latest.current_weight.toFixed(1)+' lb':m.current.toFixed(1)+' lb';
     let pace='Need more history';
-    let adj='Keep current targets until Vertex has at least 7 days of saved weights.';
+    let trend14='Need 14 days of saved weights';
+    let adj='Hold current macro targets until Vertex has at least 7 days of saved weights.';
     let plateau='Not enough data yet';
     let cls='';
+    let adjValue='0';
+    let adjLabel='Hold';
     if(deltaWeek!==null){
       const abs=Math.abs(deltaWeek);
       pace=(deltaWeek<0?'-':'+')+abs.toFixed(1)+' lb / 7 days';
       if(m.goal==='cut'){
-        if(deltaWeek<=-2.5){adj='Weight is moving fast. Consider increasing calories by 100–150 or holding targets if energy is strong.';cls='warn'}
-        else if(deltaWeek<=-0.7){adj='Pace is in range. Keep current targets for another week.';cls='green'}
-        else if(deltaWeek>-0.3){adj='Progress is slow. Consider reducing calories by 150–200 or adding 20–30 minutes of weekly cardio.';cls='warn'}
-        else {adj='Slight downward movement. Hold for 3–4 more days before changing calories.';}
+        if(deltaWeek<=-2.5){adjValue='+100–150';adjLabel='Calories';adj='Weight is moving fast. Consider increasing calories by 100–150 or holding targets if energy is strong.';cls='warn'}
+        else if(deltaWeek<=-0.7){adjValue='0';adjLabel='In range';adj='Pace is in range. Keep current targets for another week.';cls='green'}
+        else if(deltaWeek>-0.3){adjValue='-150–200';adjLabel='Calories';adj='Progress is slow. Consider reducing calories by 150–200 or adding 20–30 minutes of weekly cardio.';cls='warn'}
+        else {adjValue='0';adjLabel='Watch';adj='Slight downward movement. Hold for 3–4 more days before changing calories.';}
       }else if(m.goal==='maintenance'){
-        if(abs<=1){adj='Maintenance range looks controlled. Keep targets stable.';cls='green'}
-        else adj='Weight is drifting outside maintenance. Adjust calories by 100–150 in the opposite direction.';
+        if(abs<=1){adjValue='0';adjLabel='Stable';adj='Maintenance range looks controlled. Keep targets stable.';cls='green'}
+        else {adjValue='±100–150';adjLabel='Calories';adj='Weight is drifting outside maintenance. Adjust calories by 100–150 in the opposite direction.';cls='warn'}
       }else{
-        if(deltaWeek>=0.25&&deltaWeek<=1.0){adj='Gain rate looks controlled. Keep current targets.';cls='green'}
-        else if(deltaWeek<0.25){adj='Gain rate is low. Consider adding 100–150 calories.';cls='warn'}
-        else {adj='Gain rate is aggressive. Consider reducing calories by 100–150.';cls='warn'}
+        if(deltaWeek>=0.25&&deltaWeek<=1.0){adjValue='0';adjLabel='In range';adj='Gain rate looks controlled. Keep current targets.';cls='green'}
+        else if(deltaWeek<0.25){adjValue='+100–150';adjLabel='Calories';adj='Gain rate is low. Consider adding 100–150 calories.';cls='warn'}
+        else {adjValue='-100–150';adjLabel='Calories';adj='Gain rate is aggressive. Consider reducing calories by 100–150.';cls='warn'}
       }
     }
     if(deltaTwo!==null){
-      if(m.goal==='cut'&&Math.abs(deltaTwo)<0.5){plateau='Possible plateau: less than 0.5 lb movement across ~14 days.';cls=cls||'warn'}
+      const abs2=Math.abs(deltaTwo);
+      trend14=(deltaTwo<0?'-':'+')+abs2.toFixed(1)+' lb / 14 days';
+      if(m.goal==='cut'&&abs2<0.5){plateau='Possible plateau: less than 0.5 lb movement across ~14 days.';cls=cls||'warn'}
       else plateau='No clear 14-day plateau detected.';
     }
     const lastDate=latest?formatDateShort(latest.created_at):'No history';
     return `
       <div class="vertex-macro-phase3" id="vertexMacroAdaptiveCoach">
         <div class="vertex-macro-section-title"><b>Adaptive Coach</b><span>${history.length} saved records · latest ${lastDate}</span></div>
-        <div class="vertex-macro-trend">
-          <div class="vertex-macro-trend-card"><strong>${m.cal}</strong><small>Calories Trend</small><div class="vertex-macro-bars">${barHtml(recent.map(r=>r.calories))}</div></div>
-          <div class="vertex-macro-trend-card"><strong>${m.protein}g</strong><small>Protein Trend</small><div class="vertex-macro-bars">${barHtml(recent.map(r=>r.protein))}</div></div>
-          <div class="vertex-macro-trend-card"><strong>${m.carbs}g</strong><small>Carbs Trend</small><div class="vertex-macro-bars">${barHtml(recent.map(r=>r.carbs))}</div></div>
-          <div class="vertex-macro-trend-card"><strong>${m.fat}g</strong><small>Fat Trend</small><div class="vertex-macro-bars">${barHtml(recent.map(r=>r.fat))}</div></div>
+        <div class="vertex-macro-trend vertex-macro-action-grid">
+          <div class="vertex-macro-trend-card"><strong>${pace}</strong><small>7-Day Weight Change</small><div class="vertex-macro-mini-note">Current: ${currentWeightText}</div></div>
+          <div class="vertex-macro-trend-card"><strong>${trend14}</strong><small>14-Day Weight Trend</small><div class="vertex-macro-mini-note">Used for plateau detection</div></div>
+          <div class="vertex-macro-trend-card"><strong>${adjValue}</strong><small>Recommended Adjustment</small><div class="vertex-macro-mini-note">${adjLabel}</div></div>
+          <div class="vertex-macro-trend-card"><strong>${plateau.indexOf('Possible')===0?'Watch':'Clear'}</strong><small>Plateau Status</small><div class="vertex-macro-mini-note">${plateau}</div></div>
         </div>
         <div class="vertex-macro-insights">
           <div class="vertex-macro-insight ${cls}"><b>Weekly Adjustment</b><span>${adj}</span></div>
           <div class="vertex-macro-insight ${deltaTwo!==null&&m.goal==='cut'&&Math.abs(deltaTwo)<0.5?'warn':'green'}"><b>Plateau Check</b><span>${plateau}</span></div>
           <div class="vertex-macro-insight"><b>Weight Pace</b><span>${pace}</span></div>
-          <div class="vertex-macro-insight"><b>Coaching Signal</b><span>${history.length<3?'Build more check-ins. Vertex gets smarter after several saved macro snapshots.':'Targets are now being compared against saved history for trend-based coaching.'}</span></div>
+          <div class="vertex-macro-insight"><b>Coaching Signal</b><span>${history.length<3?'Build more check-ins. Vertex gets smarter after several saved macro snapshots.':'Adaptive Coach is now interpreting your history instead of repeating your current macro targets.'}</span></div>
         </div>
         <div class="vertex-macro-next"><b>Next coach action:</b> ${adj}</div>
       </div>`;
@@ -11660,7 +11665,7 @@ window.testAppleHealth = async function () {
       <div id="vertexMacroSticky" class="vertex-macro-sticky"></div>
       <div class="vertex-macro-note">Using app truth values: current weight <b>${m.current.toFixed(1)} lb</b>, target weight <b>${m.target.toFixed(1)} lb</b>.</div>
       <div id="vertexMacroHistoryStatus" class="vertex-macro-history-status">History: checking…</div>
-      <div id="vertexMacroPhase3Mount" class="vertex-macro-history-status">Adaptive coach: loading…</div>
+      <div id="vertexMacroPhase3Mount" class="vertex-macro-history-status" style="display:none"></div>
     `;
     const g=document.getElementById('vertexMacroGoal');
     const a=document.getElementById('vertexMacroActivity');
@@ -11685,7 +11690,7 @@ window.testAppleHealth = async function () {
     const status=document.getElementById('vertexMacroHistoryStatus');
     saveMacroHistory(m,'render').then(msg=>{if(status)status.textContent='History: '+msg}).catch(()=>{if(status)status.textContent='History: not saved'});
     const phase3=document.getElementById('vertexMacroPhase3Mount');
-    loadMacroHistory().then(rows=>{if(phase3)phase3.outerHTML=macroPhase3Html(rows,m)}).catch(()=>{if(phase3)phase3.textContent='Adaptive coach: history unavailable'});
+    loadMacroHistory().then(rows=>{if(phase3)phase3.outerHTML=macroPhase3Html(rows,m)}).catch(()=>{if(phase3){phase3.style.display='block';phase3.textContent='Adaptive coach: history unavailable'}});
   }
   function boot(){
     render();

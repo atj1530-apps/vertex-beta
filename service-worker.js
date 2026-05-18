@@ -2,7 +2,7 @@
    Bump CACHE_NAME on every deploy to bust old caches.
    Network-first for HTML so new deploys are always visible immediately. */
 
-const CACHE_NAME = 'vertex-v20260517-phase3-adaptive-cleanup';
+const CACHE_NAME = 'vertex-v20260517-adaptive-action-final';
 const APP_SHELL = [
   './',
   './index.html',
@@ -30,7 +30,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Never intercept Supabase, Anthropic, unpkg, YouTube
   if (
     url.hostname.includes('supabase') ||
     url.hostname.includes('anthropic') ||
@@ -41,7 +40,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first for HTML
   if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
     event.respondWith(
       fetch(event.request)
@@ -55,7 +53,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for other assets
   event.respondWith(
     caches.match(event.request).then((cached) =>
       cached || fetch(event.request).then((response) => {

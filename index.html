@@ -11,7 +11,7 @@
 <meta property="og:image:height" content="512" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://vertex-beta-five.vercel.app" />
-<meta name="twitter:card" content="summary" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Vertex Workout" />
 <meta name="twitter:description" content="Build, track, and improve your training." />
 <meta name="twitter:image" content="https://vertex-beta-five.vercel.app/icons/icon-512.png" />
@@ -8889,7 +8889,7 @@ function vertexInitSharedView(){
       var ex=items[i];
       var sets=Array.isArray(ex.sets)?ex.sets:[];
       var setsStr=sets.length?sets.length+' x '+(sets[0]&&sets[0].reps?sets[0].reps+' reps':''):'';
-      rows+='<div style="padding:12px 0;border-bottom:1px solid #1e1e1e;display:flex;justify-content:space-between;align-items:center">'
+      rows+='<div style="padding:12px 0;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center">'
         +'<div><span style="color:#888;font-size:12px;margin-right:8px">'+(i+1)+'.</span><span style="font-weight:600">'+(ex.name||ex.title||'Exercise')+'</span>'
         +(ex.muscle?'<span style="display:block;font-size:11px;color:#888;margin-top:2px">'+ex.muscle+'</span>':'')
         +'</div>'
@@ -8897,24 +8897,25 @@ function vertexInitSharedView(){
         +'</div>';
     }
     document.body.innerHTML='';
-    document.body.style.cssText='margin:0;padding:0;background:#0a0a0a;color:#f0f0f0;min-height:100vh';
+    document.body.style.cssText='margin:0;padding:0;background:#070707;color:#f0f0f0;min-height:100vh;font-family:Inter,system-ui,sans-serif';
     document.body.innerHTML=''
-      +'<div style="max-width:600px;margin:0 auto;padding:24px 16px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">'
-      +'<div style="font-size:28px;letter-spacing:4px;color:#e8ff47;font-weight:900">VERTEX</div>'
-      +'<a href="/" style="font-size:12px;color:#e8ff47;text-decoration:none;border:1px solid rgba(232,255,71,.4);padding:6px 12px;border-radius:6px">Get the App</a>'
+      +'<div style="max-width:560px;margin:0 auto;padding:28px 16px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px">'
+      +'<div style="font-size:26px;letter-spacing:6px;color:#e8ff47;font-weight:900;font-family:Impact,sans-serif">VERTEX</div>'
+      +'<a href="/" style="font-size:11px;color:#e8ff47;text-decoration:none;border:1px solid rgba(232,255,71,.35);padding:7px 14px;border-radius:6px;letter-spacing:.5px">Get the App</a>'
       +'</div>'
-      +'<div style="background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:20px;margin-bottom:16px">'
-      +'<div style="font-size:10px;color:#888;letter-spacing:2px;text-transform:uppercase;font-family:monospace;margin-bottom:6px">'+typeLabel+' - Shared Workout</div>'
-      +'<div style="font-size:24px;font-weight:800;margin-bottom:4px">'+payload.name+'</div>'
-      +(items.length?'<div style="font-size:12px;color:#888">'+items.length+' exercise'+(items.length===1?'':'s')+'</div>':'')
+      +'<div style="background:#111;border:1px solid #222;border-radius:12px;padding:20px 22px;margin-bottom:12px">'
+      +'<div style="font-size:9px;color:#e8ff47;letter-spacing:2.5px;text-transform:uppercase;font-family:monospace;margin-bottom:8px">'+typeLabel+'</div>'
+      +'<div style="font-size:26px;font-weight:800;line-height:1.1;margin-bottom:6px">'+payload.name+'</div>'
+      +(items.length?'<div style="font-size:12px;color:#666">'+items.length+' exercise'+(items.length===1?'':'s')+'</div>':'')
       +'</div>'
-      +(rows?'<div style="background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:8px 20px;margin-bottom:16px">'+rows+'</div>':'')
-      +'<div style="background:rgba(232,255,71,.06);border:1px solid rgba(232,255,71,.2);border-radius:10px;padding:16px;text-align:center">'
-      +'<div style="font-weight:700;margin-bottom:4px">Want to use this workout?</div>'
-      +'<div style="font-size:13px;color:#888;margin-bottom:12px">Create a free Vertex account to save it and build your own.</div>'
-      +'<a href="/" style="display:inline-block;background:#e8ff47;color:#000;font-weight:700;padding:10px 28px;border-radius:8px;text-decoration:none;font-size:14px">Start with Vertex</a>'
+      +(rows?'<div style="background:#111;border:1px solid #222;border-radius:12px;padding:4px 22px;margin-bottom:12px">'+rows+'</div>':'')
+      +'<div style="background:#0f0f0f;border:1px solid rgba(232,255,71,.2);border-radius:12px;padding:20px;text-align:center">'
+      +'<div style="font-size:15px;font-weight:800;margin-bottom:6px;color:#fff">Want to train with this?</div>'
+      +'<div style="font-size:13px;color:#666;margin-bottom:16px;line-height:1.5">Create a free Vertex account to save it and build your own workouts.</div>'
+      +'<a href="/" style="display:inline-block;background:#e8ff47;color:#000;font-weight:800;padding:12px 32px;border-radius:8px;text-decoration:none;font-size:14px;letter-spacing:.3px">Start with Vertex</a>'
       +'</div>'
+      +'<div style="text-align:center;margin-top:20px;font-size:11px;color:#333;letter-spacing:1px">BUILD &middot; TRACK &middot; IMPROVE</div>'
       +'</div>';
     return true;
   }catch(e){ console.error('vertexInitSharedView:',e); return false; }
@@ -9331,7 +9332,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bs';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bt';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

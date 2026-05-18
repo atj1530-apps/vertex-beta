@@ -8820,21 +8820,7 @@ bindAuthButtons();
 initAuth();
 
 // AI Coach load workout — defined here to access toast, state, setCurrent, EXERCISES etc.
-window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
-  try{
-    if(!exerciseNames && window._aiWorkoutReady){ exerciseNames=window._aiWorkoutReady.names; workoutName=window._aiWorkoutReady.name; }
-    const exercises=[];
-    (exerciseNames||[]).forEach(name=>{
-      try{ const found=EXERCISES.find(x=>x.name===name); const base=found?clone(found):{name,muscle:'',kind:'push',equip:'Dumbbells'}; exercises.push(normalizeStrengthExercise(base)); }catch(err){}
-    });
-    if(!exercises.length){ toast('No exercises found'); return; }
-    const w={name:'AI: '+(workoutName||'Generated Workout'),type:'strength',source:'ai',exercises,assignedDay:null};
-    state.page='workout'; setCurrent(w);
-    document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
-    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
-    window.scrollTo({top:0,behavior:'smooth'}); toast(exercises.length+' exercises loaded');
-  }catch(e){ console.error('vertexLoadAiWorkout:',e); toast('Load failed'); }
-};
+
 
 // ── Vertex Shareable Link ────────────────────────────────────────────────────
 
@@ -9332,7 +9318,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bv';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-bw';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

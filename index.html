@@ -2364,46 +2364,113 @@ button.acc-hint {
 }
 
 
-/* v13.61.14 MOBILE LOGIN / HOME / WELLNESS FIX */
+/* ============================================================
+   v13.61.15 MOBILE HOME + BUILDER LAYOUT FIX
+   - Home KPI cards become a compact 2-row grid
+   - Today/Tomorrow cards stack vertically; no horizontal scroll
+   - Workout builder appears before exercise library on mobile
+   ============================================================ */
 @media(max-width:900px){
-  body.app-page-home #vertex-home-readiness .vertex-home-pill,
-  body.app-page-home .vertex-home-pill{
-    display:none!important;
+  html,body{max-width:100vw!important;overflow-x:hidden!important;}
+  body.app-page-home #app,
+  body.app-page-home .main,
+  body.app-page-home .page-panel{max-width:100vw!important;overflow-x:hidden!important;}
+
+  body.app-page-home .progress-summary,
+  body.app-page-home .wc-kpi-grid,
+  body.app-page-home .stat-grid,
+  body.app-page-home .intel-grid,
+  body.app-page-home [class*="kpi"][class*="grid"],
+  body.app-page-home [class*="metric"][class*="row"]{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:8px!important;
+    overflow:visible!important;
+    max-width:100%!important;
   }
-  body.app-page-home #vertex-home-readiness{
+
+  body.app-page-home .progress-kpi,
+  body.app-page-home .wc-kpi-card,
+  body.app-page-home .stat-box,
+  body.app-page-home [class*="kpi-card"],
+  body.app-page-home [class*="metric-card"]{
+    min-width:0!important;
     width:auto!important;
     max-width:100%!important;
-    overflow:hidden!important;
-  }
-  body.app-page-home .progress-head{
-    grid-template-columns:1fr auto!important;
-    gap:10px!important;
-  }
-  #wellnessPage .progress-tabs{
-    display:grid!important;
-    grid-template-columns:1fr 1fr!important;
-    gap:8px!important;
-  }
-  #wellnessPage .progress-tabs .progress-tab{
-    width:100%!important;
-    min-width:0!important;
-    margin:0!important;
-    justify-content:center!important;
+    padding:10px 5px!important;
     text-align:center!important;
+    min-height:92px!important;
   }
-  #vertexMacroToggleWrap{
+
+  body.app-page-home .progress-kpi b,
+  body.app-page-home .wc-kpi-value,
+  body.app-page-home .stat-val,
+  body.app-page-home [class*="kpi-value"],
+  body.app-page-home [class*="metric-value"]{
+    font-size:24px!important;
+    line-height:1!important;
+    word-break:break-word!important;
+  }
+
+  body.app-page-home .progress-kpi span,
+  body.app-page-home .wc-kpi-label,
+  body.app-page-home .wc-kpi-sub,
+  body.app-page-home .wc-kpi-avg,
+  body.app-page-home .stat-lbl,
+  body.app-page-home [class*="kpi-label"],
+  body.app-page-home [class*="metric-label"]{
+    font-size:9px!important;
+    letter-spacing:1.2px!important;
+    line-height:1.25!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  body.app-page-home .planner-grid,
+  body.app-page-home [class*="planner-grid"],
+  body.app-page-home [class*="today"][class*="grid"],
+  body.app-page-home [class*="day"][class*="grid"]{
     display:grid!important;
-    grid-template-columns:1fr 1fr!important;
-    gap:8px!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+    overflow:visible!important;
+    padding-right:0!important;
+    max-width:100%!important;
+  }
+
+  body.app-page-home .day-card{
+    max-width:100%!important;
     width:100%!important;
   }
-  #vertexMacroToggleWrap .btn{
-    min-width:0!important;
+
+  body.app-page-workout #app{
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  body.app-page-workout .main{
+    order:1!important;
+    width:100%!important;
+    padding:12px!important;
+  }
+  body.app-page-workout .sidebar{
+    order:2!important;
+    width:100%!important;
+    border-right:0!important;
+    border-top:1px solid var(--line)!important;
+    padding:12px!important;
+  }
+  body.app-page-workout .right{
+    order:3!important;
     width:100%!important;
   }
-  .vertex-mobile-bodycomp-shortcut{
-    display:block!important;
-    width:100%!important;
+  body.app-page-workout .sidebar::before{
+    content:"Exercise Library";
+    display:block;
+    font-family:'DM Mono',monospace;
+    font-size:11px;
+    letter-spacing:2px;
+    color:var(--acc);
+    text-transform:uppercase;
+    margin:0 0 10px;
   }
 }
 
@@ -3178,7 +3245,7 @@ button.acc-hint {
 <div id="session" class="session"><div class="session-card"><div class="label">Guided Session</div><div id="sessionTitle" class="session-title">Workout</div><div id="sessionCue" style="color:var(--muted);font-size:16px;margin:8px 0 18px"></div><div id="sessionTimer" class="timer">00</div><div id="sessionNext" class="panel" style="color:var(--muted)"></div><div class="session-actions"><button id="sessionNextBtn" class="btn acc">Next</button><button class="btn" onclick="openRestTimer(60)">⏱ Rest</button><button class="btn" onclick="document.getElementById('plateCalcModal').classList.add('on')">🏋 Plates</button><button class="btn" onclick="document.getElementById('oneRMModal').classList.add('on')">📈 1RM</button><button id="sessionClose" class="btn">Close</button></div></div></div>
 <script>
 (()=>{'use strict';
-const VERSION='v13.61.14 — Mobile auth and builder routing fix';
+const VERSION='v13.61.15 — Mobile home and builder layout fix';
 const DAYS=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
 const DAY_LABEL={monday:'Monday',tuesday:'Tuesday',wednesday:'Wednesday',thursday:'Thursday',friday:'Friday',saturday:'Saturday',sunday:'Sunday'};
 const todayKey=(()=>{const dayName=new Date().toLocaleDateString('en-US',{weekday:'long'}).toLowerCase();return DAYS.includes(dayName)?dayName:DAYS[(new Date().getDay()+6)%7];})();
@@ -4441,26 +4508,17 @@ async function signIn(email,password){
   email=normalizeEmail(email);
   if(!email||!password) return 'Email and password are required.';
   const supa=getSupa(); if(!supa) return 'Supabase could not load. Check your connection.';
-  try{
-    const result = await withTimeout(supa.auth.signInWithPassword({email,password}), 12000);
-    const data = result && result.data;
-    const error = result && result.error;
-    if(error) return error.message || 'Sign-in failed.';
-    if(!data || !data.user) return 'Sign-in failed. Please try again.';
-    if(data.session && typeof applyAuthenticatedSession==='function'){
-      await applyAuthenticatedSession(data.session);
-    } else {
-      authUser=authFromUser(data.user);
-      window.authUser=authUser;
-      document.body.classList.add('authenticated');
-      setSyncStatus('synced','Supabase synced');
-      renderAccountMenu(); syncAuthShell(); renderAll();
-    }
-    return '';
-  }catch(err){
-    console.error('Email sign-in failed:', err);
-    return (err && err.message) || 'Sign-in timed out. Check connection and try again.';
+  const {data,error}=await supa.auth.signInWithPassword({email,password});
+  if(error) return error.message;
+  if(data && data.session && typeof applyAuthenticatedSession==='function'){
+    await applyAuthenticatedSession(data.session);
+  } else {
+    authUser=authFromUser(data.user);
+    window.authUser=authUser;
+    document.body.classList.add('authenticated');
+    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll();
   }
+  return '';
 }
 async function createAccount(email,password){
   email=normalizeEmail(email);
@@ -4526,43 +4584,41 @@ async function createAccount(email,password){
 async function signInGoogle(btn){
   const originalText=btn?btn.textContent:"";
   try{
-    if(btn){btn.disabled=true; btn.textContent="Opening Google...";}
+    if(btn){btn.disabled=true; btn.textContent="Launching Google...";}
     localStorage.removeItem("vertex_guest_mode");
     const supa=getSupa();
     if(!supa) throw new Error("Supabase could not load. Check your connection.");
 
     const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-    const redirectTo = isNative ? 'com.atj1530.vertex://login-callback' : window.location.origin;
+    // Native: redirect to custom scheme so iOS intercepts it via appUrlOpen.
+    // Web: redirect back to origin.
+    const redirectTo = (window.location.protocol === "file:")
+      ? window.location.href
+      : isNative
+        ? 'com.atj1530.vertex://login-callback'
+        : window.location.origin;
 
-    const result = await withTimeout(supa.auth.signInWithOAuth({
+    const {data,error}=await supa.auth.signInWithOAuth({
       provider:'google',
       options:{
         redirectTo,
         scopes:'email profile',
-        queryParams:{prompt:'select_account'},
-        skipBrowserRedirect:true
+        // On native, open the OAuth URL in the system browser (not in-app WebView)
+        // so iOS can redirect back via the custom URL scheme
+        skipBrowserRedirect: false
       }
-    }), 12000);
-
-    const data = result && result.data;
-    const error = result && result.error;
+    });
     if(error) throw error;
-    if(!data || !data.url) return "Google sign-in did not return a redirect URL.";
-
-    if(isNative){
-      const Browser = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser;
-      if(Browser && typeof Browser.open === 'function'){
-        await Browser.open({url:data.url, presentationStyle:'fullscreen'});
-      } else if(window.open){
-        const opened = window.open(data.url, '_blank');
-        if(!opened) window.location.href = data.url;
+    if(data && data.url){
+      // On native, use window.open to force the system browser
+      if(isNative && window.open){
+        window.open(data.url, '_system');
       } else {
-        window.location.href = data.url;
+        window.location.assign(data.url);
       }
-    } else {
-      window.location.assign(data.url);
+      return "";
     }
-    return "";
+    return "Google sign-in did not return a redirect URL.";
   }catch(err){
     console.error("Google sign-in failed:",err);
     if(btn){btn.disabled=false; btn.textContent=originalText||"Continue with Google";}
@@ -4816,16 +4872,7 @@ function addManualEntry(){
   ['manualName','manualEquip','manualWeight'].forEach(id=>{const el=document.getElementById(id); if(el) el.value=''});
   renderAll(); collapseTopIfContent();
 }
-function loadTemplate(key, prompt=true){
-  const w=workoutFromTemplate(key); if(!w) return;
-  setCurrent(w);
-  state.page='workout';
-  renderAll();
-  document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
-  document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
-  setTimeout(()=>{(document.getElementById('builder')||document.getElementById('wkt-title')||document.querySelector('.wkt-name-row'))?.scrollIntoView({behavior:'smooth',block:'start'});},120);
-  if(prompt && window.innerWidth>900) openAssign(w);
-}
+function loadTemplate(key, prompt=true){const w=workoutFromTemplate(key); if(!w) return; setCurrent(w); if(prompt) openAssign(w); else { state.page='workout'; renderAll(); window.scrollTo({top:0,behavior:'smooth'}); }}
 async function saveDay(day=todayKey){const w=clone(state.current); if(!hasWorkout(w)) return toast('Nothing to save'); w.assignedDay=day; state.planner[day]=w; state.current.assignedDay=day; savePlanner(); unmarkDayCleared(day); renderAll(); const ok=await persistPlannerDay(day,w); toast('Saved to '+DAY_LABEL[day]+(authUser?(ok?' · cloud synced':' · local fallback') : ''));}
 function editDay(day){
   const w=state.planner[day];
@@ -5316,14 +5363,8 @@ async function loadPendingProgram(){
   const plan=getProgramPlans()[program]; if(!plan) return;
   state.program=program;
   Object.entries(plan).forEach(([day,w])=>{ if(w){ w.assignedDay=day; state.planner[day]=w; }});
-  const firstEntry=Object.entries(plan).find(([day,w])=>!!w);
-  if(firstEntry && firstEntry[1]) state.current=clone(firstEntry[1]);
   savePlanner();
-  state.page='workout';
   renderAll();
-  document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
-  document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(el=>el.style.display='');
-  setTimeout(()=>{(document.getElementById('builder')||document.getElementById('wkt-title')||document.querySelector('.wkt-name-row'))?.scrollIntoView({behavior:'smooth',block:'start'});},120);
   for(const [day,w] of Object.entries(plan)){ if(w) await persistPlannerDay(day,w); }
   state.pendingProgram=null;
   document.getElementById('programModal')?.classList.remove('on');
@@ -7214,6 +7255,55 @@ function protoSelectDate(dateStr){
           <tbody>${items.map(s=>`<tr><td><b>${escapeHtml(s.name||'')}</b></td><td>${escapeHtml(s.supplement_type||'')}</td><td>${s.dose||'—'} ${escapeHtml(s.unit||'')}</td><td>${escapeHtml(vertexFrequencyLabel(s))}</td><td>${escapeHtml(s.timing||'Morning')}</td><td>${s.cycle_start_date||'—'}</td><td>${escapeHtml(s.notes||'—')}</td></tr>`).join('')}
           </tbody></table>
 
+
+<script>
+/* v13.61.15 mobile layout runtime helper */
+(function(){
+  if(window.__vertexMobileHomeBuilderLayoutV136115) return;
+  window.__vertexMobileHomeBuilderLayoutV136115 = true;
+
+  function setPageClass(){
+    try{
+      var p = (window.state && window.state.page) || '';
+      document.body.classList.toggle('app-page-home', p === 'home');
+      document.body.classList.toggle('app-page-workout', p === 'workout');
+    }catch(e){}
+  }
+
+  function scrollToBuilder(){
+    setTimeout(function(){
+      var target = document.getElementById('builder') ||
+        document.querySelector('.wkt-name-row') ||
+        document.getElementById('wkt-title') ||
+        document.querySelector('.exercise-card');
+      if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 180);
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('button,.btn,[role="button"],a');
+    if(!btn) return;
+    var txt = (btn.textContent || '').trim().toLowerCase();
+    if(txt.includes('load / edit') || txt.includes('start today') || txt.includes('build workout') || txt.includes('open workout')){
+      setTimeout(function(){ setPageClass(); scrollToBuilder(); }, 250);
+    }
+  }, true);
+
+  var oldRenderAll = window.renderAll;
+  if(typeof oldRenderAll === 'function' && !oldRenderAll.__v136115){
+    window.renderAll = function(){
+      var result = oldRenderAll.apply(this, arguments);
+      setTimeout(setPageClass, 0);
+      return result;
+    };
+    window.renderAll.__v136115 = true;
+  }
+
+  setPageClass();
+  setTimeout(setPageClass, 200);
+})();
+</script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -8361,6 +8451,55 @@ ${recentLogs.length ? `<table>
 </table>` : '<p style="color:#888;font-size:13px">No workout logs yet.</p>'}
 
 <div class="footer">Vertex · ${dateStr} · vertex-beta-five.vercel.app</div>
+
+<script>
+/* v13.61.15 mobile layout runtime helper */
+(function(){
+  if(window.__vertexMobileHomeBuilderLayoutV136115) return;
+  window.__vertexMobileHomeBuilderLayoutV136115 = true;
+
+  function setPageClass(){
+    try{
+      var p = (window.state && window.state.page) || '';
+      document.body.classList.toggle('app-page-home', p === 'home');
+      document.body.classList.toggle('app-page-workout', p === 'workout');
+    }catch(e){}
+  }
+
+  function scrollToBuilder(){
+    setTimeout(function(){
+      var target = document.getElementById('builder') ||
+        document.querySelector('.wkt-name-row') ||
+        document.getElementById('wkt-title') ||
+        document.querySelector('.exercise-card');
+      if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 180);
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('button,.btn,[role="button"],a');
+    if(!btn) return;
+    var txt = (btn.textContent || '').trim().toLowerCase();
+    if(txt.includes('load / edit') || txt.includes('start today') || txt.includes('build workout') || txt.includes('open workout')){
+      setTimeout(function(){ setPageClass(); scrollToBuilder(); }, 250);
+    }
+  }, true);
+
+  var oldRenderAll = window.renderAll;
+  if(typeof oldRenderAll === 'function' && !oldRenderAll.__v136115){
+    window.renderAll = function(){
+      var result = oldRenderAll.apply(this, arguments);
+      setTimeout(setPageClass, 0);
+      return result;
+    };
+    window.renderAll.__v136115 = true;
+  }
+
+  setPageClass();
+  setTimeout(setPageClass, 200);
+})();
+</script>
+
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -8586,7 +8725,56 @@ window.renderSymmetry = renderSymmetry;
     const w = window.open('','_blank');
     if(!w) return;
     const rows = log.length ? log.map(e=>`<tr><td style="white-space:nowrap;color:#888;font-size:11px">${e.ts?.slice(0,19).replace('T',' ')||'—'}</td><td><span style="font-size:10px;background:${e.type==='error'?'#fee2e2':'#fef9c3'};padding:1px 6px;border-radius:3px;font-weight:700">${e.type}</span></td><td style="font-size:12px">${e.msg||''}</td><td style="font-size:11px;color:#999">${e.src||''}${e.line?':'+e.line:''}</td></tr>`).join('') : '<tr><td colspan="4" style="color:#888;text-align:center;padding:20px">No errors logged.</td></tr>';
-    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
+    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
+<script>
+/* v13.61.15 mobile layout runtime helper */
+(function(){
+  if(window.__vertexMobileHomeBuilderLayoutV136115) return;
+  window.__vertexMobileHomeBuilderLayoutV136115 = true;
+
+  function setPageClass(){
+    try{
+      var p = (window.state && window.state.page) || '';
+      document.body.classList.toggle('app-page-home', p === 'home');
+      document.body.classList.toggle('app-page-workout', p === 'workout');
+    }catch(e){}
+  }
+
+  function scrollToBuilder(){
+    setTimeout(function(){
+      var target = document.getElementById('builder') ||
+        document.querySelector('.wkt-name-row') ||
+        document.getElementById('wkt-title') ||
+        document.querySelector('.exercise-card');
+      if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 180);
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('button,.btn,[role="button"],a');
+    if(!btn) return;
+    var txt = (btn.textContent || '').trim().toLowerCase();
+    if(txt.includes('load / edit') || txt.includes('start today') || txt.includes('build workout') || txt.includes('open workout')){
+      setTimeout(function(){ setPageClass(); scrollToBuilder(); }, 250);
+    }
+  }, true);
+
+  var oldRenderAll = window.renderAll;
+  if(typeof oldRenderAll === 'function' && !oldRenderAll.__v136115){
+    window.renderAll = function(){
+      var result = oldRenderAll.apply(this, arguments);
+      setTimeout(setPageClass, 0);
+      return result;
+    };
+    window.renderAll.__v136115 = true;
+  }
+
+  setPageClass();
+  setTimeout(setPageClass, 200);
+})();
+</script>
+
+</body></html>`);
     w.document.close();
   };
 })();
@@ -8735,7 +8923,56 @@ function vertexShowSyncDiag(){
   }).join('');
   const w=window.open('','_blank');
   if(!w) return;
-  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
+<script>
+/* v13.61.15 mobile layout runtime helper */
+(function(){
+  if(window.__vertexMobileHomeBuilderLayoutV136115) return;
+  window.__vertexMobileHomeBuilderLayoutV136115 = true;
+
+  function setPageClass(){
+    try{
+      var p = (window.state && window.state.page) || '';
+      document.body.classList.toggle('app-page-home', p === 'home');
+      document.body.classList.toggle('app-page-workout', p === 'workout');
+    }catch(e){}
+  }
+
+  function scrollToBuilder(){
+    setTimeout(function(){
+      var target = document.getElementById('builder') ||
+        document.querySelector('.wkt-name-row') ||
+        document.getElementById('wkt-title') ||
+        document.querySelector('.exercise-card');
+      if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 180);
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('button,.btn,[role="button"],a');
+    if(!btn) return;
+    var txt = (btn.textContent || '').trim().toLowerCase();
+    if(txt.includes('load / edit') || txt.includes('start today') || txt.includes('build workout') || txt.includes('open workout')){
+      setTimeout(function(){ setPageClass(); scrollToBuilder(); }, 250);
+    }
+  }, true);
+
+  var oldRenderAll = window.renderAll;
+  if(typeof oldRenderAll === 'function' && !oldRenderAll.__v136115){
+    window.renderAll = function(){
+      var result = oldRenderAll.apply(this, arguments);
+      setTimeout(setPageClass, 0);
+      return result;
+    };
+    window.renderAll.__v136115 = true;
+  }
+
+  setPageClass();
+  setTimeout(setPageClass, 200);
+})();
+</script>
+
+</body></html>`);
   w.document.close();
 }
 window.vertexShowSyncDiag=vertexShowSyncDiag;
@@ -11789,72 +12026,55 @@ window.testAppleHealth = async function () {
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
+})();
+</script>
 
-/* v13.61.14 direct mobile auth handlers + wellness compact control injection */
+
+<script>
+/* v13.61.15 mobile layout runtime helper */
 (function(){
-  function showLoginError(msg){
-    const ebox=document.getElementById('landing-error')||document.getElementById('acct-error');
-    if(ebox) ebox.textContent=msg||'';
-  }
-  async function runEmailLogin(btn, create){
+  if(window.__vertexMobileHomeBuilderLayoutV136115) return;
+  window.__vertexMobileHomeBuilderLayoutV136115 = true;
+
+  function setPageClass(){
     try{
-      if(btn){btn.disabled=true; btn.textContent=create?'Creating...':'Signing in...';}
-      const email=document.getElementById('landing-email')?.value||document.getElementById('acct-email')?.value||'';
-      const pass=document.getElementById('landing-pass')?.value||document.getElementById('acct-pass')?.value||'';
-      const err=create?await createAccount(email,pass):await signIn(email,pass);
-      showLoginError(err);
-    } finally {
-      if(btn){btn.disabled=false; btn.textContent=create?'Create Account':'Sign In';}
-    }
-  }
-  function bindLoginButtons(){
-    const google=document.getElementById('landing-google');
-    if(google && !google.__v136114){
-      google.__v136114=true;
-      google.addEventListener('click', async function(ev){
-        ev.preventDefault(); ev.stopPropagation();
-        const err=await signInGoogle(google);
-        showLoginError(err);
-      }, {capture:true});
-    }
-    const signin=document.getElementById('landing-signin');
-    if(signin && !signin.__v136114){
-      signin.__v136114=true;
-      signin.setAttribute('type','button');
-      signin.addEventListener('click', function(ev){ev.preventDefault(); ev.stopPropagation(); runEmailLogin(signin,false);}, {capture:true});
-    }
-    const create=document.getElementById('landing-create');
-    if(create && !create.__v136114){
-      create.__v136114=true;
-      create.setAttribute('type','button');
-      create.addEventListener('click', function(ev){ev.preventDefault(); ev.stopPropagation(); runEmailLogin(create,true);}, {capture:true});
-    }
-  }
-  function compactWellnessControls(){
-    try{
-      const wrap=document.getElementById('vertexMacroToggleWrap');
-      const tabs=document.querySelector('#wellnessPage .progress-tabs');
-      if(!wrap || !tabs || wrap.querySelector('.vertex-mobile-bodycomp-shortcut')) return;
-      const bodyBtn=tabs.querySelector('[data-wtab="bodycomp"]');
-      if(bodyBtn){
-        const clone=bodyBtn.cloneNode(true);
-        clone.classList.add('vertex-mobile-bodycomp-shortcut');
-        clone.addEventListener('click', function(e){e.preventDefault(); setWellnessTab('bodycomp');});
-        wrap.appendChild(clone);
-      }
+      var p = (window.state && window.state.page) || '';
+      document.body.classList.toggle('app-page-home', p === 'home');
+      document.body.classList.toggle('app-page-workout', p === 'workout');
     }catch(e){}
   }
-  const oldRenderWellnessPage=renderWellnessPage;
-  renderWellnessPage=function(){
-    const out=oldRenderWellnessPage.apply(this,arguments);
-    setTimeout(compactWellnessControls,40);
-    return out;
-  };
-  document.addEventListener('DOMContentLoaded', function(){bindLoginButtons(); setTimeout(compactWellnessControls,200);});
-  setTimeout(bindLoginButtons,100);
-  setTimeout(compactWellnessControls,300);
-})();
 
+  function scrollToBuilder(){
+    setTimeout(function(){
+      var target = document.getElementById('builder') ||
+        document.querySelector('.wkt-name-row') ||
+        document.getElementById('wkt-title') ||
+        document.querySelector('.exercise-card');
+      if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 180);
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('button,.btn,[role="button"],a');
+    if(!btn) return;
+    var txt = (btn.textContent || '').trim().toLowerCase();
+    if(txt.includes('load / edit') || txt.includes('start today') || txt.includes('build workout') || txt.includes('open workout')){
+      setTimeout(function(){ setPageClass(); scrollToBuilder(); }, 250);
+    }
+  }, true);
+
+  var oldRenderAll = window.renderAll;
+  if(typeof oldRenderAll === 'function' && !oldRenderAll.__v136115){
+    window.renderAll = function(){
+      var result = oldRenderAll.apply(this, arguments);
+      setTimeout(setPageClass, 0);
+      return result;
+    };
+    window.renderAll.__v136115 = true;
+  }
+
+  setPageClass();
+  setTimeout(setPageClass, 200);
 })();
 </script>
 

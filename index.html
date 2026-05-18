@@ -9584,7 +9584,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-am';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-an';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -9780,19 +9780,19 @@ window.testAppleHealth = async function () {
       const row = {
         user_id: currentUser.id,
         sync_date: today,
-        sleep_hours: metrics.sleep_hours ?? null,
-        steps: metrics.steps ?? null,
-        active_calories: metrics.active_energy ?? null,
-        resting_hr: metrics.resting_hr ?? null,
-        hrv: metrics.hrv ?? null,
-        body_weight: metrics.weight ?? null,
+        sleep_hours: metrics.sleep_hours != null ? Math.round(metrics.sleep_hours * 10) / 10 : null,
+        steps: metrics.steps != null ? Math.round(Number(metrics.steps)) : null,
+        active_calories: metrics.active_energy != null ? Math.round(Number(metrics.active_energy)) : null,
+        resting_hr: metrics.resting_hr != null ? Math.round(Number(metrics.resting_hr)) : null,
+        hrv: metrics.hrv != null ? Math.round(metrics.hrv * 10) / 10 : null,
+        body_weight: metrics.weight != null ? Math.round(metrics.weight * 10) / 10 : null,
         body_fat_pct: metrics.body_fat_pct != null ? Math.round(metrics.body_fat_pct * 1000) / 10 : null,
-        lean_mass: metrics.lean_mass ?? null,
-        vo2_max: metrics.vo2_max ?? null,
-        respiratory_rate: metrics.respiratory_rate ?? null,
+        lean_mass: metrics.lean_mass != null ? Math.round(metrics.lean_mass * 10) / 10 : null,
+        vo2_max: metrics.vo2_max != null ? Math.round(metrics.vo2_max * 10) / 10 : null,
+        respiratory_rate: metrics.respiratory_rate != null ? Math.round(metrics.respiratory_rate * 10) / 10 : null,
         spo2: metrics.spo2 != null ? Math.round(metrics.spo2 * 1000) / 10 : null,
-        wrist_temp_deviation: metrics.wrist_temp_deviation ?? null,
-        exercise_minutes: metrics.exercise_minutes ?? null,
+        wrist_temp_deviation: metrics.wrist_temp_deviation != null ? Math.round(metrics.wrist_temp_deviation * 100) / 100 : null,
+        exercise_minutes: metrics.exercise_minutes != null ? Math.round(Number(metrics.exercise_minutes)) : null,
         standing_minutes: vertexMetricStandingMinutes,
         source: 'apple_health'
       };
@@ -9886,6 +9886,8 @@ window.testAppleHealth = async function () {
     try {
       const wBtn = document.getElementById('btn-apple-health-sync');
       if(wBtn){ wBtn.textContent = 'Reading workouts…'; }
+      // Request permissions again to ensure workout type is authorized
+      try { await plugin.requestPermissions(); } catch(e) {}
       const wResult = await plugin.queryWorkouts({ days: 60, limit: 30 });
       const workouts = wResult?.workouts || [];
       const card = document.getElementById('appleHealthWorkoutCard');

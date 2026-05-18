@@ -2363,27 +2363,36 @@ button.acc-hint {
   letter-spacing:.5px !important;
 }
 
-</style>
 
-<style>
-/* v13.60.96 — Adaptive Action Coach final UI
-   The Adaptive Coach now shows action signals only, not duplicate macro targets. */
-.vertex-macro-trend-card,
-.vertex-macro-bars,
-.vertex-macro-bar{display:none!important}
-.vertex-adaptive-action-coach{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
-.vertex-adaptive-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
-.vertex-adaptive-card{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:12px;min-height:118px}
-.vertex-adaptive-card strong{display:block;font-family:'Bebas Neue',sans-serif;font-size:31px;letter-spacing:1px;color:var(--acc);line-height:1}
-.vertex-adaptive-card small{display:block;margin:6px 0 8px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted)}
-.vertex-adaptive-card div{font-size:12px;color:var(--muted);line-height:1.35}
-.vertex-adaptive-card.good{border-color:rgba(72,255,138,.35);background:rgba(72,255,138,.04)}
-.vertex-adaptive-card.warn{border-color:rgba(255,176,71,.45);background:rgba(255,176,71,.045)}
-.vertex-adaptive-card.red{border-color:rgba(255,77,77,.42);background:rgba(255,77,77,.04)}
-@media(max-width:760px){.vertex-adaptive-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:430px){.vertex-adaptive-grid{grid-template-columns:1fr}}
-</style>
+/* ============================================================
+   v13.61.13 MOBILE WELLNESS + ROUTING PATCH
+   - Compact mobile Wellness controls
+   - Keeps Macro Tracking and Body Comp control row balanced
+   ============================================================ */
+@media(max-width:760px){
+  .wellness-control-row,
+  .wc-toggle-row,
+  .wellness-toggle-row{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+    align-items:stretch!important;
+  }
+  .wellness-control-row .btn,
+  .wc-toggle-row .btn,
+  .wellness-toggle-row .btn,
+  #macroTrackingToggle,
+  #bodyCompToggle,
+  [data-action="toggle-macro-tracking"],
+  [data-action="toggle-body-comp"]{
+    width:100%!important;
+    min-height:44px!important;
+    text-align:center!important;
+    justify-content:center!important;
+  }
+}
 
+</style>
 </head>
 <body>
 
@@ -3154,7 +3163,7 @@ button.acc-hint {
 <div id="session" class="session"><div class="session-card"><div class="label">Guided Session</div><div id="sessionTitle" class="session-title">Workout</div><div id="sessionCue" style="color:var(--muted);font-size:16px;margin:8px 0 18px"></div><div id="sessionTimer" class="timer">00</div><div id="sessionNext" class="panel" style="color:var(--muted)"></div><div class="session-actions"><button id="sessionNextBtn" class="btn acc">Next</button><button class="btn" onclick="openRestTimer(60)">⏱ Rest</button><button class="btn" onclick="document.getElementById('plateCalcModal').classList.add('on')">🏋 Plates</button><button class="btn" onclick="document.getElementById('oneRMModal').classList.add('on')">📈 1RM</button><button id="sessionClose" class="btn">Close</button></div></div></div>
 <script>
 (()=>{'use strict';
-const VERSION='v13.60.96 — Adaptive action coach final';
+const VERSION='v13.60.95 — Adaptive coach cleanup';
 const DAYS=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
 const DAY_LABEL={monday:'Monday',tuesday:'Tuesday',wednesday:'Wednesday',thursday:'Thursday',friday:'Friday',saturday:'Saturday',sunday:'Sunday'};
 const todayKey=(()=>{const dayName=new Date().toLocaleDateString('en-US',{weekday:'long'}).toLowerCase();return DAYS.includes(dayName)?dayName:DAYS[(new Date().getDay()+6)%7];})();
@@ -7155,7 +7164,36 @@ function protoSelectDate(dateStr){
         const items = (typeof stackItems !== 'undefined' ? stackItems : []).filter(vertexIsProtocolActive);
         const pdfDateStr = new Date().toLocaleDateString([],{year:'numeric',month:'long',day:'numeric'});
         const html = `<!DOCTYPE html><html><head><title>Vertex Protocol Summary — ${initials||displayName}</title>
-          <style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;color:#111}h1{color:#1a1a1a;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#1a1a1a;color:#fff;padding:8px 12px;text-align:left;font-size:12px}td{padding:8px 12px;border-bottom:1px solid #eee;font-size:13px}tr:nth-child(even){background:#f9f9f9}.meta{color:#666;font-size:13px;margin-bottom:24px}.patient{font-size:15px;font-weight:bold;color:#333;margin-bottom:4px}</style>
+          <style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;color:#111}h1{color:#1a1a1a;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#1a1a1a;color:#fff;padding:8px 12px;text-align:left;font-size:12px}td{padding:8px 12px;border-bottom:1px solid #eee;font-size:13px}tr:nth-child(even){background:#f9f9f9}.meta{color:#666;font-size:13px;margin-bottom:24px}.patient{font-size:15px;font-weight:bold;color:#333;margin-bottom:4px}
+/* ============================================================
+   v13.61.13 MOBILE WELLNESS + ROUTING PATCH
+   - Compact mobile Wellness controls
+   - Keeps Macro Tracking and Body Comp control row balanced
+   ============================================================ */
+@media(max-width:760px){
+  .wellness-control-row,
+  .wc-toggle-row,
+  .wellness-toggle-row{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+    align-items:stretch!important;
+  }
+  .wellness-control-row .btn,
+  .wc-toggle-row .btn,
+  .wellness-toggle-row .btn,
+  #macroTrackingToggle,
+  #bodyCompToggle,
+  [data-action="toggle-macro-tracking"],
+  [data-action="toggle-body-comp"]{
+    width:100%!important;
+    min-height:44px!important;
+    text-align:center!important;
+    justify-content:center!important;
+  }
+}
+
+</style>
           </head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
@@ -7163,6 +7201,52 @@ function protoSelectDate(dateStr){
           <table><thead><tr><th>Compound</th><th>Type</th><th>Dose</th><th>Frequency</th><th>Timing</th><th>Cycle Start</th><th>Notes</th></tr></thead>
           <tbody>${items.map(s=>`<tr><td><b>${escapeHtml(s.name||'')}</b></td><td>${escapeHtml(s.supplement_type||'')}</td><td>${s.dose||'—'} ${escapeHtml(s.unit||'')}</td><td>${escapeHtml(vertexFrequencyLabel(s))}</td><td>${escapeHtml(s.timing||'Morning')}</td><td>${s.cycle_start_date||'—'}</td><td>${escapeHtml(s.notes||'—')}</td></tr>`).join('')}
           </tbody></table>
+
+
+<script>
+/* v13.61.13 mobile routing fallback: keep mobile actions aligned with desktop builder navigation */
+(function(){
+  if(window.__vertexMobileRoutingPatchV136113) return;
+  window.__vertexMobileRoutingPatchV136113 = true;
+
+  function clickWorkoutTab(){
+    var tabs = Array.from(document.querySelectorAll('button,.nav button,[data-page],[data-tab]'));
+    var workoutTab = tabs.find(function(el){
+      var txt = (el.textContent || '').trim().toLowerCase();
+      return txt === 'workout' || el.dataset.page === 'workout' || el.dataset.tab === 'workout';
+    });
+    if(workoutTab) workoutTab.click();
+  }
+
+  function scrollToBuilder(){
+    setTimeout(function(){
+      var target = document.querySelector('#workout-builder,#builder,#wkt-title,.wkt-name-row,.exercise-card');
+      if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 250);
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('button,.btn,[role="button"],a');
+    if(!btn) return;
+    var txt = (btn.textContent || '').trim().toLowerCase();
+    var action = (btn.dataset && (btn.dataset.action || btn.dataset.nav || btn.dataset.page || btn.dataset.tab)) || '';
+    var shouldRoute =
+      txt.includes('load / edit') ||
+      txt.includes('load/edit') ||
+      txt.includes('start today') ||
+      txt.includes('build workout') ||
+      txt.includes('open workout') ||
+      String(action).toLowerCase().includes('workout');
+
+    if(!shouldRoute) return;
+
+    setTimeout(function(){
+      clickWorkoutTab();
+      scrollToBuilder();
+    }, 150);
+  }, true);
+})();
+</script>
 
 </body></html>`;
         const w = window.open('','_blank');
@@ -8247,6 +8331,35 @@ function generateVertexPDFReport(){
   .badge-red{background:#fee2e2;color:#991b1b}
   .footer{margin-top:36px;padding-top:12px;border-top:1px solid #e8e8e8;font-size:11px;color:#aaa;text-align:center}
   @media print{body{padding:20px}h2{break-before:avoid}table{break-inside:auto}tr{break-inside:avoid}}
+
+/* ============================================================
+   v13.61.13 MOBILE WELLNESS + ROUTING PATCH
+   - Compact mobile Wellness controls
+   - Keeps Macro Tracking and Body Comp control row balanced
+   ============================================================ */
+@media(max-width:760px){
+  .wellness-control-row,
+  .wc-toggle-row,
+  .wellness-toggle-row{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+    align-items:stretch!important;
+  }
+  .wellness-control-row .btn,
+  .wc-toggle-row .btn,
+  .wellness-toggle-row .btn,
+  #macroTrackingToggle,
+  #bodyCompToggle,
+  [data-action="toggle-macro-tracking"],
+  [data-action="toggle-body-comp"]{
+    width:100%!important;
+    min-height:44px!important;
+    text-align:center!important;
+    justify-content:center!important;
+  }
+}
+
 </style>
 </head><body>
 
@@ -8311,6 +8424,52 @@ ${recentLogs.length ? `<table>
 </table>` : '<p style="color:#888;font-size:13px">No workout logs yet.</p>'}
 
 <div class="footer">Vertex · ${dateStr} · vertex-beta-five.vercel.app</div>
+
+<script>
+/* v13.61.13 mobile routing fallback: keep mobile actions aligned with desktop builder navigation */
+(function(){
+  if(window.__vertexMobileRoutingPatchV136113) return;
+  window.__vertexMobileRoutingPatchV136113 = true;
+
+  function clickWorkoutTab(){
+    var tabs = Array.from(document.querySelectorAll('button,.nav button,[data-page],[data-tab]'));
+    var workoutTab = tabs.find(function(el){
+      var txt = (el.textContent || '').trim().toLowerCase();
+      return txt === 'workout' || el.dataset.page === 'workout' || el.dataset.tab === 'workout';
+    });
+    if(workoutTab) workoutTab.click();
+  }
+
+  function scrollToBuilder(){
+    setTimeout(function(){
+      var target = document.querySelector('#workout-builder,#builder,#wkt-title,.wkt-name-row,.exercise-card');
+      if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 250);
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('button,.btn,[role="button"],a');
+    if(!btn) return;
+    var txt = (btn.textContent || '').trim().toLowerCase();
+    var action = (btn.dataset && (btn.dataset.action || btn.dataset.nav || btn.dataset.page || btn.dataset.tab)) || '';
+    var shouldRoute =
+      txt.includes('load / edit') ||
+      txt.includes('load/edit') ||
+      txt.includes('start today') ||
+      txt.includes('build workout') ||
+      txt.includes('open workout') ||
+      String(action).toLowerCase().includes('workout');
+
+    if(!shouldRoute) return;
+
+    setTimeout(function(){
+      clickWorkoutTab();
+      scrollToBuilder();
+    }, 150);
+  }, true);
+})();
+</script>
+
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -8536,7 +8695,82 @@ window.renderSymmetry = renderSymmetry;
     const w = window.open('','_blank');
     if(!w) return;
     const rows = log.length ? log.map(e=>`<tr><td style="white-space:nowrap;color:#888;font-size:11px">${e.ts?.slice(0,19).replace('T',' ')||'—'}</td><td><span style="font-size:10px;background:${e.type==='error'?'#fee2e2':'#fef9c3'};padding:1px 6px;border-radius:3px;font-weight:700">${e.type}</span></td><td style="font-size:12px">${e.msg||''}</td><td style="font-size:11px;color:#999">${e.src||''}${e.line?':'+e.line:''}</td></tr>`).join('') : '<tr><td colspan="4" style="color:#888;text-align:center;padding:20px">No errors logged.</td></tr>';
-    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
+    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}
+/* ============================================================
+   v13.61.13 MOBILE WELLNESS + ROUTING PATCH
+   - Compact mobile Wellness controls
+   - Keeps Macro Tracking and Body Comp control row balanced
+   ============================================================ */
+@media(max-width:760px){
+  .wellness-control-row,
+  .wc-toggle-row,
+  .wellness-toggle-row{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+    align-items:stretch!important;
+  }
+  .wellness-control-row .btn,
+  .wc-toggle-row .btn,
+  .wellness-toggle-row .btn,
+  #macroTrackingToggle,
+  #bodyCompToggle,
+  [data-action="toggle-macro-tracking"],
+  [data-action="toggle-body-comp"]{
+    width:100%!important;
+    min-height:44px!important;
+    text-align:center!important;
+    justify-content:center!important;
+  }
+}
+
+</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
+<script>
+/* v13.61.13 mobile routing fallback: keep mobile actions aligned with desktop builder navigation */
+(function(){
+  if(window.__vertexMobileRoutingPatchV136113) return;
+  window.__vertexMobileRoutingPatchV136113 = true;
+
+  function clickWorkoutTab(){
+    var tabs = Array.from(document.querySelectorAll('button,.nav button,[data-page],[data-tab]'));
+    var workoutTab = tabs.find(function(el){
+      var txt = (el.textContent || '').trim().toLowerCase();
+      return txt === 'workout' || el.dataset.page === 'workout' || el.dataset.tab === 'workout';
+    });
+    if(workoutTab) workoutTab.click();
+  }
+
+  function scrollToBuilder(){
+    setTimeout(function(){
+      var target = document.querySelector('#workout-builder,#builder,#wkt-title,.wkt-name-row,.exercise-card');
+      if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 250);
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('button,.btn,[role="button"],a');
+    if(!btn) return;
+    var txt = (btn.textContent || '').trim().toLowerCase();
+    var action = (btn.dataset && (btn.dataset.action || btn.dataset.nav || btn.dataset.page || btn.dataset.tab)) || '';
+    var shouldRoute =
+      txt.includes('load / edit') ||
+      txt.includes('load/edit') ||
+      txt.includes('start today') ||
+      txt.includes('build workout') ||
+      txt.includes('open workout') ||
+      String(action).toLowerCase().includes('workout');
+
+    if(!shouldRoute) return;
+
+    setTimeout(function(){
+      clickWorkoutTab();
+      scrollToBuilder();
+    }, 150);
+  }, true);
+})();
+</script>
+
+</body></html>`);
     w.document.close();
   };
 })();
@@ -8685,7 +8919,82 @@ function vertexShowSyncDiag(){
   }).join('');
   const w=window.open('','_blank');
   if(!w) return;
-  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}
+/* ============================================================
+   v13.61.13 MOBILE WELLNESS + ROUTING PATCH
+   - Compact mobile Wellness controls
+   - Keeps Macro Tracking and Body Comp control row balanced
+   ============================================================ */
+@media(max-width:760px){
+  .wellness-control-row,
+  .wc-toggle-row,
+  .wellness-toggle-row{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+    align-items:stretch!important;
+  }
+  .wellness-control-row .btn,
+  .wc-toggle-row .btn,
+  .wellness-toggle-row .btn,
+  #macroTrackingToggle,
+  #bodyCompToggle,
+  [data-action="toggle-macro-tracking"],
+  [data-action="toggle-body-comp"]{
+    width:100%!important;
+    min-height:44px!important;
+    text-align:center!important;
+    justify-content:center!important;
+  }
+}
+
+</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
+<script>
+/* v13.61.13 mobile routing fallback: keep mobile actions aligned with desktop builder navigation */
+(function(){
+  if(window.__vertexMobileRoutingPatchV136113) return;
+  window.__vertexMobileRoutingPatchV136113 = true;
+
+  function clickWorkoutTab(){
+    var tabs = Array.from(document.querySelectorAll('button,.nav button,[data-page],[data-tab]'));
+    var workoutTab = tabs.find(function(el){
+      var txt = (el.textContent || '').trim().toLowerCase();
+      return txt === 'workout' || el.dataset.page === 'workout' || el.dataset.tab === 'workout';
+    });
+    if(workoutTab) workoutTab.click();
+  }
+
+  function scrollToBuilder(){
+    setTimeout(function(){
+      var target = document.querySelector('#workout-builder,#builder,#wkt-title,.wkt-name-row,.exercise-card');
+      if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 250);
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('button,.btn,[role="button"],a');
+    if(!btn) return;
+    var txt = (btn.textContent || '').trim().toLowerCase();
+    var action = (btn.dataset && (btn.dataset.action || btn.dataset.nav || btn.dataset.page || btn.dataset.tab)) || '';
+    var shouldRoute =
+      txt.includes('load / edit') ||
+      txt.includes('load/edit') ||
+      txt.includes('start today') ||
+      txt.includes('build workout') ||
+      txt.includes('open workout') ||
+      String(action).toLowerCase().includes('workout');
+
+    if(!shouldRoute) return;
+
+    setTimeout(function(){
+      clickWorkoutTab();
+      scrollToBuilder();
+    }, 150);
+  }, true);
+})();
+</script>
+
+</body></html>`);
   w.document.close();
 }
 window.vertexShowSyncDiag=vertexShowSyncDiag;
@@ -10651,6 +10960,35 @@ window.testAppleHealth = async function () {
   .vertex-home-readiness{grid-template-columns:1fr}
   .vertex-home-score{font-size:42px}
 }
+
+/* ============================================================
+   v13.61.13 MOBILE WELLNESS + ROUTING PATCH
+   - Compact mobile Wellness controls
+   - Keeps Macro Tracking and Body Comp control row balanced
+   ============================================================ */
+@media(max-width:760px){
+  .wellness-control-row,
+  .wc-toggle-row,
+  .wellness-toggle-row{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+    align-items:stretch!important;
+  }
+  .wellness-control-row .btn,
+  .wc-toggle-row .btn,
+  .wellness-toggle-row .btn,
+  #macroTrackingToggle,
+  #bodyCompToggle,
+  [data-action="toggle-macro-tracking"],
+  [data-action="toggle-body-comp"]{
+    width:100%!important;
+    min-height:44px!important;
+    text-align:center!important;
+    justify-content:center!important;
+  }
+}
+
 </style>
 
 <div id="vertex-academy-overlay" class="vertex-academy-overlay" aria-hidden="true">
@@ -11324,6 +11662,35 @@ window.testAppleHealth = async function () {
     justify-self:end !important;
   }
 }
+
+/* ============================================================
+   v13.61.13 MOBILE WELLNESS + ROUTING PATCH
+   - Compact mobile Wellness controls
+   - Keeps Macro Tracking and Body Comp control row balanced
+   ============================================================ */
+@media(max-width:760px){
+  .wellness-control-row,
+  .wc-toggle-row,
+  .wellness-toggle-row{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+    align-items:stretch!important;
+  }
+  .wellness-control-row .btn,
+  .wc-toggle-row .btn,
+  .wellness-toggle-row .btn,
+  #macroTrackingToggle,
+  #bodyCompToggle,
+  [data-action="toggle-macro-tracking"],
+  [data-action="toggle-body-comp"]{
+    width:100%!important;
+    min-height:44px!important;
+    text-align:center!important;
+    justify-content:center!important;
+  }
+}
+
 </style>
 
 
@@ -11398,6 +11765,35 @@ window.testAppleHealth = async function () {
   .vertex-macro-trend{grid-template-columns:1fr 1fr}
   .vertex-macro-insights{grid-template-columns:1fr}
 }
+
+/* ============================================================
+   v13.61.13 MOBILE WELLNESS + ROUTING PATCH
+   - Compact mobile Wellness controls
+   - Keeps Macro Tracking and Body Comp control row balanced
+   ============================================================ */
+@media(max-width:760px){
+  .wellness-control-row,
+  .wc-toggle-row,
+  .wellness-toggle-row{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+    align-items:stretch!important;
+  }
+  .wellness-control-row .btn,
+  .wc-toggle-row .btn,
+  .wellness-toggle-row .btn,
+  #macroTrackingToggle,
+  #bodyCompToggle,
+  [data-action="toggle-macro-tracking"],
+  [data-action="toggle-body-comp"]{
+    width:100%!important;
+    min-height:44px!important;
+    text-align:center!important;
+    justify-content:center!important;
+  }
+}
+
 </style>
 
 <script>
@@ -11555,140 +11951,58 @@ window.testAppleHealth = async function () {
     const twoWeeksAgo=history.slice().reverse().find(r=>latestTime-new Date(r.created_at).getTime()>=13*86400000);
     const deltaWeek=(latest&&weekAgo&&latest.current_weight&&weekAgo.current_weight)?latest.current_weight-weekAgo.current_weight:null;
     const deltaTwo=(latest&&twoWeeksAgo&&latest.current_weight&&twoWeeksAgo.current_weight)?latest.current_weight-twoWeeksAgo.current_weight:null;
-    const lastDate=latest?formatDateShort(latest.created_at):'No history yet';
-
-    let trendLabel='Pending';
-    let trendNote='Save macro snapshots over time so Vertex can read movement.';
-    let paceLabel='Need Data';
-    let paceNote='Requires at least 7 days between saved weight records.';
-    let actionLabel='Hold';
-    let actionNote='Keep current macro targets until enough history exists.';
-    let plateauLabel='Pending';
-    let plateauNote='Requires roughly 14 days of saved weight records.';
-    let actionClass='';
-
+    const currentWeightText=(latest&&latest.current_weight)?latest.current_weight.toFixed(1)+' lb':m.current.toFixed(1)+' lb';
+    let pace='Need 7 days';
+    let trend14='Need 14 days';
+    let adjText='Hold current targets until Vertex has at least 7 days of saved weight history.';
+    let plateauText='Not enough data yet';
+    let coachClass='';
+    let adjValue='Hold';
+    let plateauStatus='Pending';
     if(deltaWeek!==null){
       const abs=Math.abs(deltaWeek);
-      if(abs<0.3){trendLabel='Flat';}
-      else if(deltaWeek<0){trendLabel='Down';}
-      else {trendLabel='Up';}
-      trendNote=(deltaWeek<0?'-':'+')+abs.toFixed(1)+' lb across the last available 7-day window.';
-
+      pace=(deltaWeek<0?'-':'+')+abs.toFixed(1)+' lb';
       if(m.goal==='cut'){
-        if(deltaWeek<=-2.5){
-          paceLabel='Fast';
-          paceNote='Weight is dropping faster than the normal cut range.';
-          actionLabel='+100–150';
-          actionNote='Consider adding 100–150 calories or hold if energy and recovery are strong.';
-          actionClass='warn';
-        }else if(deltaWeek<=-0.7){
-          paceLabel='On Track';
-          paceNote='Cut pace is in a productive range.';
-          actionLabel='Hold';
-          actionNote='Keep current targets stable for another week.';
-          actionClass='green';
-        }else if(deltaWeek>-0.3){
-          paceLabel='Slow';
-          paceNote='Not enough weekly movement for the current cut target.';
-          actionLabel='-150–200';
-          actionNote='Consider reducing calories by 150–200 or adding 20–30 minutes of weekly cardio.';
-          actionClass='warn';
-        }else{
-          paceLabel='Slight Drop';
-          paceNote='Movement is present but not strong yet.';
-          actionLabel='Hold';
-          actionNote='Hold 3–4 more days before changing calories.';
-        }
+        if(deltaWeek<=-2.5){adjValue='+100–150';adjText='Weight is moving fast. Consider adding 100–150 calories or holding if energy and recovery are strong.';coachClass='warn'}
+        else if(deltaWeek<=-0.7){adjValue='Hold';adjText='Pace is in range. Keep targets stable for another week.';coachClass='green'}
+        else if(deltaWeek>-0.3){adjValue='-150–200';adjText='Progress is slow. Consider reducing calories by 150–200 or adding 20–30 minutes of weekly cardio.';coachClass='warn'}
+        else {adjValue='Hold';adjText='Slight downward movement. Hold 3–4 more days before changing calories.';}
       }else if(m.goal==='maintenance'){
-        if(abs<=1){
-          paceLabel='Stable';
-          paceNote='Weight is inside a reasonable maintenance band.';
-          actionLabel='Hold';
-          actionNote='Keep current targets stable.';
-          actionClass='green';
-        }else{
-          paceLabel='Drifting';
-          paceNote='Weight is moving outside the maintenance band.';
-          actionLabel='Adjust 100–150';
-          actionNote='Adjust calories by 100–150 in the opposite direction of the drift.';
-          actionClass='warn';
-        }
+        if(abs<=1){adjValue='Hold';adjText='Maintenance range looks controlled. Keep targets stable.';coachClass='green'}
+        else {adjValue='±100–150';adjText='Weight is drifting outside maintenance. Adjust calories by 100–150 in the opposite direction.';coachClass='warn'}
       }else{
-        if(deltaWeek>=0.25&&deltaWeek<=1.0){
-          paceLabel='On Track';
-          paceNote='Gain rate is controlled.';
-          actionLabel='Hold';
-          actionNote='Keep current targets stable.';
-          actionClass='green';
-        }else if(deltaWeek<0.25){
-          paceLabel='Slow Gain';
-          paceNote='Gain rate is below target.';
-          actionLabel='+100–150';
-          actionNote='Consider adding 100–150 calories.';
-          actionClass='warn';
-        }else{
-          paceLabel='Fast Gain';
-          paceNote='Gain rate is aggressive.';
-          actionLabel='-100–150';
-          actionNote='Consider reducing calories by 100–150.';
-          actionClass='warn';
-        }
+        if(deltaWeek>=0.25&&deltaWeek<=1.0){adjValue='Hold';adjText='Gain rate looks controlled. Keep current targets.';coachClass='green'}
+        else if(deltaWeek<0.25){adjValue='+100–150';adjText='Gain rate is low. Consider adding 100–150 calories.';coachClass='warn'}
+        else {adjValue='-100–150';adjText='Gain rate is aggressive. Consider reducing calories by 100–150.';coachClass='warn'}
       }
     }
-
     if(deltaTwo!==null){
       const abs2=Math.abs(deltaTwo);
-      if(m.goal==='cut'&&abs2<0.5){
-        plateauLabel='Watch';
-        plateauNote='Possible plateau: less than 0.5 lb movement across roughly 14 days.';
-        actionClass=actionClass||'warn';
-      }else if(abs2<0.5){
-        plateauLabel='Stable';
-        plateauNote='Weight is stable over roughly 14 days.';
-      }else{
-        plateauLabel='Clear';
-        plateauNote='No clear 14-day plateau detected.';
-      }
+      trend14=(deltaTwo<0?'-':'+')+abs2.toFixed(1)+' lb';
+      if(m.goal==='cut'&&abs2<0.5){plateauStatus='Watch';plateauText='Possible plateau: less than 0.5 lb movement across roughly 14 days.';coachClass=coachClass||'warn'}
+      else {plateauStatus='Clear';plateauText='No clear 14-day plateau detected.';}
     }
-
+    const lastDate=latest?formatDateShort(latest.created_at):'No history';
     return `
-      <div class="vertex-macro-phase3 vertex-adaptive-action-coach" id="vertexMacroAdaptiveCoach">
-        <div class="vertex-macro-section-title">
-          <b>Adaptive Action Coach</b>
-          <span>${history.length} saved records · latest ${lastDate}</span>
-        </div>
-        <div class="vertex-adaptive-grid">
-          <div class="vertex-adaptive-card ${trendLabel==='Down'?'good':trendLabel==='Up'&&m.goal==='cut'?'warn':''}">
-            <strong>${trendLabel}</strong>
-            <small>Weight Trend</small>
-            <div>${trendNote}</div>
-          </div>
-          <div class="vertex-adaptive-card ${paceLabel==='On Track'||paceLabel==='Stable'?'good':paceLabel==='Need Data'?'':'warn'}">
-            <strong>${paceLabel}</strong>
-            <small>Weekly Pace</small>
-            <div>${paceNote}</div>
-          </div>
-          <div class="vertex-adaptive-card ${actionClass}">
-            <strong>${actionLabel}</strong>
-            <small>Calorie Action</small>
-            <div>${actionNote}</div>
-          </div>
-          <div class="vertex-adaptive-card ${plateauLabel==='Clear'||plateauLabel==='Stable'?'good':plateauLabel==='Watch'?'warn':''}">
-            <strong>${plateauLabel}</strong>
-            <small>Plateau Risk</small>
-            <div>${plateauNote}</div>
-          </div>
+      <div class="vertex-macro-phase3" id="vertexMacroAdaptiveCoach">
+        <div class="vertex-macro-section-title"><b>Adaptive Coach</b><span>${history.length} saved records · latest ${lastDate}</span></div>
+        <div class="vertex-macro-trend vertex-macro-action-grid">
+          <div class="vertex-macro-action-card"><strong>${pace}</strong><small>7-Day Weight Change</small><div class="vertex-macro-mini-note">Current weight: ${currentWeightText}</div></div>
+          <div class="vertex-macro-action-card"><strong>${trend14}</strong><small>14-Day Weight Trend</small><div class="vertex-macro-mini-note">Used for plateau logic</div></div>
+          <div class="vertex-macro-action-card"><strong>${adjValue}</strong><small>Recommended Adjustment</small><div class="vertex-macro-mini-note">Based on goal mode and pace</div></div>
+          <div class="vertex-macro-action-card"><strong>${plateauStatus}</strong><small>Plateau Status</small><div class="vertex-macro-mini-note">${plateauText}</div></div>
         </div>
         <div class="vertex-macro-insights">
-          <div class="vertex-macro-insight ${actionClass}"><b>Weekly Adjustment</b><span>${actionNote}</span></div>
-          <div class="vertex-macro-insight ${plateauLabel==='Watch'?'warn':'green'}"><b>Plateau Check</b><span>${plateauNote}</span></div>
-          <div class="vertex-macro-insight"><b>Coach Logic</b><span>This section interprets weight history and recommends action. It does not repeat today's calorie, protein, carb, or fat targets.</span></div>
-          <div class="vertex-macro-insight"><b>Next Signal Needed</b><span>${history.length<3?'Save a few more macro snapshots so Vertex can compare trend windows.':'Keep saving weekly snapshots to improve adjustment accuracy.'}</span></div>
+          <div class="vertex-macro-insight ${coachClass}"><b>Weekly Adjustment</b><span>${adjText}</span></div>
+          <div class="vertex-macro-insight ${plateauStatus==='Watch'?'warn':'green'}"><b>Plateau Check</b><span>${plateauText}</span></div>
+          <div class="vertex-macro-insight"><b>Weight Pace</b><span>${deltaWeek===null?'Need at least 7 days between saved weight records.':pace+' over the last available 7-day window.'}</span></div>
+          <div class="vertex-macro-insight"><b>Coaching Signal</b><span>${history.length<3?'Build more check-ins. Vertex gets smarter after several saved macro snapshots.':'Adaptive Coach is interpreting progress history and recommending action, not repeating current targets.'}</span></div>
         </div>
+        <div class="vertex-macro-next"><b>Next coach action:</b> ${adjText}</div>
       </div>`;
   }
 
-    function macroExplain(kind,m){
+  function macroExplain(kind,m){
     const goalText=m.goal==='cut'?'cut adjustment subtracts 400 calories':m.goal==='lean_bulk'?'lean-bulk adjustment adds 200 calories':m.goal==='bulk'?'aggressive bulk adjustment adds 400 calories':'maintenance uses no calorie adjustment';
     const activityText=m.activity==='low'?'12':m.activity==='high'?'15':'13.5';
     const map={
@@ -11821,6 +12135,52 @@ window.testAppleHealth = async function () {
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
+})();
+</script>
+
+
+<script>
+/* v13.61.13 mobile routing fallback: keep mobile actions aligned with desktop builder navigation */
+(function(){
+  if(window.__vertexMobileRoutingPatchV136113) return;
+  window.__vertexMobileRoutingPatchV136113 = true;
+
+  function clickWorkoutTab(){
+    var tabs = Array.from(document.querySelectorAll('button,.nav button,[data-page],[data-tab]'));
+    var workoutTab = tabs.find(function(el){
+      var txt = (el.textContent || '').trim().toLowerCase();
+      return txt === 'workout' || el.dataset.page === 'workout' || el.dataset.tab === 'workout';
+    });
+    if(workoutTab) workoutTab.click();
+  }
+
+  function scrollToBuilder(){
+    setTimeout(function(){
+      var target = document.querySelector('#workout-builder,#builder,#wkt-title,.wkt-name-row,.exercise-card');
+      if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 250);
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('button,.btn,[role="button"],a');
+    if(!btn) return;
+    var txt = (btn.textContent || '').trim().toLowerCase();
+    var action = (btn.dataset && (btn.dataset.action || btn.dataset.nav || btn.dataset.page || btn.dataset.tab)) || '';
+    var shouldRoute =
+      txt.includes('load / edit') ||
+      txt.includes('load/edit') ||
+      txt.includes('start today') ||
+      txt.includes('build workout') ||
+      txt.includes('open workout') ||
+      String(action).toLowerCase().includes('workout');
+
+    if(!shouldRoute) return;
+
+    setTimeout(function(){
+      clickWorkoutTab();
+      scrollToBuilder();
+    }, 150);
+  }, true);
 })();
 </script>
 

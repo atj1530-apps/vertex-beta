@@ -1,7 +1,7 @@
 /* Vertex Workout Builder — PWA Service Worker
-   Cache bump: v13.61.14 mobile auth and builder routing fix. */
+   Cache bump: v13.61.15 mobile home and builder layout fix. */
 
-const CACHE_NAME = 'vertex-v20260517-mobile-auth-builder-v2';
+const CACHE_NAME = 'vertex-v20260517-mobile-home-builder-layout';
 const APP_SHELL = [
   './',
   './index.html',

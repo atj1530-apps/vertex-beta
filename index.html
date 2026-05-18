@@ -9318,7 +9318,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-macro-history';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260517-adaptive-action-v2';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -11354,6 +11354,10 @@ window.testAppleHealth = async function () {
 .vertex-macro-trend{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
 .vertex-macro-trend-card{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:10px;min-height:96px}
 .vertex-macro-trend-card strong{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:var(--text);display:block;line-height:1}
+.vertex-macro-action-card{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:12px;min-height:112px}
+.vertex-macro-action-card strong{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;color:var(--acc);display:block;line-height:1}
+.vertex-macro-action-card small{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:5px 0 8px}
+.vertex-macro-mini-note{font-size:12px;color:var(--muted);line-height:1.35}
 .vertex-macro-trend-card small{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:4px 0 8px}
 .vertex-macro-bars{height:38px;display:flex;align-items:flex-end;gap:3px}
 .vertex-macro-bar{flex:1;min-width:3px;background:var(--acc);border-radius:3px 3px 0 0;opacity:.85}
@@ -11398,19 +11402,27 @@ window.testAppleHealth = async function () {
     }
     return null;
   }
+  function validBodyWeight(n){return Number.isFinite(n)&&n>=80&&n<=500?n:null}
   function currentWeight(){
     const s=st();
-    return latest(s&&s.healthRows,['weight','weight_lbs','bodyWeight','body_weight'])
-      || latest(s&&s.wellnessRows,['weight','weight_lbs','bodyWeight','body_weight'])
-      || latest(s&&s.bodyCompRows,['weight','weight_lbs','bodyWeight','body_weight'])
-      || latest(s&&s.progressLogs,['weight','bodyWeight','weight_lbs'])
-      || firstNum([s&&s.weight,s&&s.currentWeight,s&&s.bodyWeight,s&&s.weight_lbs])
-      || (function(){
-        const txt=document.body?document.body.innerText:'';
-        const m=txt.match(/Weight[\s\S]{0,80}?([0-9]{2,3}(?:\.[0-9])?)\s*lb/i);
-        return m?num(m[1]):null;
-      })()
-      || 239.8;
+    const candidates=[
+      latest(s&&s.healthRows,['weight_lbs','body_weight_lbs','bodyWeightLbs','current_weight_lbs']),
+      latest(s&&s.wellnessRows,['weight_lbs','body_weight_lbs','bodyWeightLbs','current_weight_lbs']),
+      latest(s&&s.bodyCompRows,['weight_lbs','body_weight_lbs','bodyWeightLbs','current_weight_lbs']),
+      latest(s&&s.progressLogs,['weight_lbs','bodyWeightLbs','current_weight_lbs','weight','bodyWeight']),
+      firstNum([s&&s.profile&&s.profile.currentWeight,s&&s.profile&&s.profile.current_weight,s&&s.currentWeight,s&&s.bodyWeight,s&&s.weight_lbs,s&&s.weight])
+    ];
+    for(const c of candidates){const v=validBodyWeight(c); if(v)return v;}
+    try{
+      const txt=document.body?document.body.innerText:'';
+      const patterns=[
+        /current weight\s*([0-9]{2,3}(?:\.[0-9])?)\s*lb/i,
+        /body weight\s*([0-9]{2,3}(?:\.[0-9])?)\s*lb/i,
+        /Weight\s*[:\-]?\s*([0-9]{2,3}(?:\.[0-9])?)\s*lb/i
+      ];
+      for(const re of patterns){const m=txt.match(re); const v=m?validBodyWeight(num(m[1])):null; if(v)return v;}
+    }catch(e){}
+    return 239.8;
   }
   function targetWeight(){
     const s=st();
@@ -11518,58 +11530,59 @@ window.testAppleHealth = async function () {
   function macroPhase3Html(history,m){
     history=normalizeHistoryRows(history);
     const latest=history[history.length-1]||null;
-    const weekAgo=history.slice().reverse().find(r=>new Date(latest?latest.created_at:Date.now())-new Date(r.created_at)>=6*86400000);
-    const twoWeeksAgo=history.slice().reverse().find(r=>new Date(latest?latest.created_at:Date.now())-new Date(r.created_at)>=13*86400000);
+    const latestTime=latest?new Date(latest.created_at).getTime():Date.now();
+    const weekAgo=history.slice().reverse().find(r=>latestTime-new Date(r.created_at).getTime()>=6*86400000);
+    const twoWeeksAgo=history.slice().reverse().find(r=>latestTime-new Date(r.created_at).getTime()>=13*86400000);
     const deltaWeek=(latest&&weekAgo&&latest.current_weight&&weekAgo.current_weight)?latest.current_weight-weekAgo.current_weight:null;
     const deltaTwo=(latest&&twoWeeksAgo&&latest.current_weight&&twoWeeksAgo.current_weight)?latest.current_weight-twoWeeksAgo.current_weight:null;
     const currentWeightText=(latest&&latest.current_weight)?latest.current_weight.toFixed(1)+' lb':m.current.toFixed(1)+' lb';
-    let pace='Need more history';
-    let trend14='Need 14 days of saved weights';
-    let adj='Hold current macro targets until Vertex has at least 7 days of saved weights.';
-    let plateau='Not enough data yet';
-    let cls='';
-    let adjValue='0';
-    let adjLabel='Hold';
+    let pace='Need 7 days';
+    let trend14='Need 14 days';
+    let adjText='Hold current targets until Vertex has at least 7 days of saved weight history.';
+    let plateauText='Not enough data yet';
+    let coachClass='';
+    let adjValue='Hold';
+    let plateauStatus='Pending';
     if(deltaWeek!==null){
       const abs=Math.abs(deltaWeek);
-      pace=(deltaWeek<0?'-':'+')+abs.toFixed(1)+' lb / 7 days';
+      pace=(deltaWeek<0?'-':'+')+abs.toFixed(1)+' lb';
       if(m.goal==='cut'){
-        if(deltaWeek<=-2.5){adjValue='+100–150';adjLabel='Calories';adj='Weight is moving fast. Consider increasing calories by 100–150 or holding targets if energy is strong.';cls='warn'}
-        else if(deltaWeek<=-0.7){adjValue='0';adjLabel='In range';adj='Pace is in range. Keep current targets for another week.';cls='green'}
-        else if(deltaWeek>-0.3){adjValue='-150–200';adjLabel='Calories';adj='Progress is slow. Consider reducing calories by 150–200 or adding 20–30 minutes of weekly cardio.';cls='warn'}
-        else {adjValue='0';adjLabel='Watch';adj='Slight downward movement. Hold for 3–4 more days before changing calories.';}
+        if(deltaWeek<=-2.5){adjValue='+100–150';adjText='Weight is moving fast. Consider adding 100–150 calories or holding if energy and recovery are strong.';coachClass='warn'}
+        else if(deltaWeek<=-0.7){adjValue='Hold';adjText='Pace is in range. Keep targets stable for another week.';coachClass='green'}
+        else if(deltaWeek>-0.3){adjValue='-150–200';adjText='Progress is slow. Consider reducing calories by 150–200 or adding 20–30 minutes of weekly cardio.';coachClass='warn'}
+        else {adjValue='Hold';adjText='Slight downward movement. Hold 3–4 more days before changing calories.';}
       }else if(m.goal==='maintenance'){
-        if(abs<=1){adjValue='0';adjLabel='Stable';adj='Maintenance range looks controlled. Keep targets stable.';cls='green'}
-        else {adjValue='±100–150';adjLabel='Calories';adj='Weight is drifting outside maintenance. Adjust calories by 100–150 in the opposite direction.';cls='warn'}
+        if(abs<=1){adjValue='Hold';adjText='Maintenance range looks controlled. Keep targets stable.';coachClass='green'}
+        else {adjValue='±100–150';adjText='Weight is drifting outside maintenance. Adjust calories by 100–150 in the opposite direction.';coachClass='warn'}
       }else{
-        if(deltaWeek>=0.25&&deltaWeek<=1.0){adjValue='0';adjLabel='In range';adj='Gain rate looks controlled. Keep current targets.';cls='green'}
-        else if(deltaWeek<0.25){adjValue='+100–150';adjLabel='Calories';adj='Gain rate is low. Consider adding 100–150 calories.';cls='warn'}
-        else {adjValue='-100–150';adjLabel='Calories';adj='Gain rate is aggressive. Consider reducing calories by 100–150.';cls='warn'}
+        if(deltaWeek>=0.25&&deltaWeek<=1.0){adjValue='Hold';adjText='Gain rate looks controlled. Keep current targets.';coachClass='green'}
+        else if(deltaWeek<0.25){adjValue='+100–150';adjText='Gain rate is low. Consider adding 100–150 calories.';coachClass='warn'}
+        else {adjValue='-100–150';adjText='Gain rate is aggressive. Consider reducing calories by 100–150.';coachClass='warn'}
       }
     }
     if(deltaTwo!==null){
       const abs2=Math.abs(deltaTwo);
-      trend14=(deltaTwo<0?'-':'+')+abs2.toFixed(1)+' lb / 14 days';
-      if(m.goal==='cut'&&abs2<0.5){plateau='Possible plateau: less than 0.5 lb movement across ~14 days.';cls=cls||'warn'}
-      else plateau='No clear 14-day plateau detected.';
+      trend14=(deltaTwo<0?'-':'+')+abs2.toFixed(1)+' lb';
+      if(m.goal==='cut'&&abs2<0.5){plateauStatus='Watch';plateauText='Possible plateau: less than 0.5 lb movement across roughly 14 days.';coachClass=coachClass||'warn'}
+      else {plateauStatus='Clear';plateauText='No clear 14-day plateau detected.';}
     }
     const lastDate=latest?formatDateShort(latest.created_at):'No history';
     return `
       <div class="vertex-macro-phase3" id="vertexMacroAdaptiveCoach">
         <div class="vertex-macro-section-title"><b>Adaptive Coach</b><span>${history.length} saved records · latest ${lastDate}</span></div>
         <div class="vertex-macro-trend vertex-macro-action-grid">
-          <div class="vertex-macro-trend-card"><strong>${pace}</strong><small>7-Day Weight Change</small><div class="vertex-macro-mini-note">Current: ${currentWeightText}</div></div>
-          <div class="vertex-macro-trend-card"><strong>${trend14}</strong><small>14-Day Weight Trend</small><div class="vertex-macro-mini-note">Used for plateau detection</div></div>
-          <div class="vertex-macro-trend-card"><strong>${adjValue}</strong><small>Recommended Adjustment</small><div class="vertex-macro-mini-note">${adjLabel}</div></div>
-          <div class="vertex-macro-trend-card"><strong>${plateau.indexOf('Possible')===0?'Watch':'Clear'}</strong><small>Plateau Status</small><div class="vertex-macro-mini-note">${plateau}</div></div>
+          <div class="vertex-macro-action-card"><strong>${pace}</strong><small>7-Day Weight Change</small><div class="vertex-macro-mini-note">Current weight: ${currentWeightText}</div></div>
+          <div class="vertex-macro-action-card"><strong>${trend14}</strong><small>14-Day Weight Trend</small><div class="vertex-macro-mini-note">Used for plateau logic</div></div>
+          <div class="vertex-macro-action-card"><strong>${adjValue}</strong><small>Recommended Adjustment</small><div class="vertex-macro-mini-note">Based on goal mode and pace</div></div>
+          <div class="vertex-macro-action-card"><strong>${plateauStatus}</strong><small>Plateau Status</small><div class="vertex-macro-mini-note">${plateauText}</div></div>
         </div>
         <div class="vertex-macro-insights">
-          <div class="vertex-macro-insight ${cls}"><b>Weekly Adjustment</b><span>${adj}</span></div>
-          <div class="vertex-macro-insight ${deltaTwo!==null&&m.goal==='cut'&&Math.abs(deltaTwo)<0.5?'warn':'green'}"><b>Plateau Check</b><span>${plateau}</span></div>
-          <div class="vertex-macro-insight"><b>Weight Pace</b><span>${pace}</span></div>
-          <div class="vertex-macro-insight"><b>Coaching Signal</b><span>${history.length<3?'Build more check-ins. Vertex gets smarter after several saved macro snapshots.':'Adaptive Coach is now interpreting your history instead of repeating your current macro targets.'}</span></div>
+          <div class="vertex-macro-insight ${coachClass}"><b>Weekly Adjustment</b><span>${adjText}</span></div>
+          <div class="vertex-macro-insight ${plateauStatus==='Watch'?'warn':'green'}"><b>Plateau Check</b><span>${plateauText}</span></div>
+          <div class="vertex-macro-insight"><b>Weight Pace</b><span>${deltaWeek===null?'Need at least 7 days between saved weight records.':pace+' over the last available 7-day window.'}</span></div>
+          <div class="vertex-macro-insight"><b>Coaching Signal</b><span>${history.length<3?'Build more check-ins. Vertex gets smarter after several saved macro snapshots.':'Adaptive Coach is interpreting progress history and recommending action, not repeating current targets.'}</span></div>
         </div>
-        <div class="vertex-macro-next"><b>Next coach action:</b> ${adj}</div>
+        <div class="vertex-macro-next"><b>Next coach action:</b> ${adjText}</div>
       </div>`;
   }
 
@@ -11664,8 +11677,8 @@ window.testAppleHealth = async function () {
       </div>
       <div id="vertexMacroSticky" class="vertex-macro-sticky"></div>
       <div class="vertex-macro-note">Using app truth values: current weight <b>${m.current.toFixed(1)} lb</b>, target weight <b>${m.target.toFixed(1)} lb</b>.</div>
-      <div id="vertexMacroHistoryStatus" class="vertex-macro-history-status">History: checking…</div>
-      <div id="vertexMacroPhase3Mount" class="vertex-macro-history-status" style="display:none"></div>
+      <div id="vertexMacroHistoryStatus" class="vertex-macro-history-status">History: ready</div>
+      <div id="vertexMacroPhase3Mount"></div>
     `;
     const g=document.getElementById('vertexMacroGoal');
     const a=document.getElementById('vertexMacroActivity');
@@ -11688,9 +11701,12 @@ window.testAppleHealth = async function () {
     if(a)a.onchange=function(){localStorage.setItem(ACTIVITY,this.value);saveAndRender()};
     if(r)r.onclick=function(){render();try{if(typeof toast==='function')toast('Macro targets refreshed')}catch(_){}};
     const status=document.getElementById('vertexMacroHistoryStatus');
-    saveMacroHistory(m,'render').then(msg=>{if(status)status.textContent='History: '+msg}).catch(()=>{if(status)status.textContent='History: not saved'});
     const phase3=document.getElementById('vertexMacroPhase3Mount');
-    loadMacroHistory().then(rows=>{if(phase3)phase3.outerHTML=macroPhase3Html(rows,m)}).catch(()=>{if(phase3){phase3.style.display='block';phase3.textContent='Adaptive coach: history unavailable'}});
+    let localRows=[];
+    try{localRows=JSON.parse(localStorage.getItem(localMacroHistoryKey())||'[]')}catch(e){localRows=[]}
+    if(phase3)phase3.innerHTML=macroPhase3Html(localRows,m);
+    saveMacroHistory(m,'render').then(msg=>{if(status)status.textContent='History: '+msg}).catch(()=>{if(status)status.textContent='History: not saved'});
+    loadMacroHistory().then(rows=>{const mount=document.getElementById('vertexMacroPhase3Mount'); if(mount)mount.innerHTML=macroPhase3Html(rows,m)}).catch(()=>{});
   }
   function boot(){
     render();

@@ -35,7 +35,13 @@
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;overflow:auto}
 button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
 .btn{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:5px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.btn:hover{border-color:var(--acc);color:var(--acc)}.btn.acc{background:var(--acc);border-color:var(--acc);color:#000}.btn.red{color:var(--red);border-color:rgba(255,77,77,.4);background:transparent}.btn.small{padding:6px 9px;font-size:11px}.btn:disabled{opacity:.45;cursor:not-allowed}
-#app-header{position:fixed;top:0;left:0;right:0;height:58px;background:#070707;border-bottom:1px solid var(--line);display:grid;grid-template-columns:260px 1fr 560px;align-items:center;padding:0 16px;z-index:50}.logo{display:flex;align-items:center;gap:10px}.logo-main{font-family:'Bebas Neue';font-size:26px;letter-spacing:5px;color:var(--acc)}.logo-sub{font-family:'DM Mono';font-size:10px;letter-spacing:3px;color:var(--dim)}.nav{justify-self:center;display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}.nav button{background:var(--panel2);color:var(--muted);border:0;border-right:1px solid var(--line);padding:8px 12px;font-size:12px;cursor:pointer}.nav button:last-child{border-right:0}.nav button.on{background:var(--acc);color:#000;font-weight:700}.hdr-actions{justify-self:end;display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;overflow:visible}.hdr-actions .btn{flex-shrink:0}body.app-page-nonworkout #btn-save,body.app-page-nonworkout #btn-log,body.app-page-nonworkout #btn-share{display:none!important}#btn-log.btn.acc{background:var(--panel2);color:var(--acc);border:1px solid rgba(232,255,71,.45)}#btn-log.btn.acc.armed{background:var(--acc);color:#000;border-color:var(--acc)}.sync-pill{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap}.sync-dot{width:8px;height:8px;border-radius:99px;background:var(--dim);box-shadow:0 0 0 2px rgba(255,255,255,.03)}.sync-pill.synced{color:var(--green);border-color:rgba(72,255,138,.28)}.sync-pill.synced .sync-dot{background:var(--green)}.sync-pill.unsaved{color:var(--orange);border-color:rgba(255,176,71,.35)}.sync-pill.unsaved .sync-dot{background:var(--orange)}.sync-pill.failed{color:var(--red);border-color:rgba(255,77,77,.35)}.sync-pill.failed .sync-dot{background:var(--red)}.sync-pill.syncing{color:var(--acc);border-color:rgba(232,255,71,.35)}.sync-pill.syncing .sync-dot{background:var(--acc)}.account-menu{position:fixed;top:64px;right:16px;z-index:120;background:#1c1c1c;border:1px solid rgba(232,255,71,.28);border-radius:10px;box-shadow:0 24px 60px rgba(0,0,0,.72),0 4px 16px rgba(0,0,0,.4);padding:12px;min-width:210px;display:none}.account-menu.on{display:block}.account-menu .acct-title{font-weight:800;margin-bottom:4px}.account-menu .acct-sub{font-size:12px;color:var(--muted);line-height:1.4}.account-menu .acct-row{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;font-family:'DM Mono';font-size:10px;color:var(--green);letter-spacing:1px}.account-menu input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:5px;margin-top:8px;font-size:12px}.account-menu .acct-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.account-menu .acct-error{font-family:'DM Mono';font-size:10px;color:var(--red);min-height:14px;margin-top:8px;line-height:1.35}.account-menu .acct-email{font-family:'DM Mono';font-size:11px;color:var(--acc);letter-spacing:.5px;word-break:break-all;margin-top:6px}.account-menu .acct-muted{font-size:11px;color:var(--dim);line-height:1.45;margin-top:8px}
+#app-header{position:fixed;top:0;left:0;right:0;height:58px;background:#070707;border-bottom:1px solid var(--line);display:grid;grid-template-columns:260px 1fr 560px;align-items:center;padding:0 16px;z-index:50}.logo{display:flex;align-items:center;gap:10px}.logo-main{font-family:'Bebas Neue';font-size:26px;letter-spacing:5px;color:var(--acc)}.logo-sub{font-family:'DM Mono';font-size:10px;letter-spacing:3px;color:var(--dim)}.nav{justify-self:center;display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}.nav button{background:var(--panel2);color:var(--muted);border:0;border-right:1px solid var(--line);padding:8px 12px;font-size:12px;cursor:pointer}.nav button:last-child{border-right:0}.nav button.on{background:var(--acc);color:#000;font-weight:700}.hdr-actions{justify-self:end;display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;overflow:visible}.hdr-actions .btn{flex-shrink:0}body.app-page-nonworkout #btn-save,body.app-page-nonworkout #btn-log,body.app-page-nonworkout #btn-share{display:none!important}#btn-log.btn.acc{background:var(--panel2);color:var(--acc);border:1px solid rgba(232,255,71,.45)}#btn-log.btn.acc.armed{background:var(--acc);color:#000;border-color:var(--acc)}.sync-pill{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap}.sync-dot{width:8px;height:8px;border-radius:99px;background:var(--dim);box-shadow:0 0 0 2px rgba(255,255,255,.03);transition:background 300ms ease,box-shadow 300ms ease}.sync-pill.synced{color:var(--green);border-color:rgba(72,255,138,.28)}.sync-pill.synced .sync-dot{background:var(--green);box-shadow:0 0 0 3px rgba(72,255,138,.18)}.sync-pill.unsaved{color:var(--orange);border-color:rgba(255,176,71,.35)}.sync-pill.unsaved .sync-dot{background:var(--orange)}.sync-pill.failed{color:var(--red);border-color:rgba(255,77,77,.35)}.sync-pill.failed .sync-dot{background:var(--red)}.sync-pill.syncing{color:var(--acc);border-color:rgba(232,255,71,.35)}.sync-pill.syncing .sync-dot{background:var(--acc)}
+/* Desktop: dot only — hide label text, collapse pill to circle */
+@media (min-width:761px){
+  #syncStatusText{display:none!important}
+  #syncStatus.sync-pill{padding:5px;border-radius:50%;gap:0;min-width:0;background:transparent;border-color:transparent}
+  #syncStatus.sync-pill.failed{border-color:rgba(255,77,77,.4);background:rgba(255,77,77,.08)}
+}.account-menu{position:fixed;top:64px;right:16px;z-index:120;background:#1c1c1c;border:1px solid rgba(232,255,71,.28);border-radius:10px;box-shadow:0 24px 60px rgba(0,0,0,.72),0 4px 16px rgba(0,0,0,.4);padding:12px;min-width:210px;display:none}.account-menu.on{display:block}.account-menu .acct-title{font-weight:800;margin-bottom:4px}.account-menu .acct-sub{font-size:12px;color:var(--muted);line-height:1.4}.account-menu .acct-row{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;font-family:'DM Mono';font-size:10px;color:var(--green);letter-spacing:1px}.account-menu input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:5px;margin-top:8px;font-size:12px}.account-menu .acct-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.account-menu .acct-error{font-family:'DM Mono';font-size:10px;color:var(--red);min-height:14px;margin-top:8px;line-height:1.35}.account-menu .acct-email{font-family:'DM Mono';font-size:11px;color:var(--acc);letter-spacing:.5px;word-break:break-all;margin-top:6px}.account-menu .acct-muted{font-size:11px;color:var(--dim);line-height:1.45;margin-top:8px}
 #vertex-notif-toast{position:fixed;top:74px;right:16px;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:14px 18px;z-index:300;min-width:280px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none}
 #vertex-notif-toast.on{display:block}
 #vertex-notif-toast .vnt-title{font-weight:800;margin-bottom:4px}
@@ -186,58 +192,59 @@ body.shared-view #vertex-share-banner{display:block}body:not(.authenticated) #ap
    No JS logic changes; same .authenticated and .on class hooks.
    ============================================================ */
 
-/* --- Login screen: fade + scale out instead of display:none --- */
+/* --- Login screen: clean opacity-only fade, no transform conflict --- */
 .login-screen{
   opacity:1;
   visibility:visible;
-  transition:opacity 380ms ease, visibility 0s linear 0s;
+  will-change:opacity;
+  transition:opacity 340ms ease, visibility 0s linear 0s;
 }
 .login-card{
-  transform:scale(1) translateY(0);
-  transition:transform 420ms cubic-bezier(0.16,1,0.3,1), opacity 320ms ease;
+  opacity:1;
+  will-change:opacity,transform;
+  transform:translateY(0) scale(1);
+  transition:transform 380ms cubic-bezier(0.16,1,0.3,1), opacity 300ms ease;
 }
 body.authenticated .login-screen{
-  display:flex !important;          /* override original display:none */
+  display:flex !important;
   opacity:0;
   visibility:hidden;
   pointer-events:none;
-  transition:opacity 380ms ease, visibility 0s linear 380ms;
+  transition:opacity 340ms ease, visibility 0s linear 340ms;
 }
 body.authenticated .login-card{
-  transform:scale(0.97) translateY(-6px);
+  transform:translateY(-8px) scale(0.97);
   opacity:0;
 }
 
-/* --- App shell: fade + rise in instead of popping --- */
-#app-header, #app{
+/* --- App shell: fade in only, no translateY to avoid layout conflict on iOS --- */
+#app-header,#app{
   opacity:1;
-  transform:translateY(0);
-  transition:opacity 420ms ease 80ms, transform 420ms cubic-bezier(0.16,1,0.3,1) 80ms;
+  will-change:opacity;
+  transition:opacity 380ms ease 60ms;
 }
 body:not(.authenticated) #app-header,
 body:not(.authenticated) #app{
-  display:block !important;         /* override original display:none so transition works */
+  display:block !important;
   opacity:0;
-  transform:translateY(8px);
   pointer-events:none;
-  transition:opacity 220ms ease, transform 220ms ease;
+  visibility:hidden;
+  transition:opacity 200ms ease, visibility 0s linear 200ms;
 }
-/* Preserve original layout displays when authenticated (mobile + desktop) */
+/* Desktop layout restore */
 body.authenticated #app-header{display:grid !important}
 body.authenticated #app{display:grid !important}
 @media (max-width:760px){
   body.authenticated #app{display:flex !important}
 }
-/* While unauthenticated, fully hide app shell from interaction after fade */
 body:not(.authenticated) #app-header,
 body:not(.authenticated) #app{
   visibility:hidden;
-  transition:opacity 220ms ease, transform 220ms ease, visibility 0s linear 220ms;
 }
 body.authenticated #app-header,
 body.authenticated #app{
   visibility:visible;
-  transition:opacity 420ms ease 80ms, transform 420ms cubic-bezier(0.16,1,0.3,1) 80ms, visibility 0s linear 0s;
+  transition:opacity 380ms ease 60ms, visibility 0s linear 0s;
 }
 
 /* --- Modal overlay: fade backdrop + scale card --- */
@@ -590,36 +597,32 @@ body.welcome-active #app{
    - Drop expensive backdrop-filter on lower-end mobile
    ============================================================ */
 @media (max-width:760px){
-  /* Promote animated layers to their own GPU layer for smooth compositing */
-  .login-screen,.login-card,
+  /* Promote animated overlays/modals to GPU layer — NOT login screen (pure opacity fade) */
   .welcome-overlay,.welcome-card,
   .modal-overlay,.modal-overlay .modal,
   .session,.session-card,
   .help-overlay,.help-card,
-  .account-menu,
-  #app-header,#app{
+  .account-menu{
     -webkit-backface-visibility:hidden;
     backface-visibility:hidden;
     -webkit-transform:translate3d(0,0,0);
     transform:translate3d(0,0,0);
   }
-
-  /* Login screen: faster fade on mobile */
+  /* Login screen: pure opacity — no transform, no GPU hint conflict */
   .login-screen{transition:opacity 260ms ease, visibility 0s linear 0s}
   body.authenticated .login-screen{
     transition:opacity 260ms ease, visibility 0s linear 260ms;
   }
-  .login-card{transition:transform 280ms cubic-bezier(0.16,1,0.3,1), opacity 220ms ease}
-  body.authenticated .login-card{transform:scale(0.98) translate3d(0,-2px,0)}
+  .login-card{transition:transform 260ms cubic-bezier(0.16,1,0.3,1), opacity 220ms ease}
+  body.authenticated .login-card{transform:translateY(-5px) scale(0.98)}
 
-  /* App shell: smaller translate, faster timing — avoids fighting scroll */
+  /* App shell on mobile: opacity only, no translateY */
   #app-header,#app{
-    transition:opacity 280ms ease 40ms, transform 280ms cubic-bezier(0.16,1,0.3,1) 40ms;
+    transition:opacity 260ms ease 30ms;
   }
   body:not(.authenticated) #app-header,
   body:not(.authenticated) #app{
-    transform:translate3d(0,4px,0);
-    transition:opacity 180ms ease, transform 180ms ease, visibility 0s linear 180ms;
+    transition:opacity 160ms ease, visibility 0s linear 160ms;
   }
 
   /* Welcome modal: snappier */
@@ -2946,6 +2949,14 @@ button.acc-hint {
     </div>
 
     <div style="margin-bottom:20px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Week Start</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn small" id="settings-week-sunday">Sunday</button>
+        <button class="btn small" id="settings-week-monday">Monday</button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px">
       <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Theme</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn small" id="settings-theme-dark">● Dark</button>
@@ -4973,7 +4984,7 @@ function muscleVolume(w=state.current){const m={}; if(w.type==='strength') (w.ex
 
 function logStorageKey(){return authUser?`vertex_logs_${authUser.id}`:'vertex_logs_guest'}
 function setStartOfDay(d){const x=new Date(d); x.setHours(0,0,0,0); return x;}
-function weekStart(d=new Date()){const x=setStartOfDay(d); const offset=x.getDay(); x.setDate(x.getDate()-offset); return x;}
+function weekStart(d=new Date()){const x=setStartOfDay(d); const useMonday=(typeof vertexGetSettings==='function')&&vertexGetSettings().weekStart==='monday'; const offset=useMonday?(x.getDay()+6)%7:x.getDay(); x.setDate(x.getDate()-offset); return x;}
 function estimateLoadVolume(w){if(!w || w.type!=='strength') return 0; return (w.exercises||[]).reduce((total,e)=>total+(e.sets||[]).reduce((sum,set)=>{const reps=Number(set.reps)||0; const weight=Number(String(set.weight||'').replace(/[^0-9.]/g,''))||0; return sum+(reps*weight);},0),0);}
 function workoutMuscleVolume(w){const out={}; if(w && w.type==='strength') (w.exercises||[]).forEach(e=>{const sets=(e.sets||[]).length; const reps=(e.sets||[]).reduce((a,s)=>a+(Number(s.reps)||0),0); const load=(e.sets||[]).reduce((a,s)=>a+((Number(s.reps)||0)*(Number(String(s.weight||'').replace(/[^0-9.]/g,''))||0)),0); const key=e.muscle||'Other'; if(!out[key]) out[key]={sets:0,reps:0,load:0}; out[key].sets+=sets; out[key].reps+=reps; out[key].load+=load; }); return out;}
 function buildSessionSteps(w){
@@ -8298,6 +8309,11 @@ function openSettingsModal(){
   const s = vertexGetSettings();
   const modal = document.getElementById('settingsModal');
   if(!modal) return;
+  // Apply active state to week start buttons
+  ['sunday','monday'].forEach(w=>{
+    const btn = document.getElementById('settings-week-'+w);
+    if(btn) btn.classList.toggle('acc', (s.weekStart||'sunday')===w);
+  });
   // Apply active state to unit buttons
   ['lb','kg'].forEach(u=>{
     const btn = document.getElementById('settings-unit-'+u);
@@ -8879,7 +8895,7 @@ function vertexClearCacheAndReload(){
 }
 window.vertexClearCacheAndReload=vertexClearCacheAndReload;
 
-document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex-item,.acc-head'); if(!t) return; if(t.id==='btn-account'){renderAccountMenu(); document.getElementById('account-menu')?.classList.toggle('on'); return} if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(confirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} if(t.matches('.acc-head')){const acc=t.parentElement; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const add=t.getAttribute('data-add'); if(add){addExerciseByName(add); return} const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){loadTemplate(tpl,true); return} const sd=t.getAttribute('data-save-day'); if(sd){await saveDay(sd); return} const ail=t.getAttribute('data-ai-load'); if(ail){if(typeof window.vertexLoadAiWorkout==='function') window.vertexLoadAiWorkout(); return}
+document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex-item,.acc-head'); if(!t) return; if(t.id==='btn-account'){renderAccountMenu(); document.getElementById('account-menu')?.classList.toggle('on'); return} if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(confirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-week-sunday'){vertexSetSetting('weekStart','sunday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-week-monday'){vertexSetSetting('weekStart','monday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} if(t.matches('.acc-head')){const acc=t.parentElement; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const add=t.getAttribute('data-add'); if(add){addExerciseByName(add); return} const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){loadTemplate(tpl,true); return} const sd=t.getAttribute('data-save-day'); if(sd){await saveDay(sd); return} const ail=t.getAttribute('data-ai-load'); if(ail){if(typeof window.vertexLoadAiWorkout==='function') window.vertexLoadAiWorkout(); return}
  const aie=t.getAttribute('data-ai-env'); if(aie){localStorage.setItem('vertex_ai_location',aie); const ao=document.getElementById('aiActionOutput'); if(ao) ao.innerHTML=''; if(window.vertexAiAction) window.vertexAiAction('_generate_'+aie); return}
  if(t.id==='btn-share'){ vertexShareWorkout(); return}
  if(t.id==='btn-notif-setup'){ document.getElementById('account-menu')?.classList.remove('on'); document.getElementById('settingsModal')?.classList.remove('on'); vertexShowNotifPrompt(); return}
@@ -9536,7 +9552,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ai';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-aj';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

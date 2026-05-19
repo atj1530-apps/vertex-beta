@@ -8931,7 +8931,7 @@ function vertexShowSyncDiag(){
   w.document.close();
 }
 window.vertexShowSyncDiag=vertexShowSyncDiag;
-function vertexClearCacheAndReload(){
+async function vertexClearCacheAndReload(){
   if(!await vertexConfirm('Clear cached data and reload? Supabase data is safe.')) return;
   ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}});
   if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}
@@ -9730,7 +9730,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-d';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-e';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -12204,8 +12204,11 @@ window.vertexImportHKWorkout = async function(idx) {
 #vertex-back-top.visible {
   opacity: 1;
 }
+body:not(.authenticated) #vertex-back-top {
+  display: none !important;
+}
 @media (max-width: 900px) {
-  #vertex-back-top { display: flex; }
+  body.authenticated #vertex-back-top { display: flex; }
 }
 </style>
 <script>

@@ -5677,7 +5677,8 @@ async function refreshAppleHealthMetrics(){
     if(ok){
       toast('Health data refreshed ✓');
     } else {
-      const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+      const hasPlugin = !!(window.Capacitor && window.Capacitor.Plugins && (window.Capacitor.Plugins.HealthKitPlugin || window.Capacitor.Plugins.HealthkitPlugin));
+      const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) || hasPlugin;
       if(isNative){
         toast('No health data found. Tap Sync Apple Health.');
       } else {
@@ -6215,7 +6216,9 @@ window.wcUpdateGoalWeight=wcUpdateGoalWeight;
 
 function renderWellnessPage(){
   // v13.60.30 — Show/hide Apple Health sync button and non-native notice based on environment
-  const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  // Use plugin existence as fallback since isNativePlatform() returns false when loading from Vercel URL
+  const hasPlugin = !!(window.Capacitor && window.Capacitor.Plugins && (window.Capacitor.Plugins.HealthKitPlugin || window.Capacitor.Plugins.HealthkitPlugin));
+  const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) || hasPlugin;
   const syncBtn = document.getElementById('btn-apple-health-sync');
   const nonNativeNotice = document.getElementById('apple-health-non-native-notice');
   if(syncBtn) syncBtn.style.display = isNative ? '' : 'none';
@@ -9606,7 +9609,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-aq';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ar';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -12059,7 +12062,7 @@ window.vertexImportHKWorkout = async function(idx) {
   display: none;
   position: fixed;
   bottom: 24px;
-  right: 16px;
+  right: 24px;
   z-index: 200;
   width: 40px;
   height: 40px;

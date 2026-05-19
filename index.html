@@ -9068,16 +9068,24 @@ document.addEventListener('click',async e=>{
             }).join('');
           }
           window.__hkWorkouts=workouts;
-          window.__hkImportedKey=importedKey;
+          window.__hkImportedKey='vertex_hk_imported';
           if(syncTime) syncTime.textContent='Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
           card.style.display='block';
-          // Direct event listener on list — more reliable than document delegation in Capacitor WebView
-          list.onclick = function(ev){
-            const imp = ev.target.closest('[data-hk-import]');
-            if(imp){ const idx=parseInt(imp.getAttribute('data-hk-import')); if(!isNaN(idx)) window.vertexImportHKWorkout(idx); return; }
-            const dis = ev.target.closest('[data-hk-dismiss]');
-            if(dis){ const idx=parseInt(dis.getAttribute('data-hk-dismiss')); if(!isNaN(idx)) window.vertexDismissHKWorkout(idx); return; }
-          };
+          // Wire each button directly — most reliable in Capacitor WebView
+          list.querySelectorAll('[data-hk-import]').forEach(btn=>{
+            btn.addEventListener('click',function(e){
+              e.stopPropagation();
+              const idx=parseInt(this.getAttribute('data-hk-import'));
+              if(!isNaN(idx)) window.vertexImportHKWorkout(idx);
+            });
+          });
+          list.querySelectorAll('[data-hk-dismiss]').forEach(btn=>{
+            btn.addEventListener('click',function(e){
+              e.stopPropagation();
+              const idx=parseInt(this.getAttribute('data-hk-dismiss'));
+              if(!isNaN(idx)) window.vertexDismissHKWorkout(idx);
+            });
+          });
         }
       }catch(wErr){console.warn('queryWorkouts error:',wErr);}
     }
@@ -9737,7 +9745,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-f';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-g';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10102,20 +10110,28 @@ window.testAppleHealth = async function () {
             }).join('');
           }
 
-        // Store workouts for import handler
         window.__hkWorkouts = workouts;
-        window.__hkImportedKey = importedKey;
+        window.__hkImportedKey = 'vertex_hk_imported';
         window.__hkCurrentUser = currentUser;
-
         if(syncTime) syncTime.textContent = 'Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
         card.style.display = 'block';
-        // Direct listener — more reliable than document delegation in Capacitor WebView
-        if(list) list.onclick = function(ev){
-          const imp = ev.target.closest('[data-hk-import]');
-          if(imp){ const idx=parseInt(imp.getAttribute('data-hk-import')); if(!isNaN(idx)) window.vertexImportHKWorkout(idx); return; }
-          const dis = ev.target.closest('[data-hk-dismiss]');
-          if(dis){ const idx=parseInt(dis.getAttribute('data-hk-dismiss')); if(!isNaN(idx)) window.vertexDismissHKWorkout(idx); return; }
-        };
+        // Wire each button directly
+        if(list){
+          list.querySelectorAll('[data-hk-import]').forEach(btn=>{
+            btn.addEventListener('click',function(e){
+              e.stopPropagation();
+              const idx=parseInt(this.getAttribute('data-hk-import'));
+              if(!isNaN(idx)) window.vertexImportHKWorkout(idx);
+            });
+          });
+          list.querySelectorAll('[data-hk-dismiss]').forEach(btn=>{
+            btn.addEventListener('click',function(e){
+              e.stopPropagation();
+              const idx=parseInt(this.getAttribute('data-hk-dismiss'));
+              if(!isNaN(idx)) window.vertexDismissHKWorkout(idx);
+            });
+          });
+        }
       }
     } catch(wErr){
       console.warn('queryWorkouts error:', wErr);

@@ -8969,9 +8969,60 @@ document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex
     const btn = document.getElementById('btn-apple-health-sync');
     if(btn){ btn.disabled=true; btn.textContent='Syncing...'; }
     try{
-      await plugin.requestPermissions();
+      try{ await plugin.requestPermissions(); }catch(e){}
       const metrics = await plugin.syncAllMetrics();
-      if(metrics) toast('Apple Health synced ✓');
+      if(metrics){
+        toast('Apple Health synced ✓');
+        // Cache metrics locally
+        if(metrics.sleep_hours!=null) localStorage.setItem('vertexAppleHealthSleepSummary',JSON.stringify({latestMinutes:Math.round(metrics.sleep_hours*60),avg7Minutes:Math.round((metrics.sleep_7d_avg||metrics.sleep_hours)*60)}));
+        if(metrics.hrv!=null) localStorage.setItem('vertexAppleHealthHRVSummary',JSON.stringify({latest:Math.round(metrics.hrv*10)/10,avg7:Math.round((metrics.hrv_7d_avg||metrics.hrv)*10)/10}));
+        if(metrics.resting_hr!=null) localStorage.setItem('vertexAppleHealthRestingHRSummary',JSON.stringify({latest:Math.round(metrics.resting_hr),avg7:Math.round(metrics.resting_hr_7d_avg||metrics.resting_hr)}));
+        if(metrics.weight!=null) localStorage.setItem('vertexAppleHealthWeightSummary',JSON.stringify({latest:Math.round(metrics.weight*10)/10}));
+        localStorage.setItem('vertexAppleHealthRecoveryLastSync',new Date().toISOString());
+        // Query workouts
+        try{
+          const wBtn = document.getElementById('btn-apple-health-sync');
+          if(wBtn) wBtn.textContent='Reading workouts…';
+          try{ await plugin.requestPermissions(); }catch(e){}
+          const wResult = await plugin.queryWorkouts({days:14,limit:30});
+          const workouts = wResult?.workouts||[];
+          const card = document.getElementById('appleHealthWorkoutCard');
+          const list = document.getElementById('hkWorkoutList');
+          const syncTime = document.getElementById('hkWorkoutSyncTime');
+          const importedKey='vertex_hk_imported_'+(window.__hkCurrentUser?.id||'guest');
+          let imported={};
+          try{imported=JSON.parse(localStorage.getItem(importedKey)||'{}');}catch(e){}
+          const activityIcons={'Strength Training':'🏋️','Functional Strength':'🏋️','HIIT':'⚡','Running':'🏃','Cycling':'🚴','Walking':'🚶','Yoga':'🧘','Pilates':'🧘','Swimming':'🏊','Rowing':'🚣','Elliptical':'🔄','Stair Climbing':'🪜','Hiking':'🥾','Boxing':'🥊','Martial Arts':'🥋','Dance':'💃','Cooldown':'🧊','Mind & Body':'🧠','Core Training':'💪','Flexibility':'🤸','Jump Rope':'⚡','Workout':'💪'};
+          if(card&&list){
+            const visible=workouts.filter(w=>imported[w.startDate+'_'+w.activityType]!=='dismissed');
+            if(!visible.length){
+              list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">No new workouts to review.</div>';
+            } else {
+              list.innerHTML=visible.map((w,i)=>{
+                const origIdx=workouts.indexOf(w);
+                const icon=activityIcons[w.activityName]||'💪';
+                const date=new Date(w.startDate).toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
+                const dur=w.durationMinutes?w.durationMinutes+' min':'';
+                const cal=w.calories?w.calories+' cal':'';
+                const meta=[dur,cal].filter(Boolean).join(' · ');
+                const wid=w.startDate+'_'+w.activityType;
+                const isImported=imported[wid]&&imported[wid]!=='dismissed';
+                return `<div class="hk-workout-row" id="hk-row-${origIdx}"><div class="hk-workout-icon">${icon}</div><div class="hk-workout-info"><div class="hk-workout-name">${w.activityName}</div><div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>${w.sourceDevice?'<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>':''}</div><div class="hk-workout-import" style="display:flex;align-items:center;gap:6px">${isImported?'<span class="hk-workout-imported">✓ Imported</span>':`<button class="btn small" onclick="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`}<button onclick="window.vertexDismissHKWorkout(${origIdx})" style="background:none;border:none;color:var(--dim);font-size:16px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button></div></div>`;
+              }).join('');
+            }
+            window.__hkWorkouts=workouts;
+            window.__hkImportedKey=importedKey;
+            // Get current user for import
+            try{const supa=getSupa();if(supa){const {data}=await supa.auth.getUser();if(data?.user)window.__hkCurrentUser=data.user;}}catch(e){}
+            if(syncTime) syncTime.textContent='Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+            card.style.display='block';
+          }
+        }catch(wErr){console.warn('queryWorkouts inline error:',wErr);}
+      }
+      await refreshAppleHealthMetrics();
+      if(typeof renderHomeDashboard==='function') renderHomeDashboard();
+      if(typeof renderHealthPage==='function') renderHealthPage();
+      renderWellnessPage();
       if(btn){ btn.disabled=false; btn.textContent='Sync Apple Health'; }
     } catch(e){
       console.warn('inline sync error:', e);
@@ -9625,7 +9676,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-au';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-av';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -43,7 +43,7 @@ button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}
 .nav-row{display:flex;align-items:stretch;justify-self:center;overflow:hidden;border:1px solid var(--line);border-radius:5px;max-width:100%;width:100%;box-sizing:border-box}
 .nav-row .nav{flex:1;border:none;border-radius:0;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:flex;box-sizing:border-box}
 .nav-row .nav::-webkit-scrollbar{display:none}
-.nav-hamburger{flex-shrink:0;border:none;border-left:1px solid var(--line);border-radius:0;background:var(--panel2);color:var(--acc);font-size:20px;padding:0 12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;letter-spacing:1px;align-self:stretch;box-shadow:inset 0 0 0 1px rgba(232,255,71,.3)}
+.nav-hamburger{flex-shrink:0;border:none;border-left:1px solid rgba(232,255,71,.4);border-radius:0;background:var(--panel2);color:var(--acc);font-size:20px;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;letter-spacing:1px;align-self:stretch;box-shadow:inset 0 0 0 1px rgba(232,255,71,.3)}
 .nav-hamburger:hover,.nav-hamburger:active{background:var(--panel)}
 /* Safe area: push header below iOS notch/status bar on full-screen PWA */
 #app-header{padding-top:env(safe-area-inset-top,0px)}
@@ -91,7 +91,7 @@ body.shared-view .sidebar,body.shared-view .right{display:none!important}
 body.shared-view #vertex-share-banner{display:block}body:not(.authenticated) #app-header,body:not(.authenticated) #app{display:none}.manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.manual-grid input,.manual-grid select{width:100%;background:var(--panel2);border:1px solid var(--line2);color:var(--text);padding:10px;border-radius:6px;margin-top:6px}.manual-grid .wide{grid-column:1/-1}.manual-help{border:1px solid rgba(232,255,71,.25);background:rgba(232,255,71,.04);border-radius:8px;padding:10px 12px;color:var(--muted);font-size:12px;line-height:1.45;margin-top:12px}
 
 .equip-panel{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:12px;margin:0 0 12px}.equip-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.equip-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.equip-toggle{border:1px solid var(--line);background:var(--panel2);color:var(--muted);border-radius:6px;padding:7px 8px;font-size:11px;cursor:pointer;display:flex;gap:6px;align-items:center}.equip-toggle input{accent-color:#e8ff47}.equip-toggle.on{border-color:rgba(232,255,71,.45);color:var(--acc)}.library-note{color:var(--dim);font-size:11px;line-height:1.35;margin-top:8px}
-@media(max-width:1100px){#app-header{grid-template-columns:160px 1fr 300px}.templates{grid-template-columns:repeat(2,1fr)}#app{grid-template-columns:250px 1fr}.right{display:none}}@media(max-width:800px){.manual-grid{grid-template-columns:1fr}html,body{overflow:auto;overflow-x:hidden;max-width:100vw}#app-header{position:sticky;grid-template-columns:1fr;height:auto;gap:8px;padding:10px;padding-top:max(10px,env(safe-area-inset-top));max-width:100vw;overflow:hidden}.nav-row,.hdr-actions{justify-self:stretch;width:100%;max-width:100%}.nav-row{max-width:100%;overflow:hidden}.logo{justify-content:center}#app{position:static;display:block}.sidebar,.main,.right{overflow:visible}.right{display:block;border-left:0}.templates,.planner-grid,.intel-grid{grid-template-columns:1fr}.ex-head{grid-template-columns:26px 1fr auto auto auto}.ex-head .badge:not(.acc){display:none}.set-row{grid-template-columns:36px 1fr 1fr}.set-row .status{display:none}}
+@media(max-width:1100px){#app-header{grid-template-columns:160px 1fr 300px}.templates{grid-template-columns:repeat(2,1fr)}#app{grid-template-columns:250px 1fr}.right{display:none}}@media(max-width:800px){.manual-grid{grid-template-columns:1fr}html,body{overflow:auto;overflow-x:hidden;max-width:100vw}#app-header{position:sticky;grid-template-columns:1fr;height:auto;gap:8px;padding:10px;padding-top:max(10px,env(safe-area-inset-top));max-width:100vw;overflow:hidden}.nav-row,.hdr-actions{justify-self:stretch;width:100%;max-width:100%}.nav-row{max-width:100%;overflow:hidden}.logo{justify-content:center}#app{position:static;display:block}.sidebar,.main,.right{overflow:visible}.main{padding:12px 14px 20px}.right{display:block;border-left:0}.templates,.planner-grid,.intel-grid{grid-template-columns:1fr}.ex-head{grid-template-columns:26px 1fr auto auto auto}.ex-head .badge:not(.acc){display:none}.set-row{grid-template-columns:36px 1fr 1fr}.set-row .status{display:none}}
 
 
 /* v13.59.3 NAVIGATION LOCK — mobile page tabs without changing desktop default */
@@ -9046,7 +9046,7 @@ document.addEventListener('click',async e=>{
         const card = document.getElementById('appleHealthWorkoutCard');
         const list = document.getElementById('hkWorkoutList');
         const syncTime = document.getElementById('hkWorkoutSyncTime');
-        const importedKey='vertex_hk_imported_'+(authUser?.id||'guest');
+        const importedKey='vertex_hk_imported';
         let imported={};
         try{imported=JSON.parse(localStorage.getItem(importedKey)||'{}');}catch(e){}
         const activityIcons={'Strength Training':'🏋️','Functional Strength':'🏋️','HIIT':'⚡','Running':'🏃','Cycling':'🚴','Walking':'🚶','Yoga':'🧘','Pilates':'🧘','Swimming':'🏊','Rowing':'🚣','Elliptical':'🔄','Stair Climbing':'🪜','Hiking':'🥾','Boxing':'🥊','Martial Arts':'🥋','Dance':'💃','Cooldown':'🧊','Mind & Body':'🧠','Core Training':'💪','Flexibility':'🤸','Jump Rope':'⚡','Workout':'💪'};
@@ -9071,6 +9071,13 @@ document.addEventListener('click',async e=>{
           window.__hkImportedKey=importedKey;
           if(syncTime) syncTime.textContent='Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
           card.style.display='block';
+          // Direct event listener on list — more reliable than document delegation in Capacitor WebView
+          list.onclick = function(ev){
+            const imp = ev.target.closest('[data-hk-import]');
+            if(imp){ const idx=parseInt(imp.getAttribute('data-hk-import')); if(!isNaN(idx)) window.vertexImportHKWorkout(idx); return; }
+            const dis = ev.target.closest('[data-hk-dismiss]');
+            if(dis){ const idx=parseInt(dis.getAttribute('data-hk-dismiss')); if(!isNaN(idx)) window.vertexDismissHKWorkout(idx); return; }
+          };
         }
       }catch(wErr){console.warn('queryWorkouts error:',wErr);}
     }
@@ -9730,7 +9737,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-e';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-f';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10043,7 +10050,7 @@ window.testAppleHealth = async function () {
       const syncTime = document.getElementById('hkWorkoutSyncTime');
       if(card && list){
         // Load previously imported IDs from localStorage
-        const importedKey = 'vertex_hk_imported_' + (currentUser?.id || 'guest');
+        const importedKey = 'vertex_hk_imported';
         let imported = {};
         try{ imported = JSON.parse(localStorage.getItem(importedKey)||'{}'); }catch(e){}
 
@@ -10102,6 +10109,13 @@ window.testAppleHealth = async function () {
 
         if(syncTime) syncTime.textContent = 'Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
         card.style.display = 'block';
+        // Direct listener — more reliable than document delegation in Capacitor WebView
+        if(list) list.onclick = function(ev){
+          const imp = ev.target.closest('[data-hk-import]');
+          if(imp){ const idx=parseInt(imp.getAttribute('data-hk-import')); if(!isNaN(idx)) window.vertexImportHKWorkout(idx); return; }
+          const dis = ev.target.closest('[data-hk-dismiss]');
+          if(dis){ const idx=parseInt(dis.getAttribute('data-hk-dismiss')); if(!isNaN(idx)) window.vertexDismissHKWorkout(idx); return; }
+        };
       }
     } catch(wErr){
       console.warn('queryWorkouts error:', wErr);
@@ -10153,7 +10167,7 @@ window.vertexDismissHKWorkout = function(idx) {
     const workouts = window.__hkWorkouts || [];
     const w = workouts[idx];
     if(w) {
-      const importedKey = window.__hkImportedKey || 'vertex_hk_imported_guest';
+      const importedKey = 'vertex_hk_imported';
       let imported = {};
       try{ imported = JSON.parse(localStorage.getItem(importedKey)||'{}'); }catch(e){}
       const wid = w.startDate + '_' + w.activityType;
@@ -10169,7 +10183,7 @@ window.vertexImportHKWorkout = async function(idx) {
     const workouts = window.__hkWorkouts || [];
     const w = workouts[idx];
     if(!w) return;
-    const importedKey = window.__hkImportedKey || 'vertex_hk_imported_guest';
+    const importedKey = 'vertex_hk_imported';
     const currentUser = window.__hkCurrentUser;
 
     // Build a Vertex log record from HealthKit data

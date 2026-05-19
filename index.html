@@ -43,7 +43,7 @@ button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}
 .nav-row{display:flex;align-items:stretch;justify-self:center;overflow:hidden;border:1px solid var(--line);border-radius:5px;max-width:100%;width:100%;box-sizing:border-box}
 .nav-row .nav{flex:1;border:none;border-radius:0;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:flex;box-sizing:border-box}
 .nav-row .nav::-webkit-scrollbar{display:none}
-.nav-hamburger{flex-shrink:0;border:none;border-left:1px solid var(--line);border-radius:0;background:var(--panel2);color:var(--acc);font-size:20px;padding:0 14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;letter-spacing:1px;align-self:stretch;box-shadow:inset 0 0 0 1px rgba(232,255,71,.3)}
+.nav-hamburger{flex-shrink:0;border:none;border-left:1px solid var(--line);border-radius:0;background:var(--panel2);color:var(--acc);font-size:20px;padding:0 12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;letter-spacing:1px;align-self:stretch;box-shadow:inset 0 0 0 1px rgba(232,255,71,.3)}
 .nav-hamburger:hover,.nav-hamburger:active{background:var(--panel)}
 /* Safe area: push header below iOS notch/status bar on full-screen PWA */
 #app-header{padding-top:env(safe-area-inset-top,0px)}
@@ -52,7 +52,7 @@ button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}
   #syncStatusText{display:none!important}
   #syncStatus.sync-pill{padding:5px;border-radius:50%;gap:0;min-width:0;background:transparent;border-color:transparent}
   #syncStatus.sync-pill.failed{border-color:rgba(255,77,77,.4);background:rgba(255,77,77,.08)}
-}.account-menu{position:fixed;top:auto;right:8px;z-index:120;background:#1c1c1c;border:1px solid rgba(232,255,71,.28);border-radius:10px;box-shadow:0 24px 60px rgba(0,0,0,.72),0 4px 16px rgba(0,0,0,.4);padding:12px;min-width:210px;display:none}.account-menu.on{display:block}.account-menu .acct-title{font-weight:800;margin-bottom:4px}.account-menu .acct-sub{font-size:12px;color:var(--muted);line-height:1.4}.account-menu .acct-row{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;font-family:'DM Mono';font-size:10px;color:var(--green);letter-spacing:1px}.account-menu input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:5px;margin-top:8px;font-size:12px}.account-menu .acct-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.account-menu .acct-error{font-family:'DM Mono';font-size:10px;color:var(--red);min-height:14px;margin-top:8px;line-height:1.35}.account-menu .acct-email{font-family:'DM Mono';font-size:11px;color:var(--acc);letter-spacing:.5px;word-break:break-all;margin-top:6px}.account-menu .acct-muted{font-size:11px;color:var(--dim);line-height:1.45;margin-top:8px}
+}.account-menu{position:fixed;top:auto;right:8px;z-index:120;background:#2a2a2a;border:1px solid rgba(232,255,71,.28);border-radius:10px;box-shadow:0 24px 60px rgba(0,0,0,.72),0 4px 16px rgba(0,0,0,.4);padding:12px;min-width:210px;display:none}.account-menu.on{display:block}.account-menu .acct-title{font-weight:800;margin-bottom:4px}.account-menu .acct-sub{font-size:12px;color:var(--muted);line-height:1.4}.account-menu .acct-row{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;font-family:'DM Mono';font-size:10px;color:var(--green);letter-spacing:1px}.account-menu input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:5px;margin-top:8px;font-size:12px}.account-menu .acct-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.account-menu .acct-error{font-family:'DM Mono';font-size:10px;color:var(--red);min-height:14px;margin-top:8px;line-height:1.35}.account-menu .acct-email{font-family:'DM Mono';font-size:11px;color:var(--acc);letter-spacing:.5px;word-break:break-all;margin-top:6px}.account-menu .acct-muted{font-size:11px;color:var(--dim);line-height:1.45;margin-top:8px}
 #vertex-notif-toast{position:fixed;top:74px;right:16px;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:14px 18px;z-index:300;min-width:280px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none}
 #vertex-notif-toast.on{display:block}
 #vertex-notif-toast .vnt-title{font-weight:800;margin-bottom:4px}
@@ -4385,7 +4385,7 @@ async function commitWorkoutNameAndSave(){
 async function deleteSavedWorkout(i){
   const row=(state.savedWorkouts||[])[Number(i)]; if(!row) return;
   const label=row.name||row.payload?.name||'this workout';
-  if(!window.confirm(`Delete ${label}?`)) return;
+  if(!await vertexConfirm(`Delete ${label}?`)) return;
   if(row.local){
     const localKey=authUser?`vertex_saved_workouts_${authUser.id}`:'vertex_saved_workouts_guest';
     try{
@@ -4926,21 +4926,21 @@ async function clearLoadedWorkout(){
   const day=state.current && state.current.assignedDay;
   const hasAssignedDay=day && state.planner && state.planner[day];
   if(hasAssignedDay){
-    const ok=window.confirm(`Remove "${state.planner[day].name}" from ${DAY_LABEL[day]} and clear the builder?`);
+    const ok=await vertexConfirm(`Remove "${state.planner[day].name}" from ${DAY_LABEL[day]} and clear the builder?`);
     if(!ok) return;
     state.planner[day]=null;
     savePlanner();
     markDayCleared(day);
     await deletePlannerDayCloud(day);
   } else {
-    if(hasWorkout() && !window.confirm('Clear the current workout from the builder?')) return;
+    if(hasWorkout() && !await vertexConfirm('Clear the current workout from the builder?')) return;
   }
   clearCurrent();
 }
 async function clearDay(day){
   const w=state.planner[day];
   if(!w) { renderAll(); return; }
-  const ok=window.confirm(`Clear ${DAY_LABEL[day]} from the weekly planner?`);
+  const ok=await vertexConfirm(`Clear ${DAY_LABEL[day]} from the weekly planner?`);
   if(!ok) return;
   clearSessionTimer();
   closeSession();
@@ -6362,7 +6362,7 @@ function clearCheckinForm(){
 
 async function deleteCheckin(date){
   const supa=getSupa(); if(!supa||!authUser) return;
-  if(!confirm(`Delete check-in for ${date}?`)) return;
+  if(!await vertexConfirm(`Delete check-in for ${date}?`)) return;
   try{
     await supa.from('checkin_logs').delete().eq('user_id',authUser.id).eq('date',date);
     await loadCheckinLogs(); renderCheckinHistory(); toast('Deleted');
@@ -6564,7 +6564,7 @@ async function renderStackHistory(){
 
 async function deleteSupplement(name){
   const supa=getSupa(); if(!supa||!authUser) return;
-  if(!confirm(`Remove "${name}" from stack?`)) return;
+  if(!await vertexConfirm(`Remove "${name}" from stack?`)) return;
   try{
     await supa.from('peptide_stack').delete().eq('user_id',authUser.id).eq('name',name);
     await loadStack(); renderStackTab(); toast('Removed');
@@ -8932,14 +8932,46 @@ function vertexShowSyncDiag(){
 }
 window.vertexShowSyncDiag=vertexShowSyncDiag;
 function vertexClearCacheAndReload(){
-  if(!confirm('Clear cached data and reload? Supabase data is safe.')) return;
+  if(!await vertexConfirm('Clear cached data and reload? Supabase data is safe.')) return;
   ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}});
   if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}
   else{window.location.reload(true);}
 }
 window.vertexClearCacheAndReload=vertexClearCacheAndReload;
 
-document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex-item,.acc-head'); if(!t) return; if(t.id==='btn-account'||t.id==='btn-account-desktop'){
+// App-styled confirm dialog — replaces native window.confirm()
+function vertexConfirm(msg){
+  return new Promise(resolve=>{
+    let overlay=document.getElementById('vertex-confirm-overlay');
+    if(!overlay){
+      overlay=document.createElement('div');
+      overlay.id='vertex-confirm-overlay';
+      overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:400;display:flex;align-items:center;justify-content:center;padding:24px';
+      overlay.innerHTML=`<div style="background:#222;border:1px solid rgba(232,255,71,.3);border-radius:14px;padding:28px 24px;max-width:320px;width:100%;text-align:center">
+        <div id="vertex-confirm-msg" style="font-size:15px;font-weight:600;margin-bottom:20px;line-height:1.5;color:var(--text)"></div>
+        <div style="display:flex;gap:10px">
+          <button id="vertex-confirm-cancel" style="flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:10px;font-weight:700;cursor:pointer">Cancel</button>
+          <button id="vertex-confirm-ok" style="flex:1;background:var(--acc);border:none;color:#000;border-radius:6px;padding:10px;font-weight:700;cursor:pointer">OK</button>
+        </div>
+      </div>`;
+      document.body.appendChild(overlay);
+    }
+    document.getElementById('vertex-confirm-msg').textContent=msg;
+    overlay.style.display='flex';
+    const cleanup=(val)=>{ overlay.style.display='none'; resolve(val); };
+    document.getElementById('vertex-confirm-ok').onclick=()=>cleanup(true);
+    document.getElementById('vertex-confirm-cancel').onclick=()=>cleanup(false);
+  });
+}
+window.vertexConfirm=vertexConfirm;
+
+document.addEventListener('click',async e=>{
+ // HealthKit workout buttons — must be first, before button resolution
+ const hkImportEl = e.target.closest('[data-hk-import]');
+ if(hkImportEl){ const idx=parseInt(hkImportEl.getAttribute('data-hk-import')); if(!isNaN(idx)) window.vertexImportHKWorkout(idx); return; }
+ const hkDismissEl = e.target.closest('[data-hk-dismiss]');
+ if(hkDismissEl){ const idx=parseInt(hkDismissEl.getAttribute('data-hk-dismiss')); if(!isNaN(idx)) window.vertexDismissHKWorkout(idx); return; }
+ const t=e.target.closest('button,.ex-item,.acc-head'); if(!t) return; if(t.id==='btn-account'||t.id==='btn-account-desktop'){
     renderAccountMenu();
     const menu=document.getElementById('account-menu');
     if(menu){
@@ -8949,17 +8981,21 @@ document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex
     }
     document.getElementById('account-menu')?.classList.toggle('on');
     return
-  } if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(confirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-week-sunday'){vertexSetSetting('weekStart','sunday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-week-monday'){vertexSetSetting('weekStart','monday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} if(t.matches('.acc-head')){const acc=t.parentElement; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const add=t.getAttribute('data-add'); if(add){addExerciseByName(add); return} const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){loadTemplate(tpl,true); return} const sd=t.getAttribute('data-save-day'); if(sd){await saveDay(sd); return} const ail=t.getAttribute('data-ai-load'); if(ail){if(typeof window.vertexLoadAiWorkout==='function') window.vertexLoadAiWorkout(); return}
- const aie=t.getAttribute('data-ai-env'); if(aie){localStorage.setItem('vertex_ai_location',aie); const ao=document.getElementById('aiActionOutput'); if(ao) ao.innerHTML=''; if(window.vertexAiAction) window.vertexAiAction('_generate_'+aie); return}
+  } if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(await vertexConfirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-week-sunday'){vertexSetSetting('weekStart','sunday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-week-monday'){vertexSetSetting('weekStart','monday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} if(t.matches('.acc-head')){const acc=t.parentElement; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const add=t.getAttribute('data-add'); if(add){addExerciseByName(add); return} const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){loadTemplate(tpl,true); return} const sd=t.getAttribute('data-save-day'); if(sd){await saveDay(sd); return} const ail=t.getAttribute('data-ai-load'); if(ail){if(typeof window.vertexLoadAiWorkout==='function') window.vertexLoadAiWorkout(); return}
+ const aie=t.getAttribute('data-ai-env'); if(aie){
+  // Fill selected button, outline the other
+  document.querySelectorAll('[data-ai-env]').forEach(b=>{
+    const isSelected=b.getAttribute('data-ai-env')===aie;
+    b.style.background=isSelected?'var(--acc)':'';
+    b.style.color=isSelected?'#000':'var(--acc)';
+    b.style.borderColor='var(--acc)';
+  });
+  localStorage.setItem('vertex_ai_location',aie); const ao=document.getElementById('aiActionOutput'); if(ao) ao.innerHTML=''; if(window.vertexAiAction) window.vertexAiAction('_generate_'+aie); return}
  if(t.id==='btn-share'){ vertexShareWorkout(); return}
  if(t.id==='btn-notif-setup'){ document.getElementById('account-menu')?.classList.remove('on'); document.getElementById('settingsModal')?.classList.remove('on'); vertexShowNotifPrompt(); return}
  if(t.id==='btn-notif-allow'){ vertexRequestNotifPermission(); return}
  if(t.id==='btn-notif-dismiss'){ document.getElementById('vertex-notif-toast')?.classList.remove('on'); localStorage.setItem('vertex_notif_dismissed','1'); return}
- const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return} // HealthKit workout card buttons — use e.target.closest to catch data attributes
- const hkImportEl = e.target.closest('[data-hk-import]');
- if(hkImportEl){ const idx=parseInt(hkImportEl.getAttribute('data-hk-import')); if(!isNaN(idx)) window.vertexImportHKWorkout(idx); return; }
- const hkDismissEl = e.target.closest('[data-hk-dismiss]');
- if(hkDismissEl){ const idx=parseInt(hkDismissEl.getAttribute('data-hk-dismiss')); if(!isNaN(idx)) window.vertexDismissHKWorkout(idx); return; }
+ const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return}
 
  if(t.id==='btn-apple-health-sync'){
   const plugin = window.Capacitor?.Plugins?.HealthKitPlugin || window.Capacitor?.Plugins?.HealthkitPlugin;
@@ -9694,7 +9730,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-c';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-d';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -11600,7 +11636,7 @@ window.vertexImportHKWorkout = async function(idx) {
     }
 
     if(action==='workout'){
-      html=`<div class="coach-card" style="margin:0"><div class="label">Choose Workout Location</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn acc" type="button" data-ai-env="home">🏠 Home</button><button class="btn" type="button" data-ai-env="gym">🏋️ Gym</button></div></div>`;
+      html=`<div class="coach-card" style="margin:0"><div class="label">Choose Workout Location</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn" type="button" data-ai-env="home" style="border-color:var(--acc);color:var(--acc)">🏠 Home</button><button class="btn" type="button" data-ai-env="gym" style="border-color:var(--acc);color:var(--acc)">🏋️ Gym</button></div></div>`;
     } else if(action==='_generate_home'){
       html=generatedWorkoutHtml('home');
     } else if(action==='_generate_gym'){

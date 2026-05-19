@@ -8297,13 +8297,6 @@ function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'
 function bindAuthButtons(){/* Auth is bound inline through window.VertexAuth to avoid delegated click conflicts. */}
 // Events
  document.addEventListener('click',async e=>{
-  // HK buttons — capture phase, runs before stopImmediatePropagation on signout
-  if(e.target && e.target.closest){
-    const hkImp=e.target.closest('[data-hk-import]');
-    if(hkImp){ e.preventDefault(); e.stopPropagation(); const idx=parseInt(hkImp.getAttribute('data-hk-import')); if(!isNaN(idx) && typeof window.vertexImportHKWorkout==='function') window.vertexImportHKWorkout(idx); return; }
-    const hkDis=e.target.closest('[data-hk-dismiss]');
-    if(hkDis){ e.preventDefault(); e.stopPropagation(); const idx=parseInt(hkDis.getAttribute('data-hk-dismiss')); if(!isNaN(idx) && typeof window.vertexDismissHKWorkout==='function') window.vertexDismissHKWorkout(idx); return; }
-  }
   if(e.target?.id==='btn-open-health-modal'){
     const m=document.getElementById('manualHealthModal'); if(m){m.style.display='flex'; m.classList.add('on');}
     return;
@@ -9078,6 +9071,12 @@ document.addEventListener('click',async e=>{
           window.__hkImportedKey='vertex_hk_imported';
           if(syncTime) syncTime.textContent='Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
           card.style.display='block';
+          if(list) list.onclick=function(ev){
+            const imp=ev.target.closest('[data-hk-import]');
+            if(imp){const idx=parseInt(imp.getAttribute('data-hk-import'));if(!isNaN(idx))window.vertexImportHKWorkout(idx);return;}
+            const dis=ev.target.closest('[data-hk-dismiss]');
+            if(dis){const idx=parseInt(dis.getAttribute('data-hk-dismiss'));if(!isNaN(idx))window.vertexDismissHKWorkout(idx);}
+          };
         }
       }catch(wErr){console.warn('queryWorkouts error:',wErr);}
     }
@@ -9737,7 +9736,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-m';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-n';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10107,6 +10106,12 @@ window.testAppleHealth = async function () {
         window.__hkCurrentUser = currentUser;
         if(syncTime) syncTime.textContent = 'Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
         card.style.display = 'block';
+        if(list) list.onclick=function(ev){
+          const imp=ev.target.closest('[data-hk-import]');
+          if(imp){const idx=parseInt(imp.getAttribute('data-hk-import'));if(!isNaN(idx))window.vertexImportHKWorkout(idx);return;}
+          const dis=ev.target.closest('[data-hk-dismiss]');
+          if(dis){const idx=parseInt(dis.getAttribute('data-hk-dismiss'));if(!isNaN(idx))window.vertexDismissHKWorkout(idx);}
+        };
       }
     } catch(wErr){
       console.warn('queryWorkouts error:', wErr);

@@ -8956,11 +8956,29 @@ document.addEventListener('click',async e=>{const t=e.target.closest('button,.ex
  if(t.id==='btn-notif-allow'){ vertexRequestNotifPermission(); return}
  if(t.id==='btn-notif-dismiss'){ document.getElementById('vertex-notif-toast')?.classList.remove('on'); localStorage.setItem('vertex_notif_dismissed','1'); return}
  const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return} if(t.id==='btn-apple-health-sync'){
-  console.log('[Vertex] Sync Apple Health tapped');
-  await window.testAppleHealth();
-  await refreshAppleHealthMetrics();
-  vertexCrossFillCheckinWeight();
-  renderWellnessPage();
+  console.log('[Vertex] Sync Apple Health tapped, testAppleHealth:', typeof window.testAppleHealth);
+  if(typeof window.testAppleHealth === 'function'){
+    await window.testAppleHealth();
+    await refreshAppleHealthMetrics();
+    vertexCrossFillCheckinWeight();
+    renderWellnessPage();
+  } else {
+    console.warn('[Vertex] testAppleHealth not defined - running inline');
+    const plugin = window.Capacitor?.Plugins?.HealthKitPlugin || window.Capacitor?.Plugins?.HealthkitPlugin;
+    if(!plugin){ toast('HealthKit plugin not available'); return; }
+    const btn = document.getElementById('btn-apple-health-sync');
+    if(btn){ btn.disabled=true; btn.textContent='Syncing...'; }
+    try{
+      await plugin.requestPermissions();
+      const metrics = await plugin.syncAllMetrics();
+      if(metrics) toast('Apple Health synced ✓');
+      if(btn){ btn.disabled=false; btn.textContent='Sync Apple Health'; }
+    } catch(e){
+      console.warn('inline sync error:', e);
+      toast('Sync error: '+(e.message||'unknown'));
+      if(btn){ btn.disabled=false; btn.textContent='Sync Apple Health'; }
+    }
+  }
   return
 } if(t.id==='btn-wellness-refresh'){await refreshAppleHealthMetrics(); renderWellnessPage(); return} if(t.id==='btn-home-refresh-metrics'){
   await refreshAppleHealthMetrics();
@@ -9607,7 +9625,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-at';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-au';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

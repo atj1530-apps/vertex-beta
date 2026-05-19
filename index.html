@@ -9676,7 +9676,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-t';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-u';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10117,7 +10117,10 @@ window.vertexImportHKWorkout = async function(idx) {
     const w = workouts[idx];
     if(!w) return;
     const importedKey = window.__hkImportedKey || 'vertex_hk_imported_guest';
-    const currentUser = window.__hkCurrentUser;
+    let currentUser = window.__hkCurrentUser || window.authUser;
+    if(!currentUser && typeof getSupa === 'function'){
+      try{ const s = await getSupa().auth.getSession(); currentUser = s?.data?.session?.user || null; }catch(e){}
+    }
 
     // Build a Vertex log record from HealthKit data
     const completedAt = w.endDate || w.startDate;

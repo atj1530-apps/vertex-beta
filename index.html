@@ -9745,7 +9745,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-h';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-i';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10119,14 +10119,12 @@ window.testAppleHealth = async function () {
         if(list){
           list.querySelectorAll('[data-hk-import]').forEach(btn=>{
             btn.addEventListener('click',function(e){
-              e.stopPropagation();
               const idx=parseInt(this.getAttribute('data-hk-import'));
               if(!isNaN(idx)) window.vertexImportHKWorkout(idx);
             });
           });
           list.querySelectorAll('[data-hk-dismiss]').forEach(btn=>{
             btn.addEventListener('click',function(e){
-              e.stopPropagation();
               const idx=parseInt(this.getAttribute('data-hk-dismiss'));
               if(!isNaN(idx)) window.vertexDismissHKWorkout(idx);
             });

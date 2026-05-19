@@ -6215,14 +6215,11 @@ window.wcExportXLSX=wcExportXLSX;
 window.wcUpdateGoalWeight=wcUpdateGoalWeight;
 
 function renderWellnessPage(){
-  // v13.60.30 — Show/hide Apple Health sync button and non-native notice based on environment
-  // Use plugin existence as fallback since isNativePlatform() returns false when loading from Vercel URL
-  const hasPlugin = !!(window.Capacitor && window.Capacitor.Plugins && (window.Capacitor.Plugins.HealthKitPlugin || window.Capacitor.Plugins.HealthkitPlugin));
-  const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) || hasPlugin;
+  // Show Sync button if plugin exists OR isNativePlatform — whichever works
   const syncBtn = document.getElementById('btn-apple-health-sync');
   const nonNativeNotice = document.getElementById('apple-health-non-native-notice');
-  if(syncBtn) syncBtn.style.display = isNative ? '' : 'none';
-  if(nonNativeNotice) nonNativeNotice.style.display = isNative ? 'none' : 'block';
+  if(syncBtn) syncBtn.style.display = '';
+  if(nonNativeNotice) nonNativeNotice.style.display = 'none';
 
   if(!wcLogs.length && authUser) loadWcLogs().then(()=>{if(wellnessTab==='dashboard')wcRenderDashboard();if(wellnessTab==='history')wcRenderHistory();if(wellnessTab==='trends')wcRenderTrends();}).catch(()=>{});
   if(!wcDexaScans.length && authUser) loadWcDexa().then(()=>{if(wellnessTab==='bodycomp'){ wcRenderDexaDashboard(); if(typeof renderSegmentTrends==='function') renderSegmentTrends(); if(typeof renderBFforecast==='function') renderBFforecast(); if(typeof renderGainLossRate==='function') renderGainLossRate(); if(typeof renderSymmetry==='function') renderSymmetry(); }}).catch(()=>{});
@@ -9609,7 +9606,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ar';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-as';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

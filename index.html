@@ -43,7 +43,7 @@ button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}
 .nav-row{display:flex;align-items:stretch;justify-self:center;overflow:hidden;border:1px solid var(--line);border-radius:5px;max-width:100%;width:100%}
 .nav-row .nav{flex:1;border:none;border-radius:0;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:flex}
 .nav-row .nav::-webkit-scrollbar{display:none}
-.nav-hamburger{flex-shrink:0;border:none;border-left:1px solid var(--line);border-radius:0;background:var(--panel2);color:var(--text);font-size:20px;padding:0 16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;letter-spacing:1px;align-self:stretch}
+.nav-hamburger{flex-shrink:0;border:none;border-left:1px solid var(--line);border-radius:0;background:var(--panel2);color:var(--acc);font-size:20px;padding:0 14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;letter-spacing:1px;align-self:stretch;box-shadow:inset 0 0 0 1px rgba(232,255,71,.3)}
 .nav-hamburger:hover,.nav-hamburger:active{background:var(--panel)}
 /* Safe area: push header below iOS notch/status bar on full-screen PWA */
 #app-header{padding-top:env(safe-area-inset-top,0px)}
@@ -61,7 +61,7 @@ button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}
 #vertex-offline-banner{display:none;position:fixed;top:58px;left:0;right:0;z-index:199;background:#1a0505;border-bottom:1px solid rgba(255,77,77,.4);padding:6px 16px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.8px;color:#ff6b6b;text-align:center;text-transform:uppercase;pointer-events:none}#vertex-offline-banner.on{display:block}
 #app{position:relative;top:58px;left:0;right:0;height:calc(100vh - 58px);display:grid;grid-template-columns:290px minmax(520px,1fr) 310px;overflow:hidden}#app.page-mode{grid-template-columns:1fr}.sidebar,.main,.right{min-height:0;overflow:auto}.sidebar{border-right:1px solid var(--line);padding:16px;background:#0b0b0b}.main{padding:18px 24px 24px}.right{border-left:1px solid var(--line);padding:16px;background:#0b0b0b}.sidebar::-webkit-scrollbar,.main::-webkit-scrollbar,.right::-webkit-scrollbar{width:5px}.sidebar::-webkit-scrollbar-thumb,.main::-webkit-scrollbar-thumb,.right::-webkit-scrollbar-thumb{background:var(--line2)}
 .panel{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:14px;margin-bottom:14px}.panel.hl{border-color:rgba(232,255,71,.55);background:linear-gradient(90deg,rgba(232,255,71,.07),rgba(232,255,71,.015))}.panel.green{border-color:rgba(72,255,138,.35);background:rgba(72,255,138,.035)}
-.segment{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}.seg-btn{background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:5px;padding:10px;font-weight:700;cursor:pointer}.seg-btn.on{background:var(--panel2);color:var(--acc);border-color:rgba(232,255,71,.45)}.segment.user-picked .seg-btn.on{background:var(--acc);color:#000;border-color:var(--acc)}
+.segment{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}.seg-btn{background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:5px;padding:10px;font-weight:700;cursor:pointer}.seg-btn.on{background:var(--panel2);color:var(--acc);border-color:rgba(232,255,71,.45)}.seg-btn.chosen{background:var(--acc);color:#000;border-color:var(--acc)}
 .muscles{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.chip{border:1px solid var(--line2);background:#101010;color:var(--muted);border-radius:20px;padding:5px 10px;font-size:12px;cursor:pointer}.chip.on{background:var(--acc);border-color:var(--acc);color:#000}.search{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px;border-radius:5px;margin:8px 0}.ex-list{display:flex;flex-direction:column;gap:7px}.ex-item{border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:11px;cursor:pointer}.ex-item:hover{border-color:var(--acc)}.ex-name{font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:6px}.ex-meta{font-size:12px;color:var(--muted);margin-top:3px}.ex-edit-btn{background:none;border:1px solid var(--line2);border-radius:4px;color:var(--muted);font-size:12px;padding:2px 6px;cursor:pointer;flex-shrink:0;line-height:1}.ex-edit-btn:hover{border-color:var(--acc);color:var(--acc);background:rgba(232,255,71,.07)}
 .accordion{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-bottom:12px;overflow:hidden}.acc-head{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 14px;background:var(--panel2);cursor:pointer}.acc-title{font-weight:800}.acc-hint{font-family:'DM Mono';font-size:10px;letter-spacing:2px;color:var(--acc)}.acc-body{display:none;padding:14px}.accordion.open .acc-body{display:block}
 .today-card{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px}.today-title{font-size:17px;font-weight:800}.today-sub{color:var(--muted);font-size:13px;margin-top:4px}.planner-grid{display:grid;grid-template-columns:repeat(7,minmax(155px,1fr));gap:8px;padding-right:8px}.day-card{min-height:150px;border:1px solid var(--line);background:var(--panel2);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:8px}.day-card.today{border-color:var(--acc)}.day-name{font-family:'DM Mono';font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}.day-count{float:right;color:var(--dim);letter-spacing:0}.day-workout{font-weight:800;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.day-preview{font-size:12px;color:var(--muted);line-height:1.35;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.day-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:auto}.day-actions .btn{padding:7px 8px;overflow:visible;text-overflow:clip}.templates{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.tpl{border:1px solid var(--line);background:var(--panel2);border-radius:7px;padding:12px;min-height:165px;display:flex;flex-direction:column}.tpl h3{margin:0 0 8px;font-size:15px}.tpl p{margin:0;color:var(--muted);font-size:12px;line-height:1.45;flex:1}.tpl .btn{margin-top:12px;width:100%}
@@ -5345,7 +5345,7 @@ function renderProgressPage(){
     }
   }
   const weeks=document.getElementById('progressWeeks');
-  if(weeks){const starts=[0,1,2,3].map(i=>{const d=weekStart(); d.setDate(d.getDate()-(i*7)); return d;}); const max=Math.max(1,...starts.map(st=>rows.filter(r=>{const dt=new Date(r.completed_at); const end=new Date(st); end.setDate(end.getDate()+7); return dt>=st&&dt<end;}).length)); weeks.innerHTML=starts.map(st=>{const end=new Date(st); end.setDate(end.getDate()+7); const count=rows.filter(r=>{const dt=new Date(r.completed_at); return dt>=st&&dt<end;}).length; return `<div class="week-row"><div class="week-line"><span>${st.toLocaleDateString([], {month:'short',day:'numeric'})}</span><b>${count} session${count===1?'':'s'}</b></div><div class="bar"><div class="fill" style="width:${Math.round(count/max*100)}%"></div></div></div>`;}).join('')||'<div class="empty-note">No weekly data yet.</div>';}
+  if(weeks){const starts=[0,1,2,3].map(i=>{const d=weekStart(); d.setDate(d.getDate()-(i*7)); return d;}); const weekData=starts.map(st=>{const end=new Date(st); end.setDate(end.getDate()+7); const count=rows.filter(r=>{const dt=new Date(r.completed_at); return dt>=st&&dt<end;}).length; return {st,count};}); const withData=weekData.filter(w=>w.count>0); const max=Math.max(1,...withData.map(w=>w.count)); weeks.innerHTML=withData.length?withData.map(({st,count})=>`<div class="week-row"><div class="week-line"><span>${st.toLocaleDateString([],{month:'short',day:'numeric'})}</span><b>${count} session${count===1?'':'s'}</b></div><div class="bar"><div class="fill" style="width:${Math.round(count/max*100)}%"></div></div></div>`).join(''):'<div class="empty-note">Log your first workout to see weekly consistency.</div>';}
   const muscles=document.getElementById('progressMuscles');
   if(muscles){const totals={}; sum.thisWeek.forEach(r=>Object.entries(r.metrics?.muscles||{}).forEach(([m,v])=>{totals[m]=(totals[m]||0)+(v.sets||0)})); const max=Math.max(1,...Object.values(totals)); muscles.innerHTML=Object.keys(totals).length?Object.entries(totals).sort((a,b)=>b[1]-a[1]).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${escapeHtml(m)}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<div class="empty-note">Strength muscle volume appears after logging strength workouts.</div>';}
   const history=document.getElementById('progressHistory');
@@ -5403,7 +5403,24 @@ function selectProgram(program){
   if(program==='Manual') { state.program='Manual'; renderControls(); return; }
   showProgramPreview(program);
 }
-function renderControls(){document.querySelectorAll('[data-program]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-program')===state.program)); document.querySelectorAll('[data-training]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-training')===state.training)); document.querySelectorAll('[data-env]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-env')===state.env)); document.querySelectorAll('[data-equip]').forEach(b=>b.classList.toggle('on',!!state.equipment?.[b.getAttribute('data-equip')]));}
+function renderControls(){
+  document.querySelectorAll('[data-program]').forEach(b=>{
+    const isActive=b.getAttribute('data-program')===state.program;
+    b.classList.toggle('on',isActive);
+    b.classList.toggle('chosen',isActive && b.closest('.segment')?.classList.contains('user-picked'));
+  });
+  document.querySelectorAll('[data-training]').forEach(b=>{
+    const isActive=b.getAttribute('data-training')===state.training;
+    b.classList.toggle('on',isActive);
+    b.classList.toggle('chosen',isActive && b.closest('.segment')?.classList.contains('user-picked'));
+  });
+  document.querySelectorAll('[data-env]').forEach(b=>{
+    const isActive=b.getAttribute('data-env')===state.env;
+    b.classList.toggle('on',isActive);
+    b.classList.toggle('chosen',isActive && b.closest('.segment')?.classList.contains('user-picked'));
+  });
+  document.querySelectorAll('[data-equip]').forEach(b=>b.classList.toggle('on',!!state.equipment?.[b.getAttribute('data-equip')]));
+}
 function healthStoreKey(){return authUser?`vertex_health_entries_${authUser.id||authUser.email}`:'vertex_health_entries_guest'}
 function loadHealthEntries(){try{return JSON.parse(localStorage.getItem(healthStoreKey())||'[]')}catch{return []}}
 function saveHealthEntries(rows){localStorage.setItem(healthStoreKey(),JSON.stringify((rows||[]).slice(0,180)))}
@@ -9589,7 +9606,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-ap';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260518-aq';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -9674,13 +9691,15 @@ window.testAppleHealth = async function () {
       metrics = await plugin.syncAllMetrics();
     } catch(e) {
       console.warn('syncAllMetrics error:', e);
-      alert('Health sync failed: ' + (e.message || 'unknown error'));
+      if(typeof toast==='function') toast('Health sync failed: '+(e.message||'unknown error'));
+      else console.warn('Health sync failed:', e.message||'unknown error');
       if (btn) { btn.disabled = false; btn.textContent = 'Sync Apple Health'; }
       return false;
     }
 
     if (!metrics) {
-      alert('No health data returned.');
+      if(typeof toast==='function') toast('No health data returned.');
+      else console.warn('No health data returned.');
       if (btn) { btn.disabled = false; btn.textContent = 'Sync Apple Health'; }
       return false;
     }
@@ -9893,7 +9912,7 @@ window.testAppleHealth = async function () {
       if(wBtn){ wBtn.textContent = 'Reading workouts…'; }
       // Request permissions again to ensure workout type is authorized
       try { await plugin.requestPermissions(); } catch(e) {}
-      const wResult = await plugin.queryWorkouts({ days: 60, limit: 30 });
+      const wResult = await plugin.queryWorkouts({ days: 14, limit: 30 });
       const workouts = wResult?.workouts || [];
       const card = document.getElementById('appleHealthWorkoutCard');
       const list = document.getElementById('hkWorkoutList');
@@ -9914,34 +9933,43 @@ window.testAppleHealth = async function () {
         };
 
         if(!workouts.length){
-          list.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No workouts found in Apple Health for the last 60 days.</div>';
+          list.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No workouts found in Apple Health for the last 14 days.</div>';
         } else {
-          list.innerHTML = workouts.map((w,i) => {
-            const icon = activityIcons[w.activityName] || '💪';
-            const date = new Date(w.startDate).toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
-            const dur = w.durationMinutes ? w.durationMinutes+' min' : '';
-            const cal = w.calories ? w.calories+' cal' : '';
-            const hr = w.avgHeartRate ? w.avgHeartRate+' bpm' : '';
-            const meta = [dur,cal,hr].filter(Boolean).join(' · ');
+          // Filter out dismissed workouts from display
+          const visibleWorkouts = workouts.filter((w,i) => {
             const wid = w.startDate + '_' + w.activityType;
-            const isImported = !!imported[wid];
-            return `<div class="hk-workout-row" id="hk-row-${i}">
-              <div class="hk-workout-icon">${icon}</div>
-              <div class="hk-workout-info">
-                <div class="hk-workout-name">${w.activityName}</div>
-                <div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>
-                ${w.sourceDevice ? '<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>' : ''}
-              </div>
-              <div class="hk-workout-import" style="display:flex;align-items:center;gap:6px">
-                ${isImported
-                  ? '<span class="hk-workout-imported">✓ Imported</span>'
-                  : `<button class="btn small" onclick="window.vertexImportHKWorkout(${i})" style="font-size:10px;padding:4px 8px">Import</button>`
-                }
-                <button onclick="window.vertexDismissHKWorkout(${i})" style="background:none;border:none;color:var(--dim);font-size:16px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button>
-              </div>
-            </div>`;
-          }).join('');
-        }
+            return imported[wid] !== 'dismissed';
+          });
+          if(!visibleWorkouts.length){
+            list.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No new workouts to review — all recent workouts have been imported or dismissed.</div>';
+          } else {
+            list.innerHTML = visibleWorkouts.map((w,i) => {
+              const icon = activityIcons[w.activityName] || '💪';
+              const date = new Date(w.startDate).toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
+              const dur = w.durationMinutes ? w.durationMinutes+' min' : '';
+              const cal = w.calories ? w.calories+' cal' : '';
+              const hr = w.avgHeartRate ? w.avgHeartRate+' bpm' : '';
+              const meta = [dur,cal,hr].filter(Boolean).join(' · ');
+              const wid = w.startDate + '_' + w.activityType;
+              const isImported = imported[wid] === true || (imported[wid] && imported[wid] !== 'dismissed');
+              const origIdx = workouts.indexOf(w);
+              return `<div class="hk-workout-row" id="hk-row-${origIdx}">
+                <div class="hk-workout-icon">${icon}</div>
+                <div class="hk-workout-info">
+                  <div class="hk-workout-name">${w.activityName}</div>
+                  <div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>
+                  ${w.sourceDevice ? '<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>' : ''}
+                </div>
+                <div class="hk-workout-import" style="display:flex;align-items:center;gap:6px">
+                  ${isImported
+                    ? '<span class="hk-workout-imported">✓ Imported</span>'
+                    : `<button class="btn small" onclick="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`
+                  }
+                  <button onclick="window.vertexDismissHKWorkout(${origIdx})" style="background:none;border:none;color:var(--dim);font-size:16px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button>
+                </div>
+              </div>`;
+            }).join('');
+          }
 
         // Store workouts for import handler
         window.__hkWorkouts = workouts;
@@ -9996,6 +10024,19 @@ window.testAppleHealth = async function () {
 window.vertexDismissHKWorkout = function(idx) {
   const row = document.getElementById('hk-row-'+idx);
   if(row) row.style.display = 'none';
+  // Persist dismiss so it survives next sync
+  try {
+    const workouts = window.__hkWorkouts || [];
+    const w = workouts[idx];
+    if(w) {
+      const importedKey = window.__hkImportedKey || 'vertex_hk_imported_guest';
+      let imported = {};
+      try{ imported = JSON.parse(localStorage.getItem(importedKey)||'{}'); }catch(e){}
+      const wid = w.startDate + '_' + w.activityType;
+      imported[wid] = 'dismissed';
+      localStorage.setItem(importedKey, JSON.stringify(imported));
+    }
+  } catch(e) {}
 };
 
 // ── IMPORT HEALTHKIT WORKOUT TO VERTEX LOGS ──────────────────
@@ -11573,8 +11614,9 @@ window.vertexImportHKWorkout = async function(idx) {
     },
     home: {
       title:'Home',
-      html:`<p>Home is the daily command center. Review readiness first, then start today’s workout or protocol.</p>
-      <h3>What to check daily</h3><ul><li>Composite Readiness Score</li><li>Sleep, HRV, and Resting HR</li><li>Today’s Protocol</li><li>Weekly Intelligence</li><li>Today’s Workout</li></ul>`
+      html:`<p>Home is the daily command center. Check readiness first, then start today’s workout.</p>
+      <h3>What to check daily</h3><ul><li><b>Readiness card</b> — composite score with coaching action</li><li><b>Stat strip</b> — Sleep, HRV, logged vs planned sessions</li><li><b>Today/Tomorrow carousel</b> — swipe between workouts</li><li><b>Goal Tracker</b> — weight, body fat, and weekly session progress</li><li><b>Weekly Intelligence</b> — consistency and recovery insights</li></ul>
+      <h3>Navigation</h3><p>Tabs scroll horizontally. Tap <b>≡</b> for Settings, Account, and this Guide.</p>`
     },
     workout: {
       title:'Workout',
@@ -11598,9 +11640,10 @@ window.vertexImportHKWorkout = async function(idx) {
     },
     apple: {
       title:'Apple Health',
-      html:`<p>Apple Health sync is available in the native iPhone app.</p>
-      <h3>Setup</h3><ul><li>Open Wellness.</li><li>Tap Sync Apple Health.</li><li>Approve all requested Health permissions.</li><li>Tap Refresh to reload cloud data.</li></ul>
-      <h3>Synced metrics</h3><p>Sleep, HRV, Resting HR, Respiratory Rate, SpO₂, Steps, Active Calories, Exercise Minutes, Body Weight, Body Fat %, Lean Mass, VO₂ Max, Wrist Temp Deviation, and Standing Hours.</p>`
+      html:`<p>Apple Health sync is available in the native iPhone app. Metrics sync automatically; workouts require a one-tap import decision.</p>
+      <h3>Setup</h3><ul><li>Open Wellness tab.</li><li>Tap <b>Sync Apple Health</b>.</li><li>Approve Health permissions on first run.</li></ul>
+      <h3>Synced metrics</h3><p>Sleep, HRV, Resting HR, Respiratory Rate, SpO₂, Steps, Active Calories, Exercise Minutes, Body Weight, Body Fat %, Lean Mass, VO₂ Max, Wrist Temp Deviation, and Standing Minutes. All saved to Supabase and visible on PWA.</p>
+      <h3>Workout import</h3><p>After syncing, Apple Watch workouts from the last 14 days appear as a card. Tap <b>Import</b> to add to your Vertex logs — counts toward weekly sessions and appears in Progress. Tap <b>✕</b> to dismiss workouts you don’t want.</p>`
     },
     ai: {
       title:'AI Coach',

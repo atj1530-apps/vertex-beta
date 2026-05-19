@@ -9676,7 +9676,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-v';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-w';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10112,6 +10112,7 @@ window.vertexDismissHKWorkout = function(idx) {
 
 // ── IMPORT HEALTHKIT WORKOUT TO VERTEX LOGS ──────────────────
 window.vertexImportHKWorkout = async function(idx) {
+  alert('Import fired idx='+idx+' workouts='+( window.__hkWorkouts ? window.__hkWorkouts.length : 'null')+' user='+(window.__hkCurrentUser?.id||window.authUser?.id||'none'));
   try {
     const workouts = window.__hkWorkouts || [];
     const w = workouts[idx];

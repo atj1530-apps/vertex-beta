@@ -9064,13 +9064,19 @@ document.addEventListener('click',async e=>{
               const meta=[dur,cal].filter(Boolean).join(' · ');
               const wid=w.startDate+'_'+w.activityType;
               const isImported=imported[wid]&&imported[wid]!=='dismissed';
-              return `<div class="hk-workout-row" id="hk-row-${origIdx}" data-hk-idx="${origIdx}"><div class="hk-workout-actions" style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;margin-right:10px">${isImported?'<span class="hk-workout-imported" style="font-size:10px;color:var(--green)">✓</span>':`<button type="button" class="btn small hk-import-btn" data-hk-import="${origIdx}" ontouchstart="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`}<button type="button" class="hk-dismiss-btn" data-hk-dismiss="${origIdx}" ontouchstart="window.vertexDismissHKWorkout(${origIdx})" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button></div><div class="hk-workout-icon">${icon}</div><div class="hk-workout-info"><div class="hk-workout-name">${w.activityName}</div><div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>${w.sourceDevice?'<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>':''}</div></div>`;
+              return `<div class="hk-workout-row" id="hk-row-${origIdx}" data-hk-idx="${origIdx}"><div class="hk-workout-actions" style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;margin-right:10px">${isImported?'<span class="hk-workout-imported" style="font-size:10px;color:var(--green)">✓</span>':`<button type="button" class="btn small hk-import-btn" data-hk-import="${origIdx}" onclick="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`}<button type="button" class="hk-dismiss-btn" data-hk-dismiss="${origIdx}" onclick="window.vertexDismissHKWorkout(${origIdx})" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button></div><div class="hk-workout-icon">${icon}</div><div class="hk-workout-info"><div class="hk-workout-name">${w.activityName}</div><div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>${w.sourceDevice?'<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>':''}</div></div>`;
             }).join('');
           }
           window.__hkWorkouts=workouts;
           window.__hkImportedKey='vertex_hk_imported';
           if(syncTime) syncTime.textContent='Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
           card.style.display='block';
+          if(list) list.ontouchstart=function(ev){
+            const imp=ev.target.closest('[data-hk-import]');
+            if(imp){const idx=parseInt(imp.getAttribute('data-hk-import'));if(!isNaN(idx))window.vertexImportHKWorkout(idx);return;}
+            const dis=ev.target.closest('[data-hk-dismiss]');
+            if(dis){const idx=parseInt(dis.getAttribute('data-hk-dismiss'));if(!isNaN(idx))window.vertexDismissHKWorkout(idx);}
+          };
         }
       }catch(wErr){console.warn('queryWorkouts error:',wErr);}
     }
@@ -9730,7 +9736,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-p';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-q';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10081,9 +10087,9 @@ window.testAppleHealth = async function () {
                 <div class="hk-workout-actions" style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;margin-right:10px">
                   ${isImported
                     ? '<span class="hk-workout-imported" style="font-size:10px;color:var(--green)">✓</span>'
-                    : `<button type="button" class="btn small hk-import-btn" data-hk-import="${origIdx}" ontouchstart="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`
+                    : `<button type="button" class="btn small hk-import-btn" data-hk-import="${origIdx}" onclick="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`
                   }
-                  <button type="button" class="hk-dismiss-btn" data-hk-dismiss="${origIdx}" ontouchstart="window.vertexDismissHKWorkout(${origIdx})" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button>
+                  <button type="button" class="hk-dismiss-btn" data-hk-dismiss="${origIdx}" onclick="window.vertexDismissHKWorkout(${origIdx})" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button>
                 </div>
                 <div class="hk-workout-icon">${icon}</div>
                 <div class="hk-workout-info">
@@ -10100,6 +10106,12 @@ window.testAppleHealth = async function () {
         window.__hkCurrentUser = currentUser;
         if(syncTime) syncTime.textContent = 'Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
         card.style.display = 'block';
+        if(list) list.ontouchstart=function(ev){
+          const imp=ev.target.closest('[data-hk-import]');
+          if(imp){const idx=parseInt(imp.getAttribute('data-hk-import'));if(!isNaN(idx))window.vertexImportHKWorkout(idx);return;}
+          const dis=ev.target.closest('[data-hk-dismiss]');
+          if(dis){const idx=parseInt(dis.getAttribute('data-hk-dismiss'));if(!isNaN(idx))window.vertexDismissHKWorkout(idx);}
+        };
       }
     } catch(wErr){
       console.warn('queryWorkouts error:', wErr);

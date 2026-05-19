@@ -8297,6 +8297,13 @@ function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'
 function bindAuthButtons(){/* Auth is bound inline through window.VertexAuth to avoid delegated click conflicts. */}
 // Events
  document.addEventListener('click',async e=>{
+  // HK buttons — capture phase, runs before stopImmediatePropagation on signout
+  if(e.target && e.target.closest){
+    const hkImp=e.target.closest('[data-hk-import]');
+    if(hkImp){ e.preventDefault(); e.stopPropagation(); const idx=parseInt(hkImp.getAttribute('data-hk-import')); if(!isNaN(idx) && typeof window.vertexImportHKWorkout==='function') window.vertexImportHKWorkout(idx); return; }
+    const hkDis=e.target.closest('[data-hk-dismiss]');
+    if(hkDis){ e.preventDefault(); e.stopPropagation(); const idx=parseInt(hkDis.getAttribute('data-hk-dismiss')); if(!isNaN(idx) && typeof window.vertexDismissHKWorkout==='function') window.vertexDismissHKWorkout(idx); return; }
+  }
   if(e.target?.id==='btn-open-health-modal'){
     const m=document.getElementById('manualHealthModal'); if(m){m.style.display='flex'; m.classList.add('on');}
     return;
@@ -8968,9 +8975,9 @@ window.vertexConfirm=vertexConfirm;
 document.addEventListener('click',async e=>{
  // HealthKit workout buttons — must be first, before button resolution
  const hkImportEl = e.target.closest('[data-hk-import]');
- if(hkImportEl){ const idx=parseInt(hkImportEl.getAttribute('data-hk-import')); if(!isNaN(idx)) window.vertexImportHKWorkout(idx); return; }
+ if(hkImportEl){ e.preventDefault(); e.stopPropagation(); const idx=parseInt(hkImportEl.getAttribute('data-hk-import')); if(!isNaN(idx) && typeof window.vertexImportHKWorkout==='function') window.vertexImportHKWorkout(idx); return; }
  const hkDismissEl = e.target.closest('[data-hk-dismiss]');
- if(hkDismissEl){ const idx=parseInt(hkDismissEl.getAttribute('data-hk-dismiss')); if(!isNaN(idx)) window.vertexDismissHKWorkout(idx); return; }
+ if(hkDismissEl){ e.preventDefault(); e.stopPropagation(); const idx=parseInt(hkDismissEl.getAttribute('data-hk-dismiss')); if(!isNaN(idx) && typeof window.vertexDismissHKWorkout==='function') window.vertexDismissHKWorkout(idx); return; }
  const t=e.target.closest('button,.ex-item,.acc-head'); if(!t) return; if(t.id==='btn-account'||t.id==='btn-account-desktop'){
     renderAccountMenu();
     const menu=document.getElementById('account-menu');
@@ -9064,7 +9071,7 @@ document.addEventListener('click',async e=>{
               const meta=[dur,cal].filter(Boolean).join(' · ');
               const wid=w.startDate+'_'+w.activityType;
               const isImported=imported[wid]&&imported[wid]!=='dismissed';
-              return `<div class="hk-workout-row" id="hk-row-${origIdx}" data-hk-idx="${origIdx}"><div class="hk-workout-actions" style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;margin-right:10px">${isImported?'<span class="hk-workout-imported" style="font-size:10px;color:var(--green)">✓</span>':`<button class="btn small hk-import-btn" onclick="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`}<button class="hk-dismiss-btn" onclick="window.vertexDismissHKWorkout(${origIdx})" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button></div><div class="hk-workout-icon">${icon}</div><div class="hk-workout-info"><div class="hk-workout-name">${w.activityName}</div><div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>${w.sourceDevice?'<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>':''}</div></div>`;
+              return `<div class="hk-workout-row" id="hk-row-${origIdx}" data-hk-idx="${origIdx}"><div class="hk-workout-actions" style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;margin-right:10px">${isImported?'<span class="hk-workout-imported" style="font-size:10px;color:var(--green)">✓</span>':`<button type="button" class="btn small hk-import-btn" data-hk-import="${origIdx}" onclick="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`}<button type="button" class="hk-dismiss-btn" data-hk-dismiss="${origIdx}" onclick="window.vertexDismissHKWorkout(${origIdx})" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button></div><div class="hk-workout-icon">${icon}</div><div class="hk-workout-info"><div class="hk-workout-name">${w.activityName}</div><div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>${w.sourceDevice?'<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>':''}</div></div>`;
             }).join('');
           }
           window.__hkWorkouts=workouts;
@@ -9730,7 +9737,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-j';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-m';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10081,9 +10088,9 @@ window.testAppleHealth = async function () {
                 <div class="hk-workout-actions" style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;margin-right:10px">
                   ${isImported
                     ? '<span class="hk-workout-imported" style="font-size:10px;color:var(--green)">✓</span>'
-                    : `<button class="btn small hk-import-btn" onclick="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`
+                    : `<button type="button" class="btn small hk-import-btn" data-hk-import="${origIdx}" onclick="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`
                   }
-                  <button class="hk-dismiss-btn" onclick="window.vertexDismissHKWorkout(${origIdx})" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button>
+                  <button type="button" class="hk-dismiss-btn" data-hk-dismiss="${origIdx}" onclick="window.vertexDismissHKWorkout(${origIdx})" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:2px 4px;line-height:1" title="Dismiss">✕</button>
                 </div>
                 <div class="hk-workout-icon">${icon}</div>
                 <div class="hk-workout-info">
@@ -10215,8 +10222,7 @@ window.vertexImportHKWorkout = async function(idx) {
     localStorage.setItem(importedKey, JSON.stringify(imported));
 
     // Update the button to ✓ Imported
-    const rows = document.querySelectorAll('.hk-workout-row');
-    const row = rows[idx];
+    const row = document.getElementById('hk-row-'+idx);
     if(row){
       const btn = row.querySelector('.hk-import-btn');
       if(btn) btn.innerHTML = '<span class="hk-workout-imported">✓ Imported</span>';

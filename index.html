@@ -5677,19 +5677,6 @@ async function refreshAppleHealthMetrics(){
   renderIntel();
   renderWellnessPage();
 
-  if(typeof toast === 'function'){
-    if(ok){
-      toast('Health data refreshed ✓');
-    } else {
-      const hasPlugin = !!(window.Capacitor && window.Capacitor.Plugins && (window.Capacitor.Plugins.HealthKitPlugin || window.Capacitor.Plugins.HealthkitPlugin));
-      const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) || hasPlugin;
-      if(isNative){
-        toast('No health data found. Tap Sync Apple Health.');
-      } else {
-        toast('Use the native app to sync Apple Health data.');
-      }
-    }
-  }
 }
 
 function renderHealthPage(){
@@ -9045,7 +9032,7 @@ document.addEventListener('click',async e=>{
       try{
         if(btn) btn.textContent='Reading workouts…';
         try{ await plugin.requestPermissions(); }catch(e){}
-        const wResult = await plugin.queryWorkouts({days:14,limit:30});
+        const wResult = await plugin.queryWorkouts({days:30,limit:50});
         const workouts = wResult?.workouts||[];
         const card = document.getElementById('appleHealthWorkoutCard');
         const list = document.getElementById('hkWorkoutList');
@@ -9740,7 +9727,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-z';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-a';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10046,7 +10033,7 @@ window.testAppleHealth = async function () {
       if(wBtn){ wBtn.textContent = 'Reading workouts…'; }
       // Request permissions again to ensure workout type is authorized
       try { await plugin.requestPermissions(); } catch(e) {}
-      const wResult = await plugin.queryWorkouts({ days: 14, limit: 30 });
+      const wResult = await plugin.queryWorkouts({ days: 30, limit: 50 });
       const workouts = wResult?.workouts || [];
       const card = document.getElementById('appleHealthWorkoutCard');
       const list = document.getElementById('hkWorkoutList');
@@ -10192,15 +10179,20 @@ window.vertexImportHKWorkout = async function(idx) {
     const supa = (typeof getSupa === 'function') ? getSupa() : null;
     let ok = false;
 
-    if(typeof toast === 'function') toast('user='+(currentUser?.id||'NULL')+' supa='+(!!supa));
-
     if(supa && currentUser) {
-      const { error } = await supa.from('vertex_workout_logs').insert({
-        user_id: currentUser.id,
-        ...logRecord
-      });
-      ok = !error;
-      if(error) console.warn('HK import error:', error);
+      // Ensure session is active before insert
+      try {
+        const { data: sessionData } = await supa.auth.getSession();
+        const sessionUser = sessionData?.session?.user;
+        if(sessionUser) {
+          const { error } = await supa.from('vertex_workout_logs').insert({
+            user_id: sessionUser.id,
+            ...logRecord
+          });
+          ok = !error;
+          if(error) console.warn('HK import error:', error);
+        }
+      } catch(insertErr) { console.warn('HK insert error:', insertErr); }
     }
 
     // Mark as imported
@@ -10213,8 +10205,8 @@ window.vertexImportHKWorkout = async function(idx) {
     // Update the button to ✓ Imported
     const row = document.getElementById('hk-row-'+idx);
     if(row){
-      const btn = row.querySelector('.hk-import-btn');
-      if(btn) btn.innerHTML = '<span class="hk-workout-imported">✓ Imported</span>';
+      const importDiv = row.querySelector('.hk-workout-import');
+      if(importDiv) importDiv.innerHTML = '<span class="hk-workout-imported">✓ Imported</span>';
     }
 
     // Refresh progress logs so weekly count updates

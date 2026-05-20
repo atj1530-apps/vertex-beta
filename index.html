@@ -5076,6 +5076,7 @@ async function loadProgressLogs(){
   renderIntel();
   return state.progressLogs;
 }
+window.loadProgressLogs = loadProgressLogs;
 function progressRows(){
   return Array.isArray(state.progressLogs) ? state.progressLogs : [];
 }
@@ -8288,6 +8289,7 @@ function toast(msg){
   window.__vertexToastTimer=setTimeout(()=>{el.style.display='none'},2400);
 }
 function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))} function escapeAttr(s){return escapeHtml(s).replace(/'/g,'&#39;')}
+window.toast = toast;
 function bindAuthButtons(){/* Auth is bound inline through window.VertexAuth to avoid delegated click conflicts. */}
 // Events
  document.addEventListener('click',async e=>{
@@ -9730,7 +9732,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-g';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-h';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

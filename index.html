@@ -9740,7 +9740,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-y';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260519-z';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10191,6 +10191,8 @@ window.vertexImportHKWorkout = async function(idx) {
     // Get Supabase client
     const supa = (typeof getSupa === 'function') ? getSupa() : null;
     let ok = false;
+
+    if(typeof toast === 'function') toast('user='+(currentUser?.id||'NULL')+' supa='+(!!supa));
 
     if(supa && currentUser) {
       const { error } = await supa.from('vertex_workout_logs').insert({

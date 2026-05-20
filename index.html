@@ -3295,6 +3295,7 @@ function getSupa(){
   if(_supa) return _supa;
   if(!window.supabase) return null;
   _supa=window.supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{persistSession:true,detectSessionInUrl:true,storage:window.localStorage}});
+  window._supa = _supa;
   return _supa;
 }
 function defaultPage(){return 'home';}
@@ -9732,7 +9733,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-i';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-j';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10182,7 +10183,7 @@ window.vertexImportHKWorkout = async function(idx) {
     };
 
     // Get Supabase client
-    const supa = (typeof getSupa === 'function') ? getSupa() : null;
+    const supa = (typeof getSupa === 'function') ? getSupa() : window._supa || null;
     let ok = false;
 
     if(supa && currentUser) {

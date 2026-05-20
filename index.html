@@ -9047,6 +9047,24 @@ document.addEventListener('click',async e=>{
         const importedKey='vertex_hk_imported';
         let imported={};
         try{imported=JSON.parse(localStorage.getItem(importedKey)||'{}');}catch(e){}
+        // Cross-reference Supabase to catch imports from previous sessions
+        try{
+          const supaClient = (typeof getSupa==='function') ? getSupa() : window._supa;
+          if(supaClient && window.__hkCurrentUser){
+            const {data:logs} = await supaClient.from('vertex_workout_logs')
+              .select('completed_at,workout_name')
+              .eq('user_id', window.__hkCurrentUser.id)
+              .gte('completed_at', new Date(Date.now()-30*24*60*60*1000).toISOString());
+            if(logs && logs.length){
+              workouts.forEach((w,i)=>{
+                const wid=w.startDate+'_'+w.activityType;
+                const match=logs.find(l=>l.workout_name===w.activityName && Math.abs(new Date(l.completed_at)-new Date(w.endDate||w.startDate))<120000);
+                if(match) imported[wid]=w.endDate||w.startDate;
+              });
+              localStorage.setItem(importedKey, JSON.stringify(imported));
+            }
+          }
+        }catch(e){console.warn('HK import cross-ref error:',e);}
         const activityIcons={'Strength Training':'🏋️','Functional Strength':'🏋️','HIIT':'⚡','Running':'🏃','Cycling':'🚴','Walking':'🚶','Yoga':'🧘','Pilates':'🧘','Swimming':'🏊','Rowing':'🚣','Elliptical':'🔄','Stair Climbing':'🪜','Hiking':'🥾','Boxing':'🥊','Martial Arts':'🥋','Dance':'💃','Cooldown':'🧊','Mind & Body':'🧠','Core Training':'💪','Flexibility':'🤸','Jump Rope':'⚡','Workout':'💪'};
         if(card&&list){
           const visible=workouts.filter(w=>{const wid=w.startDate+'_'+w.activityType; return !imported[wid] || imported[wid]==='pending';});
@@ -9737,7 +9755,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-n';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-o';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10053,6 +10071,24 @@ window.testAppleHealth = async function () {
         const importedKey = 'vertex_hk_imported';
         let imported = {};
         try{ imported = JSON.parse(localStorage.getItem(importedKey)||'{}'); }catch(e){}
+        // Cross-reference Supabase to catch imports from previous sessions
+        try{
+          const supaClient = (typeof getSupa==='function') ? getSupa() : window._supa;
+          if(supaClient && currentUser){
+            const {data:logs} = await supaClient.from('vertex_workout_logs')
+              .select('completed_at,workout_name')
+              .eq('user_id', currentUser.id)
+              .gte('completed_at', new Date(Date.now()-30*24*60*60*1000).toISOString());
+            if(logs && logs.length){
+              workouts.forEach(w=>{
+                const wid=w.startDate+'_'+w.activityType;
+                const match=logs.find(l=>l.workout_name===w.activityName && Math.abs(new Date(l.completed_at)-new Date(w.endDate||w.startDate))<120000);
+                if(match) imported[wid]=w.endDate||w.startDate;
+              });
+              localStorage.setItem(importedKey, JSON.stringify(imported));
+            }
+          }
+        }catch(e){console.warn('HK import cross-ref error:',e);}
 
         const activityIcons = {
           'Strength Training':'🏋️','Functional Strength':'🏋️','HIIT':'⚡',

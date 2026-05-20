@@ -9733,7 +9733,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-j';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-k';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10167,7 +10167,6 @@ window.vertexImportHKWorkout = async function(idx) {
       completed_at: completedAt,
       workout_name: w.activityName || 'Apple Health Workout',
       workout_type: 'strength',
-      source: 'healthkit',
       workout_payload: { name: w.activityName, type: 'healthkit', source: 'healthkit', exercises:[] },
       metrics: {
         sets: 0,

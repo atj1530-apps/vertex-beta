@@ -810,7 +810,7 @@ body {
   #wellnessPage .page-title { font-size: 32px !important; margin-bottom: 4px !important; }
   #wellnessPage .page-copy { font-size: 12px !important; margin-bottom: 6px !important; display: none; }
 }
-.hk-workout-row{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:10px 40px 10px 12px;overflow:hidden;position:relative}
+.hk-workout-row{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:10px 40px 10px 12px;overflow:hidden;position:relative;box-sizing:border-box;width:100%}
 .hk-workout-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center}
 .hk-workout-info{flex:1;min-width:0}
 .hk-workout-name{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -5364,7 +5364,8 @@ function renderProgressPage(){
 function syncAuthShell(){
   document.body.classList.toggle('authenticated',!!authUser);
   const syncBtn = document.getElementById('btn-apple-health-sync');
-  if(syncBtn) syncBtn.style.display = window.Capacitor?.isNativePlatform() ? '' : 'none';
+  const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  if(syncBtn) syncBtn.style.display = isNative ? '' : 'none';
 }
 function renderAccountMenu(){syncAuthShell();const menu=document.getElementById('account-menu'); const btn=document.getElementById('btn-account-desktop'); if(!menu) return; if(btn) btn.textContent=authUser?'Account':'Sign In'; if(authUser){menu.innerHTML=`<div class="acct-title">Account</div><div class="acct-sub">Signed in with Supabase${authUser.provider==='google'?' / Google':''}</div><div class="acct-email">${escapeHtml(authUser.email)}</div><div class="acct-row">● REAL AUTH ACTIVE · CLOUD SYNC ENABLED</div><div class="acct-muted">Planner days and completed workout logs sync through Supabase when the v13.51 tables are present. Local fallback remains active.</div><button type="button" class="btn small" id="btn-open-settings" style="width:100%;margin-top:8px">⚙ Settings</button><button type="button" class="btn small" id="btn-notif-setup" style="width:100%;margin-top:6px">🔔 Notifications</button><button type="button" class="btn small" id="btn-generate-pdf-report" style="width:100%;margin-top:6px">↓ Export PDF Report</button><button type="button" class="btn small" onclick="window.vertexShowErrorLog&&window.vertexShowErrorLog()" style="width:100%;margin-top:6px;font-size:10px;color:var(--muted)">🔍 Error Log</button><button type="button" class="btn small" id="acct-signout" onclick="window.VertexSignOut && window.VertexSignOut(); return false;" style="width:100%;margin-top:6px">Sign Out</button>`; return;} menu.innerHTML=`<div class="acct-title">Sign in / Create Account</div><div class="acct-sub">Real Supabase auth. Use Google or email/password.</div><button type="button" class="btn acc small" id="acct-google" onclick="signInGoogle(this).then(err=>{const eb=document.getElementById('landing-error');if(eb)eb.textContent=err||'';})" style="width:100%;margin-top:10px">Continue with Google</button><div class="acct-muted" style="text-align:center;margin:10px 0 2px">or use email</div><input id="acct-email" type="email" name="vertex-menu-email" autocomplete="off" autocapitalize="none" spellcheck="false" value="" placeholder="Email"><input id="acct-pass" type="password" name="vertex-menu-pass" autocomplete="new-password" value="" placeholder="Password"><div class="acct-actions"><button class="btn acc small" id="acct-signin">Sign In</button><button class="btn small" id="acct-create">Create</button></div><div id="acct-error" class="acct-error"></div><div class="acct-muted">OAuth redirects back to this Vertex URL after Google confirms the account.</div>`;}
 function programWorkout(name, exercises){return {name,type:'strength',source:'program',assignedDay:null,exercises:exercises.map(n=>normalizeStrengthExercise(byName(n))).filter(Boolean)}}
@@ -9733,7 +9734,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-k';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-l';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10150,7 +10151,6 @@ window.vertexDismissHKWorkout = function(idx) {
 
 // ── IMPORT HEALTHKIT WORKOUT TO VERTEX LOGS ──────────────────
 window.vertexImportHKWorkout = async function(idx) {
-  if(typeof window.toast==='function') window.toast('Import starting...');
   try {
     const workouts = window.__hkWorkouts || [];
     const w = workouts[idx];
@@ -10202,7 +10202,7 @@ window.vertexImportHKWorkout = async function(idx) {
         }
       } catch(insertErr) { console.warn('HK insert error:', insertErr); if(typeof window.toast==='function') window.toast('Insert error: '+(insertErr.message||insertErr)); }
     } else {
-      if(typeof window.toast==='function') window.toast('supa='+(!!supa)+' user='+(currentUser?.id?.slice(0,8)||'null'));
+      console.warn('HK import: supa='+(!!supa)+' user='+(currentUser?.id||'null'));
     }
 
     // Mark as imported

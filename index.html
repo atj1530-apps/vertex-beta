@@ -820,7 +820,8 @@ body {
 
 /* v13.60.02 WELLNESS MOBILE POLISH */
 @media (max-width: 900px){
-  #btn-apple-health-sync{
+  #btn-apple-health-sync{display:none}
+body.is-native #btn-apple-health-sync{display:inline-flex}
     background: var(--panel2) !important;
     color: var(--text) !important;
     border: 1px solid var(--line2) !important;
@@ -2580,7 +2581,7 @@ button.acc-hint {
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace"></span>
   </div>
-  <div id="hkWorkoutList" style="display:flex;flex-direction:column;gap:8px"></div>
+  <div id="hkWorkoutList" style="display:flex;flex-direction:column;gap:8px;overflow:hidden;width:100%;box-sizing:border-box"></div>
 </div><div class="progress-tabs"><button class="progress-tab on" data-wtab="dashboard">Dashboard</button><button class="progress-tab" data-wtab="health">Health</button><button class="progress-tab" data-wtab="protocol">Protocol</button><button class="progress-tab" data-wtab="checkin">Check-In</button><button class="progress-tab" data-wtab="history">History</button><button class="progress-tab" data-wtab="dexa">DEXA</button><button class="progress-tab" data-wtab="bodycomp">Body Comp</button><button class="progress-tab" data-wtab="stack">Peptide/Supplement Stack</button></div>
 
 <!-- HEALTH SUB-TAB -->
@@ -5363,9 +5364,8 @@ function renderProgressPage(){
 
 function syncAuthShell(){
   document.body.classList.toggle('authenticated',!!authUser);
-  const syncBtn = document.getElementById('btn-apple-health-sync');
   const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-  if(syncBtn) syncBtn.style.display = isNative ? '' : 'none';
+  document.body.classList.toggle('is-native', isNative);
 }
 function renderAccountMenu(){syncAuthShell();const menu=document.getElementById('account-menu'); const btn=document.getElementById('btn-account-desktop'); if(!menu) return; if(btn) btn.textContent=authUser?'Account':'Sign In'; if(authUser){menu.innerHTML=`<div class="acct-title">Account</div><div class="acct-sub">Signed in with Supabase${authUser.provider==='google'?' / Google':''}</div><div class="acct-email">${escapeHtml(authUser.email)}</div><div class="acct-row">● REAL AUTH ACTIVE · CLOUD SYNC ENABLED</div><div class="acct-muted">Planner days and completed workout logs sync through Supabase when the v13.51 tables are present. Local fallback remains active.</div><button type="button" class="btn small" id="btn-open-settings" style="width:100%;margin-top:8px">⚙ Settings</button><button type="button" class="btn small" id="btn-notif-setup" style="width:100%;margin-top:6px">🔔 Notifications</button><button type="button" class="btn small" id="btn-generate-pdf-report" style="width:100%;margin-top:6px">↓ Export PDF Report</button><button type="button" class="btn small" onclick="window.vertexShowErrorLog&&window.vertexShowErrorLog()" style="width:100%;margin-top:6px;font-size:10px;color:var(--muted)">🔍 Error Log</button><button type="button" class="btn small" id="acct-signout" onclick="window.VertexSignOut && window.VertexSignOut(); return false;" style="width:100%;margin-top:6px">Sign Out</button>`; return;} menu.innerHTML=`<div class="acct-title">Sign in / Create Account</div><div class="acct-sub">Real Supabase auth. Use Google or email/password.</div><button type="button" class="btn acc small" id="acct-google" onclick="signInGoogle(this).then(err=>{const eb=document.getElementById('landing-error');if(eb)eb.textContent=err||'';})" style="width:100%;margin-top:10px">Continue with Google</button><div class="acct-muted" style="text-align:center;margin:10px 0 2px">or use email</div><input id="acct-email" type="email" name="vertex-menu-email" autocomplete="off" autocapitalize="none" spellcheck="false" value="" placeholder="Email"><input id="acct-pass" type="password" name="vertex-menu-pass" autocomplete="new-password" value="" placeholder="Password"><div class="acct-actions"><button class="btn acc small" id="acct-signin">Sign In</button><button class="btn small" id="acct-create">Create</button></div><div id="acct-error" class="acct-error"></div><div class="acct-muted">OAuth redirects back to this Vertex URL after Google confirms the account.</div>`;}
 function programWorkout(name, exercises){return {name,type:'strength',source:'program',assignedDay:null,exercises:exercises.map(n=>normalizeStrengthExercise(byName(n))).filter(Boolean)}}
@@ -9725,6 +9725,9 @@ function closeExerciseDemo(){
 }
 
 document.addEventListener('DOMContentLoaded',function(){
+  // Set native class immediately on load
+  const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  document.body.classList.toggle('is-native', isNative);
   const closeBtn=document.getElementById('demoModalClose');
   const overlay=document.getElementById('demoModal');
   if(closeBtn) closeBtn.addEventListener('click',closeExerciseDemo);
@@ -9734,7 +9737,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-m';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-n';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10191,12 +10194,23 @@ window.vertexImportHKWorkout = async function(idx) {
         const { data: sessionData } = await supa.auth.getSession();
         const sessionUser = sessionData?.session?.user;
         if(sessionUser) {
-          const { error } = await supa.from('vertex_workout_logs').insert({
-            user_id: sessionUser.id,
-            ...logRecord
-          });
-          ok = !error;
-          if(error) { console.warn('HK import error:', error); if(typeof window.toast==='function') window.toast('DB error: '+(error.message||error.code||JSON.stringify(error))); }
+          // Check for duplicate before inserting
+          const { data: existing } = await supa.from('vertex_workout_logs')
+            .select('id')
+            .eq('user_id', sessionUser.id)
+            .eq('completed_at', logRecord.completed_at)
+            .eq('workout_name', logRecord.workout_name)
+            .limit(1);
+          if(existing && existing.length > 0) {
+            ok = true; // already exists, treat as success
+          } else {
+            const { error } = await supa.from('vertex_workout_logs').insert({
+              user_id: sessionUser.id,
+              ...logRecord
+            });
+            ok = !error;
+            if(error) { console.warn('HK import error:', error); if(typeof window.toast==='function') window.toast('DB error: '+(error.message||error.code||JSON.stringify(error))); }
+          }
         } else {
           if(typeof window.toast==='function') window.toast('No session user');
         }

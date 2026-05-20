@@ -9730,7 +9730,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-f';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-g';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10147,6 +10147,7 @@ window.vertexDismissHKWorkout = function(idx) {
 
 // ── IMPORT HEALTHKIT WORKOUT TO VERTEX LOGS ──────────────────
 window.vertexImportHKWorkout = async function(idx) {
+  if(typeof toast==='function') toast('Import starting...');
   try {
     const workouts = window.__hkWorkouts || [];
     const w = workouts[idx];
@@ -10193,11 +10194,11 @@ window.vertexImportHKWorkout = async function(idx) {
             ...logRecord
           });
           ok = !error;
-          if(error) { console.warn('HK import error:', error); if(typeof toast==='function') toast('DB error: '+error.message); }
+          if(error) { console.warn('HK import error:', error); if(typeof toast==='function') toast('DB error: '+(error.message||error.code||JSON.stringify(error))); }
         } else {
-          if(typeof toast==='function') toast('No session — try signing out and back in');
+          if(typeof toast==='function') toast('No session user');
         }
-      } catch(insertErr) { console.warn('HK insert error:', insertErr); if(typeof toast==='function') toast('Insert error: '+insertErr.message); }
+      } catch(insertErr) { console.warn('HK insert error:', insertErr); if(typeof toast==='function') toast('Insert error: '+(insertErr.message||insertErr)); }
     } else {
       if(typeof toast==='function') toast('supa='+(!!supa)+' user='+(currentUser?.id||'null'));
     }

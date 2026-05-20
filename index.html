@@ -810,7 +810,7 @@ body {
   #wellnessPage .page-title { font-size: 32px !important; margin-bottom: 4px !important; }
   #wellnessPage .page-copy { font-size: 12px !important; margin-bottom: 6px !important; display: none; }
 }
-.hk-workout-row{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:10px 16px 10px 12px}
+.hk-workout-row{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:10px 40px 10px 12px;overflow:hidden;position:relative}
 .hk-workout-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center}
 .hk-workout-info{flex:1;min-width:0}
 .hk-workout-name{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -9732,7 +9732,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-h';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-i';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10149,7 +10149,7 @@ window.vertexDismissHKWorkout = function(idx) {
 
 // ── IMPORT HEALTHKIT WORKOUT TO VERTEX LOGS ──────────────────
 window.vertexImportHKWorkout = async function(idx) {
-  if(typeof toast==='function') toast('Import starting...');
+  if(typeof window.toast==='function') window.toast('Import starting...');
   try {
     const workouts = window.__hkWorkouts || [];
     const w = workouts[idx];
@@ -10196,13 +10196,13 @@ window.vertexImportHKWorkout = async function(idx) {
             ...logRecord
           });
           ok = !error;
-          if(error) { console.warn('HK import error:', error); if(typeof toast==='function') toast('DB error: '+(error.message||error.code||JSON.stringify(error))); }
+          if(error) { console.warn('HK import error:', error); if(typeof window.toast==='function') window.toast('DB error: '+(error.message||error.code||JSON.stringify(error))); }
         } else {
-          if(typeof toast==='function') toast('No session user');
+          if(typeof window.toast==='function') window.toast('No session user');
         }
-      } catch(insertErr) { console.warn('HK insert error:', insertErr); if(typeof toast==='function') toast('Insert error: '+(insertErr.message||insertErr)); }
+      } catch(insertErr) { console.warn('HK insert error:', insertErr); if(typeof window.toast==='function') window.toast('Insert error: '+(insertErr.message||insertErr)); }
     } else {
-      if(typeof toast==='function') toast('supa='+(!!supa)+' user='+(currentUser?.id||'null'));
+      if(typeof window.toast==='function') window.toast('supa='+(!!supa)+' user='+(currentUser?.id?.slice(0,8)||'null'));
     }
 
     // Mark as imported
@@ -10222,10 +10222,10 @@ window.vertexImportHKWorkout = async function(idx) {
     // Refresh progress logs so weekly count updates
     if(typeof loadProgressLogs === 'function') loadProgressLogs().catch(()=>{});
 
-    if(typeof toast === 'function') toast(ok ? w.activityName+' imported ✓' : 'Saved locally — sync when online');
+    if(typeof window.toast==='function') window.toast(ok ? w.activityName+' imported ✓' : 'Saved locally — sync when online');
   } catch(e) {
     console.warn('vertexImportHKWorkout error:', e);
-    if(typeof toast === 'function') toast('Import failed: '+(e.message||'unknown'));
+    if(typeof window.toast==='function') window.toast('Import failed: '+(e.message||'unknown'));
   }
 };
 </script>

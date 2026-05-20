@@ -4730,6 +4730,7 @@ function withTimeout(promise, ms){ return Promise.race([promise, new Promise(r=>
 async function applyAuthenticatedSession(session){
   authUser=authFromUser(session && session.user);
   window.authUser=authUser;
+  window.__hkCurrentUser = session && session.user ? session.user : null;
   if(!authUser){ syncAuthShell(); return false; }
   document.body.classList.add('authenticated');
   /* v13.61: notify welcome-modal controller immediately, before home screen renders */
@@ -9727,7 +9728,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-c';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-d';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

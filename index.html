@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -4673,12 +4674,16 @@ function hardLocalSignOut(){
   state.syncLabel='Local mode';
   try{
     localStorage.removeItem('vertex_guest_mode');
+    localStorage.removeItem('vertex_hk_imported');
+    window.__hkCurrentUser = null;
     Object.keys(localStorage).forEach(k=>{
       if(k.startsWith('sb-') || k.includes('supabase.auth.token') || k.includes('auth-token')) localStorage.removeItem(k);
     });
     sessionStorage.clear();
   }catch{}
   document.body.classList.remove('authenticated');
+  const hkCard = document.getElementById('appleHealthWorkoutCard');
+  if(hkCard) hkCard.style.display = 'none';
   document.getElementById('account-menu')?.classList.remove('on');
   document.getElementById('session')?.classList.remove('on');
   setSyncStatus('local','Local mode');
@@ -9755,7 +9760,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-o';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-p';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

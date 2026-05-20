@@ -9058,7 +9058,7 @@ document.addEventListener('click',async e=>{
               const meta=[dur,cal].filter(Boolean).join(' · ');
               const wid=w.startDate+'_'+w.activityType;
               const isImported=imported[wid]&&imported[wid]!=='dismissed';
-              return `<div class="hk-workout-row" id="hk-row-${origIdx}" style="position:relative"><button ontouchstart="window.vertexDismissHKWorkout(${origIdx})" style="position:absolute;top:6px;right:8px;background:none;border:none;color:var(--dim);font-size:14px;cursor:pointer;padding:4px;line-height:1;z-index:2" title="Dismiss">✕</button><div class="hk-workout-icon">${icon}</div><div class="hk-workout-info"><div class="hk-workout-name">${w.activityName}</div><div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>${w.sourceDevice?'<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>':''}</div><div class="hk-workout-import" style="flex-shrink:0;margin-right:24px">${isImported?'<span class="hk-workout-imported">✓ Imported</span>':`<button class="btn small" ontouchstart="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`}</div></div>`;
+              return `<div class="hk-workout-row" id="hk-row-${origIdx}" style="position:relative"><button ontouchstart="window.vertexDismissHKWorkout(${origIdx})" style="position:absolute;top:4px;right:4px;background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:8px;line-height:1;z-index:2;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center" title="Dismiss">✕</button><div class="hk-workout-icon">${icon}</div><div class="hk-workout-info"><div class="hk-workout-name">${w.activityName}</div><div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>${w.sourceDevice?'<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>':''}</div><div class="hk-workout-import" style="flex-shrink:0;margin-right:24px">${isImported?'<span class="hk-workout-imported">✓ Imported</span>':`<button class="btn small" ontouchstart="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`}</div></div>`;
             }).join('');
           }
           window.__hkWorkouts=workouts;
@@ -9085,7 +9085,7 @@ document.addEventListener('click',async e=>{
     if(btn){ btn.disabled=false; btn.textContent='Sync Apple Health'; }
   }
   return
-} if(t.id==='btn-wellness-refresh'){await refreshAppleHealthMetrics(); renderWellnessPage(); return} if(t.id==='btn-home-refresh-metrics'){
+} if(t.id==='btn-wellness-refresh'){await refreshAppleHealthMetrics(); renderWellnessPage(); if(typeof toast==='function') toast('Health data refreshed ✓'); return} if(t.id==='btn-home-refresh-metrics'){
   await refreshAppleHealthMetrics();
   if(typeof renderHomeDashboard==='function') renderHomeDashboard();
   // After data loads, patch weight card in-place without full re-render
@@ -9730,7 +9730,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-e';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-f';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10075,7 +10075,7 @@ window.testAppleHealth = async function () {
               const wid = w.startDate + '_' + w.activityType;
               const isImported = imported[wid] === true || (imported[wid] && imported[wid] !== 'dismissed');
               const origIdx = workouts.indexOf(w);
-              return '<div class="hk-workout-row" id="hk-row-'+origIdx+'" style="position:relative"><button ontouchstart="window.vertexDismissHKWorkout('+origIdx+')" style="position:absolute;top:6px;right:8px;background:none;border:none;color:var(--dim);font-size:14px;cursor:pointer;padding:4px;line-height:1;z-index:2" title="Dismiss">✕</button><div class="hk-workout-icon">'+icon+'</div><div class="hk-workout-info"><div class="hk-workout-name">'+w.activityName+'</div><div class="hk-workout-meta">'+date+(meta?' · '+meta:'')+'</div>'+(w.sourceDevice?'<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>':'')+'</div><div class="hk-workout-import" style="flex-shrink:0;margin-right:24px">'+(isImported?'<span class="hk-workout-imported">✓ Imported</span>':'<button class="btn small" ontouchstart="window.vertexImportHKWorkout('+origIdx+')" style="font-size:10px;padding:4px 8px">Import</button>')+'</div></div>';
+              return '<div class="hk-workout-row" id="hk-row-'+origIdx+'" style="position:relative"><button ontouchstart="window.vertexDismissHKWorkout('+origIdx+')" style="position:absolute;top:4px;right:4px;background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:8px;line-height:1;z-index:2;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center" title="Dismiss">✕</button><div class="hk-workout-icon">'+icon+'</div><div class="hk-workout-info"><div class="hk-workout-name">'+w.activityName+'</div><div class="hk-workout-meta">'+date+(meta?' · '+meta:'')+'</div>'+(w.sourceDevice?'<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>':'')+'</div><div class="hk-workout-import" style="flex-shrink:0;margin-right:24px">'+(isImported?'<span class="hk-workout-imported">✓ Imported</span>':'<button class="btn small" ontouchstart="window.vertexImportHKWorkout('+origIdx+')" style="font-size:10px;padding:4px 8px">Import</button>')+'</div></div>';
             }).join('');
           }
         }

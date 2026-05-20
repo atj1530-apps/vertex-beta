@@ -9049,7 +9049,7 @@ document.addEventListener('click',async e=>{
         try{imported=JSON.parse(localStorage.getItem(importedKey)||'{}');}catch(e){}
         const activityIcons={'Strength Training':'🏋️','Functional Strength':'🏋️','HIIT':'⚡','Running':'🏃','Cycling':'🚴','Walking':'🚶','Yoga':'🧘','Pilates':'🧘','Swimming':'🏊','Rowing':'🚣','Elliptical':'🔄','Stair Climbing':'🪜','Hiking':'🥾','Boxing':'🥊','Martial Arts':'🥋','Dance':'💃','Cooldown':'🧊','Mind & Body':'🧠','Core Training':'💪','Flexibility':'🤸','Jump Rope':'⚡','Workout':'💪'};
         if(card&&list){
-          const visible=workouts.filter(w=>imported[w.startDate+'_'+w.activityType]!=='dismissed');
+          const visible=workouts.filter(w=>{const wid=w.startDate+'_'+w.activityType; return !imported[wid] || imported[wid]==='pending';});
           if(!visible.length){
             list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">No new workouts to review.</div>';
           } else {
@@ -9734,7 +9734,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-l';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-m';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10065,7 +10065,7 @@ window.testAppleHealth = async function () {
         } else {
           const visibleWorkouts = workouts.filter((w,i) => {
             const wid = w.startDate + '_' + w.activityType;
-            return imported[wid] !== 'dismissed';
+            return !imported[wid] || imported[wid]==='pending';
           });
           if(!visibleWorkouts.length){
             list.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No new workouts to review.</div>';

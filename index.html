@@ -9727,7 +9727,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-a';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-b';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10190,9 +10190,13 @@ window.vertexImportHKWorkout = async function(idx) {
             ...logRecord
           });
           ok = !error;
-          if(error) console.warn('HK import error:', error);
+          if(error) { console.warn('HK import error:', error); if(typeof toast==='function') toast('DB error: '+error.message); }
+        } else {
+          if(typeof toast==='function') toast('No session — try signing out and back in');
         }
-      } catch(insertErr) { console.warn('HK insert error:', insertErr); }
+      } catch(insertErr) { console.warn('HK insert error:', insertErr); if(typeof toast==='function') toast('Insert error: '+insertErr.message); }
+    } else {
+      if(typeof toast==='function') toast('supa='+(!!supa)+' user='+(currentUser?.id||'null'));
     }
 
     // Mark as imported

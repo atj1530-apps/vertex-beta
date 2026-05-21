@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -9100,7 +9099,7 @@ document.addEventListener('click',async e=>{
           window.__hkAllVisible=allVisible;
           window.__hkImportedKey='vertex_hk_imported';
           if(syncTime) syncTime.textContent='Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
-          card.style.display='block';
+          if(visible.length) card.style.display='block';
           if(list) list.ontouchstart=function(ev){
             const imp=ev.target.closest('[data-hk-import]');
             if(imp){const idx=parseInt(imp.getAttribute('data-hk-import'));if(!isNaN(idx))window.vertexImportHKWorkout(idx);return;}
@@ -9769,7 +9768,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-s';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-t';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10116,7 +10115,7 @@ window.testAppleHealth = async function () {
         };
 
         if(!workouts.length){
-          list.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No workouts found in Apple Health for the last 14 days.</div>';
+          card.style.display='none';
         } else {
           const visibleWorkouts = workouts.filter((w,i) => {
             const wid = w.startDate + '_' + w.activityType;
@@ -10143,7 +10142,9 @@ window.testAppleHealth = async function () {
         window.__hkImportedKey = 'vertex_hk_imported';
         window.__hkCurrentUser = currentUser;
         if(syncTime) syncTime.textContent = 'Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
-        card.style.display = 'block';
+        // Only show card if there are visible workouts
+        const _vis = workouts.filter(w=>{ const wid=w.startDate+'_'+w.activityType; const imp=(() => {try{return JSON.parse(localStorage.getItem('vertex_hk_imported')||'{}')}catch(e){return{}}})(); return !imp[wid] || imp[wid]==='pending'; });
+        if(_vis.length) card.style.display = 'block';
       }
     } catch(wErr){
       console.warn('queryWorkouts error:', wErr);
@@ -12221,8 +12222,8 @@ window.vertexImportHKWorkout = async function(idx) {
     const btn=ensureToggle();
     if(btn){
       btn.textContent=on()?'Macro Tracking: On':'Macro Tracking: Off';
-      btn.style.opacity = on() ? '1' : '0.6';
-      btn.style.borderColor = on() ? 'var(--acc)' : '';
+      btn.className='btn small';
+      btn.style.cssText='margin-left:4px;font-size:11px;padding:4px 10px;opacity:'+(on()?'1':'0.6');
       btn.onclick=function(e){
         e.preventDefault();
         setOn(!on());

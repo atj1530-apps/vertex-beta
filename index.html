@@ -2583,7 +2583,7 @@ button.acc-hint {
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace"></span>
   </div>
   <div id="hkWorkoutList" style="display:flex;flex-direction:column;gap:8px;overflow:hidden;width:100%;box-sizing:border-box"></div>
-</div><div class="progress-tabs"><button class="progress-tab on" data-wtab="dashboard">Dashboard</button><button class="progress-tab" data-wtab="health">Health</button><button class="progress-tab" data-wtab="protocol">Protocol</button><button class="progress-tab" data-wtab="checkin">Check-In</button><button class="progress-tab" data-wtab="history">History</button><button class="progress-tab" data-wtab="dexa">DEXA</button><button class="progress-tab" data-wtab="bodycomp">Body Comp</button><button class="progress-tab" data-wtab="stack">Peptide/Supplement Stack</button></div>
+</div><div class="progress-tabs"><button class="progress-tab on" data-wtab="dashboard">Dashboard</button><button class="progress-tab" data-wtab="health">Health</button><button class="progress-tab" data-wtab="protocol">Protocol</button><button class="progress-tab" data-wtab="checkin">Check-In</button><button class="progress-tab" data-wtab="history">History</button><button class="progress-tab" data-wtab="dexa">Body Metrics</button><button class="progress-tab" data-wtab="bodycomp">Body Comp</button><button class="progress-tab" data-wtab="stack">Peptide/Supplement Stack</button></div>
 
 <!-- HEALTH SUB-TAB -->
 <div id="wtab-health"><div id="healthSummary" class="progress-summary" style="display:none"></div>
@@ -2730,11 +2730,7 @@ button.acc-hint {
   <div class="wc-section" style="margin-bottom:14px">
     <div class="wc-section-head"><span>🦴</span> Upload DexaFit Report</div>
     <div class="wc-section-body">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <label style="font-size:11px;color:var(--muted)">Anthropic API Key (for auto-parse)</label>
-        <button type="button" onclick="(function(){const i=document.getElementById('dexa-api-key');const b=document.getElementById('dexa-key-toggle');i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'Show':'Hide';})()" id="dexa-key-toggle" style="font-size:10px;color:var(--muted);background:none;border:1px solid var(--line2);border-radius:4px;padding:2px 8px;cursor:pointer">Show</button>
-      </div>
-      <input type="password" id="dexa-api-key" placeholder="sk-ant-api03-…" style="width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:6px;color:var(--text);font-size:13px;padding:7px 10px;margin-bottom:10px" oninput="localStorage.setItem('anthro_key',this.value)">
+
       <div class="wc-drop-zone" id="dexa-drop-zone" onclick="document.getElementById('dexa-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--acc)'" ondragleave="this.style.borderColor='var(--line2)'" ondrop="window.handleDexaDrop(event)">
         <div style="font-size:24px;margin-bottom:6px">📄</div>
         <div style="font-size:12px;color:var(--muted)">Drop DexaFit PDF or click to browse</div>
@@ -2841,7 +2837,7 @@ button.acc-hint {
       <span class="acc-title" id="proto-section-title">💊 Log Today's Protocol</span>
       <div style="display:flex;align-items:center;gap:10px">
         <a id="proto-back-today" href="#" onclick="window.protoSelectDate(null);return false;" style="display:none;font-size:10px;color:var(--acc);font-family:'DM Mono',monospace;letter-spacing:.5px;text-decoration:none">← Today</a>
-        <span id="proto-date-label" style="font-size:10px;color:var(--muted)"></span>
+        <span id="proto-date-label" style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px"></span>
         <span class="acc-hint">▼ COLLAPSE</span>
       </div>
     </div>
@@ -5091,7 +5087,7 @@ window.loadProgressLogs = loadProgressLogs;
 function progressRows(){
   return Array.isArray(state.progressLogs) ? state.progressLogs : [];
 }
-function progressSummary(rows){const now=new Date(); const start=weekStart(now); const prev=new Date(start); prev.setDate(prev.getDate()-7); const thisWeek=rows.filter(r=>new Date(r.completed_at)>=start); const prevWeek=rows.filter(r=>new Date(r.completed_at)>=prev && new Date(r.completed_at)<start); const totalVolume=thisWeek.reduce((a,r)=>a+(r.metrics?.load_volume||0),0); const totalSets=thisWeek.reduce((a,r)=>a+(r.metrics?.sets||0),0); const last=rows[0]; const daysSince=last?Math.floor((setStartOfDay(now)-setStartOfDay(new Date(last.completed_at)))/86400000):null; return {thisWeek,prevWeek,totalVolume,totalSets,last,daysSince};}
+function progressSummary(rows){const now=new Date(); const start=weekStart(now); const prev=new Date(start); prev.setDate(prev.getDate()-7); const validRow=r=>r.workout_type!=='hk_dismissed'&&!(r.workout_name==='Walking'&&(r.metrics?.moves||0)===0&&(r.metrics?.sets||0)===0); const thisWeek=rows.filter(r=>new Date(r.completed_at)>=start&&validRow(r)); const prevWeek=rows.filter(r=>new Date(r.completed_at)>=prev && new Date(r.completed_at)<start&&validRow(r)); const totalVolume=thisWeek.reduce((a,r)=>a+(r.metrics?.load_volume||0),0); const totalSets=thisWeek.reduce((a,r)=>a+(r.metrics?.sets||0),0); const last=rows[0]; const daysSince=last?Math.floor((setStartOfDay(now)-setStartOfDay(new Date(last.completed_at)))/86400000):null; return {thisWeek,prevWeek,totalVolume,totalSets,last,daysSince};}
 function parseLoad(v){return Number(String(v??'').replace(/[^0-9.]/g,''))||0;}
 function allLoggedExerciseSets(rows=progressRows()){
   const out=[];
@@ -5345,7 +5341,7 @@ function renderProgressHistoryTab(showAll){
   const recent=all.filter(r=>new Date(r.completed_at)>=cutoff);
   const display=showAll?all:(recent.length?recent:all.slice(0,14));
   const hasOlder=!showAll&&all.length>display.length;
-  const rowHtml=r=>`<div class="history-row progress-history-item" style="position:relative;padding-right:32px"><div class="history-date">${new Date(r.completed_at).toLocaleDateString()}<br>${new Date(r.completed_at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</div><div><div class="history-name">${escapeHtml(r.workout_name||'Workout')}</div><div class="history-meta">${escapeHtml(String(r.workout_type||'strength').toUpperCase())} · ${r.metrics?.moves||0} moves · ${r.metrics?.est_minutes||0} min est.</div></div><div class="mono">${r.metrics?.sets||0} sets</div><div class="mono">${r.metrics?.load_volume?Math.round(r.metrics.load_volume):'—'} vol</div><button ontouchstart="window.vertexDeleteProgressLog('${r.id}',this)" onclick="window.vertexDeleteProgressLog('${r.id}',this)" style="position:absolute;top:8px;right:6px;background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px;line-height:1" title="Remove">✕</button></div>`;
+  const rowHtml=r=>`<div class="history-row progress-history-item" style="cursor:pointer" onclick="this.querySelector('.ph-detail').style.display=this.querySelector('.ph-detail').style.display==='none'?'block':'none';this.querySelector('.ph-chevron').style.transform=this.querySelector('.ph-detail').style.display==='block'?'rotate(90deg)':''"><div style="display:flex;justify-content:space-between;align-items:center;width:100%"><div style="display:flex;gap:12px;align-items:center;flex:1"><div class="history-date" style="min-width:70px">${new Date(r.completed_at).toLocaleDateString()}<br>${new Date(r.completed_at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</div><div style="flex:1"><div class="history-name">${escapeHtml(r.workout_name||'Workout')}</div><div class="history-meta">${escapeHtml(String(r.workout_type||'strength').toUpperCase())} · ${r.metrics?.moves||0} moves · ${r.metrics?.est_minutes||0} min est.</div></div><div class="mono" style="text-align:right">${r.metrics?.sets||0} sets</div></div><span class="ph-chevron" style="color:var(--muted);font-size:16px;margin-left:10px;transition:transform .2s;display:inline-block">›</span></div><div class="ph-detail" style="display:none;padding:10px 0 4px;border-top:1px solid var(--line2);margin-top:8px"><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Load volume: ${r.metrics?.load_volume?Math.round(r.metrics.load_volume):'—'}</div><button onclick="event.stopPropagation();window.vertexDeleteProgressLog('${r.id}',this.closest('.progress-history-item'))" style="background:none;border:1px solid var(--red);color:var(--red);font-size:12px;cursor:pointer;padding:4px 12px;border-radius:4px;line-height:1">✕ Remove workout</button></div></div>`;
   el.innerHTML=display.length?display.map(rowHtml).join('')+(hasOlder?`<div style="padding:12px 0;text-align:center"><button onclick="renderProgressHistoryTab(true)" class="btn small" style="font-size:12px">Show older (${all.length-display.length} more)</button></div>`:'<div style="padding:8px 0;text-align:center;font-size:12px;color:var(--muted)">All history shown</div>'):'<div class="empty-note">No workout history yet.</div>';
 }
 
@@ -5934,7 +5930,7 @@ function setWellnessTab(tab){
   if(tab==='checkin') renderCheckinTab();
   if(tab==='history') wcRenderHistory();
   if(tab==='trends') wcRenderTrends();
-  if(tab==='dexa'){const k=localStorage.getItem('anthro_key');if(k){const el=document.getElementById('dexa-api-key');if(el)el.value=k;}}
+  if(tab==='dexa'){}
   if(tab==='bodycomp'){ wcRenderDexaDashboard(); if(typeof renderSegmentTrends==='function') renderSegmentTrends(); if(typeof renderBFforecast==='function') renderBFforecast(); if(typeof renderGainLossRate==='function') renderGainLossRate(); if(typeof renderSymmetry==='function') renderSymmetry(); }
   if(tab==='stack') renderStackTab();
 }
@@ -6095,7 +6091,7 @@ function wcRenderHistory(){
     const change=prev&&prev.weight&&e.weight?(e.weight-prev.weight):null;
     const changeStr=change!==null?`<span class="${change<0?'wc-change-down':'wc-change-up'}">${change<0?'▼':'▲'} ${Math.abs(change).toFixed(1)} lb</span>`:'';
     const flags=wcGetFlags(e);
-    return`<div class="wc-he-entry"><div class="wc-he-header" onclick="this.nextElementSibling.classList.toggle('open')"><div><div class="wc-he-date">${wcFmt(e.date)}</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">${flags.slice(0,2).map(f=>`<span class="wc-badge wc-badge-amber">⚑ ${f.split('—')[0].trim()}</span>`).join('')}</div></div><div style="text-align:right"><div class="wc-he-weight">${e.weight||'—'} lb</div>${changeStr}</div></div><div class="wc-he-body"><div class="wc-he-grid"><div class="wc-he-metric"><div class="ml">Hunger AM/PM</div><div class="mv">${e.hungerAm||'—'} / ${e.hungerPm||'—'}</div></div><div class="wc-he-metric"><div class="ml">Cravings</div><div class="mv">${e.cravings||'—'}</div></div><div class="wc-he-metric"><div class="ml">Energy</div><div class="mv">${e.energy||'—'}</div></div><div class="wc-he-metric"><div class="ml">Sleep</div><div class="mv">${e.sleep||'—'}</div></div><div class="wc-he-metric"><div class="ml">Recovery</div><div class="mv">${e.recovery||'—'}</div></div><div class="wc-he-metric"><div class="ml">Strength</div><div class="mv">${e.strength||'—'}</div></div><div class="wc-he-metric"><div class="ml">Training</div><div class="mv">${e.training||'—'}</div></div><div class="wc-he-metric"><div class="ml">Protein</div><div class="mv">${e.protein||'—'}</div></div><div class="wc-he-metric"><div class="ml">GI / Nausea</div><div class="mv">${e.gi||'—'} / ${e.nausea||'—'}</div></div><div class="wc-he-metric"><div class="ml">Libido</div><div class="mv">${e.libido||'—'}</div></div></div>${e.peptides&&e.peptides.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">${e.peptides.map(p=>`<span class="wc-stack-chip ${p.on_cycle?'on':'off'}">${escapeHtml(p.name)} ${p.dose||''}${p.unit||''}</span>`).join('')}</div>`:''}<div style="margin-top:10px"><button class="btn small" style="color:var(--red);border-color:var(--red);background:none" onclick="deleteCheckin('${e.date}')">✕ Remove</button></div></div></div>`;
+    return`<div class="wc-he-entry"><div class="wc-he-header" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.wc-he-chevron').textContent=this.nextElementSibling.classList.contains('open')?'›':'›'"><div><div class="wc-he-date">${wcFmt(e.date)}</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">${flags.slice(0,2).map(f=>`<span class="wc-badge wc-badge-amber">⚑ ${f.split('—')[0].trim()}</span>`).join('')}</div></div><div style="display:flex;align-items:center;gap:12px"><div style="text-align:right"><div class="wc-he-weight">${e.weight||'—'} lb</div>${changeStr}</div><span class="wc-he-chevron" style="color:var(--muted);font-size:16px;line-height:1;transition:transform .2s">›</span></div></div><div class="wc-he-body"><div class="wc-he-grid"><div class="wc-he-metric"><div class="ml">Hunger AM/PM</div><div class="mv">${e.hungerAm||'—'} / ${e.hungerPm||'—'}</div></div><div class="wc-he-metric"><div class="ml">Cravings</div><div class="mv">${e.cravings||'—'}</div></div><div class="wc-he-metric"><div class="ml">Energy</div><div class="mv">${e.energy||'—'}</div></div><div class="wc-he-metric"><div class="ml">Sleep</div><div class="mv">${e.sleep||'—'}</div></div><div class="wc-he-metric"><div class="ml">Recovery</div><div class="mv">${e.recovery||'—'}</div></div><div class="wc-he-metric"><div class="ml">Strength</div><div class="mv">${e.strength||'—'}</div></div><div class="wc-he-metric"><div class="ml">Training</div><div class="mv">${e.training||'—'}</div></div><div class="wc-he-metric"><div class="ml">Protein</div><div class="mv">${e.protein||'—'}</div></div><div class="wc-he-metric"><div class="ml">GI / Nausea</div><div class="mv">${e.gi||'—'} / ${e.nausea||'—'}</div></div><div class="wc-he-metric"><div class="ml">Libido</div><div class="mv">${e.libido||'—'}</div></div></div>${e.peptides&&e.peptides.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">${e.peptides.map(p=>`<span class="wc-stack-chip ${p.on_cycle?'on':'off'}">${escapeHtml(p.name)} ${p.dose||''}${p.unit||''}</span>`).join('')}</div>`:''}<div style="margin-top:10px"><button class="btn small" style="color:var(--red);border-color:var(--red);background:none" onclick="deleteCheckin('${e.date}')">✕ Remove</button></div></div></div>`;
   }).join('');
 }
 
@@ -6169,9 +6165,9 @@ async function handleDexaFile(file){
   if(!file)return;
   const statusEl=document.getElementById('dexa-parse-status');
   if(statusEl){statusEl.style.display='block';statusEl.innerHTML=`<div class="wc-banner warn"><div class="wc-banner-dot"></div><div>⟳ Parsing PDF with Claude API — please wait…</div></div>`;}
-  let apiKey=document.getElementById('dexa-api-key')?.value?.trim()||localStorage.getItem('anthro_key')||'';
+  let apiKey=localStorage.getItem('anthro_key')||'';
   if(!apiKey||!apiKey.startsWith('sk-')){apiKey=prompt('Enter your Anthropic API key (starts with sk-ant-):')||'';if(!apiKey.startsWith('sk-')){if(statusEl)statusEl.innerHTML=`<div class="wc-banner warn"><div class="wc-banner-dot"></div><div>No API key — fill fields manually.</div></div>`;return;}}
-  localStorage.setItem('anthro_key',apiKey);const keyEl=document.getElementById('dexa-api-key');if(keyEl)keyEl.value=apiKey;
+  // API key stored server-side via Vercel env — no localStorage needed
   try{
     const base64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
     const prompt=`You are parsing a DexaFit body composition scan report PDF. Extract ALL values and return ONLY valid JSON, no markdown, no backticks, no explanation.Return this exact JSON shape (use null for any missing field):{"date":"YYYY-MM-DD","bodyScore":"e.g. C-","totalWeight":0,"fatMassLbs":0,"leanMassLbs":0,"boneMassLbs":0,"bodyFatPct":0,"visceralFatLbs":0,"androidFatPct":0,"gynoidFatPct":0,"agRatio":0,"tScore":0,"zScore":0,"almi":0,"ffmi":0,"armsFatPct":0,"armsFatLbs":0,"armsLeanLbs":0,"trunkFatPct":0,"trunkFatLbs":0,"trunkLeanLbs":0,"legsFatPct":0,"legsFatLbs":0,"legsLeanLbs":0,"leftArmLeanLbs":0,"rightArmLeanLbs":0,"leftLegLeanLbs":0,"rightLegLeanLbs":0,"notes":""}`;
@@ -6236,7 +6232,8 @@ function renderWellnessPage(){
   // Show Sync button if plugin exists OR isNativePlatform — whichever works
   const syncBtn = document.getElementById('btn-apple-health-sync');
   const nonNativeNotice = document.getElementById('apple-health-non-native-notice');
-  if(syncBtn) syncBtn.style.display = '';
+  const isNativePWA = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  if(syncBtn) syncBtn.style.display = isNativePWA ? '' : 'none';
   if(nonNativeNotice) nonNativeNotice.style.display = 'none';
 
   if(!wcLogs.length && authUser) loadWcLogs().then(()=>{if(wellnessTab==='dashboard')wcRenderDashboard();if(wellnessTab==='history')wcRenderHistory();if(wellnessTab==='trends')wcRenderTrends();}).catch(()=>{});
@@ -8901,9 +8898,13 @@ function renderGoalTracker(){
   const logs=typeof progressRows==='function'?progressRows():[];
   const sum=typeof progressSummary==='function'?progressSummary(logs):{};
   const currentSessions=sum.thisWeek?.length??0;
+  // Body fat: prefer Apple Health daily (current) over DEXA scan (quarterly)
+  const healthRowsBF = typeof loadHealthEntries==='function' ? loadHealthEntries() : [];
+  const latestHBF = healthRowsBF[0];
+  const ahBF = latestHBF?.bodyFatPct != null ? parseFloat(latestHBF.bodyFatPct) : null;
   const scans=typeof wcDexaScans!=='undefined'?wcDexaScans:[];
   const latestScan=scans.length?scans[scans.length-1]:null;
-  const currentBF=latestScan?.bodyFatPct??null;
+  const currentBF = ahBF ?? latestScan?.bodyFatPct ?? null;
   const goalDefs=[
     {key:'weight',label:'Weight Goal',unit:'lb',current:currentWeight,target:goals.weight||195,lower:true,min:100,max:400,step:0.5},
     {key:'bf',label:'Body Fat Goal',unit:'%',current:currentBF,target:goals.bf||15,lower:true,min:5,max:40,step:0.1},
@@ -9136,7 +9137,7 @@ document.addEventListener('click',async e=>{
     if(btn){ btn.disabled=false; btn.textContent='Sync Apple Health'; }
   }
   return
-} if(t.id==='btn-wellness-refresh'){await refreshAppleHealthMetrics(); renderWellnessPage(); if(typeof toast==='function') toast('Health data refreshed ✓'); return} if(t.id==='btn-home-refresh-metrics'){
+} if(t.id==='btn-wellness-refresh'){await refreshAppleHealthMetrics(); renderWellnessPage(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderGoalTracker==='function') renderGoalTracker(); if(typeof toast==='function') toast('Health data refreshed ✓'); return} if(t.id==='btn-home-refresh-metrics'){
   await refreshAppleHealthMetrics();
   if(typeof renderHomeDashboard==='function') renderHomeDashboard();
   // After data loads, patch weight card in-place without full re-render
@@ -9784,7 +9785,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-c';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-d';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -12254,9 +12255,9 @@ window.vertexImportHKWorkout = async function(idx) {
   function render(){
     const btn=ensureToggle();
     if(btn){
-      btn.textContent=on()?'Macro Tracking: On':'Macro Tracking: Off';
-      btn.className='progress-tab';
-      btn.style.cssText=on()?'color:var(--acc);border-color:var(--acc);opacity:1':'opacity:0.7';
+      btn.innerHTML=on()?'<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:var(--acc);display:inline-block"></span>Macro Tracking <span style="font-size:10px;color:var(--acc);font-weight:700">ON</span></span>':'<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:var(--muted);display:inline-block"></span>Macro Tracking <span style="font-size:10px;color:var(--muted)">OFF</span></span>';
+      btn.className='btn small';
+      btn.style.cssText='width:auto;border:1px solid var(--line2);margin-bottom:12px';
       btn.onclick=function(e){
         e.preventDefault();
         setOn(!on());

@@ -5336,7 +5336,10 @@ function renderProgressHistoryTab(){
   const rows=progressRows();
   const el=document.getElementById('progressHistory');
   if(!el) return;
-  el.innerHTML=rows.length?rows.slice(0,30).map(r=>`<div class="history-row"><div class="history-date">${new Date(r.completed_at).toLocaleDateString()}<br>${new Date(r.completed_at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</div><div><div class="history-name">${escapeHtml(r.workout_name||'Workout')}</div><div class="history-meta">${escapeHtml(String(r.workout_type||'strength').toUpperCase())} · ${r.metrics?.moves||0} moves · ${r.metrics?.est_minutes||0} min est.</div></div><div class="mono">${r.metrics?.sets||0} sets</div><div class="mono">${r.metrics?.load_volume?Math.round(r.metrics.load_volume):'—'} vol</div></div>`).join(''):'<div class="empty-note">No workout history yet.</div>';
+  const cutoff=new Date(Date.now()-14*24*60*60*1000);
+  const recent=rows.filter(r=>new Date(r.completed_at)>=cutoff);
+  const display=recent.length?recent:rows.slice(0,14);
+  el.innerHTML=display.length?display.map(r=>`<div class="history-row progress-history-item" style="position:relative"><div class="history-date">${new Date(r.completed_at).toLocaleDateString()}<br>${new Date(r.completed_at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</div><div><div class="history-name">${escapeHtml(r.workout_name||'Workout')}</div><div class="history-meta">${escapeHtml(String(r.workout_type||'strength').toUpperCase())} · ${r.metrics?.moves||0} moves · ${r.metrics?.est_minutes||0} min est.</div></div><div class="mono">${r.metrics?.sets||0} sets</div><div class="mono">${r.metrics?.load_volume?Math.round(r.metrics.load_volume):'—'} vol</div><button ontouchstart="window.vertexDeleteProgressLog('${r.id}',this)" onclick="window.vertexDeleteProgressLog('${r.id}',this)" style="position:absolute;top:6px;right:6px;background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px;line-height:1" title="Remove">✕</button></div>`).join('')+'<div style="padding:8px 0;text-align:center;font-size:12px;color:var(--muted)">Showing last 14 days · Older workouts stored in history</div>':'<div class="empty-note">No workout history yet.</div>';
 }
 
 function renderProgressPage(){
@@ -9072,7 +9075,9 @@ document.addEventListener('click',async e=>{
         }catch(e){console.warn('HK import cross-ref error:',e);}
         const activityIcons={'Strength Training':'🏋️','Functional Strength':'🏋️','HIIT':'⚡','Running':'🏃','Cycling':'🚴','Walking':'🚶','Yoga':'🧘','Pilates':'🧘','Swimming':'🏊','Rowing':'🚣','Elliptical':'🔄','Stair Climbing':'🪜','Hiking':'🥾','Boxing':'🥊','Martial Arts':'🥋','Dance':'💃','Cooldown':'🧊','Mind & Body':'🧠','Core Training':'💪','Flexibility':'🤸','Jump Rope':'⚡','Workout':'💪'};
         if(card&&list){
-          const visible=workouts.filter(w=>{const wid=w.startDate+'_'+w.activityType; return !imported[wid] || imported[wid]==='pending';});
+          const allVisible=workouts.filter(w=>{const wid=w.startDate+'_'+w.activityType; return !imported[wid] || imported[wid]==='pending';});
+          const visible=allVisible.slice(0,5);
+          const hasMore=allVisible.length>5;
           if(!visible.length){
             list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">No new workouts to review.</div>';
           } else {
@@ -9088,7 +9093,9 @@ document.addEventListener('click',async e=>{
               return `<div class="hk-workout-row" id="hk-row-${origIdx}" style="position:relative"><button ontouchstart="window.vertexDismissHKWorkout(${origIdx})" style="position:absolute;top:4px;right:4px;background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:8px;line-height:1;z-index:2;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center" title="Dismiss">✕</button><div class="hk-workout-icon">${icon}</div><div class="hk-workout-info"><div class="hk-workout-name">${w.activityName}</div><div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>${w.sourceDevice?'<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>':''}</div><div class="hk-workout-import" style="flex-shrink:0;margin-right:24px">${isImported?'<span class="hk-workout-imported">✓ Imported</span>':`<button class="btn small" ontouchstart="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button>`}</div></div>`;
             }).join('');
           }
+          if(hasMore && list) list.insertAdjacentHTML('beforeend',`<div style="padding:8px 0;text-align:center"><button class="btn small" ontouchstart="window.vertexShowMoreHKWorkouts()" style="font-size:11px;width:100%">Show ${allVisible.length-5} more older workouts</button></div>`);
           window.__hkWorkouts=workouts;
+          window.__hkAllVisible=allVisible;
           window.__hkImportedKey='vertex_hk_imported';
           if(syncTime) syncTime.textContent='Synced '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
           card.style.display='block';
@@ -9760,7 +9767,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-p';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-q';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10178,7 +10185,6 @@ window.testAppleHealth = async function () {
 window.vertexDismissHKWorkout = function(idx) {
   const row = document.getElementById('hk-row-'+idx);
   if(row) row.style.display = 'none';
-  // Persist dismiss so it survives next sync
   try {
     const workouts = window.__hkWorkouts || [];
     const w = workouts[idx];
@@ -10191,6 +10197,41 @@ window.vertexDismissHKWorkout = function(idx) {
       localStorage.setItem(importedKey, JSON.stringify(imported));
     }
   } catch(e) {}
+};
+
+window.vertexShowMoreHKWorkouts = function() {
+  const list = document.getElementById('hkWorkoutList');
+  const allVisible = window.__hkAllVisible || window.__hkWorkouts || [];
+  const imported = (() => { try{ return JSON.parse(localStorage.getItem('vertex_hk_imported')||'{}'); }catch(e){ return {}; } })();
+  const activityIcons={'Strength Training':'🏋️','Functional Strength':'🏋️','HIIT':'⚡','Running':'🏃','Cycling':'🚴','Walking':'🚶','Yoga':'🧘','Pilates':'🧘','Swimming':'🏊','Rowing':'🚣','Elliptical':'🔄','Stair Climbing':'🪜','Hiking':'🥾','Boxing':'🥊','Martial Arts':'🥋','Dance':'💃','Cooldown':'🧊','Mind & Body':'🧠','Core Training':'💪','Flexibility':'🤸','Jump Rope':'⚡','Workout':'💪'};
+  if(!list) return;
+  list.innerHTML = allVisible.map(w => {
+    const workouts = window.__hkWorkouts || [];
+    const origIdx = workouts.indexOf(w);
+    const icon = activityIcons[w.activityName]||'💪';
+    const date = new Date(w.startDate).toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
+    const dur = w.durationMinutes ? w.durationMinutes+' min' : '';
+    const cal = w.calories ? w.calories+' cal' : '';
+    const meta = [dur,cal].filter(Boolean).join(' · ');
+    return `<div class="hk-workout-row" id="hk-row-${origIdx}" style="position:relative"><button ontouchstart="window.vertexDismissHKWorkout(${origIdx})" style="position:absolute;top:4px;right:4px;background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:8px;line-height:1;z-index:2;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center" title="Dismiss">✕</button><div class="hk-workout-icon">${icon}</div><div class="hk-workout-info"><div class="hk-workout-name">${w.activityName}</div><div class="hk-workout-meta">${date}${meta?' · '+meta:''}</div>${w.sourceDevice?'<div class="hk-workout-meta" style="opacity:.6">'+w.sourceDevice+'</div>':''}</div><div class="hk-workout-import" style="flex-shrink:0;margin-right:24px"><button class="btn small" ontouchstart="window.vertexImportHKWorkout(${origIdx})" style="font-size:10px;padding:4px 8px">Import</button></div></div>`;
+  }).join('');
+};
+
+window.vertexDeleteProgressLog = async function(logId, el) {
+  if(!logId) return;
+  try {
+    const supa = (typeof getSupa==='function') ? getSupa() : window._supa;
+    if(supa) {
+      const { error } = await supa.from('vertex_workout_logs').delete().eq('id', logId);
+      if(!error) {
+        const card = el?.closest('.progress-history-item');
+        if(card) card.remove();
+        if(typeof window.toast==='function') window.toast('Workout removed');
+      } else {
+        if(typeof window.toast==='function') window.toast('Error: '+error.message);
+      }
+    }
+  } catch(e) { console.warn('Delete log error:', e); }
 };
 
 // ── IMPORT HEALTHKIT WORKOUT TO VERTEX LOGS ──────────────────

@@ -5333,14 +5333,17 @@ function renderProgressExercises(){
 }
 
 // --- HISTORY TAB ---
-function renderProgressHistoryTab(){
+function renderProgressHistoryTab(showAll){
   const rows=progressRows();
   const el=document.getElementById('progressHistory');
   if(!el) return;
+  const all=rows.filter(r=>r.workout_type!=='hk_dismissed');
   const cutoff=new Date(Date.now()-14*24*60*60*1000);
-  const recent=rows.filter(r=>new Date(r.completed_at)>=cutoff && r.workout_type!=='hk_dismissed');
-  const display=recent.length?recent:rows.filter(r=>r.workout_type!=='hk_dismissed').slice(0,14);
-  el.innerHTML=display.length?display.map(r=>`<div class="history-row progress-history-item" style="position:relative;padding-right:32px"><div class="history-date">${new Date(r.completed_at).toLocaleDateString()}<br>${new Date(r.completed_at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</div><div><div class="history-name">${escapeHtml(r.workout_name||'Workout')}</div><div class="history-meta">${escapeHtml(String(r.workout_type||'strength').toUpperCase())} · ${r.metrics?.moves||0} moves · ${r.metrics?.est_minutes||0} min est.</div></div><div class="mono">${r.metrics?.sets||0} sets</div><div class="mono">${r.metrics?.load_volume?Math.round(r.metrics.load_volume):'—'} vol</div><button ontouchstart="window.vertexDeleteProgressLog('${r.id}',this)" onclick="window.vertexDeleteProgressLog('${r.id}',this)" style="position:absolute;top:8px;right:6px;background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px;line-height:1" title="Remove">✕</button></div>`).join('')+'<div style="padding:8px 0;text-align:center;font-size:12px;color:var(--muted)">Last 14 days shown · All history in Progress tab</div>':'<div class="empty-note">No workout history yet.</div>';
+  const recent=all.filter(r=>new Date(r.completed_at)>=cutoff);
+  const display=showAll?all:(recent.length?recent:all.slice(0,14));
+  const hasOlder=!showAll&&all.length>display.length;
+  const rowHtml=r=>`<div class="history-row progress-history-item" style="position:relative;padding-right:32px"><div class="history-date">${new Date(r.completed_at).toLocaleDateString()}<br>${new Date(r.completed_at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</div><div><div class="history-name">${escapeHtml(r.workout_name||'Workout')}</div><div class="history-meta">${escapeHtml(String(r.workout_type||'strength').toUpperCase())} · ${r.metrics?.moves||0} moves · ${r.metrics?.est_minutes||0} min est.</div></div><div class="mono">${r.metrics?.sets||0} sets</div><div class="mono">${r.metrics?.load_volume?Math.round(r.metrics.load_volume):'—'} vol</div><button ontouchstart="window.vertexDeleteProgressLog('${r.id}',this)" onclick="window.vertexDeleteProgressLog('${r.id}',this)" style="position:absolute;top:8px;right:6px;background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px;line-height:1" title="Remove">✕</button></div>`;
+  el.innerHTML=display.length?display.map(rowHtml).join('')+(hasOlder?`<div style="padding:12px 0;text-align:center"><button onclick="renderProgressHistoryTab(true)" class="btn small" style="font-size:12px">Show older (${all.length-display.length} more)</button></div>`:'<div style="padding:8px 0;text-align:center;font-size:12px;color:var(--muted)">All history shown</div>'):'<div class="empty-note">No workout history yet.</div>';
 }
 
 function renderProgressPage(){
@@ -9772,7 +9775,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260521';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-b';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -9978,10 +9981,10 @@ window.testAppleHealth = async function () {
         body_weight: metrics.weight != null ? Math.round(metrics.weight * 10) / 10 : null,
         body_fat_pct: metrics.body_fat_pct != null ? Math.round(metrics.body_fat_pct * 1000) / 10 : null,
         lean_mass: metrics.lean_mass != null ? Math.round(metrics.lean_mass * 10) / 10 : null,
-        vo2_max: metrics.vo2_max != null ? Math.round(metrics.vo2_max * 10) / 10 : null,
+        vo2_max: (metrics.vo2_max ?? metrics.vo2Max) != null ? Math.round((metrics.vo2_max ?? metrics.vo2Max) * 10) / 10 : null,
         respiratory_rate: metrics.respiratory_rate != null ? Math.round(metrics.respiratory_rate * 10) / 10 : null,
         spo2: metrics.spo2 != null ? Math.round(metrics.spo2 * 1000) / 10 : null,
-        wrist_temp_deviation: metrics.wrist_temp_deviation != null ? Math.round(metrics.wrist_temp_deviation * 100) / 100 : null,
+        wrist_temp_deviation: (metrics.wrist_temp_deviation ?? metrics.wristTempDeviation) != null ? Math.round((metrics.wrist_temp_deviation ?? metrics.wristTempDeviation) * 100) / 100 : null,
         exercise_minutes: metrics.exercise_minutes != null ? Math.round(Number(metrics.exercise_minutes)) : null,
         standing_minutes: vertexMetricStandingMinutes,
         source: 'apple_health'

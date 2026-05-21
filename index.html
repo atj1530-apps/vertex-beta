@@ -26,7 +26,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vertex">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://api.coingecko.com; img-src 'self' blob: data: https:; worker-src 'self' blob:;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.coingecko.com; img-src 'self' blob: data: https:; worker-src 'self' blob:;">
 <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -2620,7 +2620,7 @@ button.acc-hint {
 <div class="health-form"><label class="health-input"><span class="label">Date</span><input id="healthDate" type="date"></label><label class="health-input"><span class="label">Sleep Hours</span><input id="healthSleep" type="number" step="0.1" min="0" max="24" placeholder="e.g., 7.2"></label><label class="health-input"><span class="label">Steps</span><input id="healthSteps" type="number" min="0" placeholder="e.g., 8500"></label><label class="health-input"><span class="label">Active Calories</span><input id="healthCalories" type="number" min="0" placeholder="e.g., 620"></label><label class="health-input"><span class="label">Workout Minutes</span><input id="healthWorkoutMinutes" type="number" min="0" placeholder="e.g., 45"></label><label class="health-input"><span class="label">Resting HR</span><input id="healthRestingHr" type="number" min="20" max="220" placeholder="e.g., 58"></label><label class="health-input"><span class="label">HRV</span><input id="healthHrv" type="number" min="0" placeholder="e.g., 42"></label><label class="health-input"><span class="label">Body Weight</span><input id="healthWeight" type="number" step="0.1" min="0" placeholder="optional"></label><label class="health-input wide" style="grid-column:1/-1"><span class="label">Notes</span><input id="healthNotes" placeholder="Optional: override notes, data source"></label></div><div class="modal-grid" style="margin-top:14px"><button id="btn-save-health" class="btn acc">Save Entry</button><button id="btn-clear-health-form" class="btn">Clear</button></div>
   </div>
 </div>
-<div class="progress-layout" style="margin-top:12px"><section class="progress-card"><div class="label">7-Day Health Trend</div><div id="healthTrendPanel"></div></section><section class="progress-card wide"><div class="label">Health History</div><div id="healthHistory"></div></section></div></div>
+<div style="margin-top:12px"><div class="progress-card" style="margin-bottom:12px"><div class="label">7-Day Health Trend</div><div id="healthTrendPanel"></div></div><div class="progress-card wide" style="overflow-x:hidden"><div class="label">Health History</div><div id="healthHistory" style="overflow-x:hidden"></div></div></div></div>
 
 <!-- CHECK-IN SUB-TAB -->
 <!-- DASHBOARD SUB-TAB -->
@@ -2635,6 +2635,13 @@ button.acc-hint {
   <div class="wc-dash-card" style="margin-bottom:12px"><div class="wc-dash-card-label">Energy, Sleep &amp; Recovery</div><div class="wc-chart-wrap"><canvas id="wc-dc-vitals"></canvas></div></div>
   <div class="wc-dash-card" style="margin-bottom:12px"><div class="wc-dash-card-label">Hunger &amp; Cravings</div><div class="wc-chart-wrap"><canvas id="wc-dc-hunger"></canvas></div></div>
   <div id="wc-dash-alerts"></div>
+  <div id="wc-dash-trends-section" style="margin-top:12px">
+    <div class="wc-dash-card" style="margin-bottom:12px"><div class="wc-dash-card-label">Weight Trend</div><div class="wc-chart-wrap2"><canvas id="wc-tc-weight"></canvas></div></div>
+    <div class="wc-dash-grid" style="margin-bottom:12px">
+      <div class="wc-dash-card"><div class="wc-dash-card-label">Energy &amp; Sleep</div><div class="wc-chart-wrap2"><canvas id="wc-tc-energy"></canvas></div></div>
+      <div class="wc-dash-card"><div class="wc-dash-card-label">Recovery</div><div class="wc-chart-wrap2"><canvas id="wc-tc-recovery"></canvas></div></div>
+    </div>
+  </div>
 </div>
 
 <!-- CHECK-IN FORM SUB-TAB -->
@@ -2723,7 +2730,10 @@ button.acc-hint {
   <div class="wc-section" style="margin-bottom:14px">
     <div class="wc-section-head"><span>🦴</span> Upload DexaFit Report</div>
     <div class="wc-section-body">
-      <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:6px">Anthropic API Key (for auto-parse)</label>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <label style="font-size:11px;color:var(--muted)">Anthropic API Key (for auto-parse)</label>
+        <button type="button" onclick="(function(){const i=document.getElementById('dexa-api-key');const b=document.getElementById('dexa-key-toggle');i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'Show':'Hide';})()" id="dexa-key-toggle" style="font-size:10px;color:var(--muted);background:none;border:1px solid var(--line2);border-radius:4px;padding:2px 8px;cursor:pointer">Show</button>
+      </div>
       <input type="password" id="dexa-api-key" placeholder="sk-ant-api03-…" style="width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:6px;color:var(--text);font-size:13px;padding:7px 10px;margin-bottom:10px" oninput="localStorage.setItem('anthro_key',this.value)">
       <div class="wc-drop-zone" id="dexa-drop-zone" onclick="document.getElementById('dexa-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--acc)'" ondragleave="this.style.borderColor='var(--line2)'" ondrop="window.handleDexaDrop(event)">
         <div style="font-size:24px;margin-bottom:6px">📄</div>
@@ -2823,13 +2833,6 @@ button.acc-hint {
 <!-- STACK SUB-TAB -->
 
 <!-- PROTOCOL SUB-TAB -->
-<div id="wc-dash-trends-section" style="margin-top:12px">
-  <div class="wc-dash-card" style="margin-bottom:12px"><div class="wc-dash-card-label">Weight Trend</div><div class="wc-chart-wrap2"><canvas id="wc-tc-weight"></canvas></div></div>
-  <div class="wc-dash-grid" style="margin-bottom:12px">
-    <div class="wc-dash-card"><div class="wc-dash-card-label">Energy &amp; Sleep</div><div class="wc-chart-wrap2"><canvas id="wc-tc-energy"></canvas></div></div>
-    <div class="wc-dash-card"><div class="wc-dash-card-label">Recovery</div><div class="wc-chart-wrap2"><canvas id="wc-tc-recovery"></canvas></div></div>
-  </div>
-</div>
 <div id="wtab-protocol"  style="display:none">
 
   <!-- LOG TODAY'S PROTOCOL — collapsible accordion -->
@@ -4215,12 +4218,12 @@ const FILTER_GROUPS={
   'Stretching':['All','Hips','Hamstrings','Spine','Shoulders','Chest']
 };
 const TRAINING_HELP={
-  'Strength':'Strength library: traditional sets, reps, and weight work.',
-  'Kettlebell':'Kettlebell library: power, conditioning, and controlled strength moves.',
-  'Yoga / Pilates':'Yoga/Pilates library: flow, balance, core, and mobility movements.',
-  'Cardio':'Cardio library: low-impact, HIIT, and conditioning options.',
-  'Recovery':'Recovery library: breathwork and low-intensity mobility reset work.',
-  'Stretching':'Stretching library: longer holds for flexibility and downshift work.'
+  'Strength':'',
+  'Kettlebell':'',
+  'Yoga / Pilates':'',
+  'Cardio':'',
+  'Recovery':'',
+  'Stretching':''
 };
 const TEMPLATES={
   pull:{name:'Pull Day',type:'strength',exercises:['Pull-Up','Wide-Grip Pull-Up','Lat Pullover','One-Arm Row','Hammer Curl']},
@@ -6033,10 +6036,16 @@ function wcRenderDashboard(){
   // KPIs
   // Weight cards removed from wellness dashboard - now shown in Progress tab
 
-  // Weight chart
+  // Weight chart — merge Apple Health daily weight with check-in weight
   wcDestroyChart('wc-dc-weight');
-  const wLabels=sorted.map(e=>{const[,m,d]=e.date.split('-');return`${m}/${d}`;});
-  const wData=sorted.map(e=>e.weight);
+  // Build unified weight dataset: Apple Health daily entries take priority over check-in weights
+  const healthRows2 = typeof loadHealthEntries === 'function' ? loadHealthEntries() : [];
+  const ahWeightMap = {};
+  healthRows2.forEach(r => { if(r.date && r.bodyWeight != null) ahWeightMap[r.date] = Number(r.bodyWeight); });
+  // Combine: check-in dates + all Apple Health weight dates, sorted
+  const allWeightDates = [...new Set([...sorted.map(e=>e.date), ...Object.keys(ahWeightMap)])].sort();
+  const wLabels = allWeightDates.map(d => { const [,m,dy] = d.split('-'); return `${m}/${dy}`; });
+  const wData = allWeightDates.map(d => ahWeightMap[d] ?? (sorted.find(e=>e.date===d)?.weight ?? null));
   const projLabels=[...wLabels];const projData=wData.map(()=>null);
   if(rolling&&rolling>0){for(let i=1;i<=8;i++){const d=new Date(latest.date);d.setDate(d.getDate()+i*7);projLabels.push(`${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`);projData.push(Math.max(TARGET,+(latest.weight-rolling*i).toFixed(1)));wData.push(null);}}
   const wcEl=document.getElementById('wc-dc-weight');
@@ -6086,7 +6095,7 @@ function wcRenderHistory(){
     const change=prev&&prev.weight&&e.weight?(e.weight-prev.weight):null;
     const changeStr=change!==null?`<span class="${change<0?'wc-change-down':'wc-change-up'}">${change<0?'▼':'▲'} ${Math.abs(change).toFixed(1)} lb</span>`:'';
     const flags=wcGetFlags(e);
-    return`<div class="wc-he-entry"><div class="wc-he-header" onclick="this.nextElementSibling.classList.toggle('open')"><div><div class="wc-he-date">${wcFmt(e.date)}</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">${flags.slice(0,2).map(f=>`<span class="wc-badge wc-badge-amber">⚑ ${f.split('—')[0].trim()}</span>`).join('')}</div></div><div style="text-align:right"><div class="wc-he-weight">${e.weight||'—'} lb</div>${changeStr}</div></div><div class="wc-he-body"><div class="wc-he-grid"><div class="wc-he-metric"><div class="ml">Hunger AM/PM</div><div class="mv">${e.hungerAm||'—'} / ${e.hungerPm||'—'}</div></div><div class="wc-he-metric"><div class="ml">Cravings</div><div class="mv">${e.cravings||'—'}</div></div><div class="wc-he-metric"><div class="ml">Energy</div><div class="mv">${e.energy||'—'}</div></div><div class="wc-he-metric"><div class="ml">Sleep</div><div class="mv">${e.sleep||'—'}</div></div><div class="wc-he-metric"><div class="ml">Recovery</div><div class="mv">${e.recovery||'—'}</div></div><div class="wc-he-metric"><div class="ml">Strength</div><div class="mv">${e.strength||'—'}</div></div><div class="wc-he-metric"><div class="ml">Training</div><div class="mv">${e.training||'—'}</div></div><div class="wc-he-metric"><div class="ml">Protein</div><div class="mv">${e.protein||'—'}</div></div><div class="wc-he-metric"><div class="ml">GI / Nausea</div><div class="mv">${e.gi||'—'} / ${e.nausea||'—'}</div></div><div class="wc-he-metric"><div class="ml">Libido</div><div class="mv">${e.libido||'—'}</div></div></div>${e.peptides&&e.peptides.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">${e.peptides.map(p=>`<span class="wc-stack-chip ${p.on_cycle?'on':'off'}">${escapeHtml(p.name)} ${p.dose||''}${p.unit||''}</span>`).join('')}</div>`:''}<div style="margin-top:10px"><button class="btn small red" onclick="deleteCheckin('${e.date}')">Delete</button></div></div></div>`;
+    return`<div class="wc-he-entry"><div class="wc-he-header" onclick="this.nextElementSibling.classList.toggle('open')"><div><div class="wc-he-date">${wcFmt(e.date)}</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">${flags.slice(0,2).map(f=>`<span class="wc-badge wc-badge-amber">⚑ ${f.split('—')[0].trim()}</span>`).join('')}</div></div><div style="text-align:right"><div class="wc-he-weight">${e.weight||'—'} lb</div>${changeStr}</div></div><div class="wc-he-body"><div class="wc-he-grid"><div class="wc-he-metric"><div class="ml">Hunger AM/PM</div><div class="mv">${e.hungerAm||'—'} / ${e.hungerPm||'—'}</div></div><div class="wc-he-metric"><div class="ml">Cravings</div><div class="mv">${e.cravings||'—'}</div></div><div class="wc-he-metric"><div class="ml">Energy</div><div class="mv">${e.energy||'—'}</div></div><div class="wc-he-metric"><div class="ml">Sleep</div><div class="mv">${e.sleep||'—'}</div></div><div class="wc-he-metric"><div class="ml">Recovery</div><div class="mv">${e.recovery||'—'}</div></div><div class="wc-he-metric"><div class="ml">Strength</div><div class="mv">${e.strength||'—'}</div></div><div class="wc-he-metric"><div class="ml">Training</div><div class="mv">${e.training||'—'}</div></div><div class="wc-he-metric"><div class="ml">Protein</div><div class="mv">${e.protein||'—'}</div></div><div class="wc-he-metric"><div class="ml">GI / Nausea</div><div class="mv">${e.gi||'—'} / ${e.nausea||'—'}</div></div><div class="wc-he-metric"><div class="ml">Libido</div><div class="mv">${e.libido||'—'}</div></div></div>${e.peptides&&e.peptides.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">${e.peptides.map(p=>`<span class="wc-stack-chip ${p.on_cycle?'on':'off'}">${escapeHtml(p.name)} ${p.dose||''}${p.unit||''}</span>`).join('')}</div>`:''}<div style="margin-top:10px"><button class="btn small" style="color:var(--red);border-color:var(--red);background:none" onclick="deleteCheckin('${e.date}')">✕ Remove</button></div></div></div>`;
   }).join('');
 }
 
@@ -6166,7 +6175,7 @@ async function handleDexaFile(file){
   try{
     const base64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
     const prompt=`You are parsing a DexaFit body composition scan report PDF. Extract ALL values and return ONLY valid JSON, no markdown, no backticks, no explanation.Return this exact JSON shape (use null for any missing field):{"date":"YYYY-MM-DD","bodyScore":"e.g. C-","totalWeight":0,"fatMassLbs":0,"leanMassLbs":0,"boneMassLbs":0,"bodyFatPct":0,"visceralFatLbs":0,"androidFatPct":0,"gynoidFatPct":0,"agRatio":0,"tScore":0,"zScore":0,"almi":0,"ffmi":0,"armsFatPct":0,"armsFatLbs":0,"armsLeanLbs":0,"trunkFatPct":0,"trunkFatLbs":0,"trunkLeanLbs":0,"legsFatPct":0,"legsFatLbs":0,"legsLeanLbs":0,"leftArmLeanLbs":0,"rightArmLeanLbs":0,"leftLegLeanLbs":0,"rightLegLeanLbs":0,"notes":""}`;
-    const response=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:1024,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}},{type:'text',text:prompt}]}]})});
+    const response=await fetch('/api/anthropic-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:1024,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}},{type:'text',text:prompt}]}]})});
     if(!response.ok){const e=await response.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${response.status}`);}
     const data=await response.json();
     const rawText=data.content.map(i=>i.text||'').join('');
@@ -8836,7 +8845,7 @@ Protocol doses due today: ${dueCount}
 Coach recommendation: ${r.action}`;
     const briefApiKey=localStorage.getItem('anthro_key')||'';
     if(!briefApiKey||!briefApiKey.startsWith('sk-')){el.innerHTML='';return;}
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':briefApiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:200,messages:[{role:'user',content:prompt}]})});
+    const resp=await fetch('/api/anthropic-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:200,messages:[{role:'user',content:prompt}]})});
     const data=await resp.json();
     const text=data?.content?.[0]?.text?.trim()||'';
     if(text){
@@ -9775,7 +9784,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-b';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-c';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10262,8 +10271,16 @@ window.vertexDeleteProgressLog = async function(logId, el) {
     if(supa) {
       const { error } = await supa.from('vertex_workout_logs').delete().eq('id', logId);
       if(!error) {
+        // Remove from DOM
         const card = el?.closest('.progress-history-item');
         if(card) card.remove();
+        // Remove from state.progressLogs so AI Coach + Goal Tracker update immediately
+        if(typeof state !== 'undefined' && Array.isArray(state.progressLogs)) {
+          state.progressLogs = state.progressLogs.filter(r => String(r.id) !== String(logId));
+        }
+        // Re-render affected components
+        if(typeof renderHomeDashboard === 'function') renderHomeDashboard();
+        if(typeof renderGoalTracker === 'function') renderGoalTracker();
         if(typeof window.toast==='function') window.toast('Workout removed');
       } else {
         if(typeof window.toast==='function') window.toast('Error: '+error.message);
@@ -12199,28 +12216,38 @@ window.vertexImportHKWorkout = async function(idx) {
     const dash=buttons.find(b=>(b.textContent||'').trim()==='Dashboard');
     return dash?dash.parentElement:null;
   }
+  function healthTabContent(){
+    return document.getElementById('wtab-health');
+  }
   function ensureToggle(){
-    const tabs=tabsContainer();
-    if(!tabs)return null;
-    // Inject as a progress-tab button directly in the tab row
+    const healthTab=healthTabContent();
+    if(!healthTab)return null;
     let btn=document.getElementById('vertexMacroToggleBtn');
     if(!btn){
       btn=document.createElement('button');
       btn.id='vertexMacroToggleBtn';
       btn.type='button';
-      tabs.appendChild(btn);
+      btn.className='btn small';
+      btn.style.cssText='margin-bottom:12px;margin-top:4px';
+      // Insert at top of health tab content
+      healthTab.insertBefore(btn, healthTab.firstChild);
     }
     return btn;
   }
   function ensurePanel(){
-    const tabs=tabsContainer();
-    if(!tabs)return null;
+    const healthTab=healthTabContent();
+    if(!healthTab)return null;
     let panel=document.getElementById('vertexMacroPanel');
     if(!panel){
       panel=document.createElement('div');
       panel.id='vertexMacroPanel';
       panel.className='vertex-macro-panel';
-      tabs.parentNode.insertBefore(panel,tabs.nextSibling);
+      const btn=document.getElementById('vertexMacroToggleBtn');
+      if(btn&&btn.parentNode===healthTab){
+        healthTab.insertBefore(panel, btn.nextSibling);
+      } else {
+        healthTab.insertBefore(panel, healthTab.firstChild);
+      }
     }
     return panel;
   }
@@ -12267,8 +12294,8 @@ window.vertexImportHKWorkout = async function(idx) {
         <div class="vertex-macro-kpi"><b>${m.fat}g</b><span>Fat</span><button class="vertex-macro-info" type="button" data-macro-info="fat" aria-label="How fat is calculated">i</button></div>
       </div>
       <div id="vertexMacroSticky" class="vertex-macro-sticky"></div>
-      <div class="vertex-macro-note">Using app truth values: current weight <b>${m.current.toFixed(1)} lb</b>, target weight <b>${m.target.toFixed(1)} lb</b>.</div>
-      <div id="vertexMacroHistoryStatus" class="vertex-macro-history-status">History: checking…</div>
+      
+      
     `;
     const g=document.getElementById('vertexMacroGoal');
     const a=document.getElementById('vertexMacroActivity');

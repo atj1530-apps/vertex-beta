@@ -9081,7 +9081,7 @@ document.addEventListener('click',async e=>{
           const visible=allVisible.slice(0,5);
           const hasMore=allVisible.length>5;
           if(!visible.length){
-            list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">No new workouts to review.</div>';
+            card.style.display='none';
           } else {
             list.innerHTML=visible.map((w)=>{
               const origIdx=workouts.indexOf(w);
@@ -9769,7 +9769,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-r';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-s';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10123,7 +10123,7 @@ window.testAppleHealth = async function () {
             return !imported[wid] || imported[wid]==='pending';
           });
           if(!visibleWorkouts.length){
-            list.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">No new workouts to review.</div>';
+            card.style.display='none';
           } else {
             list.innerHTML = visibleWorkouts.map((w,i) => {
               const icon = activityIcons[w.activityName] || '💪';
@@ -12197,8 +12197,9 @@ window.vertexImportHKWorkout = async function(idx) {
     if(!btn){
       btn=document.createElement('button');
       btn.id='vertexMacroToggleBtn';
-      btn.className='progress-tab';
+      btn.className='btn small';
       btn.type='button';
+      btn.style.cssText='margin-left:4px;font-size:11px;padding:4px 10px;opacity:0.8';
       btn.textContent='Macro Tracking: Off';
       tabs.appendChild(btn);
     }
@@ -12220,7 +12221,8 @@ window.vertexImportHKWorkout = async function(idx) {
     const btn=ensureToggle();
     if(btn){
       btn.textContent=on()?'Macro Tracking: On':'Macro Tracking: Off';
-      btn.classList.toggle('on',on());
+      btn.style.opacity = on() ? '1' : '0.6';
+      btn.style.borderColor = on() ? 'var(--acc)' : '';
       btn.onclick=function(e){
         e.preventDefault();
         setOn(!on());

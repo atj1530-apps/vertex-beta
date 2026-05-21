@@ -26,6 +26,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vertex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://api.coingecko.com; img-src 'self' blob: data: https:; worker-src 'self' blob:;">
 <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -8830,7 +8831,9 @@ Days since last workout: ${sum.daysSince??'unknown'}
 Current weight: ${wLatest?Number(wLatest[1]).toFixed(1)+' lb':'not available'}
 Protocol doses due today: ${dueCount}
 Coach recommendation: ${r.action}`;
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:200,messages:[{role:'user',content:prompt}]})});
+    const briefApiKey=localStorage.getItem('anthro_key')||'';
+    if(!briefApiKey||!briefApiKey.startsWith('sk-')){el.innerHTML='';return;}
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':briefApiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:200,messages:[{role:'user',content:prompt}]})});
     const data=await resp.json();
     const text=data?.content?.[0]?.text?.trim()||'';
     if(text){
@@ -9769,7 +9772,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260520-x';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260521';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -10249,6 +10252,8 @@ window.vertexShowMoreHKWorkouts = function() {
 
 window.vertexDeleteProgressLog = async function(logId, el) {
   if(!logId) return;
+  const confirmed = await vertexConfirm('Remove this workout from history?');
+  if(!confirmed) return;
   try {
     const supa = (typeof getSupa==='function') ? getSupa() : window._supa;
     if(supa) {

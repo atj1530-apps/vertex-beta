@@ -5087,7 +5087,7 @@ window.loadProgressLogs = loadProgressLogs;
 function progressRows(){
   return Array.isArray(state.progressLogs) ? state.progressLogs : [];
 }
-function progressSummary(rows){const now=new Date(); const start=weekStart(now); const prev=new Date(start); prev.setDate(prev.getDate()-7); const validRow=r=>r.workout_type!=='hk_dismissed'&&!(r.workout_name==='Walking'&&(r.metrics?.moves||0)===0&&(r.metrics?.sets||0)===0); const thisWeek=rows.filter(r=>new Date(r.completed_at)>=start&&validRow(r)); const prevWeek=rows.filter(r=>new Date(r.completed_at)>=prev && new Date(r.completed_at)<start&&validRow(r)); const totalVolume=thisWeek.reduce((a,r)=>a+(r.metrics?.load_volume||0),0); const totalSets=thisWeek.reduce((a,r)=>a+(r.metrics?.sets||0),0); const last=rows[0]; const daysSince=last?Math.floor((setStartOfDay(now)-setStartOfDay(new Date(last.completed_at)))/86400000):null; return {thisWeek,prevWeek,totalVolume,totalSets,last,daysSince};}
+function progressSummary(rows){const now=new Date(); const start=weekStart(now); const prev=new Date(start); prev.setDate(prev.getDate()-7); const validRow=r=>r.workout_type!=='hk_dismissed'&&r.workout_type!=='hk_imported_dismissed'; const thisWeek=rows.filter(r=>new Date(r.completed_at)>=start&&validRow(r)); const prevWeek=rows.filter(r=>new Date(r.completed_at)>=prev && new Date(r.completed_at)<start&&validRow(r)); const totalVolume=thisWeek.reduce((a,r)=>a+(r.metrics?.load_volume||0),0); const totalSets=thisWeek.reduce((a,r)=>a+(r.metrics?.sets||0),0); const last=rows[0]; const daysSince=last?Math.floor((setStartOfDay(now)-setStartOfDay(new Date(last.completed_at)))/86400000):null; return {thisWeek,prevWeek,totalVolume,totalSets,last,daysSince};}
 function parseLoad(v){return Number(String(v??'').replace(/[^0-9.]/g,''))||0;}
 function allLoggedExerciseSets(rows=progressRows()){
   const out=[];
@@ -8840,8 +8840,6 @@ Days since last workout: ${sum.daysSince??'unknown'}
 Current weight: ${wLatest?Number(wLatest[1]).toFixed(1)+' lb':'not available'}
 Protocol doses due today: ${dueCount}
 Coach recommendation: ${r.action}`;
-    const briefApiKey=localStorage.getItem('anthro_key')||'';
-    if(!briefApiKey||!briefApiKey.startsWith('sk-')){el.innerHTML='';return;}
     const resp=await fetch('/api/anthropic-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:200,messages:[{role:'user',content:prompt}]})});
     const data=await resp.json();
     const text=data?.content?.[0]?.text?.trim()||'';
@@ -9785,7 +9783,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-d';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-e';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -12221,6 +12219,7 @@ window.vertexImportHKWorkout = async function(idx) {
     return document.getElementById('wtab-health');
   }
   function ensureToggle(){
+    try {
     const healthTab=healthTabContent();
     if(!healthTab)return null;
     let btn=document.getElementById('vertexMacroToggleBtn');
@@ -12234,6 +12233,7 @@ window.vertexImportHKWorkout = async function(idx) {
       healthTab.insertBefore(btn, healthTab.firstChild);
     }
     return btn;
+    } catch(e) { console.warn('ensureToggle error:', e); return null; }
   }
   function ensurePanel(){
     const healthTab=healthTabContent();

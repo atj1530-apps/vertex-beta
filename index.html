@@ -2642,13 +2642,6 @@ button.acc-hint {
   <div class="wc-dash-card" style="margin-bottom:12px"><div class="wc-dash-card-label">Energy, Sleep &amp; Recovery</div><div class="wc-chart-wrap"><canvas id="wc-dc-vitals"></canvas></div></div>
   <div class="wc-dash-card" style="margin-bottom:12px"><div class="wc-dash-card-label">Hunger &amp; Cravings</div><div class="wc-chart-wrap"><canvas id="wc-dc-hunger"></canvas></div></div>
   <div id="wc-dash-alerts"></div>
-  <div id="wc-dash-trends-section" style="margin-top:12px">
-    <div class="wc-dash-card" style="margin-bottom:12px"><div class="wc-dash-card-label">Weight Trend</div><div class="wc-chart-wrap2"><canvas id="wc-tc-weight"></canvas></div></div>
-    <div class="wc-dash-grid" style="margin-bottom:12px">
-      <div class="wc-dash-card"><div class="wc-dash-card-label">Energy &amp; Sleep</div><div class="wc-chart-wrap2"><canvas id="wc-tc-energy"></canvas></div></div>
-      <div class="wc-dash-card"><div class="wc-dash-card-label">Recovery</div><div class="wc-chart-wrap2"><canvas id="wc-tc-recovery"></canvas></div></div>
-    </div>
-  </div>
 </div>
 
 <!-- CHECK-IN FORM SUB-TAB -->
@@ -5369,7 +5362,7 @@ function renderProgressPage(){
     }
   }
   const weeks=document.getElementById('progressWeeks');
-  if(weeks){const starts=[0,1,2,3].map(i=>{const d=weekStart(); d.setDate(d.getDate()-(i*7)); return d;}); const weekData=starts.map(st=>{const end=new Date(st); end.setDate(end.getDate()+7); const count=rows.filter(r=>{const dt=new Date(r.completed_at); return dt>=st&&dt<end;}).length; return {st,count};}); const withData=weekData.filter(w=>w.count>0); const max=Math.max(1,...withData.map(w=>w.count)); weeks.innerHTML=withData.length?withData.map(({st,count})=>`<div class="week-row"><div class="week-line"><span>${st.toLocaleDateString([],{month:'short',day:'numeric'})}</span><b>${count} session${count===1?'':'s'}</b></div><div class="bar"><div class="fill" style="width:${Math.round(count/max*100)}%"></div></div></div>`).join(''):'<div class="empty-note">Log your first workout to see weekly consistency.</div>';}
+  if(weeks){const starts=[0,1,2,3].map(i=>{const d=weekStart(); d.setDate(d.getDate()-(i*7)); return d;}); const weekData=starts.map(st=>{const end=new Date(st); end.setDate(end.getDate()+7); const count=rows.filter(r=>{const dt=new Date(r.completed_at); if(dt<st||dt>=end) return false; return r.workout_type!=='hk_dismissed'&&r.workout_type!=='hk_imported_dismissed';}).length; return {st,count};}); const withData=weekData.filter(w=>w.count>0); const max=Math.max(1,...withData.map(w=>w.count)); weeks.innerHTML=withData.length?withData.map(({st,count})=>`<div class="week-row"><div class="week-line"><span>${st.toLocaleDateString([],{month:'short',day:'numeric'})}</span><b>${count} session${count===1?'':'s'}</b></div><div class="bar"><div class="fill" style="width:${Math.round(count/max*100)}%"></div></div></div>`).join(''):'<div class="empty-note">Log your first workout to see weekly consistency.</div>';}
   const muscles=document.getElementById('progressMuscles');
   if(muscles){const totals={}; sum.thisWeek.forEach(r=>Object.entries(r.metrics?.muscles||{}).forEach(([m,v])=>{totals[m]=(totals[m]||0)+(v.sets||0)})); const max=Math.max(1,...Object.values(totals)); muscles.innerHTML=Object.keys(totals).length?Object.entries(totals).sort((a,b)=>b[1]-a[1]).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${escapeHtml(m)}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<div class="empty-note">Strength muscle volume appears after logging strength workouts.</div>';}
   const history=document.getElementById('progressHistory');
@@ -5753,19 +5746,16 @@ function renderHealthPage(){
   }
   const ready=document.getElementById('healthReadinessPanel'); if(ready){const r=calculateReadiness(last); const msg=!last?'No health entries yet. Add Apple Watch/manual data to unlock readiness coaching.':r.score>=4?'Green light: recovery looks supportive.':r.score<=2?'Recovery flag: consider lighter work or mobility.':'Maintain: train as planned and monitor fatigue.'; ready.innerHTML=`<div class="progress-kpi" style="margin-top:8px"><b>${r.score||'—'}</b><span>${escapeHtml(r.label)} Readiness</span></div><div class="insight">${escapeHtml(msg)}<br><span style="color:var(--muted)">${escapeHtml((r.drivers||[]).slice(0,2).join(' · '))}</span></div>`;}
   const trend=document.getElementById('healthTrendPanel'); if(trend){trend.innerHTML=`${healthBar('Avg Sleep',avgSleep==null?null:avgSleep.toFixed(1)+'h',9)}${healthBar('Avg Steps',avgSteps==null?null:Math.round(avgSteps),12000)}${healthBar('Avg HRV',avgHrv==null?null:Math.round(avgHrv),80)}${healthBar('Avg Readiness',avgReady==null?null:avgReady.toFixed(1),5)}`;}
-  const hist=document.getElementById('healthHistory'); if(hist){hist.innerHTML=rows.length?rows.slice(0,14).map(r=>`<div class="history-row"><div class="history-date">${escapeHtml(new Date(r.date+'T12:00:00').toLocaleDateString())}</div><div><div class="history-name">Readiness ${r.readinessScore||'—'}/5</div><div class="history-meta">${[
-  r.sleepHours!=null?'Sleep '+(Math.round(Number(r.sleepHours)*10)/10)+'h':null,
-  r.steps!=null?'Steps '+Number(r.steps).toLocaleString():null,
-  r.hrv!=null?'HRV '+(Math.round(Number(r.hrv)*10)/10)+' ms':null,
-  r.restingHr!=null?'RHR '+Math.round(Number(r.restingHr))+' bpm':null,
-  r.respiratoryRate!=null?'Resp '+(Math.round(Number(r.respiratoryRate)*10)/10)+'/min':null,
-  r.spo2!=null?'SpO₂ '+(Math.round(Number(r.spo2)*10)/10)+'%':null,
-  r.bodyWeight!=null?'Weight '+(Math.round(Number(r.bodyWeight)*10)/10)+' lb':null,
-  r.bodyFatPct!=null?'Body Fat '+(Math.round(Number(r.bodyFatPct)*10)/10)+'%':null,
-  r.leanMass!=null?'Lean '+(Math.round(Number(r.leanMass)*10)/10)+' lb':null,
-  r.activeCalories!=null?'Cal '+Math.round(Number(r.activeCalories)):null,
-  r.exerciseMinutes!=null?'Exercise '+Math.round(Number(r.exerciseMinutes))+' min':null
-].filter(Boolean).join(' · ')||'No metrics'}</div></div>`).join(''):'<div class="empty-note">No health entries yet. Sync Apple Health or add manual data above.</div>';}
+  if(hist){
+    const cutoff7=new Date(Date.now()-7*86400000);
+    const recent=rows.filter(r=>new Date(r.date+'T12:00:00')>=cutoff7);
+    const older=rows.filter(r=>new Date(r.date+'T12:00:00')<cutoff7);
+    const rowHtml=r=>`<div class="history-row"><div class="history-date">${escapeHtml(new Date(r.date+'T12:00:00').toLocaleDateString([],{month:'short',day:'numeric'}))}</div><div><div class="history-name">Readiness ${r.readinessScore||'—'}/5</div><div class="history-meta">${[r.sleepHours!=null?'Sleep '+(Math.round(Number(r.sleepHours)*10)/10)+'h':null,r.steps!=null?'Steps '+Number(r.steps).toLocaleString():null,r.hrv!=null?'HRV '+(Math.round(Number(r.hrv)*10)/10)+' ms':null,r.restingHr!=null?'RHR '+Math.round(Number(r.restingHr))+' bpm':null,r.bodyWeight!=null?'Weight '+(Math.round(Number(r.bodyWeight)*10)/10)+' lb':null,r.bodyFatPct!=null?'BF '+(Math.round(Number(r.bodyFatPct)*10)/10)+'%':null,r.activeCalories!=null?'Cal '+Math.round(Number(r.activeCalories)):null].filter(Boolean).join(' · ')||'No metrics'}</div></div></div>`;
+    if(!rows.length){hist.innerHTML='<div class="empty-note">No health entries yet. Sync Apple Health or add manual data above.</div>';return;}
+    let html=recent.length?recent.map(rowHtml).join(''):'<div style="font-size:12px;color:var(--muted);padding:8px 0">No entries in the last 7 days.</div>';
+    if(older.length){html+=`<div id="health-hist-older-btn" style="padding:10px 0;text-align:center"><button class="btn small" onclick="document.getElementById('health-hist-older').style.display='block';this.parentElement.style.display='none'">View older (${older.length} entries)</button></div><div id="health-hist-older" style="display:none">${older.map(rowHtml).join('')}</div>`;}
+    hist.innerHTML=html;
+  }
 }
 
 
@@ -7612,7 +7602,12 @@ function setPage(page){
   // Update browser/tab title per page
   const _pageTitles={home:'Vertex',workout:'Vertex — Workout',progress:'Vertex — Progress',wellness:'Vertex — Wellness',ai:'Vertex — AI Coach'};
   document.title = _pageTitles[state.page] || 'Vertex — Build · Track · Improve';
-  if(state.page==='progress') renderProgressPage();
+  if(state.page==='progress'){
+    renderProgressPage();
+    if(authUser && (!state.progressLogs || state.progressLogs.length===0)){
+      loadProgressLogs().catch(()=>{});
+    }
+  }
   if(state.page==='wellness'){try{renderWellnessPage();}catch(e){console.error('Wellness render error:',e);}}
   if(state.page==='health'){state.page='wellness'; renderWellnessPage();}
   if(state.page==='ai') renderAiCoachPage();
@@ -8618,10 +8613,9 @@ function renderSegmentTrends(){
     return `<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:14px">
       <div style="flex:1;min-width:0">
         <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${seg.label}</div>
-        <div style="display:flex;align-items:baseline;gap:8px">
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:${seg.color}">${Number(last.val).toFixed(1)}</span>
-          <span style="font-size:10px;color:var(--muted)">lb</span>
-          <span style="font-size:12px;font-weight:700;color:${deltaColor}">${parseFloat(delta)>=0?'+':''}${delta} lb since ${fmtDate(first.date)}</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${seg.color};white-space:nowrap">${Number(last.val).toFixed(1)} lb</span>
+          <span style="font-size:11px;font-weight:700;color:${deltaColor};white-space:nowrap">${parseFloat(delta)>=0?'+':''}${delta} lb since ${fmtDate(first.date)}</span>
         </div>
         <div style="font-size:10px;color:var(--muted);margin-top:2px">${vals.length} scans · ${fmtDate(first.date)} → ${fmtDate(last.date)}</div>
       </div>
@@ -9794,7 +9788,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-f';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-g';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

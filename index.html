@@ -7752,9 +7752,15 @@ function setPage(page){
   // intelAcc now lives in Home dashboard — rendered by renderHomeDashboard, not shown here
   document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=onWorkout?'':'none';});
 
-  // Static homePage placeholder is no longer needed
+  // homePage is legacy scaffold — always hidden, home-dashboard is the real content
   const homePh=document.getElementById('homePage'); if(homePh) homePh.style.display='none';
-  if(onHome){renderHomeDashboard(); try{const hp=document.getElementById('homePage'); if(hp){hp.style.display='block'; hp.classList.remove('page-entering'); void hp.offsetWidth; hp.classList.add('page-entering');}}catch(e){}}
+  if(onHome){
+    renderHomeDashboard();
+    try{
+      const hd=document.getElementById('home-dashboard');
+      if(hd){ hd.classList.remove('page-entering'); void hd.offsetWidth; hd.classList.add('page-entering'); }
+    }catch(e){}
+  }
 }
 function renderHomeDashboard(){
   const authUser = window.authUser || null;
@@ -8081,20 +8087,35 @@ function updateWorkoutBottomBar(){try{
   const bar=document.getElementById('vertex-workout-bottom-bar'); if(!bar) return;
   const isMobile=window.innerWidth<768;
   const onWorkout=state.page==='workout';
-  const hasEx=hasWorkout();
-  if(!isMobile||!onWorkout){bar.classList.remove('on');return;}
+  if(!isMobile||!onWorkout){bar.classList.remove('on'); window._builderObserver&&window._builderObserver.disconnect(); return;}
   bar.classList.add('on');
   const savBot=document.getElementById('btn-save-bottom');
   const logBot=document.getElementById('btn-log-bottom');
   const viewBtn=document.getElementById('btn-view-workout-bottom');
-  if(hasEx){
+  // Always show View Workout ↓ — it scrolls to builder
+  if(viewBtn) viewBtn.style.display='';
+  // Save/Log only appear once builder (wkt-title) is scrolled into view
+  const showActions=()=>{
     if(savBot) savBot.style.display='';
-    if(logBot){logBot.style.display='';logBot.classList.toggle('armed',true);}
+    if(logBot){logBot.style.display='';logBot.classList.add('armed');}
     if(viewBtn) viewBtn.style.display='none';
-  } else {
+  };
+  const hideActions=()=>{
     if(savBot) savBot.style.display='none';
     if(logBot) logBot.style.display='none';
     if(viewBtn) viewBtn.style.display='';
+  };
+  // Watch builder visibility
+  const builderEl=document.getElementById('builder')||document.querySelector('.wkt-name-row');
+  if(builderEl && 'IntersectionObserver' in window){
+    if(window._builderObserver) window._builderObserver.disconnect();
+    window._builderObserver=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{ if(e.isIntersecting&&hasWorkout()) showActions(); else hideActions(); });
+    },{threshold:0.2});
+    window._builderObserver.observe(builderEl);
+  } else {
+    // Fallback: always show based on hasWorkout
+    hasWorkout()?showActions():hideActions();
   }
 }catch(e){}}
 
@@ -9922,7 +9943,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-f';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-g';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

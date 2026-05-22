@@ -1473,8 +1473,8 @@ body {
 .vertex-daily-brief.collapsed .vertex-daily-brief-body{display:none}
 .vertex-daily-brief.collapsed .vertex-daily-brief-chevron{transform:rotate(-90deg)}
 /* SPARKLINES */
-.vertex-sparkline-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.vertex-sparkline-card{flex:1;min-width:110px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+.vertex-sparkline-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;max-width:100%}
+.vertex-sparkline-card{flex:1;min-width:110px;max-width:180px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
 .vertex-sparkline-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-family:'DM Mono',monospace}
 .vertex-sparkline-val{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1}
 /* GOAL TRACKER */
@@ -5750,7 +5750,12 @@ function renderHealthPage(){
     const cutoff7=new Date(Date.now()-7*86400000);
     const recent=rows.filter(r=>new Date(r.date+'T12:00:00')>=cutoff7);
     const older=rows.filter(r=>new Date(r.date+'T12:00:00')<cutoff7);
-    const rowHtml=r=>`<div class="history-row"><div class="history-date">${escapeHtml(new Date(r.date+'T12:00:00').toLocaleDateString([],{month:'short',day:'numeric'}))}</div><div><div class="history-name">Readiness ${r.readinessScore||'—'}/5</div><div class="history-meta">${[r.sleepHours!=null?'Sleep '+(Math.round(Number(r.sleepHours)*10)/10)+'h':null,r.steps!=null?'Steps '+Number(r.steps).toLocaleString():null,r.hrv!=null?'HRV '+(Math.round(Number(r.hrv)*10)/10)+' ms':null,r.restingHr!=null?'RHR '+Math.round(Number(r.restingHr))+' bpm':null,r.bodyWeight!=null?'Weight '+(Math.round(Number(r.bodyWeight)*10)/10)+' lb':null,r.bodyFatPct!=null?'BF '+(Math.round(Number(r.bodyFatPct)*10)/10)+'%':null,r.activeCalories!=null?'Cal '+Math.round(Number(r.activeCalories)):null].filter(Boolean).join(' · ')||'No metrics'}</div></div></div>`;
+    const readinessColor=s=>s>=4?'var(--acc)':s>=3?'#ffd048':'#ff5050';
+    const rowHtml=r=>{
+      const score=r.readinessScore;
+      const metrics=[r.sleepHours!=null?{l:'Sleep',v:(Math.round(Number(r.sleepHours)*10)/10)+'h'}:null,r.hrv!=null?{l:'HRV',v:(Math.round(Number(r.hrv)*10)/10)+' ms'}:null,r.restingHr!=null?{l:'RHR',v:Math.round(Number(r.restingHr))+' bpm'}:null,r.bodyWeight!=null?{l:'Weight',v:(Math.round(Number(r.bodyWeight)*10)/10)+' lb'}:null,r.steps!=null?{l:'Steps',v:Number(r.steps).toLocaleString()}:null,r.activeCalories!=null?{l:'Cal',v:Math.round(Number(r.activeCalories))+' kcal'}:null].filter(Boolean);
+      return `<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:10px 12px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;font-weight:600;color:var(--text)">${escapeHtml(new Date(r.date+'T12:00:00').toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'}))}</span>${score!=null?`<span style="font-family:'DM Mono',monospace;font-size:11px;color:${readinessColor(Number(score))};font-weight:700">Readiness ${score}/5</span>`:''}}</div>${metrics.length?`<div style="display:flex;flex-wrap:wrap;gap:6px">${metrics.map(m=>`<span style="font-size:10px;background:var(--panel3,var(--panel));border:1px solid var(--line2);border-radius:4px;padding:2px 7px;color:var(--muted)"><span style="color:var(--text);font-weight:600">${m.v}</span> ${m.l}</span>`).join('')}</div>`:'<span style="font-size:11px;color:var(--muted)">No metrics</span>'}</div>`;
+    };
     if(!rows.length){hist.innerHTML='<div class="empty-note">No health entries yet. Sync Apple Health or add manual data above.</div>';return;}
     let html=recent.length?recent.map(rowHtml).join(''):'<div style="font-size:12px;color:var(--muted);padding:8px 0">No entries in the last 7 days.</div>';
     if(older.length){html+=`<div id="health-hist-older-btn" style="padding:10px 0;text-align:center"><button class="btn small" onclick="document.getElementById('health-hist-older').style.display='block';this.parentElement.style.display='none'">View older (${older.length} entries)</button></div><div id="health-hist-older" style="display:none">${older.map(rowHtml).join('')}</div>`;}
@@ -6211,8 +6216,8 @@ function wcRenderDexaDashboard(){
   if(rsEl)rsEl.innerHTML=[{l:'Arms',v:latest.armsLeanLbs,c:'#48ff8a'},{l:'Trunk',v:latest.trunkLeanLbs,c:'#ffd048'},{l:'Legs',v:latest.legsLeanLbs,c:'#48d0ff'}].map(r=>`<div style="text-align:center"><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">${r.l}</div><div style="font-family:'Bebas Neue';font-size:22px;color:${r.c}">${r.v??'—'}</div><div style="font-size:9px;color:var(--muted)">lbs lean</div></div>`).join('');
   // Muscle preservation
   const mpEl=document.getElementById('wc-dexa-muscle-preservation');
-  if(mpEl&&wcDexaScans.length>=2&&wcLogs.length){const sorted2=[...wcLogs].sort((a,b)=>a.date.localeCompare(b.date)).filter(e=>e.weight);let html='';for(let i=1;i<wcDexaScans.length;i++){const s1=wcDexaScans[i-1],s2=wcDexaScans[i];const w1=sorted2.filter(l=>l.date<=s1.date).pop();const w2=sorted2.filter(l=>l.date<=s2.date).pop();if(!w1||!w2)continue;const tl=w1.weight-w2.weight;const lc=s2.leanMassLbs-s1.leanMassLbs;const fc=s2.fatMassLbs-s1.fatMassLbs;const pff=tl>0?((fc*-1)/tl*100).toFixed(1):'—';html+=`<div class="wc-row-kv"><span class="k">${wcFmt(s1.date)} → ${wcFmt(s2.date)}</span><span></span></div><div class="wc-row-kv"><span class="k" style="padding-left:12px">Scale lost</span><span class="v">${tl.toFixed(1)} lbs</span></div><div class="wc-row-kv"><span class="k" style="padding-left:12px">Fat lost</span><span class="v" style="color:var(--acc)">${(fc*-1).toFixed(1)} lbs</span></div><div class="wc-row-kv"><span class="k" style="padding-left:12px">Lean change</span><span class="v" style="color:${lc>=0?'var(--acc)':'#ff5050'}">${lc>=0?'+':''}${lc.toFixed(1)} lbs</span></div><div class="wc-row-kv"><span class="k" style="padding-left:12px">% from fat</span><span class="v">${pff}%</span></div>`;}mpEl.innerHTML=html||'<div class="empty-note">Need 2+ scans with check-in data.</div>';}
-  else if(mpEl){mpEl.innerHTML='<div class="empty-note">Need 2+ scans with weekly check-in data to calculate.</div>';}
+  if(mpEl&&wcDexaScans.length>=2&&wcLogs.length){const sorted2=[...wcLogs].sort((a,b)=>a.date.localeCompare(b.date)).filter(e=>e.weight);let html='';for(let i=1;i<wcDexaScans.length;i++){const s1=wcDexaScans[i-1],s2=wcDexaScans[i];const w1=sorted2.filter(l=>l.date<=s1.date).pop();const w2=sorted2.filter(l=>l.date<=s2.date).pop();if(!w1||!w2)continue;const tl=w1.weight-w2.weight;const lc=s2.leanMassLbs-s1.leanMassLbs;const fc=s2.fatMassLbs-s1.fatMassLbs;const pff=tl>0?((fc*-1)/tl*100).toFixed(1):'—';html+=`<div class="wc-row-kv"><span class="k">${wcFmt(s1.date)} → ${wcFmt(s2.date)}</span><span></span></div><div class="wc-row-kv"><span class="k" style="padding-left:12px">Scale lost</span><span class="v">${tl.toFixed(1)} lbs</span></div><div class="wc-row-kv"><span class="k" style="padding-left:12px">Fat lost</span><span class="v" style="color:var(--acc)">${(fc*-1).toFixed(1)} lbs</span></div><div class="wc-row-kv"><span class="k" style="padding-left:12px">Lean change</span><span class="v" style="color:${lc>=0?'var(--acc)':'#ff5050'}">${lc>=0?'+':''}${lc.toFixed(1)} lbs</span></div><div class="wc-row-kv"><span class="k" style="padding-left:12px">% from fat</span><span class="v">${pff}%</span></div>`;}mpEl.innerHTML=html||'<div style="font-size:12px;color:var(--muted)">Add check-in data near each scan date to calculate.</div>';}
+  else if(mpEl){mpEl.innerHTML='<div style="font-size:12px;color:var(--muted);line-height:1.6;padding:8px 0">Needs weekly check-in data from <b style="color:var(--text)">before</b> each scan date.<br>Your earliest check-in is Apr 1 — add a check-in close to your Jan 10 scan to unlock this.</div>';}
   // History table
   const htEl=document.getElementById('wc-dexa-history-table');
   if(htEl)htEl.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:11px;font-family:'DM Mono',monospace"><thead><tr style="color:var(--muted)">${['Date','Score','Total','Fat','Lean','BF%','Visceral','A/G','ALMI','FFMI'].map(h=>`<th style="padding:4px 6px;text-align:left;border-bottom:1px solid var(--line2)">${h}</th>`).join('')}</tr></thead><tbody>${[...wcDexaScans].reverse().map(s=>`<tr style="border-bottom:1px solid var(--line2)">${[wcFmt(s.date),s.bodyScore||'—',s.totalWeight,s.fatMassLbs,s.leanMassLbs,s.bodyFatPct!=null?s.bodyFatPct+'%':'—',s.visceralFatLbs,s.agRatio,s.almi,s.ffmi].map(v=>`<td style="padding:5px 6px">${v??'—'}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
@@ -6306,9 +6311,9 @@ function renderCheckinTab(){
       } else {
         // Fall back to most recent health entry weight
         const rows = typeof loadHealthEntries === 'function' ? loadHealthEntries() : [];
-        const latest = rows.find(r => r.weight);
-        if(latest && latest.weight){
-          wEl.value = latest.weight;
+        const latest = rows.find(r => r.bodyWeight || r.weight);
+        if(latest && (latest.bodyWeight || latest.weight)){
+          wEl.value = latest.bodyWeight || latest.weight;
           if(wNote){ wNote.style.display='block'; wNote.textContent='↑ Auto-filled from last health entry'; }
         }
       }
@@ -7684,7 +7689,7 @@ function renderHomeDashboard(){
     }
 
     // Apple Health recovery data
-    const ahSleep  = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null'); return s&&s.latestMinutes ? Math.round(s.latestMinutes/60*10)/10 : null; }catch(e){return null;} })();
+    const ahSleep  = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null'); if(s&&s.latestMinutes) return Math.round(s.latestMinutes/60*10)/10; }catch(e){} try{ const rows=typeof loadHealthEntries==='function'?loadHealthEntries():[]; const v=rows[0]?.sleepHours; return v!=null?Math.round(Number(v)*10)/10:null; }catch(e){return null;} })();
     const ahHrv    = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null'); return s&&s.latest ? Math.round(s.latest) : null; }catch(e){return null;} })();
     const ahRhr    = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthRestingHRSummary')||'null'); return s&&s.latest ? Math.round(s.latest) : null; }catch(e){return null;} })();
     const _homeHealthRows = typeof loadHealthEntries === 'function' ? loadHealthEntries() : [];
@@ -8801,7 +8806,7 @@ window.renderSymmetry = renderSymmetry;
 })();
 
 // ── DAILY BRIEFING ────────────────────────────────────────────────────────────
-const DAILY_BRIEF_CACHE_KEY = 'vertex_daily_brief_cache';
+const DAILY_BRIEF_CACHE_KEY = 'vertex_daily_brief_cache_v2';
 const DAILY_BRIEF_TTL = 6 * 3600 * 1000;
 async function renderDailyBrief(){
   const el = document.getElementById('vertex-daily-brief-card');
@@ -9789,7 +9794,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-h';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-i';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

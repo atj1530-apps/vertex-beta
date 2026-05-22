@@ -6037,7 +6037,8 @@ function wcRenderDashboard(){
   const totalLost=WC_START_WEIGHT-latest.weight;
   const daysOn=Math.round((new Date(latest.date)-new Date(WC_START_DATE))/86400000);
   const weeksOn=daysOn/7;
-  const rolling=sorted.length>=4?(WC_START_WEIGHT-sorted[sorted.length-1].weight)/(Math.round((new Date(sorted[sorted.length-1].date)-new Date(sorted[0].date))/86400000)/7):null;
+  const _spanDays=sorted.length>=2?Math.round((new Date(sorted[sorted.length-1].date)-new Date(sorted[0].date))/86400000):0;
+  const rolling=sorted.length>=2&&_spanDays>=7?(WC_START_WEIGHT-sorted[sorted.length-1].weight)/(_spanDays/7):null;
 
   // Goal weight input
   const gwEl=document.getElementById('wc-goal-weight');if(gwEl&&!gwEl.value)gwEl.value=TARGET;
@@ -6058,7 +6059,10 @@ function wcRenderDashboard(){
   const projLabels=[...wLabels];const projData=wData.map(()=>null);
   if(rolling&&rolling>0){for(let i=1;i<=8;i++){const d=new Date(latest.date);d.setDate(d.getDate()+i*7);projLabels.push(`${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`);projData.push(Math.max(TARGET,+(latest.weight-rolling*i).toFixed(1)));wData.push(null);}}
   const wcEl=document.getElementById('wc-dc-weight');
-  if(wcEl)_wcCharts['wc-dc-weight']=new Chart(wcEl.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:[{label:'Actual',data:wData,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:0.35,spanGaps:false},{label:'Projected',data:projData,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:0.35,spanGaps:true}]},options:{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:true,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}}}});
+  const _hasProjection=rolling&&rolling>0;
+  const _wcDatasets=[{label:'Actual',data:wData,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:0.35,spanGaps:false}];
+  if(_hasProjection) _wcDatasets.push({label:'Projected',data:projData,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:0.35,spanGaps:true});
+  if(wcEl)_wcCharts['wc-dc-weight']=new Chart(wcEl.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:_wcDatasets},options:{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:_hasProjection,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}}}});
 
   // Progress
   const journey=WC_START_WEIGHT-TARGET;
@@ -8819,7 +8823,7 @@ window.renderSymmetry = renderSymmetry;
 })();
 
 // ── DAILY BRIEFING ────────────────────────────────────────────────────────────
-const DAILY_BRIEF_CACHE_KEY = 'vertex_daily_brief_cache_v2';
+const DAILY_BRIEF_CACHE_KEY = 'vertex_daily_brief_cache_v3';
 const DAILY_BRIEF_TTL = 6 * 3600 * 1000;
 async function renderDailyBrief(){
   const el = document.getElementById('vertex-daily-brief-card');
@@ -8835,7 +8839,7 @@ async function renderDailyBrief(){
   }catch(e){}
   el.innerHTML = `<div class="vertex-daily-brief"><div class="vertex-daily-brief-header"><span class="vertex-daily-brief-label">Today's Briefing</span></div><div class="vertex-daily-brief-loading">Generating your daily outlook…</div></div>`;
   try{
-    const r = typeof buildReadinessScore==='function' ? buildReadinessScore() : {score:0,label:'',action:''};
+    const r = (()=>{ try{ if(typeof window.VertexReadiness==='object') return window.VertexReadiness.cached(); if(typeof buildReadinessScore==='function') return buildReadinessScore(); }catch(e){} return {score:0,label:'Unknown',action:'Check your health data'}; })();
     const ahSleep=(()=>{try{const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null');return s&&s.latestMinutes?Math.round(s.latestMinutes/60*10)/10:null;}catch(e){return null;}})();
     const ahHrv=(()=>{try{const s=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null');return s&&s.latest?Math.round(s.latest):null;}catch(e){return null;}})();
     const ahRhr=(()=>{try{const s=JSON.parse(localStorage.getItem('vertexAppleHealthRestingHRSummary')||'null');return s&&s.latest?Math.round(s.latest):null;}catch(e){return null;}})();
@@ -9807,7 +9811,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-k';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

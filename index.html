@@ -5622,6 +5622,16 @@ async function loadHealthMetricsFromCloud(){
     const existing = loadHealthEntries().filter(r=>r.source&&r.source!=='apple_health'&&r.source!=='health_logs'&&r.source!=='health_metrics');
     const all = [...merged, ...existing].reduce((acc,e)=>{ if(e.date&&!acc.find(x=>x.date===e.date)) acc.push(e); return acc; },[]).sort((a,b)=>b.date.localeCompare(a.date));
     saveHealthEntries(all);
+    // Populate localStorage summary keys so Home cards show data without native sync
+    try {
+      const latest = all[0];
+      if(latest) {
+        if(latest.sleepHours!=null) localStorage.setItem('vertexAppleHealthSleepSummary', JSON.stringify({latestMinutes:Math.round(Number(latest.sleepHours)*60), avg7Minutes:Math.round(Number(latest.sleepHours)*60)}));
+        if(latest.hrv!=null) localStorage.setItem('vertexAppleHealthHRVSummary', JSON.stringify({latest:Math.round(Number(latest.hrv)*10)/10, avg7:Math.round(Number(latest.hrv)*10)/10}));
+        if(latest.restingHr!=null) localStorage.setItem('vertexAppleHealthRestingHRSummary', JSON.stringify({latest:Math.round(Number(latest.restingHr)), avg7:Math.round(Number(latest.restingHr))}));
+        if(latest.bodyWeight!=null) localStorage.setItem('vertexAppleHealthWeightSummary', JSON.stringify({latest:Math.round(Number(latest.bodyWeight)*10)/10}));
+      }
+    } catch(e) {}
     return true;
   }catch(e){ console.warn('loadHealthMetricsFromCloud error',e); return false; }
 }
@@ -7693,10 +7703,10 @@ function renderHomeDashboard(){
 
     // Apple Health recovery data
     const ahSleep  = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null'); if(s&&s.latestMinutes) return Math.round(s.latestMinutes/60*10)/10; }catch(e){} try{ const rows=typeof loadHealthEntries==='function'?loadHealthEntries():[]; const v=rows[0]?.sleepHours; return v!=null?Math.round(Number(v)*10)/10:null; }catch(e){return null;} })();
-    const ahHrv    = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null'); return s&&s.latest ? Math.round(s.latest) : null; }catch(e){return null;} })();
-    const ahRhr    = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthRestingHRSummary')||'null'); return s&&s.latest ? Math.round(s.latest) : null; }catch(e){return null;} })();
     const _homeHealthRows = typeof loadHealthEntries === 'function' ? loadHealthEntries() : [];
     const _homeLatest = _homeHealthRows[0];
+    const ahHrv = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null'); if(s&&s.latest) return Math.round(s.latest); }catch(e){} const v=_homeLatest?.hrv; return v!=null?Math.round(Number(v)):null; })();
+    const ahRhr = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthRestingHRSummary')||'null'); if(s&&s.latest) return Math.round(s.latest); }catch(e){} const v=_homeLatest?.restingHr; return v!=null?Math.round(Number(v)):null; })();
     const ahWeight = _homeLatest?.bodyWeight!=null ? Math.round(Number(_homeLatest.bodyWeight)*10)/10 : null;
 
     // Today's protocol — what's due
@@ -7760,8 +7770,8 @@ function renderHomeDashboard(){
     const todayW = state.planner && state.planner[todayKey];
     const tomorrowW = state.planner && state.planner[tomorrowKey];
     const wDesc = w => { if(!w) return ''; try{ return summary(w); }catch(e){ const exCount=(w.exercises||[]).length; const sets=(w.exercises||[]).reduce((a,e)=>a+(e.sets||[]).length,0); const dur=w.estimatedMinutes||Math.max(8,sets*2+5); return dur+' min · '+exCount+' move'+(exCount===1?'':'s'); } };
-    const _sleepAvg7 = (()=>{ try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null'); return s&&s.avg7Minutes?Math.round(s.avg7Minutes/60*10)/10:null; }catch(e){return null;} })();
-    const _hrvAvg7 = (()=>{ try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null'); return s&&s.avg7?Math.round(s.avg7):null; }catch(e){return null;} })();
+    const _sleepAvg7 = (()=>{ try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null'); if(s&&s.avg7Minutes) return Math.round(s.avg7Minutes/60*10)/10; }catch(e){} try{ const last7=_homeHealthRows.filter(r=>r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000); const vals=last7.map(r=>r.sleepHours).filter(v=>v!=null&&Number(v)>0); return vals.length?Math.round(vals.reduce((a,b)=>a+Number(b),0)/vals.length*10)/10:null; }catch(e){return null;} })();
+    const _hrvAvg7 = (()=>{ try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null'); if(s&&s.avg7) return Math.round(s.avg7); }catch(e){} try{ const last7=_homeHealthRows.filter(r=>r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000); const vals=last7.map(r=>r.hrv).filter(v=>v!=null&&Number(v)>0); return vals.length?Math.round(vals.reduce((a,b)=>a+Number(b),0)/vals.length):null; }catch(e){return null;} })();
     // Planned sessions count (any planner day with a workout)
     const _plannedCount = DAYS.filter(d => state.planner && state.planner[d] && (state.planner[d].exercises||state.planner[d].moves||[]).length > 0).length;
     // Latest weight for mobile stat strip
@@ -7773,7 +7783,7 @@ function renderHomeDashboard(){
     <h1 class="page-title" style="margin:0 0 2px">Vertex</h1>
     <div style="display:flex;align-items:center;gap:6px">
       <p class="page-copy" style="margin:0;font-size:12px">${new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})}</p>
-      <button class="btn small" id="btn-home-refresh-metrics" style="padding:2px 7px;font-size:10px;border-radius:4px;background:transparent;border-color:rgba(255,255,255,.12);color:var(--dim)" title="Sync health metrics">↻</button>
+      <button class="btn small" id="btn-home-refresh-metrics" style="padding:2px 8px;font-size:11px;border-radius:4px;background:transparent;border:1px solid var(--acc);color:var(--acc);opacity:0.8" title="Sync health metrics">↻</button>
     </div>
   </div>
   <div style="flex:1;min-width:0;display:flex;justify-content:center">${_readinessCardHtml||''}</div>
@@ -7783,7 +7793,7 @@ function renderHomeDashboard(){
   <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:8px">
     <h1 class="page-title" style="margin:0;line-height:1">Vertex</h1>
     <span style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px">${new Date().toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})}</span>
-    <button class="btn small" id="btn-home-refresh-metrics" style="margin-left:auto;padding:2px 7px;font-size:10px;border-radius:4px;background:transparent;border-color:rgba(255,255,255,.12);color:var(--dim)" title="Sync health metrics">↻</button>
+    <button class="btn small" id="btn-home-refresh-metrics" style="margin-left:auto;padding:2px 8px;font-size:11px;border-radius:4px;background:transparent;border:1px solid var(--acc);color:var(--acc);opacity:0.8" title="Sync health metrics">↻</button>
   </div>
   ${_readinessCardHtml ? `<div style="width:100%">${_readinessCardHtml}</div>` : ''}
 </div>
@@ -9797,7 +9807,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-j';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-k';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

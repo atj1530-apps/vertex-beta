@@ -6037,27 +6037,54 @@ function wcRenderDashboard(){
   const totalLost=WC_START_WEIGHT-latest.weight;
   const daysOn=Math.round((new Date(latest.date)-new Date(WC_START_DATE))/86400000);
   const weeksOn=daysOn/7;
-  const _spanDays=sorted.length>=2?Math.round((new Date(sorted[sorted.length-1].date)-new Date(sorted[0].date))/86400000):0;
-  const rolling=sorted.length>=2&&_spanDays>=7?(WC_START_WEIGHT-sorted[sorted.length-1].weight)/(_spanDays/7):null;
-
   // Goal weight input
   const gwEl=document.getElementById('wc-goal-weight');if(gwEl&&!gwEl.value)gwEl.value=TARGET;
 
-  // KPIs
-  // Weight cards removed from wellness dashboard - now shown in Progress tab
-
   // Weight chart — merge Apple Health daily weight with check-in weight
   wcDestroyChart('wc-dc-weight');
-  // Build unified weight dataset: Apple Health daily entries take priority over check-in weights
   const healthRows2 = typeof loadHealthEntries === 'function' ? loadHealthEntries() : [];
   const ahWeightMap = {};
   healthRows2.forEach(r => { if(r.date && r.bodyWeight != null) ahWeightMap[r.date] = Number(r.bodyWeight); });
-  // Combine: check-in dates + all Apple Health weight dates, sorted
   const allWeightDates = [...new Set([...sorted.map(e=>e.date), ...Object.keys(ahWeightMap)])].sort();
   const wLabels = allWeightDates.map(d => { const [,m,dy] = d.split('-'); return `${m}/${dy}`; });
   const wData = allWeightDates.map(d => ahWeightMap[d] ?? (sorted.find(e=>e.date===d)?.weight ?? null));
-  const projLabels=[...wLabels];const projData=wData.map(()=>null);
-  if(rolling&&rolling>0){for(let i=1;i<=8;i++){const d=new Date(latest.date);d.setDate(d.getDate()+i*7);projLabels.push(`${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`);projData.push(Math.max(TARGET,+(latest.weight-rolling*i).toFixed(1)));wData.push(null);}}
+
+  // Rolling rate: use Apple Health daily weights over last 28 days for a realistic trend
+  // Anchors projection from today's AH weight forward
+  const todayIsoStr = typeof todayIso==='function' ? todayIso() : new Date().toISOString().split('T')[0];
+  const ahWeightEntries = Object.entries(ahWeightMap).sort((a,b)=>a[0].localeCompare(b[0]));
+  const last28AH = ahWeightEntries.filter(([d])=>(Date.now()-new Date(d+'T12:00:00').getTime())<28*86400000);
+  let rolling = null;
+  let projAnchorWeight = ahWeightMap[todayIsoStr] ?? latest.weight;
+  let projAnchorDate = todayIsoStr;
+  if(last28AH.length >= 4){
+    const firstAH = last28AH[0]; const lastAH = last28AH[last28AH.length-1];
+    const ahSpanDays = Math.round((new Date(lastAH[0]+'T12:00:00')-new Date(firstAH[0]+'T12:00:00'))/86400000);
+    if(ahSpanDays >= 7) {
+      const ahRate = (Number(firstAH[1]) - Number(lastAH[1])) / (ahSpanDays / 7);
+      if(ahRate > 0.05) rolling = Math.round(ahRate * 100) / 100;
+    }
+  }
+  // Fallback to check-in trend if not enough AH data
+  if(!rolling && sorted.length >= 2){
+    const _spanDays = Math.round((new Date(sorted[sorted.length-1].date)-new Date(sorted[0].date))/86400000);
+    if(_spanDays >= 14){
+      const ciRate = (sorted[0].weight - sorted[sorted.length-1].weight) / (_spanDays / 7);
+      if(ciRate > 0.05) rolling = Math.round(ciRate * 100) / 100;
+    }
+  }
+
+  const projLabels=[...wLabels]; const projData=wData.map(()=>null);
+  if(rolling&&rolling>0){
+    for(let i=1;i<=8;i++){
+      const d=new Date(projAnchorDate+'T12:00:00');
+      d.setDate(d.getDate()+i*7);
+      const lbl=`${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+      projLabels.push(lbl);
+      projData.push(Math.max(TARGET,+(projAnchorWeight-rolling*i).toFixed(1)));
+      wData.push(null);
+    }
+  }
   const wcEl=document.getElementById('wc-dc-weight');
   const _hasProjection=rolling&&rolling>0;
   const _wcDatasets=[{label:'Actual',data:wData,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:0.35,spanGaps:false}];
@@ -6067,7 +6094,7 @@ function wcRenderDashboard(){
   // Progress
   const journey=WC_START_WEIGHT-TARGET;
   const progPct=Math.min(100,(totalLost/journey*100)).toFixed(1);
-  const weeksLeft=rolling&&rolling>0?((latest.weight-TARGET)/rolling).toFixed(0):'—';
+  const weeksLeft=rolling&&rolling>0?((projAnchorWeight-TARGET)/rolling).toFixed(0):'—';
   const progEl=document.getElementById('wc-dash-progress');
   if(progEl)progEl.innerHTML=`<div class="wc-row-kv"><span class="k">Start → Goal</span><span class="v">${WC_START_WEIGHT} → ${TARGET} lb</span></div><div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px"><span>0%</span><span>${progPct}%</span><span>100%</span></div><div class="wc-progress-track"><div class="wc-progress-fill" style="width:${progPct}%"></div></div></div><div class="wc-row-kv"><span class="k">Est. weeks left</span><span class="v" style="color:var(--acc)">${weeksLeft}</span></div><div class="wc-row-kv"><span class="k">Weeks on protocol</span><span class="v">${weeksOn.toFixed(1)}</span></div>`;
 
@@ -9811,7 +9838,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260522';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-b';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

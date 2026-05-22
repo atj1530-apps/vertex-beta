@@ -9993,7 +9993,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-i';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-j';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -12595,7 +12595,7 @@ body:not(.authenticated) #vertex-back-top {
 </script>
 
 <div id="vertex-workout-bottom-bar">
-  <button class="btn" id="btn-view-workout-bottom" style="display:none;background:var(--panel2);border-color:var(--acc);color:var(--acc)" onclick="document.querySelector('.main')?.scrollTo({top:9999,behavior:'smooth'})">View Workout ↓</button>
+  <button class="btn" id="btn-view-workout-bottom" style="display:none;background:var(--panel2);border-color:var(--acc);color:var(--acc)" onclick="(document.querySelector('.main')||document.querySelector('#app')||window).scrollTo({top:9999,behavior:'smooth'}); document.getElementById('builder')?.scrollIntoView({behavior:'smooth',block:'start'})">View Workout ↓</button>
   <button class="btn small" id="btn-save-bottom" style="display:none" onclick="document.getElementById('btn-save').click()">Save</button>
   <button class="btn acc" id="btn-log-bottom" style="display:none" onclick="document.getElementById('btn-log').click()">Log Workout</button>
 </div>

@@ -6057,22 +6057,27 @@ function wcRenderDashboard(){
   let rolling = null;
   let projAnchorWeight = ahWeightMap[todayIsoStr] ?? latest.weight;
   let projAnchorDate = todayIsoStr;
+  let _rawRate = null;
   if(last28AH.length >= 4){
     const firstAH = last28AH[0]; const lastAH = last28AH[last28AH.length-1];
     const ahSpanDays = Math.round((new Date(lastAH[0]+'T12:00:00')-new Date(firstAH[0]+'T12:00:00'))/86400000);
     if(ahSpanDays >= 7) {
       const ahRate = (Number(firstAH[1]) - Number(lastAH[1])) / (ahSpanDays / 7);
-      if(ahRate > 0.05) rolling = Math.round(ahRate * 100) / 100;
+      if(ahRate > 0.05) _rawRate = Math.round(ahRate * 100) / 100;
     }
   }
   // Fallback to check-in trend if not enough AH data
-  if(!rolling && sorted.length >= 2){
+  if(!_rawRate && sorted.length >= 2){
     const _spanDays = Math.round((new Date(sorted[sorted.length-1].date)-new Date(sorted[0].date))/86400000);
     if(_spanDays >= 14){
       const ciRate = (sorted[0].weight - sorted[sorted.length-1].weight) / (_spanDays / 7);
-      if(ciRate > 0.05) rolling = Math.round(ciRate * 100) / 100;
+      if(ciRate > 0.05) _rawRate = Math.round(ciRate * 100) / 100;
     }
   }
+  // Cap at 2 lb/wk (Mayo Clinic / Johns Hopkins safe guideline) — chart uses capped rate
+  const SAFE_MAX_RATE = 2.0;
+  const _rateExceedsSafe = _rawRate && _rawRate > SAFE_MAX_RATE;
+  rolling = _rawRate ? Math.min(_rawRate, SAFE_MAX_RATE) : null;
 
   const projLabels=[...wLabels]; const projData=wData.map(()=>null);
   if(rolling&&rolling>0){
@@ -6118,7 +6123,17 @@ function wcRenderDashboard(){
   // Alerts
   const alEl=document.getElementById('wc-dash-alerts');
   if(alEl){alEl.innerHTML='';const add=(type,html)=>{const d=document.createElement('div');d.className=`wc-banner ${type}`;d.innerHTML=`<div class="wc-banner-dot"></div><div>${html}</div>`;alEl.appendChild(d);};
-  if(rolling!==null){rolling>=1.5?add('green',`Loss rate: <strong>${rolling.toFixed(2)} lb/wk</strong> — On track.`):add('warn',`⚠ Loss rate: <strong>${rolling.toFixed(2)} lb/wk</strong> — Below 1.5 lb/wk threshold.`);}
+  if(_rawRate!==null){
+    if(_rawRate > 3.0){
+      add('red',`⚠ Pace of <strong>${_rawRate.toFixed(1)} lb/wk</strong> detected — exceeds safe guidelines (max 2 lb/wk per Mayo Clinic). Projection capped at 2 lb/wk. Consult a healthcare provider.`);
+    } else if(_rawRate > 2.0){
+      add('warn',`⚠ Pace of <strong>${_rawRate.toFixed(1)} lb/wk</strong> is above the recommended 1–2 lb/wk. May reflect short-term fluctuation. Projection capped at 2 lb/wk.`);
+    } else if(_rawRate >= 1.0){
+      add('green',`Loss rate: <strong>${_rawRate.toFixed(1)} lb/wk</strong> — Within safe guidelines (1–2 lb/wk recommended).`);
+    } else if(_rawRate > 0.05){
+      add('warn',`Loss rate: <strong>${_rawRate.toFixed(1)} lb/wk</strong> — Below 1 lb/wk. Consider adjusting nutrition or activity.`);
+    }
+  }
   wcGetFlags(latest).forEach(f=>add('warn',`⚠ ${f}`));}
 }
 
@@ -9838,7 +9853,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-b';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-c';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

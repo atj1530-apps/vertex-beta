@@ -6325,18 +6325,7 @@ function renderWellnessPage(){
   if(syncBtn) syncBtn.style.display = isNativePWA ? '' : 'none';
   const refreshBtn = document.getElementById('btn-wellness-refresh');
   if(refreshBtn) refreshBtn.style.display = isNativePWA ? 'none' : '';
-  // Show last sync/refresh timestamp
-  try{
-    const _tsKey = isNativePWA ? 'vertex_last_ah_sync' : 'vertex_last_refresh';
-    const _tsEl = document.getElementById('vertex-sync-timestamp');
-    const _ts = localStorage.getItem(_tsKey);
-    if(_tsEl && _ts){
-      const _d = new Date(_ts);
-      const _diff = Math.round((Date.now()-_d.getTime())/60000);
-      _tsEl.textContent = _diff < 2 ? 'Just now' : _diff < 60 ? _diff+' min ago' : _d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
-      _tsEl.style.display='';
-    } else if(_tsEl){ _tsEl.style.display='none'; }
-  }catch(e){}
+  try{const _tsKey=isNativePWA?'vertex_last_ah_sync':'vertex_last_refresh';const _tsEl=document.getElementById('vertex-sync-timestamp');const _ts=localStorage.getItem(_tsKey);if(_tsEl&&_ts){const _d=new Date(_ts);const _diff=Math.round((Date.now()-_d.getTime())/60000);_tsEl.textContent=_diff<2?'Just now':_diff<60?_diff+' min ago':_d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});_tsEl.style.display='';}else if(_tsEl){_tsEl.style.display='none';}}catch(e){}
   if(nonNativeNotice) nonNativeNotice.style.display = 'none';
 
   if(!wcLogs.length && authUser) loadWcLogs().then(()=>{if(wellnessTab==='dashboard')wcRenderDashboard();if(wellnessTab==='history')wcRenderHistory();if(wellnessTab==='trends')wcRenderTrends();}).catch(()=>{});
@@ -8390,14 +8379,7 @@ function renderBuilder(){
     const downBtn=`<button class="ex-reorder" data-move-down="${i}" ${isLast?'disabled':''} title="Move down" aria-label="Move ${escapeAttr(e.name)} down">▼</button>`;
     const hasDemo=!!getExerciseDemo(e.name);
     const demoBtn=hasDemo?`<button class="btn small demo-trigger" data-demo="${escapeAttr(e.name)}" title="Watch exercise demonstration">▶ Demo</button>`:'';
-    return `<article class="exercise-card"><div class="ex-head"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(e.name)}</strong><span class="badge blue">${e.kind.toUpperCase()}</span><span class="badge green">${e.muscle}</span><span class="ex-reorder-group">${upBtn}${downBtn}</span>${demoBtn}<button class="remove" data-remove="${i}">×</button></div>${perfStrip(e)}<div class="sets"><div class="set-row head"><div>Set</div><div>Reps</div><div>Weight (lb)</div><div class="status">Status</div></div>${(e.sets||[]).map((r,j)=>{
-  const prevSet=j>0?e.sets[j-1]:null;
-  const qb=(label,fn)=>`<button class="quick-btn" onclick="(function(){${fn}})();">${label}</button>`;
-  const repEl=`[data-reps=\'${i}:${j}\']`;const wtEl=`[data-weight=\'${i}:${j}\']`;
-  const fire=(sel,val)=>`const el=document.querySelector(\'${sel}\');if(el){el.value=${val};el.dispatchEvent(new Event(\'input\',{bubbles:true}));}`;
-  const quickRow=`<div class="quick-add-row">${qb('+1 rep',fire(repEl,'Math.max(1,(Number(document.querySelector(\''+repEl+'\')?.value||0))+1)'))} ${qb('-1',fire(repEl,'Math.max(0,(Number(document.querySelector(\''+repEl+'\')?.value||0))-1)'))} ${qb('+5 lb',fire(wtEl,'Math.round(((Number(String(document.querySelector(\''+wtEl+'\')?.value||\'0\').replace(/[^0-9.]/g,\'\'))||0)+5)*10)/10'))} ${qb('-5',fire(wtEl,'Math.max(0,Math.round(((Number(String(document.querySelector(\''+wtEl+'\')?.value||\'0\').replace(/[^0-9.]/g,\'\'))||0)-5)*10)/10)'))}${prevSet?` ${qb('↺ Repeat',fire(repEl,'\''+String(prevSet.reps??'\'')+'\'')+';'+fire(wtEl,'\''+String(prevSet.weight??'')+'\'')+';')}`:\'\'}`;
-  return `<div class="set-row"><div class="num">${j+1}</div><input data-reps="${i}:${j}" value="${r.reps??\'\'}"/><input data-weight="${i}:${j}" value="${r.weight??\'\'}" placeholder="lbs"/><div class="status ${String(setPrLabel(e,r)).includes(\'PR\')?\'perf-pr\':\'\'}">${escapeHtml(setPrLabel(e,r))}</div></div>${quickRow}`;
-}).join('')}<button class="btn small" data-add-set="${i}">+ Set</button> <button class="btn small" data-dupe="${i}">Duplicate</button><button class="rest-btn-inline" onclick=\"window.openRestTimer(60)\" title="Start rest timer">⏱ Rest</button><textarea class="search" rows="2" placeholder="Notes — tempo, rest, form cues...">${escapeHtml(e.notes||'')}</textarea></div></article>`;
+    return `<article class="exercise-card"><div class="ex-head"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(e.name)}</strong><span class="badge blue">${e.kind.toUpperCase()}</span><span class="badge green">${e.muscle}</span><span class="ex-reorder-group">${upBtn}${downBtn}</span>${demoBtn}<button class="remove" data-remove="${i}">×</button></div>${perfStrip(e)}<div class="sets"><div class="set-row head"><div>Set</div><div>Reps</div><div>Weight (lb)</div><div class="status">Status</div></div>${(e.sets||[]).map((r,j)=>`<div class="set-row"><div class="num">${j+1}</div><input data-reps="${i}:${j}" value="${r.reps??''}"/><input data-weight="${i}:${j}" value="${r.weight??''}" placeholder="lbs"/><div class="status ${String(setPrLabel(e,r)).includes('PR')?'perf-pr':''}">${escapeHtml(setPrLabel(e,r))}</div></div>`).join('')}<button class="btn small" data-add-set="${i}">+ Set</button> <button class="btn small" data-dupe="${i}">Duplicate</button><button class="rest-btn-inline" onclick=\"window.openRestTimer(60)\" title="Start rest timer">⏱ Rest</button><textarea class="search" rows="2" placeholder="Notes — tempo, rest, form cues...">${escapeHtml(e.notes||'')}</textarea></div></article>`;
   }).join('');
 }
 
@@ -9209,10 +9191,6 @@ document.addEventListener('click',async e=>{
       toast('Apple Health synced ✓');
       const _syncNow = new Date();
       localStorage.setItem('vertex_last_ah_sync', _syncNow.toISOString());
-      try{
-        const _syncBtn = document.getElementById('btn-apple-health-sync');
-        if(_syncBtn) _syncBtn.setAttribute('data-synced-label', 'Synced ' + _syncNow.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
-      }catch(e){}
       if(metrics.sleep_hours!=null) localStorage.setItem('vertexAppleHealthSleepSummary',JSON.stringify({latestMinutes:Math.round(metrics.sleep_hours*60),avg7Minutes:Math.round((metrics.sleep_7d_avg||metrics.sleep_hours)*60)}));
       if(metrics.hrv!=null) localStorage.setItem('vertexAppleHealthHRVSummary',JSON.stringify({latest:Math.round(metrics.hrv*10)/10,avg7:Math.round((metrics.hrv_7d_avg||metrics.hrv)*10)/10}));
       if(metrics.resting_hr!=null) localStorage.setItem('vertexAppleHealthRestingHRSummary',JSON.stringify({latest:Math.round(metrics.resting_hr),avg7:Math.round(metrics.resting_hr_7d_avg||metrics.resting_hr)}));

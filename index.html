@@ -1461,10 +1461,17 @@ body {
 
 
 /* DAILY BRIEFING */
-.vertex-daily-brief{background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:14px 16px;margin-bottom:12px}
-.vertex-daily-brief-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
-.vertex-daily-brief-text{font-size:13px;color:var(--fg);line-height:1.6}
-.vertex-daily-brief-loading{font-size:12px;color:var(--muted);font-style:italic}
+.vertex-daily-brief{background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:0;margin-bottom:12px;overflow:hidden}
+.vertex-daily-brief-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;cursor:pointer;user-select:none}
+.vertex-daily-brief-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.vertex-daily-brief-chevron{font-size:14px;color:var(--muted);transition:transform .2s;display:inline-block}
+.vertex-daily-brief-body{padding:0 14px 14px}
+.vertex-daily-brief-text{font-size:13px;color:var(--fg);line-height:1.7}
+.vertex-daily-brief-text ul{padding-left:16px;margin:4px 0}
+.vertex-daily-brief-text li{margin-bottom:4px}
+.vertex-daily-brief-loading{font-size:12px;color:var(--muted);font-style:italic;padding:0 14px 14px}
+.vertex-daily-brief.collapsed .vertex-daily-brief-body{display:none}
+.vertex-daily-brief.collapsed .vertex-daily-brief-chevron{transform:rotate(-90deg)}
 /* SPARKLINES */
 .vertex-sparkline-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .vertex-sparkline-card{flex:1;min-width:110px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
@@ -7606,7 +7613,7 @@ function setPage(page){
   const _pageTitles={home:'Vertex',workout:'Vertex — Workout',progress:'Vertex — Progress',wellness:'Vertex — Wellness',ai:'Vertex — AI Coach'};
   document.title = _pageTitles[state.page] || 'Vertex — Build · Track · Improve';
   if(state.page==='progress') renderProgressPage();
-  if(state.page==='wellness') renderWellnessPage();
+  if(state.page==='wellness'){try{renderWellnessPage();}catch(e){console.error('Wellness render error:',e);}}
   if(state.page==='health'){state.page='wellness'; renderWellnessPage();}
   if(state.page==='ai') renderAiCoachPage();
   document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-nav')===state.page));
@@ -8808,11 +8815,13 @@ async function renderDailyBrief(){
   try{
     const cached = JSON.parse(localStorage.getItem(DAILY_BRIEF_CACHE_KEY)||'null');
     if(cached && cached.text && (Date.now()-cached.ts) < DAILY_BRIEF_TTL){
-      el.innerHTML = `<div class="vertex-daily-brief"><div class="vertex-daily-brief-label">Today's Briefing</div><div class="vertex-daily-brief-text">${cached.text}</div></div>`;
+      const isMobile = window.innerWidth < 768;
+      const collapsed = isMobile ? 'collapsed' : '';
+      el.innerHTML = `<div class="vertex-daily-brief ${collapsed}"><div class="vertex-daily-brief-header" onclick="this.parentElement.classList.toggle('collapsed')"><span class="vertex-daily-brief-label">Today's Briefing</span><span class="vertex-daily-brief-chevron">›</span></div><div class="vertex-daily-brief-body"><div class="vertex-daily-brief-text">${cached.text}</div></div></div>`;
       return;
     }
   }catch(e){}
-  el.innerHTML = `<div class="vertex-daily-brief"><div class="vertex-daily-brief-label">Today's Briefing</div><div class="vertex-daily-brief-loading">Generating your daily outlook…</div></div>`;
+  el.innerHTML = `<div class="vertex-daily-brief"><div class="vertex-daily-brief-header"><span class="vertex-daily-brief-label">Today's Briefing</span></div><div class="vertex-daily-brief-loading">Generating your daily outlook…</div></div>`;
   try{
     const r = typeof buildReadinessScore==='function' ? buildReadinessScore() : {score:0,label:'',action:''};
     const ahSleep=(()=>{try{const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null');return s&&s.latestMinutes?Math.round(s.latestMinutes/60*10)/10:null;}catch(e){return null;}})();
@@ -8828,7 +8837,7 @@ async function renderDailyBrief(){
     const activeProto=(typeof stackItems!=='undefined'?stackItems:[]).filter(s=>typeof vertexIsProtocolActive==='function'&&vertexIsProtocolActive(s));
     const todayStr=typeof todayIso==='function'?todayIso():'';
     const dueCount=activeProto.filter(s=>typeof vertexIsDueOnDate==='function'&&vertexIsDueOnDate(s,todayStr)).length;
-    const prompt=`You are the Vertex health coach. Write a single concise paragraph (3-4 sentences max) as a "Today's Outlook" daily briefing. Be direct, specific, actionable. No greetings, no sign-off.
+    const prompt=`You are the Vertex health coach. Return exactly 3-4 bullet points as a "Today's Outlook" daily briefing. Each bullet is one short sentence. Be direct and actionable. Format as HTML list items like: <li>text</li> with no other HTML. No greetings, no sign-off, no bullet characters — just the <li> tags.
 
 Date: ${new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})}
 Readiness: ${r.score}/100 (${r.label})
@@ -8842,10 +8851,12 @@ Protocol doses due today: ${dueCount}
 Coach recommendation: ${r.action}`;
     const resp=await fetch('/api/anthropic-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:200,messages:[{role:'user',content:prompt}]})});
     const data=await resp.json();
-    const text=data?.content?.[0]?.text?.trim()||'';
+    const rawText=data?.content?.[0]?.text?.trim()||''; const text=rawText.includes('<li>')?`<ul style="padding-left:18px;margin:0">${rawText}</ul>`:rawText;
     if(text){
       localStorage.setItem(DAILY_BRIEF_CACHE_KEY,JSON.stringify({text,ts:Date.now()}));
-      el.innerHTML=`<div class="vertex-daily-brief"><div class="vertex-daily-brief-label">Today's Briefing</div><div class="vertex-daily-brief-text">${text}</div></div>`;
+      const isMobileBrief = window.innerWidth < 768;
+      const collapsedBrief = isMobileBrief ? 'collapsed' : '';
+      el.innerHTML=`<div class="vertex-daily-brief ${collapsedBrief}"><div class="vertex-daily-brief-header" onclick="this.parentElement.classList.toggle('collapsed')"><span class="vertex-daily-brief-label">Today's Briefing</span><span class="vertex-daily-brief-chevron">›</span></div><div class="vertex-daily-brief-body"><div class="vertex-daily-brief-text">${text}</div></div></div>`;
     } else { el.innerHTML=''; }
   }catch(e){ el.innerHTML=''; }
 }
@@ -9091,7 +9102,7 @@ document.addEventListener('click',async e=>{
         }catch(e){console.warn('HK cross-ref error:',e);}
         const activityIcons={'Strength Training':'🏋️','Functional Strength':'🏋️','HIIT':'⚡','Running':'🏃','Cycling':'🚴','Walking':'🚶','Yoga':'🧘','Pilates':'🧘','Swimming':'🏊','Rowing':'🚣','Elliptical':'🔄','Stair Climbing':'🪜','Hiking':'🥾','Boxing':'🥊','Martial Arts':'🥋','Dance':'💃','Cooldown':'🧊','Mind & Body':'🧠','Core Training':'💪','Flexibility':'🤸','Jump Rope':'⚡','Workout':'💪'};
         if(card&&list){
-          const allVisible=workouts.filter(w=>{const wid=w.startDate+'_'+w.activityType; return !imported[wid] || imported[wid]==='pending';});
+          const allVisible=workouts.filter(w=>{const wid=w.startDate+'_'+w.activityType; if(imported[wid] && imported[wid]!=='pending') return false; if(w.activityName==='Walking' && (w.durationMinutes||0)<3) return false; return true;});
           const visible=allVisible.slice(0,5);
           const hasMore=allVisible.length>5;
           if(!visible.length){
@@ -9783,7 +9794,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-e';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-f';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

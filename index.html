@@ -6004,7 +6004,7 @@ function wcRenderDashboard(){
       const ac=fmtInt(latestH.activeCalories); if(ac!=null||avg7H('activeCalories')!=null) cards.push(buildMetricCard('Active Cal', ac!=null?ac+' kcal':null, 'burned today', avg7H('activeCalories'), ' kcal', 'activeCalories'));
       const ex=fmtInt(latestH.exerciseMinutes); if(ex!=null||avg7H('exerciseMinutes')!=null) cards.push(buildMetricCard('Exercise', ex!=null?ex+' min':null, 'today', avg7H('exerciseMinutes'), ' min', 'exerciseMinutes'));
       const wt=fmt1(latestH.bodyWeight); if(wt!=null||avg7H('bodyWeight')!=null) cards.push(buildMetricCard('Weight', wt!=null?wt+' lb':null, 'body weight', avg7H('bodyWeight'), ' lb', 'bodyWeight'));
-      const bf=fmt1(latestH.bodyFatPct); if(bf!=null||avg7H('bodyFatPct')!=null) cards.push(buildMetricCard('Body Fat', bf!=null?bf+'%':null, '% body fat', avg7H('bodyFatPct'), '%', 'bodyFatPct'));
+      const bf=fmt1(latestH.bodyFatPct); if(bf!=null||avg7H('bodyFatPct')!=null) cards.push(buildMetricCard('Body Fat', bf!=null?bf+'%':null, 'est. · Apple Health', avg7H('bodyFatPct'), '%', 'bodyFatPct'));
       const lm=fmt1(latestH.leanMass); if(lm!=null||avg7H('leanMass')!=null) cards.push(buildMetricCard('Lean Mass', lm!=null?lm+' lb':null, 'muscle + bone', avg7H('leanMass'), ' lb', 'leanMass'));
       const v2=fmt1(latestH.vo2Max); if(v2!=null||avg7H('vo2Max')!=null) cards.push(buildMetricCard('Cardio Fit', v2!=null?v2+' ml/kg':null, 'VO₂ max est.', avg7H('vo2Max'), '', 'vo2Max'));
       const wtd=fmt1(latestH.wristTempDeviation); if(wtd!=null) cards.push(buildMetricCard('Wrist Temp', wtd!=null?wtd+'°C':null, 'sleep deviation', null, '', null));
@@ -6189,7 +6189,7 @@ function wcRenderDexaDashboard(){
   const dxOpts={...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:true,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:8}}}};
   // KPIs
   const kpiEl=document.getElementById('wc-dexa-kpis');
-  if(kpiEl)kpiEl.innerHTML=`<div class="wc-kpi-card highlight"><div class="wc-kpi-label">Body Fat %</div><div class="wc-kpi-value">${latest.bodyFatPct??'—'}</div><div class="wc-kpi-sub">${latest.bodyScore||''} Body Score</div></div><div class="wc-kpi-card"><div class="wc-kpi-label">Lean Mass</div><div class="wc-kpi-value">${latest.leanMassLbs??'—'}</div><div class="wc-kpi-sub">lbs${prev&&prev.leanMassLbs?' · '+(latest.leanMassLbs-prev.leanMassLbs>0?'+':'')+(latest.leanMassLbs-prev.leanMassLbs).toFixed(1)+' vs prior':''}</div></div><div class="wc-kpi-card"><div class="wc-kpi-label">Fat Mass</div><div class="wc-kpi-value">${latest.fatMassLbs??'—'}</div><div class="wc-kpi-sub">lbs</div></div><div class="wc-kpi-card"><div class="wc-kpi-label">Visceral Fat</div><div class="wc-kpi-value">${latest.visceralFatLbs??'—'}</div><div class="wc-kpi-sub">lbs · target 1.00</div></div><div class="wc-kpi-card"><div class="wc-kpi-label">A/G Ratio</div><div class="wc-kpi-value">${latest.agRatio??'—'}</div><div class="wc-kpi-sub">target &lt; 1.0</div></div><div class="wc-kpi-card"><div class="wc-kpi-label">FFMI</div><div class="wc-kpi-value">${latest.ffmi??'—'}</div><div class="wc-kpi-sub">kg/m² · ALMI ${latest.almi??'—'}</div></div>`;
+  if(kpiEl)kpiEl.innerHTML=`<div class="wc-kpi-card highlight"><div class="wc-kpi-label">Body Fat %</div><div class="wc-kpi-value">${latest.bodyFatPct??'—'}</div><div class="wc-kpi-sub">${latest.bodyScore||''} Body Score · DEXA (${wcFmt(latest.date)})</div></div><div class="wc-kpi-card"><div class="wc-kpi-label">Lean Mass</div><div class="wc-kpi-value">${latest.leanMassLbs??'—'}</div><div class="wc-kpi-sub">lbs${prev&&prev.leanMassLbs?' · '+(latest.leanMassLbs-prev.leanMassLbs>0?'+':'')+(latest.leanMassLbs-prev.leanMassLbs).toFixed(1)+' vs prior':''}</div></div><div class="wc-kpi-card"><div class="wc-kpi-label">Fat Mass</div><div class="wc-kpi-value">${latest.fatMassLbs??'—'}</div><div class="wc-kpi-sub">lbs</div></div><div class="wc-kpi-card"><div class="wc-kpi-label">Visceral Fat</div><div class="wc-kpi-value">${latest.visceralFatLbs??'—'}</div><div class="wc-kpi-sub">lbs · target 1.00</div></div><div class="wc-kpi-card"><div class="wc-kpi-label">A/G Ratio</div><div class="wc-kpi-value">${latest.agRatio??'—'}</div><div class="wc-kpi-sub">target &lt; 1.0</div></div><div class="wc-kpi-card"><div class="wc-kpi-label">FFMI</div><div class="wc-kpi-value">${latest.ffmi??'—'}</div><div class="wc-kpi-sub">kg/m² · ALMI ${latest.almi??'—'}</div></div>`;
   // Comparison
   const cmpEl=document.getElementById('wc-dexa-comparison');
   if(cmpEl){if(prev){const rows=[['Total Mass','totalWeight'],['Fat Mass','fatMassLbs'],['Lean Mass','leanMassLbs'],['Body Fat %','bodyFatPct'],['Visceral Fat','visceralFatLbs'],['A/G Ratio','agRatio'],['ALMI','almi'],['FFMI','ffmi'],['Arms Lean','armsLeanLbs'],['Trunk Lean','trunkLeanLbs'],['Legs Lean','legsLeanLbs']];cmpEl.innerHTML=`<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);padding:4px 0 8px;border-bottom:1px solid var(--line2);margin-bottom:4px"><span>← ${wcFmt(prev.date)}</span><span>${wcFmt(latest.date)} →</span></div>`+rows.map(([label,key])=>{const d=latest[key]!==null&&prev[key]!==null?+(latest[key]-prev[key]).toFixed(2):null;const color=d===null?'':['fatMassLbs','bodyFatPct','visceralFatLbs','agRatio'].includes(key)?(d<0?'var(--acc)':'#ff5050'):(d>0?'var(--acc)':'#ff5050');return`<div class="wc-row-kv"><span class="k">${label}</span><span class="v" style="display:flex;align-items:center;gap:6px"><span style="color:var(--muted);font-size:11px">${prev[key]??'—'}</span><span style="color:var(--muted)">→</span><span>${latest[key]??'—'}</span>${d!==null?`<span style="font-size:11px;color:${color}">${d>0?'+':''}${d}</span>`:''}</span></div>`;}).join('');}else{cmpEl.innerHTML=`<div style="font-size:12px;color:var(--muted)">Add a second scan to see comparison.</div>`;}}
@@ -8908,9 +8908,10 @@ function renderGoalTracker(){
   const scans=typeof wcDexaScans!=='undefined'?wcDexaScans:[];
   const latestScan=scans.length?scans[scans.length-1]:null;
   const currentBF = ahBF ?? latestScan?.bodyFatPct ?? null;
+  const bfSource = ahBF != null ? 'Apple Health' : (latestScan ? 'DEXA ('+wcFmt(latestScan.date)+')' : null);
   const goalDefs=[
     {key:'weight',label:'Weight Goal',unit:'lb',current:currentWeight,target:goals.weight||195,lower:true,min:100,max:400,step:0.5},
-    {key:'bf',label:'Body Fat Goal',unit:'%',current:currentBF,target:goals.bf||15,lower:true,min:5,max:40,step:0.1},
+    {key:'bf',label:'Body Fat Goal'+(bfSource?' · '+bfSource:''),unit:'%',current:currentBF,target:goals.bf||15,lower:true,min:5,max:40,step:0.1},
     {key:'sessions',label:'Weekly Sessions',unit:'sessions',current:currentSessions,target:goals.sessions||4,lower:false,min:1,max:14,step:1}
   ];
   const goalRow=g=>{
@@ -9788,7 +9789,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-g';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-h';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

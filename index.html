@@ -2728,13 +2728,13 @@ button.acc-hint {
 <div id="wtab-dexa" style="display:none">
   <!-- PDF Upload -->
   <div class="wc-section" style="margin-bottom:14px">
-    <div class="wc-section-head"><span>🦴</span> Upload DexaFit Report</div>
+    <div class="wc-section-head"><span>📊</span> Body Scan Upload / Manual Entry</div>
     <div class="wc-section-body">
 
       <div class="wc-drop-zone" id="dexa-drop-zone" onclick="document.getElementById('dexa-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--acc)'" ondragleave="this.style.borderColor='var(--line2)'" ondrop="window.handleDexaDrop(event)">
         <div style="font-size:24px;margin-bottom:6px">📄</div>
         <div style="font-size:12px;color:var(--muted)">Drop DexaFit PDF or click to browse</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:4px">Claude API auto-parses all 25 fields</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Auto-parses all 25 fields — or use Manual Entry below</div>
       </div>
       <input type="file" id="dexa-file-input" accept=".pdf" style="display:none" onchange="window.handleDexaFile(this.files[0])">
       <div id="dexa-parse-status" style="display:none;margin-top:10px"></div>
@@ -2823,7 +2823,7 @@ button.acc-hint {
     <div class="wc-dash-card" style="margin-bottom:12px"><div class="wc-dash-card-label">Left / Right Symmetry</div><div id="vertex-symmetry" style="padding-top:4px"></div></div>
     <div class="wc-dash-card"><div class="wc-dash-card-label">Scan History</div><div id="wc-dexa-history-table" style="overflow-x:auto"></div></div>
   </div>
-  <div id="wc-dexa-empty" style="display:none"><div class="empty-note">No DEXA scans yet. Upload your first scan in the DEXA tab.</div></div>
+  <div id="wc-dexa-empty" style="display:none"><div style="padding:20px;text-align:center"><div style="font-size:28px;margin-bottom:10px">📊</div><div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px">No body composition scans yet</div><div style="font-size:12px;color:var(--muted);line-height:1.6">Upload a DexaFit PDF above, or use <b style="color:var(--acc)">Manual Entry</b> to enter measurements from any body composition scan or smart scale (Renpho, InBody, etc.)</div></div></div>
 </div>
 
 <!-- STACK SUB-TAB -->
@@ -5746,6 +5746,7 @@ function renderHealthPage(){
   }
   const ready=document.getElementById('healthReadinessPanel'); if(ready){const r=calculateReadiness(last); const msg=!last?'No health entries yet. Add Apple Watch/manual data to unlock readiness coaching.':r.score>=4?'Green light: recovery looks supportive.':r.score<=2?'Recovery flag: consider lighter work or mobility.':'Maintain: train as planned and monitor fatigue.'; ready.innerHTML=`<div class="progress-kpi" style="margin-top:8px"><b>${r.score||'—'}</b><span>${escapeHtml(r.label)} Readiness</span></div><div class="insight">${escapeHtml(msg)}<br><span style="color:var(--muted)">${escapeHtml((r.drivers||[]).slice(0,2).join(' · '))}</span></div>`;}
   const trend=document.getElementById('healthTrendPanel'); if(trend){trend.innerHTML=`${healthBar('Avg Sleep',avgSleep==null?null:avgSleep.toFixed(1)+'h',9)}${healthBar('Avg Steps',avgSteps==null?null:Math.round(avgSteps),12000)}${healthBar('Avg HRV',avgHrv==null?null:Math.round(avgHrv),80)}${healthBar('Avg Readiness',avgReady==null?null:avgReady.toFixed(1),5)}`;}
+  const hist=document.getElementById('healthHistory');
   if(hist){
     const cutoff7=new Date(Date.now()-7*86400000);
     const recent=rows.filter(r=>new Date(r.date+'T12:00:00')>=cutoff7);
@@ -6236,6 +6237,8 @@ function renderWellnessPage(){
   const nonNativeNotice = document.getElementById('apple-health-non-native-notice');
   const isNativePWA = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
   if(syncBtn) syncBtn.style.display = isNativePWA ? '' : 'none';
+  const refreshBtn = document.getElementById('btn-wellness-refresh');
+  if(refreshBtn) refreshBtn.style.display = isNativePWA ? 'none' : '';
   if(nonNativeNotice) nonNativeNotice.style.display = 'none';
 
   if(!wcLogs.length && authUser) loadWcLogs().then(()=>{if(wellnessTab==='dashboard')wcRenderDashboard();if(wellnessTab==='history')wcRenderHistory();if(wellnessTab==='trends')wcRenderTrends();}).catch(()=>{});
@@ -9794,7 +9797,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-i';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260521-j';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

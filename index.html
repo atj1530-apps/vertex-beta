@@ -8379,7 +8379,11 @@ function renderBuilder(){
     const downBtn=`<button class="ex-reorder" data-move-down="${i}" ${isLast?'disabled':''} title="Move down" aria-label="Move ${escapeAttr(e.name)} down">▼</button>`;
     const hasDemo=!!getExerciseDemo(e.name);
     const demoBtn=hasDemo?`<button class="btn small demo-trigger" data-demo="${escapeAttr(e.name)}" title="Watch exercise demonstration">▶ Demo</button>`:'';
-    return `<article class="exercise-card"><div class="ex-head"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(e.name)}</strong><span class="badge blue">${e.kind.toUpperCase()}</span><span class="badge green">${e.muscle}</span><span class="ex-reorder-group">${upBtn}${downBtn}</span>${demoBtn}<button class="remove" data-remove="${i}">×</button></div>${perfStrip(e)}<div class="sets"><div class="set-row head"><div>Set</div><div>Reps</div><div>Weight (lb)</div><div class="status">Status</div></div>${(e.sets||[]).map((r,j)=>`<div class="set-row"><div class="num">${j+1}</div><input data-reps="${i}:${j}" value="${r.reps??''}"/><input data-weight="${i}:${j}" value="${r.weight??''}" placeholder="lbs"/><div class="status ${String(setPrLabel(e,r)).includes('PR')?'perf-pr':''}">${escapeHtml(setPrLabel(e,r))}</div></div>`).join('')}<button class="btn small" data-add-set="${i}">+ Set</button> <button class="btn small" data-dupe="${i}">Duplicate</button><button class="rest-btn-inline" onclick=\"window.openRestTimer(60)\" title="Start rest timer">⏱ Rest</button><textarea class="search" rows="2" placeholder="Notes — tempo, rest, form cues...">${escapeHtml(e.notes||'')}</textarea></div></article>`;
+    return `<article class="exercise-card"><div class="ex-head"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(e.name)}</strong><span class="badge blue">${e.kind.toUpperCase()}</span><span class="badge green">${e.muscle}</span><span class="ex-reorder-group">${upBtn}${downBtn}</span>${demoBtn}<button class="remove" data-remove="${i}">×</button></div>${perfStrip(e)}<div class="sets"><div class="set-row head"><div>Set</div><div>Reps</div><div>Weight (lb)</div><div class="status">Status</div></div>${(e.sets||[]).map((r,j)=>{
+  const hasLast=j>0&&e.sets[j-1];
+  const repeatBtn=hasLast?`<button class="quick-btn" data-qa-repeat="${i}:${j}">↺</button>`:'';
+  return `<div class="set-row"><div class="num">${j+1}</div><input data-reps="${i}:${j}" value="${r.reps??''}"/><input data-weight="${i}:${j}" value="${r.weight??''}" placeholder="lbs"/><div class="status ${String(setPrLabel(e,r)).includes('PR')?'perf-pr':''}">${escapeHtml(setPrLabel(e,r))}</div></div><div class="quick-add-row"><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="1">+1</button><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="-1">-1</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="5">+5 lb</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="-5">-5</button>${repeatBtn}</div>`;
+}).join('')}<button class="btn small" data-add-set="${i}">+ Set</button> <button class="btn small" data-dupe="${i}">Duplicate</button><button class="rest-btn-inline" onclick=\"window.openRestTimer(60)\" title="Start rest timer">⏱ Rest</button><textarea class="search" rows="2" placeholder="Notes — tempo, rest, form cues...">${escapeHtml(e.notes||'')}</textarea></div></article>`;
   }).join('');
 }
 
@@ -9345,7 +9349,49 @@ document.addEventListener('click',async e=>{
  });
  document.addEventListener('focusout',async e=>{if(e.target.id==='wkt-name-input'){await commitWorkoutNameAndSave(); return}});
  document.addEventListener('keydown',async e=>{if(e.target.id==='wkt-name-input' && e.key==='Enter'){e.preventDefault(); await commitWorkoutNameAndSave(); return} if(e.target.id==='wkt-name-input' && e.key==='Escape'){e.preventDefault(); cancelWorkoutNameEdit(); return}});
- document.addEventListener('input',e=>{if(e.target.id==='search'){state.search=e.target.value; renderSidebar(); return} const r=e.target.getAttribute('data-reps'); if(r){const [i,j]=r.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].reps=Number(e.target.value)||0; renderRight(); renderBuilderMetaOnly(); return} const w=e.target.getAttribute('data-weight'); if(w){const [i,j]=w.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].weight=e.target.value; return}});
+ // Quick-add button handler — delegated, no inline onclick
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('.quick-btn');
+  if(!btn) return;
+  // +/- reps
+  const qr=btn.getAttribute('data-qa-reps');
+  if(qr){
+    const [i,j]=qr.split(':').map(Number);
+    const delta=Number(btn.getAttribute('data-qa-delta')||0);
+    const cur=state.current.exercises[i]?.sets[j];
+    if(!cur) return;
+    cur.reps=Math.max(0,(Number(cur.reps)||0)+delta);
+    markUnsaved();
+    renderBuilder(); renderRight(); renderBuilderMetaOnly();
+    return;
+  }
+  // +/- weight
+  const qw=btn.getAttribute('data-qa-weight');
+  if(qw){
+    const [i,j]=qw.split(':').map(Number);
+    const delta=Number(btn.getAttribute('data-qa-delta')||0);
+    const cur=state.current.exercises[i]?.sets[j];
+    if(!cur) return;
+    cur.weight=Math.max(0,Math.round(((Number(String(cur.weight||'0').replace(/[^0-9.]/g,''))||0)+delta)*10)/10);
+    markUnsaved();
+    renderBuilder(); renderRight(); renderBuilderMetaOnly();
+    return;
+  }
+  // repeat last set
+  const qrep=btn.getAttribute('data-qa-repeat');
+  if(qrep){
+    const [i,j]=qrep.split(':').map(Number);
+    const prev=state.current.exercises[i]?.sets[j-1];
+    const cur=state.current.exercises[i]?.sets[j];
+    if(!prev||!cur) return;
+    cur.reps=prev.reps;
+    cur.weight=prev.weight;
+    markUnsaved();
+    renderBuilder(); renderRight(); renderBuilderMetaOnly();
+    return;
+  }
+});
+document.addEventListener('input',e=>{if(e.target.id==='search'){state.search=e.target.value; renderSidebar(); return} const r=e.target.getAttribute('data-reps'); if(r){const [i,j]=r.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].reps=Number(e.target.value)||0; renderRight(); renderBuilderMetaOnly(); return} const w=e.target.getAttribute('data-weight'); if(w){const [i,j]=w.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].weight=e.target.value; return}});
  document.addEventListener('click',e=>{const m=e.target.getAttribute?.('data-muscle'); if(m){state.muscle=m; renderSidebar()} const env=e.target.getAttribute?.('data-env'); if(env){e.target.closest?.('.segment')?.classList.add('user-picked'); state.env=env; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; renderAll();}});
  function renderBuilderMetaOnly(){const s=stats(); document.getElementById('wkt-meta').innerHTML=`<span>EXERCISES <b>${s.ex}</b></span><span>SETS <b>${s.sets}</b></span><span>EST. <b>${s.est} min</b></span>${state.current.excludeFromVolume?'<span>VOLUME <b>0</b></span>':''}`}
  // Ensure no old app localStorage can prepopulate builder, then restore Supabase session if present.
@@ -9947,7 +9993,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-h';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-i';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

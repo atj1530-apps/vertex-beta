@@ -9736,8 +9736,10 @@ document.addEventListener('change', e=>{
   const collapseByDefaultOnMobile=['plannerAcc','intelAcc','autoCoachAcc','savedWorkoutsAcc'];
   // plannerAcc always starts collapsed on mobile — today/tomorrow carousel replaces it above the fold
   const alwaysCollapseOnMobile=['plannerAcc'];
+  const alwaysOpen=['templatesAcc'];
   document.querySelectorAll('.accordion').forEach(acc=>{
     if(!acc.id) return;
+    if(alwaysOpen.includes(acc.id)){ acc.classList.add('open'); return; }
     if(isMobile && alwaysCollapseOnMobile.includes(acc.id)){ acc.classList.remove('open'); return; }
     let saved=null;
     try{saved=localStorage.getItem('vertex_acc_'+acc.id);}catch(e){}
@@ -10316,7 +10318,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-o';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-p';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -3276,6 +3276,7 @@ button.acc-hint {
       <div class="fwm-progress-track"><div class="fwm-progress-fill" id="fwmProgressFill"></div></div>
       <span id="fwmProgressLabel" style="font-family:'DM Mono';font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0"></span>
     </div>
+    <button class="fwm-exit" id="fwmExitBtn">EXIT</button>
   </div>
   <div class="fwm-body" id="fwmBody"></div>
   <div class="fwm-footer">
@@ -8436,13 +8437,7 @@ function startWorkout(w=state.current){
     state.current.type='strength';
     state.tracking=true;
     renderAll();
-    // FWM only for planner/template workouts, not manual builder
-    if(w.source!=='manual'){
-      openFocusedWorkoutMode(state.current);
-    } else {
-      collapseTopIfContent();
-      document.getElementById('builder')?.scrollIntoView({block:'start',behavior:'smooth'});
-    }
+    openFocusedWorkoutMode(state.current);
     return;
   }
   state.tracking=false;
@@ -8470,6 +8465,7 @@ document.addEventListener('click', function(e){
   if(t.id==='fwmNextBtn'){ fwmAdvance(); return; }
   if(t.id==='fwmRestBtn'){ openRestTimer(state.restTimerDefault||60); return; }
   if(t.id==='fwmBackBtn'){ closeFocusedWorkoutMode(); return; }
+  if(t.id==='fwmExitBtn'){ fwmConfirmExit(); return; }
   const fwmSet=t.getAttribute('data-fwm-set');
   if(fwmSet!==null){ fwmCompleteSet(Number(fwmSet)); return; }
 }, true);
@@ -8580,6 +8576,11 @@ async function fwmFinish(){
     <div class="fwm-complete-stat"><b>${elapsed}</b><span>MIN</span></div>`;
   document.getElementById('fwmComplete').classList.add('on');
   try{ await logWorkoutToCloud(); }catch(e){ console.warn('FWM auto-log failed',e); }
+}
+
+async function fwmConfirmExit(){
+  const ok=await vertexConfirm('Exit workout? Your progress won\'t be logged.');
+  if(ok) closeFocusedWorkoutMode();
 }
 
 function closeFocusedWorkoutMode(){
@@ -10164,7 +10165,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-r';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-s';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

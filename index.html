@@ -81,7 +81,7 @@ button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}
 #app{position:relative;top:58px;left:0;right:0;height:calc(100vh - 58px);display:grid;grid-template-columns:290px minmax(520px,1fr) 310px;overflow:hidden}#app.page-mode{grid-template-columns:1fr}.sidebar,.main,.right{min-height:0;overflow:auto}.sidebar{border-right:1px solid var(--line);padding:16px;background:#0b0b0b}.main{padding:18px 24px 24px}.right{border-left:1px solid var(--line);padding:16px;background:#0b0b0b}.sidebar::-webkit-scrollbar,.main::-webkit-scrollbar,.right::-webkit-scrollbar{width:5px}.sidebar::-webkit-scrollbar-thumb,.main::-webkit-scrollbar-thumb,.right::-webkit-scrollbar-thumb{background:var(--line2)}
 .panel{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:14px;margin-bottom:14px}.panel.hl{border-color:rgba(232,255,71,.55);background:linear-gradient(90deg,rgba(232,255,71,.07),rgba(232,255,71,.015))}.panel.green{border-color:rgba(72,255,138,.35);background:rgba(72,255,138,.035)}
 .segment{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}.segment.pill-scroll{display:flex;flex-direction:row;overflow-x:auto;gap:8px;margin:8px -4px 10px;padding:2px 4px 6px;scrollbar-width:none;-ms-overflow-style:none}.segment.pill-scroll::-webkit-scrollbar{display:none}.seg-btn{background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:5px;padding:10px;font-weight:700;cursor:pointer}.segment.pill-scroll .seg-btn{border-radius:var(--r-pill);padding:7px 14px;font-size:13px;font-weight:600;white-space:nowrap;flex-shrink:0;color:var(--text)}.seg-btn.on{background:var(--panel2);color:var(--acc);border-color:rgba(232,255,71,.45)}.seg-btn.chosen{background:var(--acc);color:#000;border-color:var(--acc)}.segment.pill-scroll .seg-btn.on,.segment.pill-scroll .seg-btn.chosen{background:var(--acc);color:#000;border-color:var(--acc)}.muscles{display:flex;overflow-x:auto;gap:8px;margin:8px -4px 10px;padding:2px 4px 6px;scrollbar-width:none;-ms-overflow-style:none;flex-wrap:nowrap}.muscles::-webkit-scrollbar{display:none}.chip{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:var(--r-pill);padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}.chip.on{background:var(--acc);border-color:var(--acc);color:#000}
-.muscles{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.chip{border:1px solid var(--line2);background:#101010;color:var(--muted);border-radius:20px;padding:5px 10px;font-size:12px;cursor:pointer}.chip.on{background:var(--acc);border-color:var(--acc);color:#000}.search{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px;border-radius:5px;margin:8px 0}.ex-list{display:flex;flex-direction:column;gap:7px}.ex-item{border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:11px;cursor:pointer}.ex-item:hover{border-color:var(--acc)}.ex-name{font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:6px}.ex-meta{font-size:12px;color:var(--muted);margin-top:3px}.ex-edit-btn{background:none;border:1px solid var(--line2);border-radius:4px;color:var(--muted);font-size:12px;padding:2px 6px;cursor:pointer;flex-shrink:0;line-height:1}.ex-edit-btn:hover{border-color:var(--acc);color:var(--acc);background:rgba(232,255,71,.07)}
+.search{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px;border-radius:5px;margin:8px 0}.ex-list{display:flex;flex-direction:column;gap:4px}.ex-item{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:border-color .15s}.ex-item:active{border-color:var(--acc)}.ex-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.ex-info{flex:1;min-width:0}.ex-name{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ex-meta{font-size:11px;color:var(--muted);margin-top:2px}.ex-add-btn{width:32px;height:32px;border-radius:var(--r-pill);border:1px solid var(--line2);background:none;color:var(--acc);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:300}.ex-edit-btn{background:none;border:1px solid var(--line2);border-radius:4px;color:var(--muted);font-size:12px;padding:2px 6px;cursor:pointer;flex-shrink:0;line-height:1}.ex-edit-btn:hover{border-color:var(--acc);color:var(--acc);background:rgba(232,255,71,.07)}.ex-group-label{font-family:'DM Mono';font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:10px 0 4px}
 .accordion{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-bottom:12px;overflow:hidden}.acc-head{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 14px;background:var(--panel2);cursor:pointer}.acc-title{font-weight:800}.acc-hint{font-family:'DM Mono';font-size:10px;letter-spacing:2px;color:var(--acc)}.acc-body{display:none;padding:14px}.accordion.open .acc-body{display:block}
 .today-card{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px}.today-title{font-size:17px;font-weight:800}.today-sub{color:var(--muted);font-size:13px;margin-top:4px}.planner-grid{display:grid;grid-template-columns:repeat(7,minmax(155px,1fr));gap:8px;padding-right:8px}.day-card{min-height:150px;border:1px solid var(--line);background:var(--panel2);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:8px}.day-card.today{border-color:var(--acc)}.day-name{font-family:'DM Mono';font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}.day-count{float:right;color:var(--dim);letter-spacing:0}.day-workout{font-weight:800;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.day-preview{font-size:12px;color:var(--muted);line-height:1.35;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.day-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:auto}.day-actions .btn{padding:7px 8px;overflow:visible;text-overflow:clip}.templates{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.tpl{border:1px solid var(--line);background:var(--panel2);border-radius:7px;padding:12px;min-height:165px;display:flex;flex-direction:column}.tpl h3{margin:0 0 8px;font-size:15px}.tpl p{margin:0;color:var(--muted);font-size:12px;line-height:1.45;flex:1}.tpl .btn{margin-top:12px;width:100%}
 .intel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.intel-box{border:1px solid rgba(232,255,71,.15);background:var(--panel2);border-radius:var(--r-sm);padding:var(--sp3)}.intel-box b{display:block;margin-bottom:3px}.intel-box span{color:var(--muted);font-size:12px}.coachbar{padding:12px 14px;border:1px solid rgba(72,255,138,.35);background:rgba(72,255,138,.04);border-radius:7px;margin-bottom:12px;font-weight:800}
@@ -177,8 +177,7 @@ body.shared-view #vertex-share-banner{display:block}body:not(.authenticated) #ap
   .muscles{gap:7px;}
   .chip{padding:7px 10px;font-size:12px;}
   .equip-grid{grid-template-columns:1fr 1fr;}
-  .ex-list{gap:8px;}
-  .ex-item{padding:12px;}
+  .ex-list{gap:4px;}
   .page-panel{padding:16px;margin-bottom:12px;}
   .page-title{font-size:40px;letter-spacing:3px;}
   .page-copy{font-size:14px;}
@@ -8231,8 +8230,31 @@ function renderSidebar(){
   const seen=new Set();
   list=list.filter(e=>{const key=e.name.toLowerCase(); if(seen.has(key)) return false; seen.add(key); return true;}).sort((a,b)=>a.name.localeCompare(b.name));
   document.getElementById('ex-count').textContent=list.length;
-  const help=`<div style="color:var(--muted);font-size:12px;line-height:1.35;margin:8px 0 10px">${TRAINING_HELP[train]||''}</div>`;
-  document.getElementById('exercise-list').innerHTML=help+(list.map(e=>`<div class="ex-item ${e.custom?'ex-item-custom':''}" data-add="${escapeAttr(e.name)}"><div class="ex-name">${e.name}${e.custom?`<button class="ex-edit-btn" data-edit-custom="${escapeAttr(e.name)}" title="Edit this exercise">✎</button>`:''}</div><div class="ex-meta">• ${e.muscle} · ${e.equip}</div></div>`).join('') || '<div style="color:var(--dim);padding:10px">No matching exercises. Try All or another training type.</div>');
+  const MUSCLE_COLORS={
+    'Chest':'#ff6b6b','Pecs':'#ff6b6b','Back':'#4bbdff','Lats':'#4bbdff',
+    'Shoulders':'#ffb047','Legs':'#48ff8a','Quads':'#48ff8a','Hamstrings':'#48ff8a',
+    'Glutes':'#c084fc','Arms':'#fb923c','Biceps':'#fb923c','Triceps':'#f472b6',
+    'Core':'#e8ff47','Abs':'#e8ff47','Calves':'#34d399','Full Body':'#8b5cf6',
+    'Cardio':'#60a5fa','default':'#8d8d8d'
+  };
+  function muscleColor(m){
+    if(!m) return MUSCLE_COLORS.default;
+    for(const [k,v] of Object.entries(MUSCLE_COLORS)){if(m.toLowerCase().includes(k.toLowerCase())) return v;}
+    return MUSCLE_COLORS.default;
+  }
+  const help=`<div style="color:var(--muted);font-size:12px;line-height:1.35;margin:4px 0 8px">${TRAINING_HELP[train]||''}</div>`;
+  document.getElementById('exercise-list').innerHTML=help+(list.map(e=>{
+    const dot=muscleColor(e.muscle);
+    const editBtn=e.custom?`<button class="ex-edit-btn" data-edit-custom="${escapeAttr(e.name)}" title="Edit">✎</button>`:'';
+    return `<div class="ex-item" data-add="${escapeAttr(e.name)}">
+      <div class="ex-dot" style="background:${dot}"></div>
+      <div class="ex-info">
+        <div class="ex-name">${escapeHtml(e.name)}${editBtn}</div>
+        <div class="ex-meta">${escapeHtml(e.muscle||'')} · ${escapeHtml(e.equip||'')}</div>
+      </div>
+      <button class="ex-add-btn" data-add="${escapeAttr(e.name)}" title="Add">+</button>
+    </div>`;
+  }).join('') || '<div style="color:var(--dim);padding:10px">No matching exercises. Try All or another training type.</div>');
 }
 function renderToday(){const saved=state.planner[todayKey]; const draft=(state.current.assignedDay===todayKey && hasWorkout(state.current))?state.current:null; const w=saved||draft; if(w){const isDraft=!saved&&draft; document.getElementById('today').innerHTML=`<div><div class="today-title">${isDraft?'Unsaved ':'Today’s '}Workout: ${escapeHtml(w.name)}</div><div class="today-sub">${DAY_LABEL[todayKey]} · ${summary(w)}${isDraft?' · Save to planner when ready':''}</div></div><div>${isDraft?`<button class="btn acc" data-save-day="${todayKey}">Save Today</button>`:`<button class="btn acc" data-start-day="${todayKey}">Start Today</button>`} <button class="btn" data-edit-day="${todayKey}">Load / Edit</button></div>`; return;} document.getElementById('today').innerHTML=`<div><div class="today-title">No workout planned for ${DAY_LABEL[todayKey]}</div><div class="today-sub">Click Edit on today, build from the library or load a template, then Save.</div></div><button class="btn acc" data-edit-day="${todayKey}">Build Today</button>`;}
 function renderPlanner(){document.getElementById('planner').innerHTML=DAYS.map(d=>{const w=state.planner[d]; return `<div class="day-card ${d===todayKey?'today':''}"><div class="day-name">${DAY_LABEL[d]} <span class="day-count">${w?stats(w).moves:0} EX</span></div>${w?`<div class="day-workout">${escapeHtml(w.name)}</div><div class="day-preview">${preview(w)}</div>`:`<div class="day-preview">Empty. Click Edit, build from the library, then Save Day.</div>`}<div class="day-actions"><button class="btn acc small" data-save-day="${d}">Save</button><button class="btn small" data-edit-day="${d}">Edit</button><button class="btn small" ${w?'':'disabled'} data-start-day="${d}">Start</button><button class="btn small" ${w?'':'disabled'} data-copy-day="${d}">Copy</button><button class="btn red small" data-clear-day="${d}">Clear</button></div></div>`}).join('')}
@@ -10167,7 +10189,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-w';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-x';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

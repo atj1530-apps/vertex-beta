@@ -8382,7 +8382,7 @@ function renderBuilder(){
     return `<article class="exercise-card"><div class="ex-head"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(e.name)}</strong><span class="badge blue">${e.kind.toUpperCase()}</span><span class="badge green">${e.muscle}</span><span class="ex-reorder-group">${upBtn}${downBtn}</span>${demoBtn}<button class="remove" data-remove="${i}">×</button></div>${perfStrip(e)}<div class="sets"><div class="set-row head"><div>Set</div><div>Reps</div><div>Weight (lb)</div><div class="status">Status</div></div>${(e.sets||[]).map((r,j)=>{
   const hasLast=j>0&&e.sets[j-1];
   const repeatBtn=hasLast?`<button class="quick-btn" data-qa-repeat="${i}:${j}">↺ Repeat</button>`:'';
-  return `<div class="set-row"><div class="num">${j+1}</div><input data-reps="${i}:${j}" value="${r.reps??''}"/><input data-weight="${i}:${j}" value="${r.weight??''}" placeholder="lbs"/><div class="status ${String(setPrLabel(e,r)).includes('PR')?'perf-pr':''}">${escapeHtml(setPrLabel(e,r))}</div></div><div class="quick-add-row"><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="1">+1</button><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="-1">-1</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="5">+5 lb</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="-5">-5</button>${repeatBtn}</div>`;
+  return `<div class="set-row"><div class="num">${j+1}</div><input data-reps="${i}:${j}" inputmode="numeric" value="${r.reps??''}"/><input data-weight="${i}:${j}" inputmode="decimal" value="${r.weight??''}" placeholder="lbs"/><div class="status ${String(setPrLabel(e,r)).includes('PR')?'perf-pr':''}">${escapeHtml(setPrLabel(e,r))}</div></div><div class="quick-add-row"><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="1">+1</button><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="-1">-1</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="5">+5 lb</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="-5">-5</button>${repeatBtn}</div>`;
 }).join('')}<button class="btn small" data-add-set="${i}">+ Set</button> <button class="btn small" data-dupe="${i}">Duplicate</button><button class="rest-btn-inline" onclick=\"window.openRestTimer(60)\" title="Start rest timer">⏱ Rest</button><textarea class="search" rows="2" placeholder="Notes — tempo, rest, form cues...">${escapeHtml(e.notes||'')}</textarea></div></article>`;
   }).join('');
 }
@@ -9996,7 +9996,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-k';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-l';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

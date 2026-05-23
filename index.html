@@ -7823,6 +7823,7 @@ function setPage(page){
       if(hd){ hd.classList.remove('page-entering'); void hd.offsetWidth; hd.classList.add('page-entering'); }
     }catch(e){}
   }
+  updateWorkoutBottomBar();
 }
 function renderHomeDashboard(){
   const authUser = window.authUser || null;
@@ -10299,7 +10300,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-f';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-g';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

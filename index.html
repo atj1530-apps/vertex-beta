@@ -10044,19 +10044,22 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
 
   function applySelections(){
     try {
-      // Save goal
       if(selectedGoal){
         const goals = JSON.parse(localStorage.getItem('vertex_goals')||'{}');
         goals.primary = selectedGoal;
         localStorage.setItem('vertex_goals', JSON.stringify(goals));
       }
-      // Apply env + training to app state
       if(typeof state !== 'undefined'){
         state.env = selectedEnv;
         state.training = selectedTraining;
         state.muscle = 'All';
+        state.page = 'workout';
       }
       if(typeof renderAll === 'function') renderAll();
+      const envLabel = selectedEnv === 'gym' ? 'Gym' : 'Home';
+      setTimeout(() => {
+        if(typeof toast === 'function') toast('Set up for ' + envLabel + ' · ' + selectedTraining + ' 💪');
+      }, 400);
     } catch(e){ console.warn('Onboarding apply failed:', e); }
   }
 
@@ -10258,7 +10261,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-b';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-c';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

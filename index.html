@@ -8459,6 +8459,8 @@ const fwm={exIdx:0,setStates:[],startTime:null,w:null};
 document.addEventListener('click', function(e){
   const overlay=document.getElementById('focusedWorkoutMode');
   if(!overlay||!overlay.classList.contains('on')) return;
+  // Let the vertexConfirm modal handle its own buttons
+  if(e.target.closest('#vertex-confirm-overlay')) return;
   const t=e.target.closest('button,[data-fwm-set]');
   if(!t) return;
   e.stopPropagation();
@@ -10165,7 +10167,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-s';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-t';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

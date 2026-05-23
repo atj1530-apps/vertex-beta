@@ -3269,7 +3269,7 @@ button.acc-hint {
     <div class="fwm-complete-icon">🏆</div>
     <div class="fwm-complete-title">DONE</div>
     <div class="fwm-complete-stats" id="fwmCompleteStats"></div>
-    <button class="btn acc" style="width:100%;max-width:320px;padding:16px;font-size:16px;font-weight:700" ontouchstart="closeFocusedWorkoutMode()">Back to App</button>
+    <button class="btn acc" id="fwmBackBtn" style="width:100%;max-width:320px;padding:16px;font-size:16px;font-weight:700">Back to App</button>
   </div>
   <div class="fwm-header">
     <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
@@ -3281,8 +3281,8 @@ button.acc-hint {
   <div class="fwm-footer">
     <div class="fwm-next-up" id="fwmNextUp"></div>
     <div class="fwm-actions">
-      <button class="btn" ontouchstart="openRestTimer(state.restTimerDefault||60)">⏱ Rest</button>
-      <button class="btn acc" id="fwmNextBtn" ontouchstart="fwmAdvance()">Next Exercise →</button>
+      <button class="btn" id="fwmRestBtn">⏱ Rest</button>
+      <button class="btn acc" id="fwmNextBtn">Next Exercise →</button>
     </div>
   </div>
 </div>
@@ -8502,7 +8502,7 @@ function fwmRender(){
             <input inputmode="decimal" placeholder="lbs" value="${escapeHtml(String(s.weight))}" oninput="fwmUpdateSet(${j},'weight',this.value)"${s.done?' disabled':''}>
             <input inputmode="numeric" placeholder="reps" value="${escapeHtml(String(s.reps))}" oninput="fwmUpdateSet(${j},'reps',this.value)"${s.done?' disabled':''}>
           </div>
-          <button class="fwm-set-done-btn${s.done?' done':''}" ontouchstart="fwmCompleteSet(${j})">✓</button>
+          <button class="fwm-set-done-btn${s.done?' done':''}" data-fwm-set="${j}">✓</button>
         </div>`).join('')}
     </div>`;
 }
@@ -9325,6 +9325,11 @@ document.addEventListener('click',async e=>{
  if(t.id==='btn-notif-allow'){ vertexRequestNotifPermission(); return}
  if(t.id==='btn-notif-dismiss'){ document.getElementById('vertex-notif-toast')?.classList.remove('on'); localStorage.setItem('vertex_notif_dismissed','1'); return}
  const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return}
+ // ── FOCUSED WORKOUT MODE ──
+ if(t.id==='fwmNextBtn'){fwmAdvance(); return}
+ if(t.id==='fwmRestBtn'){openRestTimer(state.restTimerDefault||60); return}
+ if(t.id==='fwmBackBtn'){closeFocusedWorkoutMode(); return}
+ const fwmSet=t.getAttribute('data-fwm-set'); if(fwmSet!==null){fwmCompleteSet(Number(fwmSet)); return}
 
  if(t.id==='btn-apple-health-sync'){
   const plugin = window.Capacitor?.Plugins?.HealthKitPlugin || window.Capacitor?.Plugins?.HealthkitPlugin;
@@ -10139,7 +10144,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-o';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-p';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -435,7 +435,7 @@ body.welcome-active #app{
 }
 .welcome-stage{
   position:relative;
-  min-height:160px;
+  min-height:220px;
 }
 .welcome-step{
   position:absolute;
@@ -506,10 +506,14 @@ body.welcome-active #app{
   transition:transform 120ms ease, opacity 160ms ease;
 }
 .welcome-next:active{transform:scale(0.98)}
+.pill-fade-wrap{position:relative}.pill-fade-wrap::after{content:'';position:absolute;top:0;right:0;width:40px;height:100%;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none;border-radius:0 var(--r) var(--r) 0}background:var(--panel2);border:1px solid var(--line2);color:var(--text);border-radius:var(--r);padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+.welcome-goal-btn.selected{background:rgba(232,255,71,.08);border-color:var(--acc);color:var(--acc)}
+.welcome-choice-btn{flex:1;background:var(--panel2);border:1px solid var(--line2);color:var(--text);border-radius:var(--r-pill);padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s;white-space:nowrap}
+.welcome-choice-btn.active{background:var(--acc);border-color:var(--acc);color:#000}
 @media (max-width:760px){
   .welcome-card{padding:26px 20px 20px}
   .welcome-title{font-size:32px;letter-spacing:2.5px}
-  .welcome-stage{min-height:170px}
+  .welcome-stage{min-height:240px}
 }
 
 /* ============================================================
@@ -2547,25 +2551,47 @@ button.acc-hint {
       <span class="welcome-dot" data-dot="3"></span>
     </div>
     <div class="welcome-stage">
+
+      <!-- Screen 1: Brand -->
       <div class="welcome-step active" data-step="1">
-        <p class="welcome-eyebrow">Welcome</p>
-        <h2 class="welcome-title" id="welcome-title-active">Welcome to Vertex</h2>
-        <p class="welcome-body">Your training, planned and tracked in one place. Build workouts, assign them to your week, and start training from the home screen.</p>
+        <div style="font-family:'Bebas Neue';font-size:72px;letter-spacing:8px;color:var(--acc);line-height:1;margin:0 0 8px">VERTEX</div>
+        <p class="welcome-eyebrow" style="margin-bottom:12px">Build · Track · Improve</p>
+        <p class="welcome-body">Your training, planned and tracked in one place. Built for people who take their training seriously.</p>
       </div>
+
+      <!-- Screen 2: Goal -->
       <div class="welcome-step" data-step="2">
-        <p class="welcome-eyebrow">How it works</p>
-        <h2 class="welcome-title">Build · Plan · Train</h2>
-        <p class="welcome-body">Build a workout from the library or a template, drop it on a day in your weekly planner, then tap Start when you're ready to train.</p>
+        <p class="welcome-eyebrow">Your Goal</p>
+        <h2 class="welcome-title" style="font-size:28px;margin-bottom:16px">What are you training for?</h2>
+        <div style="display:flex;flex-direction:column;gap:8px" id="welcome-goals">
+          <button class="welcome-goal-btn" data-goal="build_muscle">💪 Build Muscle</button>
+          <button class="welcome-goal-btn" data-goal="lose_fat">🔥 Lose Fat</button>
+          <button class="welcome-goal-btn" data-goal="improve_endurance">⚡ Improve Endurance</button>
+          <button class="welcome-goal-btn" data-goal="stay_active">🏃 Stay Active</button>
+        </div>
       </div>
+
+      <!-- Screen 3: Setup -->
       <div class="welcome-step" data-step="3">
-        <p class="welcome-eyebrow">Start here</p>
-        <h2 class="welcome-title">Add your first workout</h2>
-        <p class="welcome-body">Pick 3–5 exercises from the library, save the workout, and assign it to today. Your progress syncs automatically.</p>
+        <p class="welcome-eyebrow">Your Setup</p>
+        <h2 class="welcome-title" style="font-size:28px;margin-bottom:12px">Where do you train?</h2>
+        <div style="display:flex;gap:8px;margin-bottom:16px" id="welcome-env">
+          <button class="welcome-choice-btn active" data-wenv="gym">🏋️ Gym</button>
+          <button class="welcome-choice-btn" data-wenv="home">🏠 Home</button>
+        </div>
+        <p style="font-family:'DM Mono';font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:0 0 8px">Training Type</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px" id="welcome-training">
+          <button class="welcome-choice-btn active" data-wtraining="Strength">🏋️ Strength</button>
+          <button class="welcome-choice-btn" data-wtraining="Kettlebell">⚫ Kettlebell</button>
+          <button class="welcome-choice-btn" data-wtraining="Cardio">⚡ Cardio</button>
+          <button class="welcome-choice-btn" data-wtraining="Yoga / Pilates">🧘 Yoga</button>
+        </div>
       </div>
+
     </div>
     <div class="welcome-actions">
       <button type="button" class="welcome-skip" id="welcome-skip">Skip</button>
-      <button type="button" class="welcome-next" id="welcome-next">Next</button>
+      <button type="button" class="welcome-next" id="welcome-next">Next →</button>
     </div>
   </div>
 </div>
@@ -2602,9 +2628,9 @@ button.acc-hint {
 <div id="app">
   <aside class="sidebar">
     <div class="label">Category</div><div class="segment"><button class="seg-btn" data-env="gym">🏋️ Gym</button><button class="seg-btn on" data-env="home">🏠 Home</button></div><div id="equipmentPanel" class="equip-panel"></div>
-    <div class="label">Program</div><div class="segment pill-scroll" id="program-seg"><button class="seg-btn on" data-program="Manual">Manual</button><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div>
-    <div class="label">Training Type</div><div class="segment pill-scroll" id="training-seg"><button class="seg-btn on" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery">♧ Recovery</button><button class="seg-btn" data-training="Stretching">🧍 Stretching</button></div>
-    <div class="label">Muscle Group</div><div id="muscles" class="muscles"></div>
+    <div class="label">Program</div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="program-seg"><button class="seg-btn on" data-program="Manual">Manual</button><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div></div>
+    <div class="label">Training Type</div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn on" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery">♧ Recovery</button><button class="seg-btn" data-training="Stretching">🧍 Stretching</button></div></div>
+    <div class="label">Muscle Group</div><div class="pill-fade-wrap"><div id="muscles" class="muscles"></div></div>
     <input id="search" class="search" placeholder="Search exercises..." />
     <button id="btn-add-library" class="btn acc" style="width:100%;margin:0 0 8px">+ Add Exercise to Library</button>
     <button id="btn-manual-entry" class="btn acc" style="width:100%;margin:0 0 10px">+ Lightweight Manual Entry</button>
@@ -9951,14 +9977,15 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
 
 <script>
 /* ============================================================
-   v13.61 WELCOME MODAL CONTROLLER
-   - Wraps applyAuthenticatedSession to trigger onboarding once per user
-   - Flag stored in localStorage as vertex_onboarded_<userId>
-   - No modifications to existing auth/sync logic
+   v13.61 WELCOME MODAL CONTROLLER — interactive onboarding
+   Screen 1: Brand  Screen 2: Goal  Screen 3: Setup (env+training)
    ============================================================ */
 (function(){
   const TOTAL_STEPS = 3;
   let currentStep = 1;
+  let selectedGoal = null;
+  let selectedEnv = 'gym';
+  let selectedTraining = 'Strength';
 
   const overlay = document.getElementById('welcome-overlay');
   const nextBtn = document.getElementById('welcome-next');
@@ -9966,16 +9993,35 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
   if(!overlay || !nextBtn || !skipBtn) return;
 
   function flagKey(userId){ return 'vertex_onboarded_' + userId; }
-
   function hasOnboarded(userId){
-    try { return localStorage.getItem(flagKey(userId)) === '1'; }
-    catch(e){ return false; }
+    try { return localStorage.getItem(flagKey(userId)) === '1'; } catch(e){ return false; }
+  }
+  function markOnboarded(userId){
+    try { localStorage.setItem(flagKey(userId), '1'); } catch(e){}
   }
 
-  function markOnboarded(userId){
-    try { localStorage.setItem(flagKey(userId), '1'); }
-    catch(e){ /* localStorage blocked — non-fatal, modal just shows again */ }
-  }
+  // Goal button wiring
+  overlay.addEventListener('click', function(e){
+    const gb = e.target.closest('[data-goal]');
+    if(gb){
+      selectedGoal = gb.getAttribute('data-goal');
+      overlay.querySelectorAll('[data-goal]').forEach(b => b.classList.toggle('selected', b === gb));
+      nextBtn.disabled = false;
+      return;
+    }
+    const eb = e.target.closest('[data-wenv]');
+    if(eb){
+      selectedEnv = eb.getAttribute('data-wenv');
+      overlay.querySelectorAll('[data-wenv]').forEach(b => b.classList.toggle('active', b === eb));
+      return;
+    }
+    const tb = e.target.closest('[data-wtraining]');
+    if(tb){
+      selectedTraining = tb.getAttribute('data-wtraining');
+      overlay.querySelectorAll('[data-wtraining]').forEach(b => b.classList.toggle('active', b === tb));
+      return;
+    }
+  });
 
   function setStep(n){
     currentStep = n;
@@ -9987,22 +10033,43 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
       el.classList.toggle('active', d === n);
       el.classList.toggle('done', d < n);
     });
-    nextBtn.textContent = (n === TOTAL_STEPS) ? 'Get Started' : 'Next';
+    nextBtn.textContent = (n === TOTAL_STEPS) ? 'Get Started →' : 'Next →';
     skipBtn.style.visibility = (n === TOTAL_STEPS) ? 'hidden' : 'visible';
+    // Step 2: require goal selection to proceed
+    nextBtn.disabled = (n === 2 && !selectedGoal);
+  }
+
+  function applySelections(){
+    try {
+      // Save goal
+      if(selectedGoal){
+        const goals = JSON.parse(localStorage.getItem('vertex_goals')||'{}');
+        goals.primary = selectedGoal;
+        localStorage.setItem('vertex_goals', JSON.stringify(goals));
+      }
+      // Apply env + training to app state
+      if(typeof state !== 'undefined'){
+        state.env = selectedEnv;
+        state.training = selectedTraining;
+        state.muscle = 'All';
+      }
+      if(typeof renderAll === 'function') renderAll();
+    } catch(e){ console.warn('Onboarding apply failed:', e); }
   }
 
   function open(){
+    selectedGoal = null;
+    selectedEnv = 'gym';
+    selectedTraining = 'Strength';
     setStep(1);
     document.body.classList.add('welcome-active');
-    // Defer one frame so the transition runs from the initial state
     requestAnimationFrame(() => overlay.classList.add('on'));
   }
 
   function close(userId){
+    applySelections();
     overlay.classList.remove('on');
     if(userId) markOnboarded(userId);
-    // Wait for the overlay fade-out to begin, then release the app shell
-    // so it does its rise-in animation right as the welcome leaves.
     setTimeout(() => document.body.classList.remove('welcome-active'), 120);
   }
 
@@ -10020,21 +10087,20 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
     close(uid);
   });
 
-  // Listen for the auth event dispatched by applyAuthenticatedSession.
-  // Triggers for both fresh sign-ins and session restores on page load.
   window.addEventListener('vertex:authenticated', (ev) => {
     try {
       const uid = ev && ev.detail && ev.detail.userId;
       if(uid && !hasOnboarded(uid)){
         window.__vertexCurrentUserId = uid;
-        // Open immediately — fires before home screen renders so the
-        // user sees welcome first, then the app rises in on dismiss.
         open();
       }
     } catch(err){
       console.warn('Welcome modal trigger skipped:', err);
     }
   });
+
+  // Dev helper — uncomment to force show onboarding
+  // window.__showOnboarding = open;
 })();
 </script>
 
@@ -10189,7 +10255,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-x';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260522-y';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -8340,6 +8340,7 @@ function templatePreview(t){if(t.type==='strength') return t.exercises.join(', '
 function renderTemplates(){
   const el = document.getElementById('tpl-grid');
   if(!el) return;
+  el.style.cssText = 'display:flex!important;overflow-x:scroll;gap:8px;padding:4px 0 10px;flex-wrap:nowrap;min-height:40px;align-items:center;-webkit-overflow-scrolling:touch';
   const keys = ['push','pull','legs','kenpo','plyo','yogaX','stretch','coreMobility'];
   const labels = {
     push:'💪 Push Day', pull:'🔄 Pull Day', legs:'🦵 Legs Day',
@@ -10314,7 +10315,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-w';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-x';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

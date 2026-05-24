@@ -24,6 +24,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>V</text></svg>">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vertex">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.coingecko.com; img-src 'self' blob: data: https:; worker-src 'self' blob:;">
@@ -9380,11 +9381,12 @@ async function renderDailyBrief(){
     if(cached && cached.text && (Date.now()-cached.ts) < DAILY_BRIEF_TTL){
       const isMobile = window.innerWidth < 768;
       const collapsed = isMobile ? 'collapsed' : '';
-      el.innerHTML = `<div class="vertex-daily-brief ${collapsed}"><div class="vertex-daily-brief-header" onclick="this.parentElement.classList.toggle('collapsed')"><span class="vertex-daily-brief-label">Today's Briefing</span><span class="vertex-daily-brief-chevron">›</span></div><div class="vertex-daily-brief-body"><div class="vertex-daily-brief-text">${cached.text}</div></div></div>`;
+      const briefHint = isMobile ? '▶ EXPAND' : '▼ COLLAPSE';
+      el.innerHTML = `<div class="vertex-daily-brief ${collapsed}"><div class="vertex-daily-brief-header" onclick="const b=this.parentElement;b.classList.toggle('collapsed');const h=b.querySelector('#brief-toggle-hint');if(h)h.textContent=b.classList.contains('collapsed')?'▶ EXPAND':'▼ COLLAPSE'"><span class="vertex-daily-brief-label">Today's Briefing</span><span id="brief-toggle-hint" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--acc);letter-spacing:1px">${briefHint}</span></div><div class="vertex-daily-brief-body"><div class="vertex-daily-brief-text">${cached.text}</div></div></div>`;
       return;
     }
   }catch(e){}
-  el.innerHTML = `<div class="vertex-daily-brief"><div class="vertex-daily-brief-header" onclick="this.parentElement.classList.toggle('collapsed')"><span class="vertex-daily-brief-label">Today's Briefing <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acc);animation:pulse-dot 1.2s ease-in-out infinite;vertical-align:middle;margin-left:4px"></span></span><span class="vertex-daily-brief-chevron">›</span></div><div class="vertex-daily-brief-body"><div class="skeleton" style="height:13px;width:85%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:70%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:90%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:60%"></div></div></div>`;
+  el.innerHTML = `<div class="vertex-daily-brief"><div class="vertex-daily-brief-header" onclick="const b=this.parentElement;b.classList.toggle('collapsed');const h=b.querySelector('#brief-toggle-hint');if(h)h.textContent=b.classList.contains('collapsed')?'▶ EXPAND':'▼ COLLAPSE'"><span class="vertex-daily-brief-label">Today's Briefing <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acc);animation:pulse-dot 1.2s ease-in-out infinite;vertical-align:middle;margin-left:4px"></span></span><span id="brief-toggle-hint" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--acc);letter-spacing:1px">▼ COLLAPSE</span></div><div class="vertex-daily-brief-body"><div class="skeleton" style="height:13px;width:85%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:70%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:90%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:60%"></div></div></div>`;
   try{
     const r = (()=>{ try{ if(typeof window.VertexReadiness==='object') return window.VertexReadiness.cached(); if(typeof buildReadinessScore==='function') return buildReadinessScore(); }catch(e){} return {score:0,label:'Unknown',action:'Check your health data'}; })();
     const ahSleep=(()=>{try{const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null');return s&&s.latestMinutes?Math.round(s.latestMinutes/60*10)/10:null;}catch(e){return null;}})();
@@ -9419,7 +9421,8 @@ Coach recommendation: ${r.action}`;
       localStorage.setItem(DAILY_BRIEF_CACHE_KEY,JSON.stringify({text,ts:Date.now()}));
       const isMobileBrief = window.innerWidth < 768;
       const collapsedBrief = isMobileBrief ? 'collapsed' : '';
-      el.innerHTML=`<div class="vertex-daily-brief ${collapsedBrief}"><div class="vertex-daily-brief-header" onclick="this.parentElement.classList.toggle('collapsed')"><span class="vertex-daily-brief-label">Today's Briefing</span><span class="vertex-daily-brief-chevron">›</span></div><div class="vertex-daily-brief-body"><div class="vertex-daily-brief-text">${text}</div></div></div>`;
+      const briefHintFinal = isMobileBrief ? '▶ EXPAND' : '▼ COLLAPSE';
+      el.innerHTML=`<div class="vertex-daily-brief ${collapsedBrief}"><div class="vertex-daily-brief-header" onclick="const b=this.parentElement;b.classList.toggle('collapsed');const h=b.querySelector('#brief-toggle-hint');if(h)h.textContent=b.classList.contains('collapsed')?'▶ EXPAND':'▼ COLLAPSE'"><span class="vertex-daily-brief-label">Today's Briefing</span><span id="brief-toggle-hint" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--acc);letter-spacing:1px">${briefHintFinal}</span></div><div class="vertex-daily-brief-body"><div class="vertex-daily-brief-text">${text}</div></div></div>`;
     } else { el.innerHTML=''; }
   }catch(e){ el.innerHTML=''; }
 }
@@ -10072,7 +10075,7 @@ function vertexShowNotifSettings(){
   </div>`;
   document.body.appendChild(m);
   m.querySelector('#vn-close').onclick=()=>m.remove();
-  m.querySelector('#vn-test').onclick=()=>{ if(Notification.permission==='granted') new Notification('Vertex',{body:'Notifications working!',icon:'/icons/icon-192.png'}); };
+  m.querySelector('#vn-test').onclick=()=>{ if(Notification.permission==='granted') new Notification('Vertex',{body:'Notifications working!',icon:'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23000'/%3E%3Ctext y='.9em' font-size='80' fill='%23e8ff47'%3EV%3C/text%3E%3C/svg%3E'}); };
   m.querySelector('#vn-save').onclick=()=>{
     const wh=parseInt(m.querySelector('#vn-wt').value||'08'); const ch=parseInt(m.querySelector('#vn-ct').value||'20');
     vertexSaveNotifPrefs({enabled:true,workoutHour:wh,checkinHour:ch});
@@ -10087,7 +10090,7 @@ function vertexScheduleNotifications(){
   function at(hour,title,body){
     const now=new Date(); const tgt=new Date(now); tgt.setHours(hour,0,0,0);
     if(tgt<=now) tgt.setDate(tgt.getDate()+1);
-    window._vnTimers.push(setTimeout(()=>{ new Notification(title,{body,icon:'/icons/icon-192.png'}); vertexScheduleNotifications(); },tgt-now));
+    window._vnTimers.push(setTimeout(()=>{ new Notification(title,{body,icon:'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23000'/%3E%3Ctext y='.9em' font-size='80' fill='%23e8ff47'%3EV%3C/text%3E%3C/svg%3E'}); vertexScheduleNotifications(); },tgt-now));
   }
   at(prefs.workoutHour||8,'Vertex Workout','Time to train. Your planner is ready.');
   at(prefs.checkinHour||20,'Vertex Check-In','Log your wellness check-in for today.');
@@ -10488,7 +10491,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-aa';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ab';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

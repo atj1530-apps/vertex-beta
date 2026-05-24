@@ -8541,7 +8541,7 @@ function renderBuilder(){
   const assignedDay = state.current && state.current.assignedDay;
   const clearLabel = assignedDay && DAY_LABEL[assignedDay] ? `Clear ${DAY_LABEL[assignedDay]}` : 'Clear Workout';
   const actionBar = isStrengthMode
-    ? `<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn red small" data-clear-current="1">${clearLabel}</button></div>`
+    ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><button class="btn acc small" data-start-current="1">▶ Start Workout</button><button class="btn red small" data-clear-current="1">${clearLabel}</button></div>`
     : `<div class="flow-card" style="padding:12px 14px;margin-bottom:12px"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="label">Manual Workout Controls · Performance Tracking</div><div style="color:var(--muted);font-size:12px;margin-top:4px">Last-set history and PR flags appear from logged workouts.</div></div><div style="display:flex;gap:8px;flex-wrap:wrap">${state.tracking?'':`<button class="btn acc" data-start-current="1">▶ Start Workout</button>`}<button class="btn red" data-clear-current="1">${clearLabel}</button></div></div></div>`;
   const trackBanner = state.tracking ? `<div class="tracking-pill"><span class="tracking-dot"></span>Tracking active — complete sets to record PRs <button class="btn small red" data-clear-current="1" style="margin-left:auto">Clear</button></div>` : "";
   b.innerHTML=actionBar+trackBanner+renderSmartBuilderSuggestion()+(w.exercises||[]).map((e,i)=>{
@@ -10372,7 +10372,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-s';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-t';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

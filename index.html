@@ -8464,7 +8464,7 @@ function renderSidebar(){
       recentHtml+=`<div style="height:1px;background:var(--line2);margin:8px 0"></div>`;
     }
   }
-  let html = help + recentHtml;
+  let html = '' + recentHtml;
   if(!list.length){
     html += '<div style="color:var(--dim);padding:10px">No matching exercises. Try All or another training type.</div>';
   } else if(state.muscle !== 'All' || q){
@@ -10455,7 +10455,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-u';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-v';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

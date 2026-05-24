@@ -8536,6 +8536,7 @@ document.addEventListener('click', function(e){
   if(!overlay||!overlay.classList.contains('on')) return;
   // Let the vertexConfirm modal handle its own buttons
   if(e.target.closest('#vertex-confirm-overlay')) return;
+  if(e.target.closest('#restTimerOverlay')) return;
   const t=e.target.closest('button,[data-fwm-set]');
   if(!t) return;
   e.stopPropagation();
@@ -10293,7 +10294,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-l';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-m';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

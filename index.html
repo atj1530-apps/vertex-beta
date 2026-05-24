@@ -2068,6 +2068,11 @@ input[type="date"] {
   min-height: unset !important;
   padding: 10px 14px !important;
 }
+#intelAcc .acc-hint,
+#plannerAcc .acc-hint {
+  font-size: 10px !important;
+  letter-spacing: 1px !important;
+}
 
 
 /* ============================================================
@@ -10495,7 +10500,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ai';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-aj';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

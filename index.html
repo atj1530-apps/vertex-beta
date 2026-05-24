@@ -2053,6 +2053,17 @@ input[type="date"] {
   }
 }
 
+/* Home section header consistency */
+#intelAcc .acc-title,
+#plannerAcc .acc-title {
+  font-family: 'DM Mono', monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+  font-weight: 700 !important;
+}
+
 
 /* ============================================================
    v13.60.21 ACTIVE PROTOCOLS STABILITY
@@ -9369,11 +9380,12 @@ async function renderDailyBrief(){
     if(cached && cached.text && (Date.now()-cached.ts) < DAILY_BRIEF_TTL){
       const isMobile = window.innerWidth < 768;
       const collapsed = isMobile ? 'collapsed' : '';
-      el.innerHTML = `<div class="vertex-daily-brief ${collapsed}"><div class="vertex-daily-brief-header" onclick="this.parentElement.classList.toggle('collapsed')"><span class="vertex-daily-brief-label">Today's Briefing</span><span class="vertex-daily-brief-chevron">›</span></div><div class="vertex-daily-brief-body"><div class="vertex-daily-brief-text">${cached.text}</div></div></div>`;
+      const briefHint = isMobile ? '▶ EXPAND' : '▼ COLLAPSE';
+      el.innerHTML = `<div class="vertex-daily-brief ${collapsed}"><div class="vertex-daily-brief-header" onclick="const b=this.parentElement;b.classList.toggle('collapsed');const h=b.querySelector('#brief-toggle-hint');if(h)h.textContent=b.classList.contains('collapsed')?'▶ EXPAND':'▼ COLLAPSE'"><span class="vertex-daily-brief-label">Today's Briefing</span><span id="brief-toggle-hint" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--acc);letter-spacing:1px">${briefHint}</span></div><div class="vertex-daily-brief-body"><div class="vertex-daily-brief-text">${cached.text}</div></div></div>`;
       return;
     }
   }catch(e){}
-  el.innerHTML = `<div class="vertex-daily-brief"><div class="vertex-daily-brief-header" onclick="this.parentElement.classList.toggle('collapsed')"><span class="vertex-daily-brief-label">Today's Briefing <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acc);animation:pulse-dot 1.2s ease-in-out infinite;vertical-align:middle;margin-left:4px"></span></span><span class="vertex-daily-brief-chevron">›</span></div><div class="vertex-daily-brief-body"><div class="skeleton" style="height:13px;width:85%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:70%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:90%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:60%"></div></div></div>`;
+  el.innerHTML = `<div class="vertex-daily-brief"><div class="vertex-daily-brief-header" onclick="const b=this.parentElement;b.classList.toggle('collapsed');const h=b.querySelector('#brief-toggle-hint');if(h)h.textContent=b.classList.contains('collapsed')?'▶ EXPAND':'▼ COLLAPSE'"><span class="vertex-daily-brief-label">Today's Briefing <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acc);animation:pulse-dot 1.2s ease-in-out infinite;vertical-align:middle;margin-left:4px"></span></span><span id="brief-toggle-hint" style="font-size:10px;font-family:\'DM Mono\',monospace;color:var(--acc);letter-spacing:1px">▼ COLLAPSE</span></div><div class="vertex-daily-brief-body"><div class="skeleton" style="height:13px;width:85%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:70%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:90%;margin-bottom:8px"></div><div class="skeleton" style="height:13px;width:60%"></div></div></div>`;
   try{
     const r = (()=>{ try{ if(typeof window.VertexReadiness==='object') return window.VertexReadiness.cached(); if(typeof buildReadinessScore==='function') return buildReadinessScore(); }catch(e){} return {score:0,label:'Unknown',action:'Check your health data'}; })();
     const ahSleep=(()=>{try{const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null');return s&&s.latestMinutes?Math.round(s.latestMinutes/60*10)/10:null;}catch(e){return null;}})();
@@ -9408,7 +9420,8 @@ Coach recommendation: ${r.action}`;
       localStorage.setItem(DAILY_BRIEF_CACHE_KEY,JSON.stringify({text,ts:Date.now()}));
       const isMobileBrief = window.innerWidth < 768;
       const collapsedBrief = isMobileBrief ? 'collapsed' : '';
-      el.innerHTML=`<div class="vertex-daily-brief ${collapsedBrief}"><div class="vertex-daily-brief-header" onclick="this.parentElement.classList.toggle('collapsed')"><span class="vertex-daily-brief-label">Today's Briefing</span><span class="vertex-daily-brief-chevron">›</span></div><div class="vertex-daily-brief-body"><div class="vertex-daily-brief-text">${text}</div></div></div>`;
+      const briefHintFinal = isMobileBrief ? '▶ EXPAND' : '▼ COLLAPSE';
+      el.innerHTML=`<div class="vertex-daily-brief ${collapsedBrief}"><div class="vertex-daily-brief-header" onclick="const b=this.parentElement;b.classList.toggle('collapsed');const h=b.querySelector('#brief-toggle-hint');if(h)h.textContent=b.classList.contains('collapsed')?'▶ EXPAND':'▼ COLLAPSE'"><span class="vertex-daily-brief-label">Today's Briefing</span><span id="brief-toggle-hint" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--acc);letter-spacing:1px">${briefHintFinal}</span></div><div class="vertex-daily-brief-body"><div class="vertex-daily-brief-text">${text}</div></div></div>`;
     } else { el.innerHTML=''; }
   }catch(e){ el.innerHTML=''; }
 }
@@ -10477,7 +10490,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-z';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ae';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

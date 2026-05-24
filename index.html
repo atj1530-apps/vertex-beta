@@ -7889,6 +7889,7 @@ function setPage(page){
   if(state.page==='wellness'){try{renderWellnessPage();}catch(e){console.error('Wellness render error:',e);}}
   if(state.page==='health'){state.page='wellness'; renderWellnessPage();}
   if(state.page==='ai') renderAiCoachPage();
+  if(state.page==='workout') renderSidebar();
   document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-nav')===state.page));
 
   // Page mode flags
@@ -10454,7 +10455,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-w';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-x';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

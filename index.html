@@ -8340,28 +8340,19 @@ function templatePreview(t){if(t.type==='strength') return t.exercises.join(', '
 function renderTemplates(){
   const el = document.getElementById('tpl-grid');
   if(!el) return;
-  el.style.cssText = 'display:flex!important;overflow-x:scroll;gap:8px;padding:4px 0 10px;flex-wrap:nowrap;min-height:40px;align-items:center;-webkit-overflow-scrolling:touch';
   const keys = ['push','pull','legs','kenpo','plyo','yogaX','stretch','coreMobility'];
   const labels = {
     push:'💪 Push Day', pull:'🔄 Pull Day', legs:'🦵 Legs Day',
     kenpo:'🥋 Kenpo X', plyo:'⚡ Plyometrics X', yogaX:'🧘 P90X Yoga X',
     stretch:'🌀 Full Body Stretch', coreMobility:'🎯 Core + Mobility'
   };
-  const descriptions = {
-    push:'Chest, shoulders, triceps — press & fly movements.',
-    pull:'Back & biceps — rows, pull-ups, curls.',
-    legs:'Quads, hamstrings, glutes, calves.',
-    kenpo:'Cardio kickboxing — jabs, crosses, kicks, blocks. ~59 min.',
-    plyo:'Jump training — explosive lower body intervals. ~27 min.',
-    yogaX:'Strength + flexibility hybrid. Warrior flows, balance, deep stretch. ~92 min.',
-    stretch:'Full body recovery stretch — hips, spine, upper body. ~28 min.',
-    coreMobility:'Core bracing, hip mobility, spine control. ~24 min.'
-  };
-  el.innerHTML = keys.map(k => {
+  const pills = keys.map(k => {
     const t = TEMPLATES[k];
     if(!t) return '';
-    return `<div class="tpl-pill" data-load-tpl="${k}">${escapeHtml(labels[k]||t.name)}</div>`;
+    return `<span class="tpl-pill" data-load-tpl="${k}" style="display:inline-block;border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;margin:0 6px 6px 0">${escapeHtml(labels[k]||t.name)}</span>`;
   }).join('');
+  el.style.cssText = 'display:block;padding:4px 0 8px;line-height:1';
+  el.innerHTML = pills;
 }
 function pctChange(now,prev){if(!prev) return 0; return Math.round(((now-prev)/prev)*100);}
 function plannedMuscleCounts(){const counts={}; DAYS.map(d=>state.planner[d]).filter(Boolean).forEach(w=>{(w.exercises||[]).forEach(e=>{const m=e.muscle||'Other'; counts[m]=(counts[m]||0)+1;});}); return counts;}
@@ -10315,7 +10306,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-a';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-b';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

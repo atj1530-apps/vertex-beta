@@ -1503,7 +1503,7 @@ body {
 /* DAILY BRIEFING */
 .vertex-daily-brief{background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:0;margin-bottom:12px;overflow:hidden}
 .vertex-daily-brief-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;cursor:pointer;user-select:none}
-.vertex-daily-brief-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.vertex-daily-brief-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;font-weight:700}
 .vertex-daily-brief-chevron{font-size:14px;color:var(--muted);transition:transform .2s;display:inline-block}
 .vertex-daily-brief-body{padding:0 14px 14px}
 .vertex-daily-brief-text{font-size:13px;color:var(--fg);line-height:1.7}
@@ -1519,7 +1519,7 @@ body {
 .vertex-sparkline-val{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1}
 /* GOAL TRACKER */
 .vertex-goal-card{background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:14px 16px;margin-bottom:12px}
-.vertex-goal-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.vertex-goal-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-weight:700}
 .vertex-goal-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .vertex-goal-bar-wrap{flex:1;height:5px;background:var(--line2);border-radius:3px;overflow:hidden}
 .vertex-goal-bar{height:100%;border-radius:3px;transition:width .4s}
@@ -9491,7 +9491,7 @@ function renderGoalTracker(){
   el.innerHTML=`<div class="vertex-goal-card">
     <div class="vertex-goal-title" onclick="(function(){const c=localStorage.getItem('vertex_goal_tracker_collapsed')==='1';localStorage.setItem('vertex_goal_tracker_collapsed',c?'0':'1');if(typeof renderGoalTracker==='function')renderGoalTracker();})(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
       <span>Goal Tracker</span>
-      <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:1px">${collapsed?'▶ EXPAND':'▼ COLLAPSE'}</span>
+      <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--acc);letter-spacing:1px">${collapsed?'▶ EXPAND':'▼ COLLAPSE'}</span>
     </div>
     ${collapsed?'':`<div style="display:flex;gap:8px;overflow-x:auto;padding:4px 0">${goalDefs.map(g=>{
       if(g.current==null) return `<div style="flex:1;min-width:90px;text-align:center;opacity:.5"><div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">${g.label.split(' · ')[0]}</div><div style="font-size:11px;color:var(--dim)">No data</div></div>`;
@@ -10477,7 +10477,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-y';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-z';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

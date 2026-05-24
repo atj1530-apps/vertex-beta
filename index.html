@@ -2633,9 +2633,9 @@ button.acc-hint {
 <div id="app">
   <aside class="sidebar">
     <div class="label">Category</div><div class="segment"><button class="seg-btn" data-env="gym">🏋️ Gym</button><button class="seg-btn on" data-env="home">🏠 Home</button></div><div id="equipmentPanel" class="equip-panel"></div>
+    <div class="label">Workout Templates</div><div id="tpl-grid" class="templates" style="margin-bottom:14px"></div>
     <div class="label">Program</div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="program-seg"><button class="seg-btn on" data-program="Manual">Manual</button><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div></div>
     <div class="label">Training Type</div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn on" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery">♧ Recovery</button><button class="seg-btn" data-training="Stretching">🧍 Stretching</button></div></div>
-    <div class="label">Workout Templates</div><div id="tpl-grid" class="templates" style="margin-bottom:10px"></div>
     <div class="label">Muscle Group</div><div class="pill-fade-wrap"><div id="muscles" class="muscles"></div></div>
     <input id="search" class="search" placeholder="Search exercises..." />
     <button id="btn-add-library" class="btn acc" style="width:100%;margin:0 0 8px">+ Add Exercise to Library</button>
@@ -10314,7 +10314,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-s';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-t';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

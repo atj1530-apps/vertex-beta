@@ -8248,7 +8248,7 @@ function updateWorkoutBottomBar(){try{
   const showActions=()=>{
     if(savBot) savBot.style.display='';
     if(logBot){logBot.style.display='';logBot.classList.add('armed');}
-    if(startBot && hasWorkout() && state.current?.type==='strength') startBot.style.display='';
+    if(startBot && hasWorkout()) startBot.style.display='';
     if(viewBtn) viewBtn.style.display='none';
   };
   const hideActions=()=>{
@@ -10372,7 +10372,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-r';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-s';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

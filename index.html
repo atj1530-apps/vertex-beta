@@ -8161,7 +8161,7 @@ ${dueToday.length ? `
   }
 }
 
-function renderAll(){renderControls(); renderSidebar(); renderToday(); renderPlanner(); renderIntel(); renderBuilder(); renderRight(); setPage(state.page||defaultPage()); renderTemplates(); const logBtn=document.getElementById('btn-log'); if(logBtn) logBtn.classList.toggle('armed', !!hasWorkout()); refreshSaveButton(); if(state.page==='home'||!state.page) renderHomeDashboard(); updateWorkoutBottomBar();}
+function renderAll(){renderControls(); renderSidebar(); renderToday(); renderPlanner(); renderIntel(); renderBuilder(); renderRight(); setPage(state.page||defaultPage()); renderTemplates(); const logBtn=document.getElementById('btn-log'); if(logBtn) logBtn.classList.toggle('armed', !!hasWorkout()); refreshSaveButton(); if(state.page==='home'||!state.page) renderHomeDashboard(); updateWorkoutBottomBar(); setTimeout(renderTemplates, 50);}
 function updateWorkoutBottomBar(){try{
   const bar=document.getElementById('vertex-workout-bottom-bar'); if(!bar) return;
   const isMobile=window.innerWidth<768;
@@ -10314,7 +10314,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-t';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260523-u';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

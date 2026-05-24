@@ -5590,10 +5590,8 @@ function tplAddToPlanner(){
   document.getElementById('tplActionModal')?.classList.remove('on');
   loadTemplate(key, true);
 }
+async function programStartTodayWorkout(){
   const program=state.pendingProgram;
-  const plan=getProgramPlans()[program]; if(!plan) return;
-  // Find today's workout or the first one in the program
-  const todayW=plan[todayKey];
   const firstW=todayW || Object.values(plan).find(w=>w);
   if(!firstW){ toast('No workout found for today in this program'); return; }
   state.pendingProgram=null;
@@ -10365,7 +10363,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-n';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-o';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

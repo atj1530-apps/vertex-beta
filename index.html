@@ -82,6 +82,7 @@ button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}
 .panel{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:14px;margin-bottom:14px}.panel.hl{border-color:rgba(232,255,71,.55);background:linear-gradient(90deg,rgba(232,255,71,.07),rgba(232,255,71,.015))}.panel.green{border-color:rgba(72,255,138,.35);background:rgba(72,255,138,.035)}
 .segment{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}.segment.pill-scroll{display:flex;flex-direction:row;overflow-x:auto;gap:8px;margin:8px -4px 10px;padding:2px 4px 6px;scrollbar-width:none;-ms-overflow-style:none}.segment.pill-scroll::-webkit-scrollbar{display:none}.seg-btn{background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:5px;padding:10px;font-weight:700;cursor:pointer}.segment.pill-scroll .seg-btn{border-radius:var(--r-pill);padding:7px 14px;font-size:13px;font-weight:600;white-space:nowrap;flex-shrink:0;color:var(--text)}.seg-btn.on{background:var(--panel2);color:var(--acc);border-color:var(--acc)}.seg-btn.chosen{background:var(--acc);color:#000;border-color:var(--acc)}.segment.pill-scroll .seg-btn.on{background:var(--panel2);color:var(--acc);border-color:var(--acc)}.segment.pill-scroll .seg-btn.chosen{background:var(--acc);color:#000;border-color:var(--acc)}.muscles{display:flex;overflow-x:auto;gap:8px;margin:8px -4px 10px;padding:2px 4px 6px;scrollbar-width:none;-ms-overflow-style:none;flex-wrap:nowrap}.muscles::-webkit-scrollbar{display:none}.chip{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:var(--r-pill);padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}.chip.on{background:var(--panel2);border-color:var(--acc);color:var(--acc)}
 .search{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px;border-radius:5px;margin:8px 0}.ex-list{display:flex;flex-direction:column;gap:4px}.ex-item{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:border-color .15s}.ex-item:active{border-color:var(--acc)}.ex-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.ex-info{flex:1;min-width:0}.ex-name{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ex-meta{font-size:11px;color:var(--muted);margin-top:2px}.ex-add-btn{width:32px;height:32px;border-radius:var(--r-pill);border:1px solid var(--line2);background:none;color:var(--acc);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:300;transition:background .15s,color .15s,border-color .15s}
+.ex-last{font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:.3px}
 .ex-add-btn.added{background:var(--green);border-color:var(--green);color:#000}
 .ex-group-label{font-family:'DM Mono';font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:12px 0 6px;position:sticky;top:0;background:var(--bg);z-index:1}
 .accordion{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-bottom:12px;overflow:hidden}.acc-head{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 14px;background:var(--panel2);cursor:pointer}.acc-title{font-weight:800}.acc-hint{font-family:'DM Mono';font-size:10px;letter-spacing:2px;color:var(--acc)}.acc-body{display:none;padding:14px}.accordion.open .acc-body{display:block}
@@ -2646,7 +2647,7 @@ button.acc-hint {
   <main class="main">
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
     <div id="home-dashboard" style="display:none"></div>
-<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
+<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><canvas id="spark-volume" height="60"></canvas></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><canvas id="spark-sessions" height="60"></canvas></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><canvas id="spark-duration" height="60"></canvas></div></div></section><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace"></span>
@@ -5460,6 +5461,41 @@ function renderProgressPage(){
     const workoutRows=rows.length?rows.slice(0,14).map(r=>`<div class="history-row"><div class="history-date">${new Date(r.completed_at).toLocaleDateString()}<br>${new Date(r.completed_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</div><div><div class="history-name">${escapeHtml(r.workout_name||'Workout')}</div><div class="history-meta">${escapeHtml(String(r.workout_type||'strength').toUpperCase())} · ${r.metrics?.moves||0} moves · ${r.metrics?.est_minutes||0} min est.</div></div><div class="mono">${r.metrics?.sets||0} sets</div><div class="mono">${r.metrics?.load_volume?Math.round(r.metrics.load_volume):'—'} vol</div></div>`).join(''):'<div class="empty-note">Workout history is empty.</div>';
     history.innerHTML=(topExercises?`<div style="margin-bottom:12px"><div class="label">Top Exercises</div>${topExercises}</div>`:'')+`<div class="label">Recent Logs</div>`+workoutRows;
   }
+  renderProgressSparklines(rows);
+}
+
+const _sparkCharts={};
+function renderProgressSparklines(rows){
+  if(typeof Chart==='undefined') return;
+  const weeks=[];
+  for(let i=7;i>=0;i--){
+    const s=weekStart(); s.setDate(s.getDate()-(i*7));
+    const e2=new Date(s); e2.setDate(e2.getDate()+7);
+    const wRows=rows.filter(r=>{const d=new Date(r.completed_at);return d>=s&&d<e2&&r.workout_type!=='hk_dismissed';});
+    const vol=wRows.reduce((a,r)=>a+(r.metrics?.load_volume||0),0);
+    const sessions=wRows.length;
+    const dur=wRows.length?wRows.reduce((a,r)=>a+(r.metrics?.est_minutes||0),0)/wRows.length:0;
+    weeks.push({label:s.toLocaleDateString([],{month:'short',day:'numeric'}),vol:Math.round(vol),sessions,dur:Math.round(dur)});
+  }
+  const labels=weeks.map(w=>w.label);
+  const SPARK_OPTS={
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{enabled:false}},
+    scales:{x:{display:false},y:{display:false}},
+    elements:{point:{radius:0},line:{borderWidth:2,tension:0.4}}
+  };
+  function makeSparkline(id,data,color){
+    const canvas=document.getElementById(id); if(!canvas) return;
+    if(_sparkCharts[id]){_sparkCharts[id].destroy();}
+    _sparkCharts[id]=new Chart(canvas.getContext('2d'),{
+      type:'line',
+      data:{labels,datasets:[{data,borderColor:color,backgroundColor:color.replace(')',',0.1)').replace('rgb','rgba'),fill:true}]},
+      options:SPARK_OPTS
+    });
+  }
+  makeSparkline('spark-volume',weeks.map(w=>w.vol),'rgb(232,255,71)');
+  makeSparkline('spark-sessions',weeks.map(w=>w.sessions),'rgb(72,255,138)');
+  makeSparkline('spark-duration',weeks.map(w=>w.dur),'rgb(75,189,255)');
 }
 
 function syncAuthShell(){
@@ -8368,25 +8404,72 @@ function renderSidebar(){
     for(const [k,v] of Object.entries(MUSCLE_COLORS)){if(m.toLowerCase().includes(k.toLowerCase())) return v;}
     return MUSCLE_COLORS.default;
   }
-  const help=`<div style="color:var(--muted);font-size:12px;line-height:1.35;margin:4px 0 8px">${TRAINING_HELP[train]||''}</div>`;
-  function exCard(e){
+  const MUSCLE_EMOJI={
+    'Chest':'🫁','Pecs':'🫁','Back':'🔙','Lats':'🔙',
+    'Shoulders':'💪','Legs':'🦵','Quads':'🦵','Hamstrings':'🦵',
+    'Glutes':'🍑','Arms':'💪','Biceps':'💪','Triceps':'💪',
+    'Core':'🎯','Abs':'🎯','Calves':'🦶','Full Body':'⚡',
+    'Cardio':'❤️','default':'🏋️'
+  };
+  function muscleEmoji(m){
+    if(!m) return MUSCLE_EMOJI.default;
+    for(const [k,v] of Object.entries(MUSCLE_EMOJI)){if(m.toLowerCase().includes(k.toLowerCase())) return v;}
+    return MUSCLE_EMOJI.default;
+  }
+  // Build recently used map from logs
+  const recentMap={};
+  try{
+    const logs=progressRows();
+    const sets=allLoggedExerciseSets(logs);
+    sets.forEach(x=>{
+      if(!recentMap[x.name]||new Date(x.when)>new Date(recentMap[x.name].when)){
+        recentMap[x.name]={when:x.when,weight:x.weight,reps:x.reps};
+      }
+    });
+  }catch(e){}
+  function daysAgo(iso){
+    const d=Math.floor((Date.now()-new Date(iso))/(1000*60*60*24));
+    if(d===0) return 'today'; if(d===1) return '1 day ago'; if(d<7) return `${d} days ago`;
+    if(d<14) return '1 wk ago'; return `${Math.floor(d/7)} wks ago`;
+  }
+  function exCard(e, showLast=true){
     const dot=muscleColor(e.muscle);
+    const emoji=muscleEmoji(e.muscle);
     const editBtn=e.custom?`<button class="ex-edit-btn" data-edit-custom="${escapeAttr(e.name)}" title="Edit">✎</button>`:'';
+    const lastEntry=recentMap[e.name];
+    const lastHint=showLast&&lastEntry?`<div class="ex-last">${lastEntry.weight>0?lastEntry.weight+' lb × ':'' }${lastEntry.reps} reps · ${daysAgo(lastEntry.when)}</div>`:'';
     return `<div class="ex-item" data-add="${escapeAttr(e.name)}">
-      <div class="ex-dot" style="background:${dot}"></div>
+      <div class="ex-dot" style="background:${dot};font-size:10px;display:flex;align-items:center;justify-content:center;color:#000;border-radius:50%">${emoji}</div>
       <div class="ex-info">
         <div class="ex-name">${escapeHtml(e.name)}${editBtn}</div>
         <div class="ex-meta">${escapeHtml(e.muscle||'')} · ${escapeHtml(e.equip||'')}</div>
+        ${lastHint}
       </div>
       <button class="ex-add-btn" data-add="${escapeAttr(e.name)}" title="Add">+</button>
     </div>`;
   }
-  let html = help;
+  // Recently used — top 5 exercises from logs that match current filter
+  let recentHtml = '';
+  if(!q && Object.keys(recentMap).length){
+    const recentNames=Object.entries(recentMap)
+      .sort((a,b)=>new Date(b[1].when)-new Date(a[1].when))
+      .slice(0,8).map(([name])=>name);
+    const recentExs=recentNames
+      .map(name=>list.find(e=>e.name===name))
+      .filter(Boolean)
+      .slice(0,5);
+    if(recentExs.length){
+      recentHtml=`<div class="ex-group-label" style="display:flex;align-items:center;gap:6px;color:var(--acc)">⏱ Recently Used</div>`;
+      recentHtml+=recentExs.map(e=>exCard(e,true)).join('');
+      recentHtml+=`<div style="height:1px;background:var(--line2);margin:8px 0"></div>`;
+    }
+  }
+  let html = help + recentHtml;
   if(!list.length){
     html += '<div style="color:var(--dim);padding:10px">No matching exercises. Try All or another training type.</div>';
   } else if(state.muscle !== 'All' || q){
     // Filtered or searching — flat list, no headers
-    html += list.map(exCard).join('');
+    html += list.map(e=>exCard(e,true)).join('');
   } else {
     // All muscles — group by muscle with headers
     const muscleOrder = groups.filter(m => m !== 'All');
@@ -8402,7 +8485,7 @@ function renderSidebar(){
       if(!items || !items.length) return;
       const dot = muscleColor(m);
       html += `<div class="ex-group-label" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${dot};display:inline-block;flex-shrink:0"></span>${escapeHtml(m)} <span style="color:var(--dim);font-size:10px">${items.length}</span></div>`;
-      html += items.map(exCard).join('');
+    html += items.map(e=>exCard(e,false)).join('');
     });
   }
   document.getElementById('exercise-list').innerHTML=html;
@@ -10372,7 +10455,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-t';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-u';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

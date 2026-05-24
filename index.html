@@ -2053,6 +2053,17 @@ input[type="date"] {
   }
 }
 
+/* Home section header consistency — Intel + Planner match Briefing/Goal Tracker */
+#intelAcc .acc-title,
+#plannerAcc .acc-title {
+  font-family: 'DM Mono', monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+  font-weight: 700 !important;
+}
+
 
 /* ============================================================
    v13.60.21 ACTIVE PROTOCOLS STABILITY
@@ -10477,7 +10488,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-z';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-aa';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

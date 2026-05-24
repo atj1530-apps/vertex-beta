@@ -5628,6 +5628,8 @@ function tplAddToPlanner(){
 }
 async function programStartTodayWorkout(){
   const program=state.pendingProgram;
+  const plan=getProgramPlans()[program]; if(!plan) return;
+  const todayW=plan[todayKey];
   const firstW=todayW || Object.values(plan).find(w=>w);
   if(!firstW){ toast('No workout found for today in this program'); return; }
   state.pendingProgram=null;
@@ -7889,7 +7891,6 @@ function setPage(page){
   if(state.page==='wellness'){try{renderWellnessPage();}catch(e){console.error('Wellness render error:',e);}}
   if(state.page==='health'){state.page='wellness'; renderWellnessPage();}
   if(state.page==='ai') renderAiCoachPage();
-  if(state.page==='workout') renderSidebar();
   document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-nav')===state.page));
 
   // Page mode flags
@@ -9486,7 +9487,28 @@ function renderGoalTracker(){
       <div style="font-size:9px;color:var(--dim)">Goal: ${g.target}${g.unit==='sessions'?' /wk':' '+g.unit} <span class="vertex-goal-edit" onclick="vertexEditGoal('${g.key}','${g.label}',${g.target},${g.min},${g.max},${g.step})" style="color:var(--acc)">Edit</span></div>
     </div>`;
   };
-  el.innerHTML=`<div class="vertex-goal-card"><div class="vertex-goal-title"><span>Goal Tracker</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:4px 0">${goalDefs.map(goalRow).join('')}</div></div>`;
+  const collapsed = localStorage.getItem('vertex_goal_tracker_collapsed')==='1';
+  el.innerHTML=`<div class="vertex-goal-card">
+    <div class="vertex-goal-title" onclick="(function(){const c=localStorage.getItem('vertex_goal_tracker_collapsed')==='1';localStorage.setItem('vertex_goal_tracker_collapsed',c?'0':'1');if(typeof renderGoalTracker==='function')renderGoalTracker();})(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+      <span>Goal Tracker</span>
+      <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:1px">${collapsed?'▶ EXPAND':'▼ COLLAPSE'}</span>
+    </div>
+    ${collapsed?'':`<div style="display:flex;gap:8px;overflow-x:auto;padding:4px 0">${goalDefs.map(g=>{
+      if(g.current==null) return `<div style="flex:1;min-width:90px;text-align:center;opacity:.5"><div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">${g.label.split(' · ')[0]}</div><div style="font-size:11px;color:var(--dim)">No data</div></div>`;
+      const achieved=g.lower?g.current<=g.target:g.current>=g.target;
+      const fill=achieved?'var(--green,#22c55e)':'var(--acc)';
+      const diff=g.lower?g.current-g.target:g.target-g.current;
+      const status=achieved?'✓ Met':`${Math.abs(diff).toFixed(g.step<1?1:0)} ${g.unit==='sessions'?'to go':g.unit+' to go'}`;
+      const pct=g.lower?Math.min(100,Math.max(0,((g.target-Math.min(g.current,g.target))/(Math.abs(g.target)*0.25||1))*100)):Math.min(100,(g.current/g.target)*100);
+      return `<div style="flex:1;min-width:90px;text-align:center">
+        <div style="font-size:9px;font-family:'DM Mono',monospace;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:2px">${g.label.split(' · ')[0]}</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--text);line-height:1">${typeof g.current==='number'?g.current.toFixed(g.step<1?1:0):g.current}</div>
+        <div style="font-size:10px;color:${fill};font-weight:700;margin:2px 0">${status}</div>
+        <div style="height:3px;background:var(--line);border-radius:999px;margin:4px 0"><div style="height:100%;width:${pct.toFixed(1)}%;background:${fill};border-radius:999px"></div></div>
+        <div style="font-size:9px;color:var(--dim)">Goal: ${g.target}${g.unit==='sessions'?' /wk':' '+g.unit} <span class="vertex-goal-edit" onclick="vertexEditGoal('${g.key}','${g.label}',${g.target},${g.min},${g.max},${g.step})" style="color:var(--acc)">Edit</span></div>
+      </div>`;
+    }).join('')}</div>`}
+  </div>`;
 }
 window.renderGoalTracker=renderGoalTracker;
 window.vertexEditGoal=function(key,label,current,min,max,step){
@@ -10455,7 +10477,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-x';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-y';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

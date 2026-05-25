@@ -2745,10 +2745,39 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-z ACCORDION + FLOATING BUTTON FINAL TUNE
+   v20260525-clean HOME ACCORDION LOCK
+   Purpose: restore Home Weekly Intelligence + Weekly Planner
+   expand/collapse without touching auth, charts, or system polish.
    ============================================================ */
-
+#plannerAcc.accordion,
+#intelAcc.accordion{
+  overflow:hidden;
+}
+#plannerAcc > .acc-head,
+#intelAcc > .acc-head{
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+#plannerAcc:not(.open) > .acc-body,
+#intelAcc:not(.open) > .acc-body{
+  display:none;
+}
+#plannerAcc.open > .acc-body,
+#intelAcc.open > .acc-body{
+  display:block;
+}
 @media(max-width:900px){
+  #plannerAcc,
+  #intelAcc{
+    position:relative;
+    z-index:auto;
+  }
+  #plannerAcc > .acc-head,
+  #intelAcc > .acc-head{
+    min-height:48px;
+  }
   button[id*="top" i],
   button[class*="top" i],
   button[id*="scroll" i],
@@ -2766,294 +2795,6 @@ body.auth-ready #vertex-auth-loader{
     z-index:65!important;
   }
 }
-
-#plannerAcc,
-#intelAcc{
-  overflow:hidden!important;
-}
-
-#plannerAcc .acc-body,
-#intelAcc .acc-body{
-  overflow:hidden!important;
-  max-height:0!important;
-  opacity:0!important;
-  transition:max-height .24s ease, opacity .18s ease!important;
-  pointer-events:none!important;
-}
-
-#plannerAcc.open .acc-body,
-#intelAcc.open .acc-body{
-  max-height:5000px!important;
-  opacity:1!important;
-  pointer-events:auto!important;
-}
-
-#plannerAcc .acc-head,
-#intelAcc .acc-head{
-  cursor:pointer!important;
-  pointer-events:auto!important;
-  touch-action:manipulation!important;
-  position:relative!important;
-  z-index:2!important;
-}
-
-button[data-program="manual"]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-training="strength"]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-muscle="all"]:not(.on):not(.active):not([aria-selected="true"]),
-.seg-btn[data-program="manual"]:not(.on):not(.active):not([aria-selected="true"]),
-.seg-btn[data-training="strength"]:not(.on):not(.active):not([aria-selected="true"]),
-.seg-btn[data-muscle="all"]:not(.on):not(.active):not([aria-selected="true"]){
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.11)!important;
-  color:var(--muted)!important;
-  box-shadow:none!important;
-}
-
-
-/* ============================================================
-   v20260525-z HOME ACCORDION TAP TARGET FIX
-   CSS only. No JS/runtime/auth changes.
-   ============================================================ */
-
-/* The app handler only toggles when event.target matches .acc-head.
-   On mobile taps land on .acc-title/.acc-hint, so force children to pass through. */
-#plannerAcc .acc-head,
-#intelAcc .acc-head{
-  pointer-events:auto!important;
-  cursor:pointer!important;
-  touch-action:manipulation!important;
-}
-
-#plannerAcc .acc-head *,
-#intelAcc .acc-head *{
-  pointer-events:none!important;
-}
-
-/* Keep the accordion body strictly tied to .open */
-#plannerAcc .acc-body,
-#intelAcc .acc-body{
-  display:none!important;
-}
-
-#plannerAcc.open .acc-body,
-#intelAcc.open .acc-body{
-  display:block!important;
-}
-
-/* Keep floating up button right-of-center where approved */
-@media(max-width:900px){
-  button[id*="top" i],
-  button[class*="top" i],
-  button[id*="scroll" i],
-  button[class*="scroll" i],
-  button[id*="float" i],
-  button[class*="float" i],
-  .back-to-top,
-  .scroll-to-top,
-  .floating-action,
-  .floating-btn{
-    left:58%!important;
-    right:auto!important;
-    bottom:max(72px, calc(env(safe-area-inset-bottom) + 72px))!important;
-    transform:translateX(-50%)!important;
-    z-index:65!important;
-  }
-}
-
-/* Quiet default for unselected Workout/Progress/Wellness/Settings pills */
-.segment .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
-.pill-scroll .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
-.progress-tabs .progress-tab:not(.on):not(.active):not([aria-selected="true"]),
-.progress-tab:not(.on):not(.active):not([aria-selected="true"]),
-.chip:not(.on):not(.active):not([aria-selected="true"]),
-.tpl-pill:not(.on):not(.active):not([aria-selected="true"]),
-button[data-tab]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-wtab]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-ptab]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-program-tab]:not(.on):not(.active):not([aria-selected="true"]),
-.settings-modal .btn:not(.on):not(.active):not([aria-selected="true"]),
-.settings-panel .btn:not(.on):not(.active):not([aria-selected="true"]){
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.11)!important;
-  color:var(--muted)!important;
-  box-shadow:none!important;
-}
-
-/* Selected only */
-.segment .seg-btn.on,
-.segment .seg-btn.active,
-.segment .seg-btn[aria-selected="true"],
-.pill-scroll .seg-btn.on,
-.pill-scroll .seg-btn.active,
-.pill-scroll .seg-btn[aria-selected="true"],
-.progress-tabs .progress-tab.on,
-.progress-tabs .progress-tab.active,
-.progress-tabs .progress-tab[aria-selected="true"],
-.progress-tab.on,
-.progress-tab.active,
-.progress-tab[aria-selected="true"],
-.chip.on,
-.chip.active,
-.chip[aria-selected="true"],
-.tpl-pill.on,
-.tpl-pill.active,
-.tpl-pill[aria-selected="true"],
-button[data-tab].on,
-button[data-tab].active,
-button[data-tab][aria-selected="true"],
-button[data-wtab].on,
-button[data-wtab].active,
-button[data-wtab][aria-selected="true"],
-button[data-ptab].on,
-button[data-ptab].active,
-button[data-ptab][aria-selected="true"],
-button[data-program-tab].on,
-button[data-program-tab].active,
-button[data-program-tab][aria-selected="true"],
-.settings-modal .btn.on,
-.settings-modal .btn.active,
-.settings-modal .btn[aria-selected="true"],
-.settings-panel .btn.on,
-.settings-panel .btn.active,
-.settings-panel .btn[aria-selected="true"]{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
-}
-
-/* True CTAs stay filled */
-#aiPage .btn.acc,
-#aiPlanPage .btn.acc,
-[id*="aiPlan" i] .btn.acc,
-body.app-page-ai .btn.acc,
-body.app-page-aiplan .btn.acc,
-body.app-page-ai-plan .btn.acc,
-button[id*="generate" i],
-button[id*="add" i][id*="exercise" i],
-#btn-add-exercise,
-#addExercise,
-.btn-add-exercise{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-}
-
-
-/* ============================================================
-   v20260525-z ISOLATED HOME ACCORDION FIX
-   Only targets Weekly Intelligence + Weekly Planner.
-   ============================================================ */
-
-/* Let these two match the working Home accordions as closely as possible */
-#intelAcc,
-#plannerAcc{
-  overflow:hidden!important;
-  position:relative!important;
-  z-index:auto!important;
-}
-
-#intelAcc .acc-head,
-#plannerAcc .acc-head,
-#intelAcc [data-home-acc-head],
-#plannerAcc [data-home-acc-head]{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:space-between!important;
-  min-height:44px!important;
-  padding:11px 14px!important;
-  cursor:pointer!important;
-  pointer-events:auto!important;
-  touch-action:manipulation!important;
-  user-select:none!important;
-  -webkit-user-select:none!important;
-}
-
-/* Critical: only for these two, make child spans pass the tap to .acc-head */
-#intelAcc .acc-head > *,
-#plannerAcc .acc-head > *,
-#intelAcc [data-home-acc-head] > *,
-#plannerAcc [data-home-acc-head] > *{
-  pointer-events:none!important;
-}
-
-/* Strict body state for these two only */
-#intelAcc:not(.open) > .acc-body,
-#plannerAcc:not(.open) > .acc-body{
-  display:none!important;
-  max-height:0!important;
-  opacity:0!important;
-  pointer-events:none!important;
-}
-
-#intelAcc.open > .acc-body,
-#plannerAcc.open > .acc-body{
-  display:block!important;
-  max-height:none!important;
-  opacity:1!important;
-  pointer-events:auto!important;
-}
-
-/* Keep approved up-button placement */
-@media(max-width:900px){
-  button[id*="top" i],
-  button[class*="top" i],
-  button[id*="scroll" i],
-  button[class*="scroll" i],
-  button[id*="float" i],
-  button[class*="float" i],
-  .back-to-top,
-  .scroll-to-top,
-  .floating-action,
-  .floating-btn{
-    left:58%!important;
-    right:auto!important;
-    bottom:max(72px, calc(env(safe-area-inset-bottom) + 72px))!important;
-    transform:translateX(-50%)!important;
-    z-index:65!important;
-  }
-}
-
-
-/* ============================================================
-   v20260525-z DIRECT ACCORDION HANDLER SUPPORT
-   Minimal existing-handler patch; no added listeners.
-   ============================================================ */
-
-#plannerAcc .acc-head,
-#intelAcc .acc-head,
-.accordion .acc-head{
-  cursor:pointer!important;
-  pointer-events:auto!important;
-  touch-action:manipulation!important;
-}
-
-#plannerAcc .acc-head *,
-#intelAcc .acc-head *,
-.accordion .acc-head *{
-  pointer-events:auto!important;
-}
-
-/* Approved up-button placement */
-@media(max-width:900px){
-  button[id*="top" i],
-  button[class*="top" i],
-  button[id*="scroll" i],
-  button[class*="scroll" i],
-  button[id*="float" i],
-  button[class*="float" i],
-  .back-to-top,
-  .scroll-to-top,
-  .floating-action,
-  .floating-btn{
-    left:58%!important;
-    right:auto!important;
-    bottom:max(72px, calc(env(safe-area-inset-bottom) + 72px))!important;
-    transform:translateX(-50%)!important;
-    z-index:65!important;
-  }
-}
-
 </style>
 </head>
 <body class="auth-resolving">
@@ -13711,6 +13452,41 @@ body:not(.authenticated) #vertex-back-top {
   <button class="btn acc" id="btn-start-bottom" style="display:none">▶ Start</button>
   <button class="btn" id="btn-log-bottom" style="display:none" onclick="document.getElementById('btn-log').click()">Log Workout</button>
 </div>
+
+<script>
+/* v20260525-clean HOME ACCORDION CONTROLLER
+   Home-only, capture-phase tap handler for Weekly Intelligence + Weekly Planner.
+   It prevents delegated/mobile overlay conflicts while leaving auth and other accordions alone. */
+(function(){
+  'use strict';
+  function hint(acc){
+    var h=acc && acc.querySelector ? acc.querySelector(':scope > .acc-head .acc-hint') : null;
+    if(h) h.textContent = acc.classList.contains('open') ? '▼ COLLAPSE' : '▶ EXPAND';
+  }
+  function sync(){
+    ['plannerAcc','intelAcc'].forEach(function(id){
+      var acc=document.getElementById(id);
+      if(acc) hint(acc);
+    });
+  }
+  function toggleFromEvent(e){
+    var head=e.target && e.target.closest ? e.target.closest('#plannerAcc > .acc-head, #intelAcc > .acc-head') : null;
+    if(!head) return;
+    var acc=head.parentElement;
+    if(!acc || (acc.id!=='plannerAcc' && acc.id!=='intelAcc')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+    acc.classList.toggle('open');
+    try{ localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0'); }catch(err){}
+    hint(acc);
+  }
+  document.addEventListener('click', toggleFromEvent, true);
+  document.addEventListener('DOMContentLoaded', sync);
+  window.vertexSyncHomeAccordions = sync;
+})();
+</script>
+
 </body>
 </html>
 

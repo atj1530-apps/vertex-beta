@@ -69,7 +69,7 @@
 .skeleton{background:linear-gradient(90deg,var(--panel2) 25%,var(--panel3) 50%,var(--panel2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r-sm)}
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;overflow:auto}
 @font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;
-/* v20260525-premium-authgate */
+/* v20260524-ay */
 html.vertex-auth-booting body{
   background:#070707 !important;
 }
@@ -2626,7 +2626,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-home1-callback OAUTH CALLBACK GUARD
+   v20260524-ay-callback OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2673,7 +2673,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-home1-callback AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260524-ay-callback AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2745,7 +2745,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-premium-home — Home hierarchy + stability pass
+   v20260524-ay — Home hierarchy + stability pass
    ============================================================ */
 body.app-page-home #home-dashboard{
   max-width:1180px;
@@ -2930,24 +2930,37 @@ body.app-page-home #home-dashboard canvas{
 </head>
 <body class="auth-resolving">
 
+
 <div id="vertex-bootstrap-screen">
   <div class="vertex-boot-logo">VERTEX</div>
-  <div class="vertex-boot-sub">Signing You In</div>
+  <div class="vertex-boot-sub">Loading</div>
 </div>
 <script>
-document.documentElement.classList.add('vertex-auth-booting');
-window.__vertexBootComplete=false;
-window.vertexFinishBootstrap=function(){
-  if(window.__vertexBootComplete) return;
-  window.__vertexBootComplete=true;
-  document.documentElement.classList.remove('vertex-auth-booting');
-  const el=document.getElementById('vertex-bootstrap-screen');
-  if(el){
-    el.classList.add('fade-out');
-    setTimeout(()=>{ try{el.remove();}catch(e){} },500);
-  }
-};
+(function(){
+  document.documentElement.classList.add('vertex-auth-booting');
+  window.__vertexBootComplete=false;
+  window.vertexFinishBootstrap=function(){
+    if(window.__vertexBootComplete) return;
+    try{ if(window.vertexBootFailsafe) clearTimeout(window.vertexBootFailsafe); }catch(e){}
+    window.__vertexBootComplete=true;
+    document.documentElement.classList.remove('vertex-auth-booting');
+    document.body && document.body.classList.remove('vertex-auth-locked');
+    const el=document.getElementById('vertex-bootstrap-screen');
+    if(el){
+      el.classList.add('fade-out');
+      setTimeout(()=>{ try{el.remove();}catch(e){} },420);
+    }
+  };
+  // Hard fail-safe: never let the splash trap the user.
+  window.vertexBootFailsafe=setTimeout(function(){
+    try{
+      console.warn('[Vertex] Bootstrap failsafe released shell');
+      window.vertexFinishBootstrap && window.vertexFinishBootstrap();
+    }catch(e){}
+  },2600);
+})();
 </script>
+
 
 
 <!-- v13.61 Welcome modal — shown once per user after first sign-in -->
@@ -8103,7 +8116,7 @@ function protoSelectDate(dateStr){
 
 
 <script>
-/* v20260525-premium-home — non-destructive home enhancement */
+/* v20260524-ay — non-destructive home enhancement */
 (function(){
   if(window.__vertexPremiumHomeInstalled) return;
   window.__vertexPremiumHomeInstalled=true;
@@ -8247,6 +8260,28 @@ function protoSelectDate(dateStr){
   else install();
   window.addEventListener('vertex:authenticated',function(){ setTimeout(install,120); });
   window.addEventListener('resize',function(){ setTimeout(enhanceHome,120); });
+})();
+</script>
+
+
+<script>
+(function(){
+  function releaseWhenReady(){
+    try{
+      const hasLogin=document.querySelector('.login-screen');
+      const hasApp=document.getElementById('app');
+      const body=document.body;
+      const isAuthed=body&&body.classList.contains('authenticated');
+      if(hasLogin || hasApp || isAuthed){
+        setTimeout(function(){ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); },900);
+      }
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',releaseWhenReady);
+  else releaseWhenReady();
+  window.addEventListener('load',function(){
+    setTimeout(function(){ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); },1200);
+  });
 })();
 </script>
 
@@ -11148,7 +11183,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-home1';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ay';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-d-callback OAUTH CALLBACK GUARD
+   v20260525-e OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-d-callback AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-e AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,7 +2702,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-d PREMIUM CSS-ONLY POLISH
+   v20260525-e PREMIUM CSS-ONLY POLISH
    Safe layer: no JS, no render changes, no auth changes.
    ============================================================ */
 
@@ -2857,6 +2857,153 @@ body.app-page-workout .remove{
   .page-panel{
     border-radius:12px;
   }
+}
+
+
+/* ============================================================
+   v20260525-e READINESS + HIERARCHY PASS
+   CSS only. Stable branch refinement.
+   ============================================================ */
+
+:root{
+  --vx-glow:rgba(232,255,71,.18);
+  --vx-soft:rgba(255,255,255,.06);
+  --vx-panel:rgba(22,22,22,.76);
+}
+
+/* Stronger hierarchy for first-screen metrics */
+body.app-page-home #vertex-home-readiness,
+body.app-page-home [id*="readiness" i],
+body.app-page-home .home-readiness-card{
+  position:relative;
+  isolation:isolate;
+  background:
+    radial-gradient(circle at top left, rgba(232,255,71,.08), transparent 42%),
+    rgba(22,22,22,.82)!important;
+  border-color:rgba(232,255,71,.34)!important;
+  overflow:hidden;
+}
+
+body.app-page-home #vertex-home-readiness:before,
+body.app-page-home .home-readiness-card:before{
+  content:"";
+  position:absolute;
+  inset:auto -40px -70px auto;
+  width:160px;
+  height:160px;
+  background:radial-gradient(circle,var(--vx-glow),transparent 68%);
+  pointer-events:none;
+  z-index:0;
+}
+
+body.app-page-home #vertex-home-readiness *,
+body.app-page-home .home-readiness-card *{
+  position:relative;
+  z-index:1;
+}
+
+/* Softer, more premium panel layering */
+body.app-page-home .panel,
+body.app-page-home .accordion,
+body.app-page-home .progress-card,
+body.app-page-home .coach-card,
+body.app-page-home .page-panel{
+  background:rgba(18,18,18,.74)!important;
+  backdrop-filter:blur(8px);
+}
+
+/* Reduce dashboard feel */
+body.app-page-home .intel-box,
+body.app-page-home .home-stat-box,
+body.app-page-home .home-rec-card{
+  background:var(--vx-panel)!important;
+}
+
+/* Better breathing room */
+body.app-page-home .home-stat-strip{
+  gap:10px!important;
+}
+body.app-page-home .intel-grid{
+  gap:12px!important;
+}
+
+/* Typography hierarchy */
+body.app-page-home .acc-title,
+body.app-page-home .section-title{
+  letter-spacing:.04em;
+}
+
+/* Subtle premium hover/press response */
+.panel:hover,
+.progress-card:hover,
+.coach-card:hover{
+  border-color:rgba(255,255,255,.11)!important;
+}
+
+/* Workout mode feels more focused */
+body.app-page-workout .exercise-card{
+  background:rgba(20,20,20,.84)!important;
+}
+
+body.app-page-workout .set-row input{
+  background:rgba(12,12,12,.92)!important;
+  border-color:rgba(255,255,255,.08)!important;
+}
+
+/* Completion state polish */
+.fwm-set-done-btn.done{
+  box-shadow:0 0 0 1px rgba(72,255,138,.10), 0 0 26px rgba(72,255,138,.10);
+}
+
+/* Modal polish */
+.modal,
+.session-card,
+.welcome-card{
+  background:rgba(18,18,18,.92)!important;
+  border-color:rgba(255,255,255,.08)!important;
+  box-shadow:0 22px 60px rgba(0,0,0,.34);
+}
+
+/* Native-feeling transitions */
+.accordion,
+.panel,
+.progress-card,
+.coach-card,
+.intel-box,
+.home-rec-card,
+.home-stat-box{
+  transition:
+    background 180ms cubic-bezier(0.16,1,0.3,1),
+    border-color 180ms cubic-bezier(0.16,1,0.3,1),
+    transform 180ms cubic-bezier(0.16,1,0.3,1),
+    opacity 180ms cubic-bezier(0.16,1,0.3,1);
+}
+
+/* Mobile refinement */
+@media(max-width:900px){
+
+  body.app-page-home #home-dashboard{
+    padding-inline:2px;
+  }
+
+  body.app-page-home .panel,
+  body.app-page-home .accordion,
+  body.app-page-home .page-panel{
+    border-radius:14px!important;
+  }
+
+  body.app-page-home .home-stat-strip{
+    gap:8px!important;
+  }
+
+  body.app-page-home .intel-grid{
+    gap:10px!important;
+  }
+
+  body.app-page-home .accordion:not(.open){
+    opacity:.96;
+  }
+
 }
 
 </style>
@@ -10904,7 +11051,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-d';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-e';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

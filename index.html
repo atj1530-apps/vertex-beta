@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-e OAUTH CALLBACK GUARD
+   v20260525-f OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-e AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-f AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,7 +2702,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-e PREMIUM CSS-ONLY POLISH
+   v20260525-f PREMIUM CSS-ONLY POLISH
    Safe layer: no JS, no render changes, no auth changes.
    ============================================================ */
 
@@ -2861,7 +2861,7 @@ body.app-page-workout .remove{
 
 
 /* ============================================================
-   v20260525-e READINESS + HIERARCHY PASS
+   v20260525-f READINESS + HIERARCHY PASS
    CSS only. Stable branch refinement.
    ============================================================ */
 
@@ -3004,6 +3004,174 @@ body.app-page-workout .set-row input{
     opacity:.96;
   }
 
+}
+
+
+/* ============================================================
+   v20260525-f PERCEIVED PERFORMANCE PASS
+   CSS only. Stable branch refinement.
+   ============================================================ */
+
+:root{
+  --vx-skeleton-a:rgba(255,255,255,.035);
+  --vx-skeleton-b:rgba(255,255,255,.075);
+  --vx-depth:0 18px 50px rgba(0,0,0,.24);
+}
+
+/* Stable async surfaces */
+body.app-page-home #home-dashboard .panel,
+body.app-page-home #home-dashboard .accordion,
+body.app-page-home #home-dashboard .home-stat-box,
+body.app-page-home #home-dashboard .home-rec-card,
+body.app-page-home #home-dashboard .intel-box,
+body.app-page-home #home-dashboard .progress-card,
+body.app-page-home #home-dashboard .coach-card{
+  contain:layout paint;
+}
+
+/* Reserve visual space to reduce loading jump */
+body.app-page-home #home-dashboard .home-stat-strip{
+  min-height:72px;
+}
+body.app-page-home #home-dashboard .intel-grid{
+  min-height:142px;
+}
+body.app-page-home #home-dashboard .progress-card,
+body.app-page-home #home-dashboard .coach-card{
+  min-height:154px;
+}
+body.app-page-home #home-dashboard .home-rec-card{
+  min-height:96px;
+}
+
+/* Soft skeleton feeling for empty/delayed areas */
+.empty-note,
+.empty-cta{
+  background:
+    linear-gradient(90deg,var(--vx-skeleton-a),var(--vx-skeleton-b),var(--vx-skeleton-a));
+  background-size:220% 100%;
+  animation:vxSkeleton 1.6s linear infinite;
+  border-color:rgba(255,255,255,.07)!important;
+}
+@keyframes vxSkeleton{
+  from{background-position:220% 0}
+  to{background-position:-220% 0}
+}
+
+/* Smooth metric reveal feel */
+.stat-val,
+.progress-kpi b,
+.flow-stat b,
+.fwm-complete-stat b,
+.home-stat-box b,
+.home-rec-card b,
+.intel-box b{
+  animation:vxMetricReveal 280ms cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes vxMetricReveal{
+  from{opacity:.35;transform:translate3d(0,4px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+
+/* Home: further calm the first scan */
+body.app-page-home #home-dashboard .label,
+body.app-page-home #home-dashboard .stat-lbl,
+body.app-page-home #home-dashboard .acc-hint{
+  opacity:.82;
+}
+body.app-page-home #home-dashboard .panel.hl{
+  box-shadow:var(--vx-depth);
+}
+
+/* Make accordions feel less mechanical */
+.accordion .acc-body{
+  animation:vxAccordionIn 220ms cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes vxAccordionIn{
+  from{opacity:.4;transform:translate3d(0,-4px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+
+/* Workout completion / focus polish */
+.fwm-complete-screen.on{
+  animation:vxCompleteIn 420ms cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes vxCompleteIn{
+  from{opacity:0;transform:scale(.985)}
+  to{opacity:1;transform:scale(1)}
+}
+.fwm-complete-title{
+  text-shadow:0 0 28px rgba(232,255,71,.16);
+}
+.fwm-complete-icon{
+  animation:vxCompleteIcon 520ms cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes vxCompleteIcon{
+  0%{opacity:0;transform:scale(.82) rotate(-4deg)}
+  55%{opacity:1;transform:scale(1.08) rotate(1deg)}
+  100%{opacity:1;transform:scale(1) rotate(0deg)}
+}
+
+/* Better input confidence */
+.set-row input:focus,
+.fwm-set-inputs input:focus,
+input:focus,
+textarea:focus,
+select:focus{
+  outline:none!important;
+  border-color:rgba(232,255,71,.55)!important;
+  box-shadow:0 0 0 3px rgba(232,255,71,.08);
+}
+
+/* Native-feeling click feedback */
+.ex-item:active,
+.day-card:active,
+.saved-item:active{
+  transform:scale(.995);
+}
+
+/* Chart containers should feel intentional while loading */
+canvas{
+  opacity:.98;
+  transition:opacity 220ms cubic-bezier(0.16,1,0.3,1);
+}
+
+/* Mobile stability and touch feel */
+@media(max-width:900px){
+  body.app-page-home #home-dashboard .home-stat-strip{
+    min-height:88px;
+  }
+  body.app-page-home #home-dashboard .intel-grid{
+    min-height:164px;
+  }
+  .acc-head{
+    min-height:48px;
+  }
+  .btn,.seg-btn,.chip{
+    min-height:40px;
+  }
+  .fwm-actions .btn{
+    min-height:48px;
+  }
+}
+
+/* Accessibility: reduce motion preference */
+@media (prefers-reduced-motion: reduce){
+  .empty-note,
+  .empty-cta,
+  .stat-val,
+  .progress-kpi b,
+  .flow-stat b,
+  .fwm-complete-stat b,
+  .home-stat-box b,
+  .home-rec-card b,
+  .intel-box b,
+  .accordion .acc-body,
+  .fwm-complete-screen.on,
+  .fwm-complete-icon{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+  }
 }
 
 </style>
@@ -11051,7 +11219,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-e';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-f';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

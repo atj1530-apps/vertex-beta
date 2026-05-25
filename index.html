@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-k OAUTH CALLBACK GUARD
+   v20260525-l OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-k AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-l AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,7 +2702,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-k PROGRESS + WELLNESS POLISH
+   v20260525-l PROGRESS + WELLNESS POLISH
    CSS only. Cross-app visual consistency.
    ============================================================ */
 
@@ -2950,86 +2950,46 @@ body.app-page-health .empty-cta{
 
 
 /* ============================================================
-   v20260525-k WELLNESS FULL TEXT SUBTABS
-   Horizontal scroll + readable labels.
+   v20260525-l STABLE ROLLBACK + WELLNESS TAB WIDTH
+   CSS only. No runtime script. No auth/render changes.
    ============================================================ */
 
-body.app-page-wellness .wellness-tab-row,
-body.app-page-health .wellness-tab-row{
+body.app-page-wellness .segment,
+body.app-page-wellness .pill-scroll,
+body.app-page-wellness .progress-tabs,
+body.app-page-health .segment,
+body.app-page-health .pill-scroll,
+body.app-page-health .progress-tabs{
   display:flex!important;
-  flex-direction:row!important;
   flex-wrap:nowrap!important;
   overflow-x:auto!important;
   overflow-y:hidden!important;
   -webkit-overflow-scrolling:touch!important;
   scrollbar-width:none!important;
   gap:8px!important;
-  padding:6px 2px 12px!important;
-  margin:10px 0 14px!important;
-  max-width:100%!important;
+  padding-bottom:10px!important;
 }
 
-body.app-page-wellness .wellness-tab-row::-webkit-scrollbar,
-body.app-page-health .wellness-tab-row::-webkit-scrollbar{
+body.app-page-wellness .segment::-webkit-scrollbar,
+body.app-page-wellness .pill-scroll::-webkit-scrollbar,
+body.app-page-wellness .progress-tabs::-webkit-scrollbar,
+body.app-page-health .segment::-webkit-scrollbar,
+body.app-page-health .pill-scroll::-webkit-scrollbar,
+body.app-page-health .progress-tabs::-webkit-scrollbar{
   display:none!important;
 }
 
-body.app-page-wellness .wellness-tab-row button,
-body.app-page-health .wellness-tab-row button,
-body.app-page-wellness .wellness-tab-row .seg-btn,
-body.app-page-health .wellness-tab-row .seg-btn,
-body.app-page-wellness .wellness-tab-row .chip,
-body.app-page-health .wellness-tab-row .chip{
+body.app-page-wellness .seg-btn,
+body.app-page-wellness .chip,
+body.app-page-wellness .progress-tab,
+body.app-page-health .seg-btn,
+body.app-page-health .chip,
+body.app-page-health .progress-tab{
   flex:0 0 auto!important;
+  min-width:92px!important;
   width:auto!important;
-  min-width:max-content!important;
-  max-width:none!important;
-  min-height:44px!important;
   border-radius:999px!important;
-  padding:10px 17px!important;
-  white-space:nowrap!important;
-  overflow:visible!important;
-  text-overflow:clip!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  font-size:14px!important;
-  line-height:1!important;
-  letter-spacing:.01em!important;
-}
-
-body.app-page-wellness .wellness-tab-row button.on,
-body.app-page-health .wellness-tab-row button.on,
-body.app-page-wellness .wellness-tab-row button.chosen,
-body.app-page-health .wellness-tab-row button.chosen,
-body.app-page-wellness .wellness-tab-row .seg-btn.on,
-body.app-page-health .wellness-tab-row .seg-btn.on,
-body.app-page-wellness .wellness-tab-row .seg-btn.chosen,
-body.app-page-health .wellness-tab-row .seg-btn.chosen,
-body.app-page-wellness .wellness-tab-row .chip.on,
-body.app-page-health .wellness-tab-row .chip.on{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-  box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
-}
-
-body.app-page-wellness .wellness-tab-wrap,
-body.app-page-health .wellness-tab-wrap{
-  position:relative;
-}
-
-body.app-page-wellness .wellness-tab-wrap:after,
-body.app-page-health .wellness-tab-wrap:after{
-  content:"";
-  position:absolute;
-  top:0;
-  right:0;
-  width:38px;
-  height:100%;
-  background:linear-gradient(to right,rgba(9,9,9,0),rgba(9,9,9,.84));
-  pointer-events:none;
-  opacity:.82;
+  padding:10px 16px!important;
 }
 
 </style>
@@ -8179,81 +8139,6 @@ function protoSelectDate(dateStr){
 
 
 
-<script>
-
-(function(){
-  'use strict';
-  if(window.__vertexWellnessLabelsK) return;
-  window.__vertexWellnessLabelsK = true;
-
-  var labels = ['Dashboard','Health','Protocol','Check-In','History','Metrics','Body'];
-
-  function pageLooksWellness(){
-    try{
-      var pg = window.state && window.state.page ? String(window.state.page).toLowerCase() : '';
-      if(pg === 'wellness' || pg === 'health') return true;
-      var title = document.querySelector('.page-title,h1,h2');
-      return !!(title && /wellness/i.test(title.textContent || ''));
-    }catch(e){
-      return false;
-    }
-  }
-
-  function findRow(){
-    try{
-      var roots = Array.prototype.slice.call(document.querySelectorAll('.page-panel,section,main,.main'));
-      var wellnessRoot = roots.find(function(root){
-        return /wellness/i.test(root.textContent || '');
-      }) || document;
-      var rows = Array.prototype.slice.call(wellnessRoot.querySelectorAll('.segment,.pill-scroll,.progress-tabs'));
-      return rows.find(function(row){
-        var btns = row.querySelectorAll('button,.seg-btn,.chip,.progress-tab');
-        if(btns.length < 5 || btns.length > 10) return false;
-        var txt = Array.prototype.map.call(btns,function(b){ return (b.textContent || '').trim(); }).join('|');
-        return /Dash|Health|Proto|Chec|Histo|Body|D\.\.\.|H\.\.\.|P\.\.\.|C\.\.\.|B\.\.\./i.test(txt);
-      }) || null;
-    }catch(e){
-      return null;
-    }
-  }
-
-  function apply(){
-    try{
-      if(!pageLooksWellness()) return;
-      var row = findRow();
-      if(!row) return;
-      row.classList.add('wellness-tab-row');
-      if(row.parentElement) row.parentElement.classList.add('wellness-tab-wrap');
-
-      var btns = Array.prototype.slice.call(row.querySelectorAll('button,.seg-btn,.chip,.progress-tab'));
-      btns.slice(0, labels.length).forEach(function(btn, idx){
-        var label = labels[idx];
-        btn.textContent = label;
-        btn.setAttribute('aria-label', label);
-        btn.setAttribute('title', label);
-      });
-    }catch(e){}
-  }
-
-  function schedule(){
-    apply();
-    setTimeout(apply, 100);
-    setTimeout(apply, 300);
-    setTimeout(apply, 900);
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', schedule);
-  }else{
-    schedule();
-  }
-
-  document.addEventListener('click', function(){ setTimeout(schedule, 120); }, true);
-  window.addEventListener('vertex:authenticated', function(){ setTimeout(schedule, 200); });
-})();
-
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -11152,7 +11037,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-k';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-l';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -3,6 +3,20 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<script>
+/* Vertex OAuth callback guard: runs before paint to prevent login repaint after Google returns. */
+(function(){
+  try{
+    var q=window.location.search||'';
+    var h=window.location.hash||'';
+    var isOAuthReturn=/[?&]code=/.test(q)||/[?&]state=/.test(q)||/[?&]error=/.test(q)||/(^#|&)access_token=/.test(h)||/(^#|&)refresh_token=/.test(h)||/(^#|&)error=/.test(h);
+    if(isOAuthReturn){
+      document.documentElement.classList.add('vertex-oauth-callback-boot');
+      sessionStorage.setItem('vertex_oauth_pending','1');
+    }
+  }catch(e){}
+})();
+</script>
 <meta property="og:site_name" content="Vertex" />
 <meta property="og:title" content="Vertex Workout" />
 <meta property="og:description" content="Build, track, and improve your training." />
@@ -2567,8 +2581,56 @@ button.acc-hint {
 
 
 
+
 /* ============================================================
-   v20260524-ax-authgate2 AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260524-ax-callback OAUTH CALLBACK GUARD
+   Prevents stale login repaint while Google/Supabase session hydrates.
+   ============================================================ */
+html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
+html.vertex-oauth-callback-boot body .login-screen,
+html.vertex-oauth-callback-boot body #app-header,
+html.vertex-oauth-callback-boot body #app{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+html.vertex-oauth-callback-boot body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:2147483000;
+  background:radial-gradient(circle at 72% 18%,rgba(232,255,71,.14),transparent 32%),#070707;
+  pointer-events:auto;
+}
+html.vertex-oauth-callback-boot body::after{
+  content:'VERTEX\A Signing you in…';
+  white-space:pre;
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  z-index:2147483001;
+  font-family:'Bebas Neue','DM Sans',system-ui,sans-serif;
+  font-size:54px;
+  letter-spacing:8px;
+  line-height:1.45;
+  color:var(--acc);
+  text-align:center;
+  text-shadow:0 0 36px rgba(232,255,71,.10);
+  animation:vertexCallbackPulse 1.4s ease-in-out infinite;
+}
+@keyframes vertexCallbackPulse{0%,100%{opacity:.86;filter:blur(0)}50%{opacity:1;filter:blur(.15px)}}
+html.vertex-oauth-callback-boot body.oauth-callback-leaving::before,
+html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
+  opacity:0;
+  transition:opacity 420ms cubic-bezier(0.22,1,0.36,1);
+}
+@media(max-width:520px){
+  html.vertex-oauth-callback-boot body::after{font-size:42px;letter-spacing:6px;}
+}
+
+/* ============================================================
+   v20260524-ax-callback AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -4828,6 +4890,11 @@ async function signInGoogle(btn){
     const redirectTo=(window.location.protocol==='file:')
       ?window.location.href
       :isNative?'com.atj1530.vertex://login-callback':window.location.origin;
+    try{
+      sessionStorage.setItem('vertex_oauth_pending','1');
+      document.documentElement.classList.add('vertex-oauth-callback-boot');
+      document.body.classList.add('auth-resolving');
+    }catch(_e){}
     const {data,error}=await supa.auth.signInWithOAuth({
       provider:'google',
       options:{redirectTo,scopes:'email profile',skipBrowserRedirect:false}
@@ -4978,7 +5045,7 @@ async function applyAuthenticatedSession(session){
     ]);
 
     // Wait briefly for warm-cache data, but do not trap the user on a cold Supabase start.
-    await Promise.race([firstHydrate, vertexWait(1400)]);
+    await Promise.race([firstHydrate, vertexWait(2800)]);
 
     _hydratedUserId=incomingKey;
     _hydrationInFlight=false;
@@ -4991,16 +5058,9 @@ async function applyAuthenticatedSession(session){
     _authShellRevealedFor=incomingKey;
     vertexRevealAuthenticatedShell();
 
-    // If the initial hydration timed out, let it finish silently. Avoid renderAll(); only
-    // refresh the main data surfaces to prevent a second full-home flicker.
-    firstHydrate.then(()=>{
-      if(_authShellRevealedFor!==incomingKey) return;
-      requestAnimationFrame(()=>{
-        try{ if(typeof renderHomeDashboard==='function') renderHomeDashboard(); }catch(e){}
-        try{ if(typeof renderProgressPage==='function' && state.page==='progress') renderProgressPage(); }catch(e){}
-        try{ if(typeof renderHealthPage==='function' && state.page==='wellness') renderHealthPage(); }catch(e){}
-      });
-    });
+    // Let any cold-start hydration finish silently. Do not re-render Home after reveal;
+    // post-reveal surface refreshes were the source of the second visible flicker.
+    firstHydrate.catch(()=>{});
 
     if(!window.__vertexVisibilityListenerAdded){
       window.__vertexVisibilityListenerAdded=true;
@@ -5052,7 +5112,9 @@ async function initAuth(){
     const params=new URLSearchParams(window.location.search);
     const hashParams=new URLSearchParams(window.location.hash.replace('#',''));
     const hasOAuthCode=params.has('code');
-    const hasHashToken=hashParams.has('access_token');
+    const hasHashToken=hashParams.has('access_token') || hashParams.has('refresh_token');
+    const hasOAuthPending=sessionStorage.getItem('vertex_oauth_pending')==='1';
+    const hasOAuthReturn=hasOAuthCode || hasHashToken || hasOAuthPending;
     const hasOAuthError=params.has('error') || params.has('error_description') || hashParams.has('error');
     if(hasOAuthError){
       const msg=params.get('error_description') || params.get('error') || hashParams.get('error_description') || hashParams.get('error') || 'OAuth failed';
@@ -5082,8 +5144,8 @@ async function initAuth(){
 
     // Auth shell shown after session resolves — loader covers the flash
     // Single direct getSession call with timeout — Supabase free tier can be slow on cold start
-    if(sessionApplied) return;
-    const sessionResult=await withTimeout(supa.auth.getSession(), 8000);
+    if(sessionApplied){ try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){} return; }
+    const sessionResult=await withTimeout(supa.auth.getSession(), hasOAuthReturn ? 15000 : 8000);
     const sd=sessionResult;
     // Clean hash/code from URL now that getSession has had a chance to read it
     if(hasHashToken || hasOAuthCode){
@@ -5092,6 +5154,8 @@ async function initAuth(){
     if(sd && sd.data && sd.data.session && sd.data.session.user){
       await applyAuthenticatedSession(sd.data.session);
     } else {
+      try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
+      try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
       vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll();
     }
@@ -5642,7 +5706,8 @@ function vertexSetAuthResolving(){
 function vertexShowUnauthenticatedShell(){
   authUser=null;
   window.authUser=null;
-  document.body.classList.remove('authenticated','auth-resolving','auth-show-app');
+  try{ document.documentElement.classList.remove('vertex-oauth-callback-boot'); sessionStorage.removeItem('vertex_oauth_pending'); }catch(e){}
+  document.body.classList.remove('authenticated','auth-resolving','auth-show-app','oauth-callback-leaving');
   document.body.classList.add('auth-ready','auth-done');
   const loader=document.getElementById('vertex-auth-loader');
   if(loader){ loader.classList.add('fade'); setTimeout(()=>{ try{loader.remove();}catch(e){} },320); }
@@ -5656,6 +5721,14 @@ function vertexRevealAuthenticatedShell(){
       document.body.classList.add('auth-show-app');
       const loader=document.getElementById('vertex-auth-loader');
       if(loader){ loader.classList.add('fade'); setTimeout(()=>{ try{loader.remove();}catch(e){} },360); }
+      try{ sessionStorage.removeItem('vertex_oauth_pending'); }catch(e){}
+      if(document.documentElement.classList.contains('vertex-oauth-callback-boot')){
+        document.body.classList.add('oauth-callback-leaving');
+        setTimeout(()=>{
+          document.documentElement.classList.remove('vertex-oauth-callback-boot');
+          document.body.classList.remove('oauth-callback-leaving');
+        },430);
+      }
     });
   });
 }
@@ -10672,7 +10745,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ax-authgate2';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ax-callback';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-u OAUTH CALLBACK GUARD
+   v20260525-v OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-u AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-v AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,7 +2702,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-u PROGRESS + WELLNESS POLISH
+   v20260525-v PROGRESS + WELLNESS POLISH
    CSS only. Cross-app visual consistency.
    ============================================================ */
 
@@ -2950,7 +2950,7 @@ body.app-page-health .empty-cta{
 
 
 /* ============================================================
-   v20260525-u STABLE ROLLBACK + WELLNESS TAB WIDTH
+   v20260525-v STABLE ROLLBACK + WELLNESS TAB WIDTH
    CSS only. No runtime script. No auth/render changes.
    ============================================================ */
 
@@ -2994,7 +2994,7 @@ body.app-page-health .progress-tab{
 
 
 /* ============================================================
-   v20260525-u WELLNESS FULL LABEL FIX
+   v20260525-v WELLNESS FULL LABEL FIX
    CSS only. Uses existing full labels already in markup.
    ============================================================ */
 
@@ -3108,7 +3108,7 @@ body.app-page-workout [class*="target" i] .chip{
 
 
 /* ============================================================
-   v20260525-u AI PLAN PREMIUM REDESIGN
+   v20260525-v AI PLAN PREMIUM REDESIGN
    CSS only. No auth/data/runtime changes.
    ============================================================ */
 
@@ -3321,7 +3321,7 @@ body.app-page-plan .empty-cta,
 
 
 /* ============================================================
-   v20260525-u COHESION + INTERACTION REPAIR
+   v20260525-v COHESION + INTERACTION REPAIR
    CSS only. No auth/data/runtime changes.
    ============================================================ */
 
@@ -3519,7 +3519,7 @@ body.app-page-plan .btn.acc,
 
 
 /* ============================================================
-   v20260525-u STABLE CSS-ONLY ROLLBACK + ACCOUNT COHESION
+   v20260525-v STABLE CSS-ONLY ROLLBACK + ACCOUNT COHESION
    No JS. No auth/render/data changes.
    ============================================================ */
 
@@ -3615,7 +3615,7 @@ body:has(.account-menu.on) .btn[id*="account" i]{
 
 
 /* ============================================================
-   v20260525-u COHESION CLEANUP + MOBILE ACCORDION REPAIR
+   v20260525-v COHESION CLEANUP + MOBILE ACCORDION REPAIR
    CSS only. No auth/data/runtime changes.
    ============================================================ */
 
@@ -3827,7 +3827,7 @@ body:has(.account-menu.on) .btn[id*="account" i]{
 
 
 /* ============================================================
-   v20260525-u MOBILE ACCORDION OVERLAY + QUIET DEFAULT CLEANUP
+   v20260525-v MOBILE ACCORDION OVERLAY + QUIET DEFAULT CLEANUP
    CSS only. No auth/data/runtime changes.
    ============================================================ */
 
@@ -3979,6 +3979,217 @@ button[id*="add" i][id*="exercise" i],
   border-color:rgba(255,255,255,.11)!important;
   color:var(--muted)!important;
   box-shadow:none!important;
+}
+
+
+/* ============================================================
+   v20260525-v FINAL COHESION CORRECTION
+   CSS only. No auth/data/runtime changes.
+   ============================================================ */
+
+/* A) Home mobile accordion repair:
+   Leave original JS delegation alone. Do NOT block children.
+   The headers need normal event bubbling in mobile/PWA. */
+#plannerAcc,
+#intelAcc{
+  position:relative!important;
+  z-index:auto!important;
+}
+
+#plannerAcc .acc-head,
+#intelAcc .acc-head{
+  position:relative!important;
+  z-index:auto!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:rgba(232,255,71,.12)!important;
+}
+
+#plannerAcc .acc-head *,
+#intelAcc .acc-head *{
+  pointer-events:auto!important;
+}
+
+/* Keep hit area comfortable, but do not overlay or intercept. */
+@media(max-width:900px){
+  #plannerAcc .acc-head,
+  #intelAcc .acc-head{
+    min-height:52px!important;
+    padding:14px 14px!important;
+  }
+}
+
+/* B) Move floating up/scroll button only slightly inward — between old edge and current location. */
+@media(max-width:900px){
+  button[id*="top" i],
+  button[class*="top" i],
+  button[id*="scroll" i],
+  button[class*="scroll" i],
+  button[id*="float" i],
+  button[class*="float" i],
+  .back-to-top,
+  .scroll-to-top,
+  .floating-action,
+  .floating-btn{
+    right:22px!important;
+    left:auto!important;
+    bottom:max(82px, calc(env(safe-area-inset-bottom) + 82px))!important;
+    transform:none!important;
+  }
+}
+
+/* C) Strict rule: scroll pills quiet by default. No gold border unless selected.
+   Applies to Workout, Program/Progress, Wellness, Settings. */
+
+/* Universal unselected controls */
+.segment .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
+.pill-scroll .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
+.progress-tabs .progress-tab:not(.on):not(.active):not([aria-selected="true"]),
+.progress-tab:not(.on):not(.active):not([aria-selected="true"]),
+.chip:not(.on):not(.active):not([aria-selected="true"]),
+.tpl-pill:not(.on):not(.active):not([aria-selected="true"]),
+button[data-tab]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-wtab]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-ptab]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-program-tab]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-equip]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-muscle]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-training]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-program]:not(.on):not(.active):not([aria-selected="true"]),
+.settings-modal .btn:not(.on):not(.active):not([aria-selected="true"]),
+.settings-panel .btn:not(.on):not(.active):not([aria-selected="true"]),
+[id*="settings" i] .btn:not(.on):not(.active):not([aria-selected="true"]){
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.11)!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
+}
+
+/* The app sometimes uses .chosen for defaults. Quiet it unless also active/on/aria-selected. */
+.segment .seg-btn.chosen:not(.on):not(.active):not([aria-selected="true"]),
+.pill-scroll .seg-btn.chosen:not(.on):not(.active):not([aria-selected="true"]),
+.progress-tabs .progress-tab.chosen:not(.on):not(.active):not([aria-selected="true"]),
+.chip.chosen:not(.on):not(.active):not([aria-selected="true"]),
+.tpl-pill.chosen:not(.on):not(.active):not([aria-selected="true"]),
+button.chosen:not(.on):not(.active):not([aria-selected="true"]){
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.11)!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
+}
+
+/* Selected only = gold border + gold text, not full fill. */
+.segment .seg-btn.on,
+.segment .seg-btn.active,
+.segment .seg-btn[aria-selected="true"],
+.pill-scroll .seg-btn.on,
+.pill-scroll .seg-btn.active,
+.pill-scroll .seg-btn[aria-selected="true"],
+.progress-tabs .progress-tab.on,
+.progress-tabs .progress-tab.active,
+.progress-tabs .progress-tab[aria-selected="true"],
+.progress-tab.on,
+.progress-tab.active,
+.progress-tab[aria-selected="true"],
+.chip.on,
+.chip.active,
+.chip[aria-selected="true"],
+.tpl-pill.on,
+.tpl-pill.active,
+.tpl-pill[aria-selected="true"],
+button[data-tab].on,
+button[data-tab].active,
+button[data-tab][aria-selected="true"],
+button[data-wtab].on,
+button[data-wtab].active,
+button[data-wtab][aria-selected="true"],
+button[data-ptab].on,
+button[data-ptab].active,
+button[data-ptab][aria-selected="true"],
+button[data-program-tab].on,
+button[data-program-tab].active,
+button[data-program-tab][aria-selected="true"],
+button[data-equip].on,
+button[data-equip].active,
+button[data-equip][aria-selected="true"],
+button[data-muscle].on,
+button[data-muscle].active,
+button[data-muscle][aria-selected="true"],
+button[data-training].on,
+button[data-training].active,
+button[data-training][aria-selected="true"],
+button[data-program].on,
+button[data-program].active,
+button[data-program][aria-selected="true"],
+.settings-modal .btn.on,
+.settings-modal .btn.active,
+.settings-modal .btn[aria-selected="true"],
+.settings-panel .btn.on,
+.settings-panel .btn.active,
+.settings-panel .btn[aria-selected="true"],
+[id*="settings" i] .btn.on,
+[id*="settings" i] .btn.active,
+[id*="settings" i] .btn[aria-selected="true"]{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.58)!important;
+  color:var(--acc)!important;
+  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
+}
+
+/* D) True filled-yellow primary CTAs only */
+#aiPage .btn.acc,
+#aiPlanPage .btn.acc,
+[id*="aiPlan" i] .btn.acc,
+body.app-page-ai .btn.acc,
+body.app-page-aiplan .btn.acc,
+body.app-page-ai-plan .btn.acc,
+button[id*="generate" i],
+button[id*="add" i][id*="exercise" i],
+#btn-add-exercise,
+#addExercise,
+.btn-add-exercise{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+  box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
+}
+
+/* Keep lightweight manual entry filled yellow as agreed. */
+button[id*="manual" i][class*="btn" i],
+.btn[id*="manual" i],
+button[class*="manual" i].btn{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+}
+
+/* But Manual pill/program choice should NOT be filled/outlined unless actually selected. */
+.seg-btn:not(.on):not(.active):not([aria-selected="true"])[data-program="manual"],
+.seg-btn:not(.on):not(.active):not([aria-selected="true"])[data-training="manual"],
+button:not(.on):not(.active):not([aria-selected="true"])[data-program="manual"],
+button:not(.on):not(.active):not([aria-selected="true"])[data-training="manual"]{
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.11)!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
+}
+
+/* E) Save / Log remain quiet unless armed */
+#btn-save,
+#btn-log,
+#btn-share{
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:var(--text)!important;
+  box-shadow:none!important;
+}
+#btn-log.armed,
+#btn-save.armed,
+#btn-share.armed{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.58)!important;
+  color:var(--acc)!important;
 }
 
 </style>
@@ -12026,7 +12237,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-u';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-v';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

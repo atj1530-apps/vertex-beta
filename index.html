@@ -385,6 +385,11 @@ body.auth-curtain-on #vertex-auth-curtain{opacity:1;visibility:visible;transitio
 body.auth-curtain-on .vertex-curtain-inner{transform:translate3d(0,0,0) scale(1);opacity:1;}
 body.auth-curtain-release #vertex-auth-curtain{opacity:0;visibility:hidden;transition:opacity 620ms cubic-bezier(.22,1,.36,1),visibility 0s linear 620ms;}
 body.auth-curtain-release .vertex-curtain-inner{transform:translate3d(0,-10px,0) scale(1.015);opacity:0;}
+/* v20260524-ax.2 OAuth return shield: prevents the Google webview from revealing the stale login card while Supabase exchanges the callback for a session. */
+body.oauth-returning #vertex-auth-curtain{opacity:1!important;visibility:visible!important;pointer-events:auto!important;transition:opacity 120ms ease,visibility 0s linear 0s!important;}
+body.oauth-returning .vertex-curtain-inner{transform:translate3d(0,0,0) scale(1)!important;opacity:1!important;}
+body.oauth-returning .login-screen{opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
+body.oauth-returning #app-header,body.oauth-returning #app{opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
 body:not(.auth-done) .login-screen{opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
 body.auth-done:not(.authenticated) .login-screen{display:flex!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;}
 body.authenticated .login-screen{display:flex!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;transition:opacity 220ms ease,visibility 0s linear 220ms!important;}
@@ -4747,12 +4752,16 @@ async function createAccount(email,password){
           // Exchange the code in the URL for a real session
           var result = await supa.auth.exchangeCodeForSession(url);
           if(result && result.data && result.data.session){
+            try{ sessionStorage.removeItem('vertex_oauth_pending'); }catch(e){}
             await applyAuthenticatedSession(result.data.session);
+            vertexEndOAuthReturnShield(true);
           } else if(result && result.error){
             console.error('[Vertex OAuth] exchangeCodeForSession error:', result.error.message);
+            vertexEndOAuthReturnShield(false);
           }
         }catch(e){
           console.error('[Vertex OAuth] appUrlOpen handler failed:', e);
+          vertexEndOAuthReturnShield(false);
         }
       });
       console.log('[Vertex OAuth] appUrlOpen listener registered');
@@ -4769,6 +4778,35 @@ async function createAccount(email,password){
   document.addEventListener('deviceready', setupCapacitorOAuthListener);
   window._vertexSetupCapacitorOAuthListener = setupCapacitorOAuthListener;
 })();
+
+function vertexBeginOAuthReturnShield(){
+  try{
+    window.__vertexOAuthInFlight=true;
+    const body=document.body;
+    if(body){
+      body.classList.add('oauth-returning','auth-curtain-on','auth-done');
+      body.classList.remove('auth-curtain-release');
+    }
+  }catch(e){}
+}
+function vertexEndOAuthReturnShield(success){
+  try{
+    window.__vertexOAuthInFlight=false;
+    const body=document.body;
+    if(!body) return;
+    body.classList.remove('oauth-returning');
+    if(!success && !body.classList.contains('authenticated')){
+      body.classList.remove('auth-curtain-on','auth-curtain-release','auth-revealing','auth-show-app');
+    }
+  }catch(e){}
+}
+async function vertexCloseOAuthBrowser(){
+  try{
+    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser && window.Capacitor.Plugins.Browser.close){
+      await window.Capacitor.Plugins.Browser.close();
+    }
+  }catch(e){ console.warn('[Vertex OAuth] Browser close warning:', e); }
+}
 
 async function signInGoogle(btn){
   const originalText=btn?btn.textContent:'';
@@ -4790,7 +4828,10 @@ async function signInGoogle(btn){
     });
     if(error) throw error;
     if(data&&data.url){
-      if(isNative&&window.open){ window.open(data.url,'_system'); }
+      try{ sessionStorage.setItem('vertex_oauth_pending','1'); }catch(e){}
+      if(isNative && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser && window.Capacitor.Plugins.Browser.open){
+        await window.Capacitor.Plugins.Browser.open({url:data.url, presentationStyle:'fullscreen'});
+      } else if(isNative&&window.open){ window.open(data.url,'_system'); }
       else { window.location.assign(data.url); }
       return '';
     }
@@ -4959,6 +5000,12 @@ async function initAuth(){
 
   const supa=getSupa();
   if(!supa){ syncAuthShell(); return; }
+  try{
+    const bootParams=new URLSearchParams(window.location.search);
+    const bootHash=new URLSearchParams(window.location.hash.replace('#',''));
+    const oauthPending=sessionStorage.getItem('vertex_oauth_pending')==='1';
+    if(oauthPending || bootParams.has('code') || bootParams.has('state') || bootHash.has('access_token')) vertexBeginOAuthReturnShield();
+  }catch(e){}
 
   // Expose retry function so the sync pill onclick can trigger it
   window.vertexRetrySync=async function(){
@@ -4973,7 +5020,8 @@ async function initAuth(){
     if(event==='SIGNED_OUT'){
       const params=new URLSearchParams(window.location.search);
       const hash=new URLSearchParams(window.location.hash.replace('#',''));
-      if(params.has('code')||hash.has('access_token')||params.has('state')) return;
+      let pending=false; try{ pending=sessionStorage.getItem('vertex_oauth_pending')==='1'; }catch(e){}
+      if(window.__vertexOAuthInFlight || pending || params.has('code')||hash.has('access_token')||params.has('state')) return;
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
       _hydratedUserId=null; _hydrationInFlight=false;
       document.body.classList.remove('authenticated');
@@ -5007,7 +5055,7 @@ async function initAuth(){
           const ebox=document.getElementById('landing-error');
           if(ebox) ebox.textContent='Sign-in redirect failed: '+(error.message||'unknown error');
         }
-        if(data && data.session) await applyAuthenticatedSession(data.session);
+        if(data && data.session){ try{ sessionStorage.removeItem('vertex_oauth_pending'); }catch(e){} await applyAuthenticatedSession(data.session); vertexEndOAuthReturnShield(true); }
       }catch(codeErr){
         console.error('exchangeCodeForSession threw:',codeErr);
       }
@@ -5023,14 +5071,17 @@ async function initAuth(){
       window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
     }
     if(sd && sd.data && sd.data.session && sd.data.session.user){
+      try{ sessionStorage.removeItem('vertex_oauth_pending'); }catch(e){}
       await applyAuthenticatedSession(sd.data.session);
+      vertexEndOAuthReturnShield(true);
     } else {
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
+      vertexEndOAuthReturnShield(false);
       renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll();
     }
   }catch(err){
     console.warn('Auth init warning:',err);
-    authUser=null; syncAuthShell(); renderAll();
+    authUser=null; vertexEndOAuthReturnShield(false); syncAuthShell(); renderAll();
   }
 }
 function emptyPlanner(){return Object.fromEntries(DAYS.map(d=>[d,null]))}
@@ -5588,6 +5639,7 @@ function syncAuthShell(){
 
   // Signed out: cleanly reset all transition classes and show login after loader.
   if(!hasAuth){
+    if(window.__vertexOAuthInFlight){ finishLoader(); return; }
     if(window.__vertexAuthRevealTimer){ clearTimeout(window.__vertexAuthRevealTimer); window.__vertexAuthRevealTimer=null; }
     if(window.__vertexCurtainTimer){ clearTimeout(window.__vertexCurtainTimer); window.__vertexCurtainTimer=null; }
     body.classList.remove('authenticated','auth-revealing','auth-show-app','auth-curtain-on','auth-curtain-release','welcome-active');
@@ -5602,7 +5654,7 @@ function syncAuthShell(){
   }
 
   body.classList.add('authenticated','auth-revealing','auth-curtain-on');
-  body.classList.remove('auth-curtain-release');
+  body.classList.remove('auth-curtain-release','oauth-returning');
   finishLoader();
 
   // Curtain sequence: app mounts hidden behind the curtain, then the app reveals, then curtain fades away.
@@ -10613,7 +10665,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ax';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ax2';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -2700,77 +2700,9 @@ body.auth-ready #vertex-auth-loader{
   body.authenticated.auth-show-app #app{display:flex!important}
 }
 
-
-/* v20260525-a safe auth splash */
-#vertex-bootstrap-screen{
-  position:fixed;
-  inset:0;
-  z-index:100000;
-  background:#070707;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  gap:14px;
-  opacity:1;
-  transition:opacity .38s cubic-bezier(0.16,1,0.3,1);
-}
-html.vertex-oauth-callback-boot #vertex-bootstrap-screen,
-html.vertex-auth-booting #vertex-bootstrap-screen{
-  display:flex;
-}
-#vertex-bootstrap-screen.fade-out{
-  opacity:0;
-  pointer-events:none;
-}
-.vertex-boot-logo{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:58px;
-  letter-spacing:8px;
-  color:var(--acc);
-}
-.vertex-boot-sub{
-  font-family:'DM Mono',monospace;
-  font-size:10px;
-  letter-spacing:4px;
-  color:#8d8d8d;
-  text-transform:uppercase;
-}
-html.vertex-oauth-callback-boot body .login-screen{
-  opacity:0!important;
-  visibility:hidden!important;
-  pointer-events:none!important;
-}
-
 </style>
 </head>
 <body class="auth-resolving">
-
-<div id="vertex-bootstrap-screen">
-  <div class="vertex-boot-logo">VERTEX</div>
-  <div class="vertex-boot-sub">Signing You In</div>
-</div>
-<script>
-(function(){
-  window.__vertexBootComplete=false;
-  window.vertexFinishBootstrap=function(){
-    if(window.__vertexBootComplete) return;
-    window.__vertexBootComplete=true;
-    try{ document.documentElement.classList.remove('vertex-auth-booting'); }catch(e){}
-    try{ document.documentElement.classList.remove('vertex-oauth-callback-boot'); }catch(e){}
-    var el=document.getElementById('vertex-bootstrap-screen');
-    if(el){
-      el.classList.add('fade-out');
-      setTimeout(function(){ try{el.remove();}catch(e){} },420);
-    }
-  };
-  // Never allow splash to trap app.
-  setTimeout(function(){
-    try{ window.vertexFinishBootstrap(); }catch(e){}
-  },3000);
-})();
-</script>
-
 
 <!-- v13.61 Welcome modal — shown once per user after first sign-in -->
 <div id="welcome-overlay" class="welcome-overlay" role="dialog" aria-modal="true" aria-labelledby="welcome-title-active">
@@ -5124,7 +5056,7 @@ async function applyAuthenticatedSession(session){
     try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
 
     _authShellRevealedFor=incomingKey;
-    vertexRevealAuthenticatedShell(); try{ setTimeout(function(){ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); },180); }catch(e){}
+    vertexRevealAuthenticatedShell();
 
     // Let any cold-start hydration finish silently. Do not re-render Home after reveal;
     // post-reveal surface refreshes were the source of the second visible flicker.
@@ -5151,7 +5083,7 @@ async function initAuth(){
   vertexSetAuthResolving();
 
   const supa=getSupa();
-  if(!supa){ vertexShowUnauthenticatedShell(); syncAuthShell(); try{ setTimeout(function(){ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); },180); }catch(e){} return; }
+  if(!supa){ vertexShowUnauthenticatedShell(); syncAuthShell(); return; }
 
   // Expose retry function so the sync pill onclick can trigger it
   window.vertexRetrySync=async function(){
@@ -7914,13 +7846,6 @@ function protoSelectDate(dateStr){
           </tbody></table>
 
 
-
-
-<script>
-window.addEventListener('load',function(){
-  setTimeout(function(){ try{ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); }catch(e){} },1200);
-});
-</script>
 
 </body></html>`;
         const w = window.open('','_blank');

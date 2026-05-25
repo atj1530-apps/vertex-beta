@@ -68,7 +68,50 @@
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 .skeleton{background:linear-gradient(90deg,var(--panel2) 25%,var(--panel3) 50%,var(--panel2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r-sm)}
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;overflow:auto}
-@font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
+@font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;
+/* v20260525-w */
+html.vertex-auth-booting body{
+  background:#070707 !important;
+}
+html.vertex-auth-booting .login-screen,
+html.vertex-auth-booting #app,
+html.vertex-auth-booting #app-header{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+#vertex-bootstrap-screen{
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  background:#070707;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:14px;
+  opacity:1;
+  transition:opacity .45s cubic-bezier(0.16,1,0.3,1);
+}
+#vertex-bootstrap-screen.fade-out{
+  opacity:0;
+  pointer-events:none;
+}
+.vertex-boot-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:58px;
+  letter-spacing:8px;
+  color:var(--acc);
+}
+.vertex-boot-sub{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:4px;
+  color:#8d8d8d;
+  text-transform:uppercase;
+}
+
+letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
 .btn{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:5px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.btn:hover{border-color:var(--acc);color:var(--acc)}.btn.acc{background:var(--acc);border-color:var(--acc);color:#000}.btn.red{color:var(--red);border-color:rgba(255,77,77,.4);background:transparent}.btn.small{padding:6px 9px;font-size:11px}.btn:disabled{opacity:.45;cursor:not-allowed}
 #app-header{position:fixed;top:0;left:0;right:0;height:58px;background:#070707;border-bottom:1px solid var(--line);display:grid;grid-template-columns:260px 1fr 560px;align-items:center;padding:0 16px;z-index:50;padding-top:env(safe-area-inset-top,0px)}.logo{display:flex;align-items:center;gap:10px}.logo-main{font-family:'Bebas Neue';font-size:26px;letter-spacing:5px;color:var(--acc)}.logo-sub{font-family:'DM Mono';font-size:10px;letter-spacing:3px;color:var(--dim)}.nav{justify-self:center;display:flex;border:0;border-radius:0;overflow:hidden}.nav button{background:var(--panel2);color:var(--muted);border:0;border-right:1px solid var(--line);padding:8px 12px;font-size:12px;cursor:pointer}.nav button:last-child{border-right:0}.nav button.on{background:transparent;color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
 /* Desktop: hide hamburger inside nav-row, show Account in hdr-actions */
@@ -2583,7 +2626,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-v OAUTH CALLBACK GUARD
+   v20260525-w-callback OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2673,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-v AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-w-callback AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,1499 +2745,93 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-v PROGRESS + WELLNESS POLISH
-   CSS only. Cross-app visual consistency.
+   v20260525-w ACCORDION + FLOATING BUTTON FINAL TUNE
    ============================================================ */
-
-:root{
-  --vx-data-panel:rgba(18,18,18,.78);
-  --vx-data-panel-2:rgba(24,24,24,.76);
-  --vx-data-border:rgba(255,255,255,.075);
-}
-
-body.app-page-progress .progress-page,
-body.app-page-progress .page-panel{
-  max-width:1180px;
-  margin-left:auto;
-  margin-right:auto;
-}
-
-.progress-summary{
-  gap:12px!important;
-}
-
-.progress-kpi{
-  background:
-    radial-gradient(circle at top left,rgba(232,255,71,.045),transparent 42%),
-    var(--vx-data-panel-2)!important;
-  border-color:var(--vx-data-border)!important;
-  border-radius:12px!important;
-  min-height:112px;
-  box-shadow:none;
-}
-
-.progress-kpi b{
-  text-shadow:0 0 24px rgba(232,255,71,.08);
-}
-
-.progress-card{
-  background:var(--vx-data-panel)!important;
-  border-color:var(--vx-data-border)!important;
-  border-radius:14px!important;
-  min-height:172px;
-}
-
-.progress-card.wide{
-  min-height:210px;
-}
-
-.progress-tabs{
-  gap:8px!important;
-}
-
-.progress-tab{
-  border-radius:999px!important;
-  padding:8px 14px!important;
-  background:rgba(24,24,24,.82)!important;
-  border-color:rgba(255,255,255,.08)!important;
-}
-
-.progress-tab.on{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-  box-shadow:0 0 0 4px rgba(232,255,71,.08);
-}
-
-.history-row{
-  border-top-color:rgba(255,255,255,.06)!important;
-  border-radius:8px;
-  transition:background 160ms cubic-bezier(0.16,1,0.3,1), transform 160ms cubic-bezier(0.16,1,0.3,1);
-}
-
-.history-row:hover{
-  background:rgba(255,255,255,.025);
-}
-
-.history-row:active{
-  transform:scale(.996);
-}
-
-.history-date{
-  opacity:.86;
-}
-
-.progress-card canvas,
-.page-panel canvas,
-.chart-card canvas{
-  min-height:190px;
-}
-
-body.app-page-wellness .page-panel,
-body.app-page-health .page-panel{
-  max-width:1180px;
-  margin-left:auto;
-  margin-right:auto;
-}
-
-.health-input,
-.roadmap-card,
-.wellness-card,
-.metric-card,
-.checkin-card,
-.protocol-card,
-.body-comp-card,
-.scan-card,
-.dexa-card{
-  background:var(--vx-data-panel-2)!important;
-  border-color:var(--vx-data-border)!important;
-  border-radius:12px!important;
-}
-
-.health-form{
-  gap:12px!important;
-}
-
-.health-input{
-  min-height:106px;
-}
-
-.health-input input,
-.health-input select,
-.manual-grid input,
-.manual-grid select,
-.manual-grid textarea{
-  background:rgba(8,8,8,.92)!important;
-  border-color:rgba(255,255,255,.08)!important;
-  border-radius:9px!important;
-  min-height:42px;
-}
-
-.health-input input:focus,
-.health-input select:focus,
-.manual-grid input:focus,
-.manual-grid select:focus,
-.manual-grid textarea:focus{
-  border-color:rgba(232,255,71,.55)!important;
-  box-shadow:0 0 0 4px rgba(232,255,71,.075);
-  outline:none!important;
-}
-
-body.app-page-wellness .accordion,
-body.app-page-health .accordion,
-body.app-page-wellness .panel,
-body.app-page-health .panel{
-  border-color:var(--vx-data-border)!important;
-  border-radius:14px!important;
-  background:rgba(18,18,18,.74)!important;
-}
-
-body.app-page-wellness .acc-head,
-body.app-page-health .acc-head{
-  background:rgba(24,24,24,.78)!important;
-  min-height:48px;
-}
-
-.roadmap-card{
-  min-height:94px;
-}
-
-.roadmap-card b,
-.health-input b,
-.metric-card b,
-.protocol-card b{
-  letter-spacing:.01em;
-}
-
-.progress-page .empty-note,
-.progress-page .empty-cta,
-body.app-page-wellness .empty-note,
-body.app-page-health .empty-note,
-body.app-page-wellness .empty-cta,
-body.app-page-health .empty-cta{
-  border-color:rgba(255,255,255,.08)!important;
-  border-radius:14px!important;
-  background:
-    linear-gradient(135deg,rgba(232,255,71,.035),rgba(255,255,255,.018)),
-    rgba(18,18,18,.68)!important;
-}
-
-.progress-card .label,
-.progress-kpi span,
-.health-input .label,
-.roadmap-card span,
-.metric-card span{
-  opacity:.84;
-}
 
 @media(max-width:900px){
-  .progress-summary{
-    gap:10px!important;
-  }
-
-  .progress-kpi{
-    min-height:104px;
-    border-radius:12px!important;
-  }
-
-  .progress-card{
-    min-height:164px;
-  }
-
-  .progress-tabs{
-    flex-wrap:nowrap!important;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
-    padding-bottom:4px;
-  }
-
-  .progress-tabs::-webkit-scrollbar{
-    display:none;
-  }
-
-  .progress-tab{
-    flex:0 0 auto;
-    min-height:38px;
-  }
-
-  .history-row{
-    padding:12px 0!important;
-  }
-
-  .health-form,
-  .roadmap-row{
-    gap:10px!important;
-  }
-
-  .health-input{
-    min-height:96px;
-  }
-
-  body.app-page-wellness .page-title,
-  body.app-page-health .page-title,
-  body.app-page-progress .page-title{
-    font-size:42px;
+  button[id*="top" i],
+  button[class*="top" i],
+  button[id*="scroll" i],
+  button[class*="scroll" i],
+  button[id*="float" i],
+  button[class*="float" i],
+  .back-to-top,
+  .scroll-to-top,
+  .floating-action,
+  .floating-btn{
+    left:58%!important;
+    right:auto!important;
+    bottom:max(72px, calc(env(safe-area-inset-bottom) + 72px))!important;
+    transform:translateX(-50%)!important;
+    z-index:65!important;
   }
 }
 
-@media(min-width:901px){
-  .progress-layout{
-    gap:14px!important;
-  }
-
-  .health-form{
-    grid-template-columns:repeat(3,minmax(0,1fr));
-  }
-}
-
-
-/* ============================================================
-   v20260525-v STABLE ROLLBACK + WELLNESS TAB WIDTH
-   CSS only. No runtime script. No auth/render changes.
-   ============================================================ */
-
-body.app-page-wellness .segment,
-body.app-page-wellness .pill-scroll,
-body.app-page-wellness .progress-tabs,
-body.app-page-health .segment,
-body.app-page-health .pill-scroll,
-body.app-page-health .progress-tabs{
-  display:flex!important;
-  flex-wrap:nowrap!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  gap:8px!important;
-  padding-bottom:10px!important;
-}
-
-body.app-page-wellness .segment::-webkit-scrollbar,
-body.app-page-wellness .pill-scroll::-webkit-scrollbar,
-body.app-page-wellness .progress-tabs::-webkit-scrollbar,
-body.app-page-health .segment::-webkit-scrollbar,
-body.app-page-health .pill-scroll::-webkit-scrollbar,
-body.app-page-health .progress-tabs::-webkit-scrollbar{
-  display:none!important;
-}
-
-body.app-page-wellness .seg-btn,
-body.app-page-wellness .chip,
-body.app-page-wellness .progress-tab,
-body.app-page-health .seg-btn,
-body.app-page-health .chip,
-body.app-page-health .progress-tab{
-  flex:0 0 auto!important;
-  min-width:92px!important;
-  width:auto!important;
-  border-radius:999px!important;
-  padding:10px 16px!important;
-}
-
-
-/* ============================================================
-   v20260525-v WELLNESS FULL LABEL FIX
-   CSS only. Uses existing full labels already in markup.
-   ============================================================ */
-
-/* The Wellness subtabs already have full text. Prior CSS was shrinking/ellipsizing them. */
-.progress-tabs:has([data-wtab]){
-  display:flex!important;
-  flex-direction:row!important;
-  flex-wrap:nowrap!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  gap:8px!important;
-  width:100%!important;
-  max-width:100%!important;
-  padding:6px 2px 12px!important;
-  margin:10px 0 14px!important;
-}
-
-.progress-tabs:has([data-wtab])::-webkit-scrollbar{
-  display:none!important;
-}
-
-.progress-tab[data-wtab]{
-  flex:0 0 auto!important;
-  width:auto!important;
-  min-width:max-content!important;
-  max-width:none!important;
-  min-height:44px!important;
-  border-radius:999px!important;
-  padding:10px 17px!important;
-  white-space:nowrap!important;
-  overflow:visible!important;
-  text-overflow:clip!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  font-size:14px!important;
-  line-height:1!important;
-  letter-spacing:.01em!important;
-}
-
-/* Hide legacy stack tab since stack is unified into Protocol */
-.progress-tab[data-wtab="stack"]{
-  display:none!important;
-}
-
-.progress-tab[data-wtab].on{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-  box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
-}
-
-/* Right-edge scroll hint without covering text too aggressively */
-.progress-tabs:has([data-wtab]){
-  mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 32px),transparent 100%);
-  -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 32px),transparent 100%);
-}
-
-/* Mobile override against older QA rules that forced 50%/33% tabs */
-@media(max-width:900px){
-  .progress-tabs:has([data-wtab]){
-    flex-wrap:nowrap!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-  }
-
-  .progress-tab[data-wtab]{
-    flex:0 0 auto!important;
-    min-width:max-content!important;
-    max-width:none!important;
-    width:auto!important;
-    padding:11px 18px!important;
-    font-size:14px!important;
-  }
-}
-
-/* Restore/protect Workout muscle group / target-area horizontal scroll when it appears */
-body.app-page-workout .muscles,
-body.app-page-workout #muscles,
-body.app-page-workout [id*="muscle" i],
-body.app-page-workout [class*="muscle" i],
-body.app-page-workout [class*="target" i]{
-  display:flex!important;
-  flex-direction:row!important;
-  flex-wrap:nowrap!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  gap:8px!important;
-  max-width:100%!important;
-}
-
-body.app-page-workout .muscles::-webkit-scrollbar,
-body.app-page-workout #muscles::-webkit-scrollbar,
-body.app-page-workout [id*="muscle" i]::-webkit-scrollbar,
-body.app-page-workout [class*="muscle" i]::-webkit-scrollbar,
-body.app-page-workout [class*="target" i]::-webkit-scrollbar{
-  display:none!important;
-}
-
-body.app-page-workout .muscles .chip,
-body.app-page-workout [class*="muscle" i] .chip,
-body.app-page-workout [class*="target" i] .chip{
-  flex:0 0 auto!important;
-  white-space:nowrap!important;
-  min-width:max-content!important;
-}
-
-
-/* ============================================================
-   v20260525-v AI PLAN PREMIUM REDESIGN
-   CSS only. No auth/data/runtime changes.
-   ============================================================ */
-
-:root{
-  --vx-ai-panel:rgba(18,18,18,.78);
-  --vx-ai-panel-2:rgba(24,24,24,.78);
-  --vx-ai-border:rgba(255,255,255,.075);
-  --vx-ai-glow:rgba(232,255,71,.12);
-}
-
-/* AI Plan page shell */
-body.app-page-ai #aiPage,
-body.app-page-aiplan #aiPage,
-body.app-page-ai-plan #aiPage,
-body.app-page-ai .page-panel,
-body.app-page-aiplan .page-panel,
-body.app-page-ai-plan .page-panel,
-body.app-page-plan .page-panel,
-body.app-page-ai [id*="ai" i],
-body.app-page-aiplan [id*="ai" i]{
-  max-width:1180px;
-}
-
-/* Generic AI Plan surface targeting */
-body.app-page-ai .page-panel,
-body.app-page-aiplan .page-panel,
-body.app-page-ai-plan .page-panel,
-body.app-page-plan .page-panel,
-#aiPage.page-panel,
-#aiPlanPage.page-panel,
-[id*="aiPlan" i].page-panel,
-[id*="ai-page" i],
-[id*="aiPage" i]{
-  background:
-    radial-gradient(circle at 12% 0%,rgba(232,255,71,.075),transparent 34%),
-    rgba(17,17,17,.82)!important;
-  border-color:var(--vx-ai-border)!important;
-  border-radius:16px!important;
-  box-shadow:0 18px 55px rgba(0,0,0,.24);
-}
-
-/* AI title treatment */
-body.app-page-ai .page-title,
-body.app-page-aiplan .page-title,
-body.app-page-ai-plan .page-title,
-body.app-page-plan .page-title,
-#aiPage .page-title,
-#aiPlanPage .page-title,
-[id*="aiPlan" i] .page-title{
-  text-shadow:0 0 30px rgba(232,255,71,.10);
-  letter-spacing:4.5px;
-}
-
-/* AI copy: calmer command-center feel */
-body.app-page-ai .page-copy,
-body.app-page-aiplan .page-copy,
-body.app-page-ai-plan .page-copy,
-body.app-page-plan .page-copy,
-#aiPage .page-copy,
-#aiPlanPage .page-copy,
-[id*="aiPlan" i] .page-copy{
-  max-width:760px!important;
-  color:rgba(242,242,242,.68)!important;
-}
-
-/* Cards inside AI Plan */
-body.app-page-ai .page-tile,
-body.app-page-aiplan .page-tile,
-body.app-page-ai-plan .page-tile,
-body.app-page-plan .page-tile,
-#aiPage .page-tile,
-#aiPlanPage .page-tile,
-[id*="aiPlan" i] .page-tile,
-[id*="ai" i] .coach-card,
-[id*="ai" i] .progress-card,
-[id*="ai" i] .panel,
-[id*="brief" i],
-[id*="recommend" i],
-[id*="insight" i]{
-  background:var(--vx-ai-panel-2)!important;
-  border-color:var(--vx-ai-border)!important;
-  border-radius:14px!important;
-  box-shadow:none;
-}
-
-/* AI cards hover/tap sophistication */
-body.app-page-ai .page-tile:hover,
-body.app-page-aiplan .page-tile:hover,
-body.app-page-ai-plan .page-tile:hover,
-body.app-page-plan .page-tile:hover,
-#aiPage .page-tile:hover,
-#aiPlanPage .page-tile:hover{
-  border-color:rgba(232,255,71,.18)!important;
-  background:rgba(28,28,28,.82)!important;
-}
-
-/* AI grid spacing */
-body.app-page-ai .page-grid,
-body.app-page-aiplan .page-grid,
-body.app-page-ai-plan .page-grid,
-body.app-page-plan .page-grid,
-#aiPage .page-grid,
-#aiPlanPage .page-grid{
-  gap:14px!important;
-}
-
-/* AI CTA / buttons */
-body.app-page-ai .btn.acc,
-body.app-page-aiplan .btn.acc,
-body.app-page-ai-plan .btn.acc,
-body.app-page-plan .btn.acc,
-#aiPage .btn.acc,
-#aiPlanPage .btn.acc{
-  box-shadow:0 0 0 5px rgba(232,255,71,.08),0 16px 38px rgba(0,0,0,.20);
-}
-
-/* AI text hierarchy */
-body.app-page-ai .page-tile b,
-body.app-page-aiplan .page-tile b,
-body.app-page-ai-plan .page-tile b,
-body.app-page-plan .page-tile b,
-#aiPage .page-tile b,
-#aiPlanPage .page-tile b{
-  font-size:16px!important;
-  letter-spacing:.01em;
-}
-
-body.app-page-ai .page-tile span,
-body.app-page-aiplan .page-tile span,
-body.app-page-ai-plan .page-tile span,
-body.app-page-plan .page-tile span,
-#aiPage .page-tile span,
-#aiPlanPage .page-tile span{
-  color:rgba(242,242,242,.62)!important;
-}
-
-/* AI empty/loading states */
-body.app-page-ai .empty-note,
-body.app-page-aiplan .empty-note,
-body.app-page-ai-plan .empty-note,
-body.app-page-plan .empty-note,
-body.app-page-ai .empty-cta,
-body.app-page-aiplan .empty-cta,
-body.app-page-ai-plan .empty-cta,
-body.app-page-plan .empty-cta,
-#aiPage .empty-note,
-#aiPage .empty-cta,
-#aiPlanPage .empty-note,
-#aiPlanPage .empty-cta{
-  border-color:rgba(232,255,71,.16)!important;
-  background:
-    linear-gradient(135deg,rgba(232,255,71,.04),rgba(255,255,255,.018)),
-    rgba(18,18,18,.72)!important;
-  border-radius:16px!important;
-}
-
-/* Ambient AI sections if rendered on Home/Coach too */
-.coach-status,
-[id*="ai" i] .coach-status{
-  text-shadow:0 0 28px rgba(232,255,71,.12);
-}
-
-.coach-item,
-[id*="ai" i] .coach-item{
-  border-color:rgba(232,255,71,.16)!important;
-  background:rgba(232,255,71,.032)!important;
-  border-radius:12px!important;
-}
-
-/* Mobile AI Plan */
-@media(max-width:900px){
-  body.app-page-ai .page-panel,
-  body.app-page-aiplan .page-panel,
-  body.app-page-ai-plan .page-panel,
-  body.app-page-plan .page-panel,
-  #aiPage.page-panel,
-  #aiPlanPage.page-panel{
-    border-radius:16px!important;
-    padding:18px!important;
-  }
-
-  body.app-page-ai .page-title,
-  body.app-page-aiplan .page-title,
-  body.app-page-ai-plan .page-title,
-  body.app-page-plan .page-title,
-  #aiPage .page-title,
-  #aiPlanPage .page-title{
-    font-size:44px!important;
-  }
-
-  body.app-page-ai .page-grid,
-  body.app-page-aiplan .page-grid,
-  body.app-page-ai-plan .page-grid,
-  body.app-page-plan .page-grid,
-  #aiPage .page-grid,
-  #aiPlanPage .page-grid{
-    grid-template-columns:1fr!important;
-    gap:12px!important;
-  }
-
-  body.app-page-ai .page-tile,
-  body.app-page-aiplan .page-tile,
-  body.app-page-ai-plan .page-tile,
-  body.app-page-plan .page-tile,
-  #aiPage .page-tile,
-  #aiPlanPage .page-tile{
-    min-height:96px;
-  }
-}
-
-
-/* ============================================================
-   v20260525-v COHESION + INTERACTION REPAIR
-   CSS only. No auth/data/runtime changes.
-   ============================================================ */
-
-/* 1) Restore accordion usability: clickable heads, visible body behavior */
-.accordion .acc-head{
-  cursor:pointer!important;
-  user-select:none;
-  pointer-events:auto!important;
-}
-
-.accordion .acc-head *{
-  pointer-events:none;
-}
-
-/* Make collapsed accordions clearly collapsible/expandable without breaking JS */
-.accordion:not(.open) .acc-body{
-  display:none!important;
-}
-
-.accordion.open .acc-body{
-  display:block!important;
-}
-
-/* Reduce any CSS that may have made Planner/Intelligence feel inactive */
 #plannerAcc,
 #intelAcc{
+  overflow:hidden!important;
+}
+
+#plannerAcc .acc-body,
+#intelAcc .acc-body{
+  overflow:hidden!important;
+  max-height:0!important;
+  opacity:0!important;
+  transition:max-height .24s ease, opacity .18s ease!important;
+  pointer-events:none!important;
+}
+
+#plannerAcc.open .acc-body,
+#intelAcc.open .acc-body{
+  max-height:5000px!important;
   opacity:1!important;
-}
-
-#plannerAcc .acc-head,
-#intelAcc .acc-head{
-  border-color:rgba(255,255,255,.08)!important;
-}
-
-/* 2) Unified rule: quiet by default, yellow only when selected/active */
-.seg-btn,
-.progress-tab,
-.chip,
-.tpl-pill,
-.nav button,
-.pill-scroll .seg-btn{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.10)!important;
-  color:var(--muted)!important;
-  box-shadow:none!important;
-}
-
-/* Selected/active state = border + yellow text, not full yellow fill */
-.seg-btn.on,
-.seg-btn.chosen,
-.progress-tab.on,
-.chip.on,
-.tpl-pill.on,
-.nav button.on,
-.pill-scroll .seg-btn.on,
-.pill-scroll .seg-btn.chosen{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
-}
-
-/* Keep nav tab selected subtle, not filled */
-.nav button.on{
-  box-shadow:inset 0 -2px 0 var(--acc)!important;
-  background:transparent!important;
-}
-
-/* 3) Workout page: Save/Log should not look like primary yellow by default */
-#btn-save,
-#btn-log,
-#btn-share{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.12)!important;
-  color:var(--text)!important;
-  box-shadow:none!important;
-}
-
-/* Armed/active log can use yellow border/text, not full yellow fill */
-#btn-log.armed,
-#btn-save.armed,
-#btn-share.armed{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-}
-
-/* True primary CTA exceptions: keep yellow fill */
-#btn-add-exercise,
-#addExercise,
-.btn-add-exercise,
-[data-action="add-exercise"],
-button[onclick*="addExercise" i],
-button[id*="add" i][id*="exercise" i],
-.manual-grid .btn.acc,
-.health-form .btn.acc,
-#aiPage .btn.acc,
-#aiPlanPage .btn.acc,
-[id*="aiPlan" i] .btn.acc,
-body.app-page-ai .btn.acc,
-body.app-page-aiplan .btn.acc,
-body.app-page-ai-plan .btn.acc{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-  box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
-}
-
-/* Lightweight/manual yellow background exceptions preserved */
-.manual-help,
-.panel.hl,
-.flow-card{
-  border-color:rgba(232,255,71,.35)!important;
-}
-
-/* 4) Program + Progress tabs: quiet until selected */
-body.app-page-program .progress-tab,
-body.app-page-program .seg-btn,
-body.app-page-progress .progress-tab,
-body.app-page-progress .seg-btn{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.10)!important;
-  color:var(--muted)!important;
-}
-
-body.app-page-program .progress-tab.on,
-body.app-page-program .seg-btn.on,
-body.app-page-program .seg-btn.chosen,
-body.app-page-progress .progress-tab.on,
-body.app-page-progress .seg-btn.on,
-body.app-page-progress .seg-btn.chosen{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-}
-
-/* 5) Wellness full label selected-state cohesion */
-.progress-tab[data-wtab]{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.10)!important;
-  color:var(--muted)!important;
-}
-
-.progress-tab[data-wtab].on{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
-}
-
-/* 6) Preserve AI Plan primary CTA as yellow fill */
-body.app-page-ai .btn.acc,
-body.app-page-aiplan .btn.acc,
-body.app-page-ai-plan .btn.acc,
-body.app-page-plan .btn.acc,
-#aiPage .btn.acc,
-#aiPlanPage .btn.acc,
-[id*="aiPlan" i] .btn.acc{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-}
-
-/* 7) General button hover/press cohesion */
-.btn:hover,
-.seg-btn:hover,
-.progress-tab:hover,
-.chip:hover,
-.tpl-pill:hover{
-  border-color:rgba(232,255,71,.42)!important;
-  color:var(--acc)!important;
-}
-
-.btn.acc:hover,
-#aiPage .btn.acc:hover,
-#aiPlanPage .btn.acc:hover,
-[id*="aiPlan" i] .btn.acc:hover{
-  color:#000!important;
-  opacity:.94;
-}
-
-/* Mobile: keep action rows calm and readable */
-@media(max-width:900px){
-  .hdr-actions #btn-save,
-  .hdr-actions #btn-log{
-    min-height:40px;
-  }
-
-  .seg-btn,
-  .progress-tab,
-  .chip{
-    min-height:40px;
-  }
-}
-
-
-/* ============================================================
-   v20260525-v STABLE CSS-ONLY ROLLBACK + ACCOUNT COHESION
-   No JS. No auth/render/data changes.
-   ============================================================ */
-
-/* Account button follows same rule as pills:
-   quiet by default, yellow border/text on hover/open/active. */
-#btn-account,
-.hdr-account-desktop,
-button[id*="account" i],
-.btn[id*="account" i],
-button[aria-label*="account" i]{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.12)!important;
-  color:var(--text)!important;
-  box-shadow:none!important;
-}
-
-#btn-account:hover,
-.hdr-account-desktop:hover,
-button[id*="account" i]:hover,
-.btn[id*="account" i]:hover,
-button[aria-label*="account" i]:hover{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
-}
-
-/* When account menu is open, visually pair it with the account trigger */
-body:has(.account-menu.on) #btn-account,
-body:has(.account-menu.on) .hdr-account-desktop,
-body:has(.account-menu.on) button[id*="account" i],
-body:has(.account-menu.on) .btn[id*="account" i]{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
-}
-
-/* Account menu itself: quieter premium surface */
-.account-menu{
-  background:rgba(24,24,24,.96)!important;
-  border-color:rgba(232,255,71,.24)!important;
-  box-shadow:0 22px 60px rgba(0,0,0,.42)!important;
-}
-
-.account-menu input{
-  background:rgba(8,8,8,.92)!important;
-  border-color:rgba(255,255,255,.10)!important;
-}
-
-.account-menu input:focus{
-  outline:none!important;
-  border-color:rgba(232,255,71,.55)!important;
-  box-shadow:0 0 0 4px rgba(232,255,71,.075)!important;
-}
-
-.account-menu .btn{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.12)!important;
-  color:var(--text)!important;
-}
-
-.account-menu .btn:hover{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-}
-
-/* True account primary actions can still go filled yellow if already .acc */
-.account-menu .btn.acc{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-}
-
-/* CSS-only support for mobile accordion hit area, no JS. */
-@media(max-width:900px){
-  #plannerAcc .acc-head,
-  #intelAcc .acc-head{
-    min-height:52px!important;
-    padding-top:14px!important;
-    padding-bottom:14px!important;
-    touch-action:manipulation!important;
-    cursor:pointer!important;
-    pointer-events:auto!important;
-  }
-
-  #plannerAcc .acc-head *,
-  #intelAcc .acc-head *{
-    pointer-events:none!important;
-  }
-}
-
-
-/* ============================================================
-   v20260525-v COHESION CLEANUP + MOBILE ACCORDION REPAIR
-   CSS only. No auth/data/runtime changes.
-   ============================================================ */
-
-/* 1) Mobile Home accordions: remove pointer-blocking behavior */
-#plannerAcc .acc-head,
-#intelAcc .acc-head{
   pointer-events:auto!important;
+}
+
+#plannerAcc .acc-head,
+#intelAcc .acc-head{
   cursor:pointer!important;
-  touch-action:auto!important;
-  position:relative!important;
-  z-index:5!important;
-}
-
-#plannerAcc .acc-head *,
-#intelAcc .acc-head *{
   pointer-events:auto!important;
-}
-
-@media(max-width:900px){
-  #plannerAcc .acc-head,
-  #intelAcc .acc-head{
-    min-height:52px!important;
-    padding-top:14px!important;
-    padding-bottom:14px!important;
-    pointer-events:auto!important;
-    touch-action:auto!important;
-  }
-
-  #plannerAcc .acc-title,
-  #intelAcc .acc-title,
-  #plannerAcc .acc-hint,
-  #intelAcc .acc-hint{
-    pointer-events:auto!important;
-  }
-}
-
-/* 2) Universal quiet default for selection controls */
-.segment .seg-btn,
-.pill-scroll .seg-btn,
-.progress-tabs .progress-tab,
-.progress-tab,
-.chip,
-.tpl-pill,
-button[data-tab],
-button[data-wtab],
-button[data-ptab],
-button[data-program-tab],
-button[data-setting],
-.settings-modal .btn,
-.settings-panel .btn,
-[id*="settings" i] .btn{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.11)!important;
-  color:var(--muted)!important;
-  box-shadow:none!important;
-}
-
-/* Hover can preview gold, but no filled/default gold */
-.segment .seg-btn:hover,
-.pill-scroll .seg-btn:hover,
-.progress-tabs .progress-tab:hover,
-.progress-tab:hover,
-.chip:hover,
-.tpl-pill:hover,
-button[data-tab]:hover,
-button[data-wtab]:hover,
-button[data-ptab]:hover,
-button[data-program-tab]:hover,
-button[data-setting]:hover,
-.settings-modal .btn:hover,
-.settings-panel .btn:hover,
-[id*="settings" i] .btn:hover{
-  background:rgba(232,255,71,.025)!important;
-  border-color:rgba(232,255,71,.34)!important;
-  color:var(--acc)!important;
-}
-
-/* Selected/active = gold border + gold text, not full yellow fill */
-.segment .seg-btn.on,
-.segment .seg-btn.chosen,
-.pill-scroll .seg-btn.on,
-.pill-scroll .seg-btn.chosen,
-.progress-tabs .progress-tab.on,
-.progress-tab.on,
-.chip.on,
-.tpl-pill.on,
-button[data-tab].on,
-button[data-wtab].on,
-button[data-ptab].on,
-button[data-program-tab].on,
-button[data-setting].on,
-.settings-modal .btn.on,
-.settings-panel .btn.on,
-[id*="settings" i] .btn.on,
-.settings-modal .btn.chosen,
-.settings-panel .btn.chosen,
-[id*="settings" i] .btn.chosen{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
-}
-
-/* Explicitly remove default gold from common starting choices like Manual / Strength */
-.seg-btn:not(.on):not(.chosen),
-.progress-tab:not(.on),
-.chip:not(.on),
-.tpl-pill:not(.on),
-button[data-tab]:not(.on),
-button[data-wtab]:not(.on),
-button[data-ptab]:not(.on),
-button[data-program-tab]:not(.on){
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.11)!important;
-  color:var(--muted)!important;
-}
-
-/* Keep true primary CTAs filled yellow */
-#aiPage .btn.acc,
-#aiPlanPage .btn.acc,
-[id*="aiPlan" i] .btn.acc,
-body.app-page-ai .btn.acc,
-body.app-page-aiplan .btn.acc,
-body.app-page-ai-plan .btn.acc,
-.btn.acc[data-primary="true"],
-button[id*="generate" i],
-button[id*="add" i][id*="exercise" i],
-#btn-add-exercise,
-#addExercise,
-.btn-add-exercise{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-  box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
-}
-
-/* Header Save/Log remain quiet unless armed */
-#btn-save,
-#btn-log,
-#btn-share{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.12)!important;
-  color:var(--text)!important;
-  box-shadow:none!important;
-}
-
-#btn-log.armed,
-#btn-save.armed,
-#btn-share.armed{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-}
-
-/* Account follows same system */
-#btn-account,
-.hdr-account-desktop,
-button[id*="account" i],
-.btn[id*="account" i]{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.12)!important;
-  color:var(--text)!important;
-  box-shadow:none!important;
-}
-
-#btn-account:hover,
-.hdr-account-desktop:hover,
-button[id*="account" i]:hover,
-.btn[id*="account" i]:hover,
-body:has(.account-menu.on) #btn-account,
-body:has(.account-menu.on) .hdr-account-desktop,
-body:has(.account-menu.on) button[id*="account" i],
-body:has(.account-menu.on) .btn[id*="account" i]{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
-}
-
-/* Settings surfaces */
-.account-menu,
-.settings-modal,
-.settings-panel,
-[id*="settings" i] .modal,
-[id*="settings" i].modal{
-  border-color:rgba(255,255,255,.10)!important;
-}
-
-.account-menu .btn.acc{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-}
-
-/* Progress + Wellness scroll pills specifically */
-.progress-tabs:has([data-wtab]) .progress-tab[data-wtab],
-.progress-tabs .progress-tab{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.11)!important;
-  color:var(--muted)!important;
-}
-
-.progress-tabs:has([data-wtab]) .progress-tab[data-wtab].on,
-.progress-tabs .progress-tab.on{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-}
-
-
-/* ============================================================
-   v20260525-v MOBILE ACCORDION OVERLAY + QUIET DEFAULT CLEANUP
-   CSS only. No auth/data/runtime changes.
-   ============================================================ */
-
-/* 1) Move floating up/scroll controls away from Home accordion headers on mobile.
-   The yellow up button was sitting over Weekly Planner and stealing taps. */
-@media(max-width:900px){
-  button[id*="top" i],
-  button[class*="top" i],
-  button[id*="scroll" i],
-  button[class*="scroll" i],
-  button[id*="float" i],
-  button[class*="float" i],
-  .back-to-top,
-  .scroll-to-top,
-  .floating-action,
-  .floating-btn{
-    right:14px!important;
-    left:auto!important;
-    bottom:max(92px, calc(env(safe-area-inset-bottom) + 92px))!important;
-    transform:none!important;
-    z-index:70!important;
-  }
-
-  /* If the button is inside Home content, keep it from covering accordion headers. */
-  body.app-page-home button[id*="top" i],
-  body.app-page-home button[class*="top" i],
-  body.app-page-home button[id*="scroll" i],
-  body.app-page-home button[class*="scroll" i],
-  body.app-page-home button[id*="float" i],
-  body.app-page-home button[class*="float" i],
-  body.app-page-home .back-to-top,
-  body.app-page-home .scroll-to-top,
-  body.app-page-home .floating-action,
-  body.app-page-home .floating-btn{
-    bottom:max(116px, calc(env(safe-area-inset-bottom) + 116px))!important;
-  }
-
-  #plannerAcc,
-  #intelAcc{
-    position:relative!important;
-    z-index:80!important;
-  }
-
-  #plannerAcc .acc-head,
-  #intelAcc .acc-head{
-    position:relative!important;
-    z-index:81!important;
-    pointer-events:auto!important;
-    cursor:pointer!important;
-    touch-action:manipulation!important;
-  }
-
-  #plannerAcc .acc-head *,
-  #intelAcc .acc-head *{
-    pointer-events:auto!important;
-  }
-}
-
-/* 2) Remove default gold borders from all scroll pills unless actually selected. */
-.segment .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
-.pill-scroll .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
-.progress-tabs .progress-tab:not(.on):not(.active):not([aria-selected="true"]),
-.progress-tab:not(.on):not(.active):not([aria-selected="true"]),
-.chip:not(.on):not(.active):not([aria-selected="true"]),
-.tpl-pill:not(.on):not(.active):not([aria-selected="true"]),
-button[data-tab]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-wtab]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-ptab]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-program-tab]:not(.on):not(.active):not([aria-selected="true"]){
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.11)!important;
-  color:var(--muted)!important;
-  box-shadow:none!important;
-}
-
-/* Some defaults are marked .chosen by the app even before the user chooses.
-   Treat .chosen as quiet unless it is also .on/.active/aria-selected. */
-.segment .seg-btn.chosen:not(.on):not(.active):not([aria-selected="true"]),
-.pill-scroll .seg-btn.chosen:not(.on):not(.active):not([aria-selected="true"]),
-.progress-tabs .progress-tab.chosen:not(.on):not(.active):not([aria-selected="true"]),
-.chip.chosen:not(.on):not(.active):not([aria-selected="true"]),
-.tpl-pill.chosen:not(.on):not(.active):not([aria-selected="true"]){
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.11)!important;
-  color:var(--muted)!important;
-  box-shadow:none!important;
-}
-
-/* Selected states only */
-.segment .seg-btn.on,
-.segment .seg-btn.active,
-.segment .seg-btn[aria-selected="true"],
-.pill-scroll .seg-btn.on,
-.pill-scroll .seg-btn.active,
-.pill-scroll .seg-btn[aria-selected="true"],
-.progress-tabs .progress-tab.on,
-.progress-tabs .progress-tab.active,
-.progress-tabs .progress-tab[aria-selected="true"],
-.progress-tab.on,
-.progress-tab.active,
-.progress-tab[aria-selected="true"],
-.chip.on,
-.chip.active,
-.chip[aria-selected="true"],
-.tpl-pill.on,
-.tpl-pill.active,
-.tpl-pill[aria-selected="true"],
-button[data-tab].on,
-button[data-tab].active,
-button[data-tab][aria-selected="true"],
-button[data-wtab].on,
-button[data-wtab].active,
-button[data-wtab][aria-selected="true"],
-button[data-ptab].on,
-button[data-ptab].active,
-button[data-ptab][aria-selected="true"],
-button[data-program-tab].on,
-button[data-program-tab].active,
-button[data-program-tab][aria-selected="true"]{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
-}
-
-/* But keep true primary CTAs filled yellow. */
-#aiPage .btn.acc,
-#aiPlanPage .btn.acc,
-[id*="aiPlan" i] .btn.acc,
-body.app-page-ai .btn.acc,
-body.app-page-aiplan .btn.acc,
-body.app-page-ai-plan .btn.acc,
-button[id*="generate" i],
-button[id*="add" i][id*="exercise" i],
-#btn-add-exercise,
-#addExercise,
-.btn-add-exercise{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-  box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
-}
-
-/* Settings stays correct: quiet default, gold only selected/hover/open. */
-.settings-modal .btn:not(.on):not(.active):not([aria-selected="true"]),
-.settings-panel .btn:not(.on):not(.active):not([aria-selected="true"]),
-[id*="settings" i] .btn:not(.on):not(.active):not([aria-selected="true"]){
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.11)!important;
-  color:var(--muted)!important;
-  box-shadow:none!important;
-}
-
-
-/* ============================================================
-   v20260525-v FINAL COHESION CORRECTION
-   CSS only. No auth/data/runtime changes.
-   ============================================================ */
-
-/* A) Home mobile accordion repair:
-   Leave original JS delegation alone. Do NOT block children.
-   The headers need normal event bubbling in mobile/PWA. */
-#plannerAcc,
-#intelAcc{
-  position:relative!important;
-  z-index:auto!important;
-}
-
-#plannerAcc .acc-head,
-#intelAcc .acc-head{
-  position:relative!important;
-  z-index:auto!important;
-  pointer-events:auto!important;
-  cursor:pointer!important;
   touch-action:manipulation!important;
-  -webkit-tap-highlight-color:rgba(232,255,71,.12)!important;
+  position:relative!important;
+  z-index:2!important;
 }
 
-#plannerAcc .acc-head *,
-#intelAcc .acc-head *{
-  pointer-events:auto!important;
-}
-
-/* Keep hit area comfortable, but do not overlay or intercept. */
-@media(max-width:900px){
-  #plannerAcc .acc-head,
-  #intelAcc .acc-head{
-    min-height:52px!important;
-    padding:14px 14px!important;
-  }
-}
-
-/* B) Move floating up/scroll button only slightly inward — between old edge and current location. */
-@media(max-width:900px){
-  button[id*="top" i],
-  button[class*="top" i],
-  button[id*="scroll" i],
-  button[class*="scroll" i],
-  button[id*="float" i],
-  button[class*="float" i],
-  .back-to-top,
-  .scroll-to-top,
-  .floating-action,
-  .floating-btn{
-    right:22px!important;
-    left:auto!important;
-    bottom:max(82px, calc(env(safe-area-inset-bottom) + 82px))!important;
-    transform:none!important;
-  }
-}
-
-/* C) Strict rule: scroll pills quiet by default. No gold border unless selected.
-   Applies to Workout, Program/Progress, Wellness, Settings. */
-
-/* Universal unselected controls */
-.segment .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
-.pill-scroll .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
-.progress-tabs .progress-tab:not(.on):not(.active):not([aria-selected="true"]),
-.progress-tab:not(.on):not(.active):not([aria-selected="true"]),
-.chip:not(.on):not(.active):not([aria-selected="true"]),
-.tpl-pill:not(.on):not(.active):not([aria-selected="true"]),
-button[data-tab]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-wtab]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-ptab]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-program-tab]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-equip]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-muscle]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-training]:not(.on):not(.active):not([aria-selected="true"]),
-button[data-program]:not(.on):not(.active):not([aria-selected="true"]),
-.settings-modal .btn:not(.on):not(.active):not([aria-selected="true"]),
-.settings-panel .btn:not(.on):not(.active):not([aria-selected="true"]),
-[id*="settings" i] .btn:not(.on):not(.active):not([aria-selected="true"]){
+button[data-program="manual"]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-training="strength"]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-muscle="all"]:not(.on):not(.active):not([aria-selected="true"]),
+.seg-btn[data-program="manual"]:not(.on):not(.active):not([aria-selected="true"]),
+.seg-btn[data-training="strength"]:not(.on):not(.active):not([aria-selected="true"]),
+.seg-btn[data-muscle="all"]:not(.on):not(.active):not([aria-selected="true"]){
   background:var(--panel2)!important;
   border-color:rgba(255,255,255,.11)!important;
   color:var(--muted)!important;
   box-shadow:none!important;
-}
-
-/* The app sometimes uses .chosen for defaults. Quiet it unless also active/on/aria-selected. */
-.segment .seg-btn.chosen:not(.on):not(.active):not([aria-selected="true"]),
-.pill-scroll .seg-btn.chosen:not(.on):not(.active):not([aria-selected="true"]),
-.progress-tabs .progress-tab.chosen:not(.on):not(.active):not([aria-selected="true"]),
-.chip.chosen:not(.on):not(.active):not([aria-selected="true"]),
-.tpl-pill.chosen:not(.on):not(.active):not([aria-selected="true"]),
-button.chosen:not(.on):not(.active):not([aria-selected="true"]){
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.11)!important;
-  color:var(--muted)!important;
-  box-shadow:none!important;
-}
-
-/* Selected only = gold border + gold text, not full fill. */
-.segment .seg-btn.on,
-.segment .seg-btn.active,
-.segment .seg-btn[aria-selected="true"],
-.pill-scroll .seg-btn.on,
-.pill-scroll .seg-btn.active,
-.pill-scroll .seg-btn[aria-selected="true"],
-.progress-tabs .progress-tab.on,
-.progress-tabs .progress-tab.active,
-.progress-tabs .progress-tab[aria-selected="true"],
-.progress-tab.on,
-.progress-tab.active,
-.progress-tab[aria-selected="true"],
-.chip.on,
-.chip.active,
-.chip[aria-selected="true"],
-.tpl-pill.on,
-.tpl-pill.active,
-.tpl-pill[aria-selected="true"],
-button[data-tab].on,
-button[data-tab].active,
-button[data-tab][aria-selected="true"],
-button[data-wtab].on,
-button[data-wtab].active,
-button[data-wtab][aria-selected="true"],
-button[data-ptab].on,
-button[data-ptab].active,
-button[data-ptab][aria-selected="true"],
-button[data-program-tab].on,
-button[data-program-tab].active,
-button[data-program-tab][aria-selected="true"],
-button[data-equip].on,
-button[data-equip].active,
-button[data-equip][aria-selected="true"],
-button[data-muscle].on,
-button[data-muscle].active,
-button[data-muscle][aria-selected="true"],
-button[data-training].on,
-button[data-training].active,
-button[data-training][aria-selected="true"],
-button[data-program].on,
-button[data-program].active,
-button[data-program][aria-selected="true"],
-.settings-modal .btn.on,
-.settings-modal .btn.active,
-.settings-modal .btn[aria-selected="true"],
-.settings-panel .btn.on,
-.settings-panel .btn.active,
-.settings-panel .btn[aria-selected="true"],
-[id*="settings" i] .btn.on,
-[id*="settings" i] .btn.active,
-[id*="settings" i] .btn[aria-selected="true"]{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
-  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
-}
-
-/* D) True filled-yellow primary CTAs only */
-#aiPage .btn.acc,
-#aiPlanPage .btn.acc,
-[id*="aiPlan" i] .btn.acc,
-body.app-page-ai .btn.acc,
-body.app-page-aiplan .btn.acc,
-body.app-page-ai-plan .btn.acc,
-button[id*="generate" i],
-button[id*="add" i][id*="exercise" i],
-#btn-add-exercise,
-#addExercise,
-.btn-add-exercise{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-  box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
-}
-
-/* Keep lightweight manual entry filled yellow as agreed. */
-button[id*="manual" i][class*="btn" i],
-.btn[id*="manual" i],
-button[class*="manual" i].btn{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-}
-
-/* But Manual pill/program choice should NOT be filled/outlined unless actually selected. */
-.seg-btn:not(.on):not(.active):not([aria-selected="true"])[data-program="manual"],
-.seg-btn:not(.on):not(.active):not([aria-selected="true"])[data-training="manual"],
-button:not(.on):not(.active):not([aria-selected="true"])[data-program="manual"],
-button:not(.on):not(.active):not([aria-selected="true"])[data-training="manual"]{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.11)!important;
-  color:var(--muted)!important;
-  box-shadow:none!important;
-}
-
-/* E) Save / Log remain quiet unless armed */
-#btn-save,
-#btn-log,
-#btn-share{
-  background:var(--panel2)!important;
-  border-color:rgba(255,255,255,.12)!important;
-  color:var(--text)!important;
-  box-shadow:none!important;
-}
-#btn-log.armed,
-#btn-save.armed,
-#btn-share.armed{
-  background:rgba(232,255,71,.035)!important;
-  border-color:rgba(232,255,71,.58)!important;
-  color:var(--acc)!important;
 }
 
 </style>
 </head>
 <body class="auth-resolving">
+
+<div id="vertex-bootstrap-screen">
+  <div class="vertex-boot-logo">VERTEX</div>
+  <div class="vertex-boot-sub">Signing You In</div>
+</div>
+<script>
+document.documentElement.classList.add('vertex-auth-booting');
+window.__vertexBootComplete=false;
+window.vertexFinishBootstrap=function(){
+  if(window.__vertexBootComplete) return;
+  window.__vertexBootComplete=true;
+  document.documentElement.classList.remove('vertex-auth-booting');
+  const el=document.getElementById('vertex-bootstrap-screen');
+  if(el){
+    el.classList.add('fade-out');
+    setTimeout(()=>{ try{el.remove();}catch(e){} },500);
+  }
+};
+</script>
+
 
 <!-- v13.61 Welcome modal — shown once per user after first sign-in -->
 <div id="welcome-overlay" class="welcome-overlay" role="dialog" aria-modal="true" aria-labelledby="welcome-title-active">
@@ -6302,7 +4939,7 @@ async function signIn(email,password){
     authUser=authFromUser(data.user);
     window.authUser=authUser;
     document.body.classList.add('authenticated');
-    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll();
+    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
   }
   return '';
 }
@@ -6315,7 +4952,7 @@ async function createAccount(email,password){
   if(error) return error.message;
   if(data.user && data.session){
     if(typeof applyAuthenticatedSession==='function') await applyAuthenticatedSession(data.session);
-    else { authUser=authFromUser(data.user); window.authUser=authUser; document.body.classList.add('authenticated'); await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); }
+    else { authUser=authFromUser(data.user); window.authUser=authUser; document.body.classList.add('authenticated'); await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); }
     return '';
   }
   return 'Account created. Check your email to confirm, then sign in.';
@@ -6575,7 +5212,7 @@ async function initAuth(){
   vertexSetAuthResolving();
 
   const supa=getSupa();
-  if(!supa){ vertexShowUnauthenticatedShell(); syncAuthShell(); return; }
+  if(!supa){ vertexShowUnauthenticatedShell(); syncAuthShell(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); return; }
 
   // Expose retry function so the sync pill onclick can trigger it
   window.vertexRetrySync=async function(){
@@ -6594,10 +5231,18 @@ async function initAuth(){
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
       _hydratedUserId=null; _hydrationInFlight=false; _authShellRevealedFor=null;
       vertexShowUnauthenticatedShell();
-      setSyncStatus('local','Local mode'); renderAccountMenu(); syncAuthShell(); renderAll(); return;
+      setSyncStatus('local','Local mode'); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); return;
     }
     if(!session || !session.user) return;
-    await applyAuthenticatedSession(session);
+    
+if(window.__vertexApplyingSession){
+  console.log('[Vertex] Duplicate auth hydration prevented');
+  return;
+}
+window.__vertexApplyingSession=true;
+setTimeout(()=>{ window.__vertexApplyingSession=false; },1200);
+
+await applyAuthenticatedSession(session);
   });
 
   try{
@@ -6649,11 +5294,11 @@ async function initAuth(){
       try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
       try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
-      vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll();
+      vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
     }
   }catch(err){
     console.warn('Auth init warning:',err);
-    authUser=null; _authShellRevealedFor=null; vertexShowUnauthenticatedShell(); syncAuthShell(); renderAll();
+    authUser=null; _authShellRevealedFor=null; vertexShowUnauthenticatedShell(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
   }
 }
 function emptyPlanner(){return Object.fromEntries(DAYS.map(d=>[d,null]))}
@@ -12237,7 +10882,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-v';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-w';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

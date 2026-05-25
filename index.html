@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-p OAUTH CALLBACK GUARD
+   v20260525-q OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-p AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-q AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,7 +2702,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-p PROGRESS + WELLNESS POLISH
+   v20260525-q PROGRESS + WELLNESS POLISH
    CSS only. Cross-app visual consistency.
    ============================================================ */
 
@@ -2950,7 +2950,7 @@ body.app-page-health .empty-cta{
 
 
 /* ============================================================
-   v20260525-p STABLE ROLLBACK + WELLNESS TAB WIDTH
+   v20260525-q STABLE ROLLBACK + WELLNESS TAB WIDTH
    CSS only. No runtime script. No auth/render changes.
    ============================================================ */
 
@@ -2994,7 +2994,7 @@ body.app-page-health .progress-tab{
 
 
 /* ============================================================
-   v20260525-p WELLNESS FULL LABEL FIX
+   v20260525-q WELLNESS FULL LABEL FIX
    CSS only. Uses existing full labels already in markup.
    ============================================================ */
 
@@ -3108,7 +3108,7 @@ body.app-page-workout [class*="target" i] .chip{
 
 
 /* ============================================================
-   v20260525-p AI PLAN PREMIUM REDESIGN
+   v20260525-q AI PLAN PREMIUM REDESIGN
    CSS only. No auth/data/runtime changes.
    ============================================================ */
 
@@ -3316,6 +3316,204 @@ body.app-page-plan .empty-cta,
   #aiPage .page-tile,
   #aiPlanPage .page-tile{
     min-height:96px;
+  }
+}
+
+
+/* ============================================================
+   v20260525-q COHESION + INTERACTION REPAIR
+   CSS only. No auth/data/runtime changes.
+   ============================================================ */
+
+/* 1) Restore accordion usability: clickable heads, visible body behavior */
+.accordion .acc-head{
+  cursor:pointer!important;
+  user-select:none;
+  pointer-events:auto!important;
+}
+
+.accordion .acc-head *{
+  pointer-events:none;
+}
+
+/* Make collapsed accordions clearly collapsible/expandable without breaking JS */
+.accordion:not(.open) .acc-body{
+  display:none!important;
+}
+
+.accordion.open .acc-body{
+  display:block!important;
+}
+
+/* Reduce any CSS that may have made Planner/Intelligence feel inactive */
+#plannerAcc,
+#intelAcc{
+  opacity:1!important;
+}
+
+#plannerAcc .acc-head,
+#intelAcc .acc-head{
+  border-color:rgba(255,255,255,.08)!important;
+}
+
+/* 2) Unified rule: quiet by default, yellow only when selected/active */
+.seg-btn,
+.progress-tab,
+.chip,
+.tpl-pill,
+.nav button,
+.pill-scroll .seg-btn{
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.10)!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
+}
+
+/* Selected/active state = border + yellow text, not full yellow fill */
+.seg-btn.on,
+.seg-btn.chosen,
+.progress-tab.on,
+.chip.on,
+.tpl-pill.on,
+.nav button.on,
+.pill-scroll .seg-btn.on,
+.pill-scroll .seg-btn.chosen{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.58)!important;
+  color:var(--acc)!important;
+  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
+}
+
+/* Keep nav tab selected subtle, not filled */
+.nav button.on{
+  box-shadow:inset 0 -2px 0 var(--acc)!important;
+  background:transparent!important;
+}
+
+/* 3) Workout page: Save/Log should not look like primary yellow by default */
+#btn-save,
+#btn-log,
+#btn-share{
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:var(--text)!important;
+  box-shadow:none!important;
+}
+
+/* Armed/active log can use yellow border/text, not full yellow fill */
+#btn-log.armed,
+#btn-save.armed,
+#btn-share.armed{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.58)!important;
+  color:var(--acc)!important;
+}
+
+/* True primary CTA exceptions: keep yellow fill */
+#btn-add-exercise,
+#addExercise,
+.btn-add-exercise,
+[data-action="add-exercise"],
+button[onclick*="addExercise" i],
+button[id*="add" i][id*="exercise" i],
+.manual-grid .btn.acc,
+.health-form .btn.acc,
+#aiPage .btn.acc,
+#aiPlanPage .btn.acc,
+[id*="aiPlan" i] .btn.acc,
+body.app-page-ai .btn.acc,
+body.app-page-aiplan .btn.acc,
+body.app-page-ai-plan .btn.acc{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+  box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
+}
+
+/* Lightweight/manual yellow background exceptions preserved */
+.manual-help,
+.panel.hl,
+.flow-card{
+  border-color:rgba(232,255,71,.35)!important;
+}
+
+/* 4) Program + Progress tabs: quiet until selected */
+body.app-page-program .progress-tab,
+body.app-page-program .seg-btn,
+body.app-page-progress .progress-tab,
+body.app-page-progress .seg-btn{
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.10)!important;
+  color:var(--muted)!important;
+}
+
+body.app-page-program .progress-tab.on,
+body.app-page-program .seg-btn.on,
+body.app-page-program .seg-btn.chosen,
+body.app-page-progress .progress-tab.on,
+body.app-page-progress .seg-btn.on,
+body.app-page-progress .seg-btn.chosen{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.58)!important;
+  color:var(--acc)!important;
+}
+
+/* 5) Wellness full label selected-state cohesion */
+.progress-tab[data-wtab]{
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.10)!important;
+  color:var(--muted)!important;
+}
+
+.progress-tab[data-wtab].on{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.58)!important;
+  color:var(--acc)!important;
+  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
+}
+
+/* 6) Preserve AI Plan primary CTA as yellow fill */
+body.app-page-ai .btn.acc,
+body.app-page-aiplan .btn.acc,
+body.app-page-ai-plan .btn.acc,
+body.app-page-plan .btn.acc,
+#aiPage .btn.acc,
+#aiPlanPage .btn.acc,
+[id*="aiPlan" i] .btn.acc{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+}
+
+/* 7) General button hover/press cohesion */
+.btn:hover,
+.seg-btn:hover,
+.progress-tab:hover,
+.chip:hover,
+.tpl-pill:hover{
+  border-color:rgba(232,255,71,.42)!important;
+  color:var(--acc)!important;
+}
+
+.btn.acc:hover,
+#aiPage .btn.acc:hover,
+#aiPlanPage .btn.acc:hover,
+[id*="aiPlan" i] .btn.acc:hover{
+  color:#000!important;
+  opacity:.94;
+}
+
+/* Mobile: keep action rows calm and readable */
+@media(max-width:900px){
+  .hdr-actions #btn-save,
+  .hdr-actions #btn-log{
+    min-height:40px;
+  }
+
+  .seg-btn,
+  .progress-tab,
+  .chip{
+    min-height:40px;
   }
 }
 
@@ -11364,7 +11562,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-p';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-q';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

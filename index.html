@@ -54,7 +54,7 @@
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 .skeleton{background:linear-gradient(90deg,var(--panel2) 25%,var(--panel3) 50%,var(--panel2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r-sm)}
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;overflow:auto}
-@font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
+@font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}@font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
 .btn{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:5px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.btn:hover{border-color:var(--acc);color:var(--acc)}.btn.acc{background:var(--acc);border-color:var(--acc);color:#000}.btn.red{color:var(--red);border-color:rgba(255,77,77,.4);background:transparent}.btn.small{padding:6px 9px;font-size:11px}.btn:disabled{opacity:.45;cursor:not-allowed}
 #app-header{position:fixed;top:0;left:0;right:0;height:58px;background:#070707;border-bottom:1px solid var(--line);display:grid;grid-template-columns:260px 1fr 560px;align-items:center;padding:0 16px;z-index:50;padding-top:env(safe-area-inset-top,0px)}.logo{display:flex;align-items:center;gap:10px}.logo-main{font-family:'Bebas Neue';font-size:26px;letter-spacing:5px;color:var(--acc)}.logo-sub{font-family:'DM Mono';font-size:10px;letter-spacing:3px;color:var(--dim)}.nav{justify-self:center;display:flex;border:0;border-radius:0;overflow:hidden}.nav button{background:var(--panel2);color:var(--muted);border:0;border-right:1px solid var(--line);padding:8px 12px;font-size:12px;cursor:pointer}.nav button:last-child{border-right:0}.nav button.on{background:transparent;color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
 /* Desktop: hide hamburger inside nav-row, show Account in hdr-actions */
@@ -116,7 +116,7 @@
 .rest-btn-inline{background:rgba(72,255,138,.08);border:1px solid rgba(72,255,138,.25);color:var(--acc);border-radius:5px;padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;margin-left:6px;letter-spacing:.5px}.rest-btn-inline:hover{background:rgba(72,255,138,.18)}.session-card{width:min(760px,100%);max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:28px}.session-title{font-family:'Bebas Neue';font-size:50px;letter-spacing:4px}.timer{font-family:'Bebas Neue';font-size:82px;color:var(--acc);line-height:1}.session-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.tracking-pill{display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(72,255,138,.06);border:1px solid rgba(72,255,138,.2);border-radius:6px;margin-bottom:12px;font-size:12px;color:var(--muted)}.tracking-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse-dot 1.8s ease-in-out infinite}@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.35}}
 
 #vertex-auth-loader{position:fixed;inset:0;z-index:9999;background:#070707;display:flex;align-items:center;justify-content:center;transition:opacity .3s ease}#vertex-auth-loader.fade{opacity:0;pointer-events:none}.login-screen{opacity:0;transition:opacity .25s ease}
-.login-screen{position:fixed;inset:0;z-index:200;background:radial-gradient(circle at top right,rgba(232,255,71,.11),transparent 34%),#070707;display:flex;align-items:center;justify-content:center;padding:24px}.login-card{width:min(420px,100%);background:rgba(17,17,17,.92);border:1px solid var(--line2);border-radius:16px;padding:38px 32px;box-shadow:0 24px 80px rgba(0,0,0,.55);text-align:center}.login-brand{font-family:'Bebas Neue';font-size:64px;letter-spacing:8px;color:var(--acc);line-height:1;margin:0}.login-tagline{font-family:'DM Mono';font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin:10px 0 32px}.login-card .btn{width:100%}.login-form-fields{margin-top:16px;text-align:left}.login-form-fields input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:12px;border-radius:6px;margin-bottom:9px;font-size:15px}.login-divider{display:flex;align-items:center;gap:10px;margin:20px 0 14px;color:var(--dim);font-family:'DM Mono';font-size:10px;letter-spacing:2px}.login-divider:before,.login-divider:after{content:'';height:1px;background:var(--line);flex:1}.login-error{font-family:'DM Mono';font-size:10px;color:var(--red);min-height:15px;margin-top:8px;text-align:center}.login-footer{margin-top:18px;color:var(--dim);font-size:11px;line-height:1.55;text-align:center}body.auth-done .login-screen{opacity:1}body.authenticated .login-screen{display:none}
+.login-screen{position:fixed;inset:0;z-index:200;background:radial-gradient(circle at top right,rgba(232,255,71,.11),transparent 34%),#070707;display:flex;align-items:center;justify-content:center;padding:24px}.login-card{width:min(420px,100%);background:rgba(17,17,17,.92);border:1px solid var(--line2);border-radius:16px;padding:38px 32px;box-shadow:0 24px 80px rgba(0,0,0,.55);text-align:center}.login-brand{font-family:'Bebas Neue';font-size:64px;letter-spacing:8px;color:var(--acc);line-height:1;margin:0}.login-tagline{font-family:'DM Mono';font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin:10px 0 32px}.login-card .btn{width:100%}.login-form-fields{margin-top:16px;text-align:left}.login-form-fields input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:12px;border-radius:6px;margin-bottom:9px;font-size:15px}.login-divider{display:flex;align-items:center;gap:10px;margin:20px 0 14px;color:var(--dim);font-family:'DM Mono';font-size:10px;letter-spacing:2px}.login-divider:before,.login-divider:after{content:'';height:1px;background:var(--line);flex:1}.login-error{font-family:'DM Mono';font-size:10px;color:var(--red);min-height:15px;margin-top:8px;text-align:center}.login-footer{margin-top:18px;color:var(--dim);font-size:11px;line-height:1.55;text-align:center}body.auth-done .login-screen{opacity:1}body.auth-done .login-screen{opacity:1}body.authenticated .login-screen{display:none}
 body.shared-view #app-header .nav{display:none}
 body.shared-view #app-header #btn-save,body.shared-view #app-header #btn-log,body.shared-view #app-header #btn-share,body.shared-view #app-header #syncStatus{display:none!important}
 body.shared-view .sidebar,body.shared-view .right{display:none!important}
@@ -3124,6 +3124,13 @@ button.acc-hint {
           <div id="strava-status-text" style="font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace">Not connected</div>
         </div>
         <button id="btn-strava-connect" class="btn small acc" style="font-size:11px">CONNECT</button>
+      <div id="google-health-integration-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line2)">
+        <div>
+          <div style="font-size:13px;color:var(--text)">Google Health</div>
+          <div id="google-health-status-text" style="font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace">Fitbit · Pixel Watch · Not connected</div>
+        </div>
+        <button id="btn-google-health-connect" class="btn small acc" style="font-size:11px">CONNECT</button>
+      </div>
       </div>
     </div>
     <div style="margin-top:4px;padding-top:16px;border-top:1px solid var(--line2)">
@@ -7649,6 +7656,8 @@ function protoSelectDate(dateStr){
 
 
 
+
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -10547,7 +10556,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-as';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-at';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -13295,5 +13304,218 @@ window.openSettingsModal = function() {
 // Auto-sync on login
 window.addEventListener('vertex-auth-ready', async function() {
   if (stravaIsConnected()) await stravaSyncActivities();
+}, { once: true });
+</script>
+
+<script>
+// ============================================================
+// GOOGLE HEALTH INTEGRATION
+// ============================================================
+const GOOGLE_HEALTH_REDIRECT_URI = 'https://vertex-beta-five.vercel.app';
+const GOOGLE_HEALTH_SCOPE = 'https://www.googleapis.com/auth/health.read';
+
+function ghGetToken() {
+  try { return JSON.parse(localStorage.getItem('vertex_google_health_token') || 'null'); } catch(e) { return null; }
+}
+function ghSetToken(t) {
+  try { localStorage.setItem('vertex_google_health_token', JSON.stringify(t)); } catch(e) {}
+}
+function ghClearToken() {
+  try { localStorage.removeItem('vertex_google_health_token'); } catch(e) {}
+}
+function ghIsConnected() {
+  const t = ghGetToken();
+  return !!(t && t.access_token);
+}
+
+async function ghGetClientId() {
+  // Client ID is safe to expose in frontend — secret stays server-side
+  try {
+    const r = await fetch('/api/google-health-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'client_id' })
+    });
+    const d = await r.json();
+    return d.client_id;
+  } catch(e) { return null; }
+}
+
+async function ghConnect() {
+  // Store state to verify on callback
+  const state = 'gh_oauth_' + Math.random().toString(36).slice(2);
+  localStorage.setItem('vertex_gh_state', state);
+  // We need the client_id — it's in Vercel env, fetch it via a safe endpoint
+  // For PWA OAuth we embed the client_id directly (it's public)
+  // The client_secret never leaves the server
+  const clientId = await ghGetClientId();
+  if (!clientId) { alert('Google Health not configured'); return; }
+  const url = 'https://accounts.google.com/o/oauth2/v2/auth?' + new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: GOOGLE_HEALTH_REDIRECT_URI,
+    response_type: 'code',
+    scope: GOOGLE_HEALTH_SCOPE,
+    access_type: 'offline',
+    prompt: 'consent',
+    state
+  });
+  window.location.href = url;
+}
+
+async function ghExchangeCode(code) {
+  const r = await fetch('/api/google-health-auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, grant_type: 'authorization_code', redirect_uri: GOOGLE_HEALTH_REDIRECT_URI })
+  });
+  if (!r.ok) throw new Error('Token exchange failed');
+  return r.json();
+}
+
+async function ghRefreshToken() {
+  const t = ghGetToken();
+  if (!t) return null;
+  if (t.expires_at && Date.now() / 1000 < t.expires_at - 300) return t.access_token;
+  if (!t.refresh_token) { ghClearToken(); return null; }
+  const r = await fetch('/api/google-health-auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: t.refresh_token })
+  });
+  if (!r.ok) { ghClearToken(); return null; }
+  const data = await r.json();
+  const merged = { ...t, ...data, expires_at: Math.floor(Date.now() / 1000) + (data.expires_in || 3600) };
+  ghSetToken(merged);
+  return data.access_token;
+}
+
+async function ghFetchActivities(accessToken) {
+  const endTime = new Date().toISOString();
+  const startTime = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+  const r = await fetch(`https://health.googleapis.com/v4/users/me/dataTypes/workouts/dataPoints?startTime=${startTime}&endTime=${endTime}&pageSize=50`, {
+    headers: { 'Authorization': `Bearer ${accessToken}` }
+  });
+  if (!r.ok) throw new Error('Failed to fetch Google Health activities');
+  return r.json();
+}
+
+async function ghFetchSleep(accessToken) {
+  const endTime = new Date().toISOString();
+  const startTime = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const r = await fetch(`https://health.googleapis.com/v4/users/me/dataTypes/sleepSummary/dataPoints?startTime=${startTime}&endTime=${endTime}&pageSize=30`, {
+    headers: { 'Authorization': `Bearer ${accessToken}` }
+  });
+  if (!r.ok) return null;
+  return r.json();
+}
+
+function ghActivityToLog(dp, userId) {
+  const typeMap = { 'WALK': 'cardio', 'RUN': 'cardio', 'BIKE': 'cardio', 'SWIM': 'cardio', 'WORKOUT': 'strength', 'YOGA': 'flexibility', 'HIIT': 'strength' };
+  const name = dp.workout?.activityType || 'Workout';
+  return {
+    user_id: userId,
+    logged_at: dp.interval?.startTime || new Date().toISOString(),
+    workout_name: name,
+    workout_type: typeMap[name] || 'cardio',
+    duration_min: dp.workout?.durationMs ? Math.round(dp.workout.durationMs / 60000) : 0,
+    notes: `Google Health · ${dp.dataSource?.platform || 'Fitbit'}`,
+    source: 'google_health',
+    strava_id: 'gh_' + (dp.interval?.startTime || Date.now())
+  };
+}
+
+async function ghSync() {
+  if (!authUser) return;
+  const accessToken = await ghRefreshToken();
+  if (!accessToken) return;
+  try {
+    const [actData] = await Promise.all([ghFetchActivities(accessToken), ghFetchSleep(accessToken)]);
+    const dps = actData?.dataPoints || [];
+    if (dps.length) {
+      const supa = getSupa();
+      const { data: existing } = await supa.from('vertex_workout_logs').select('strava_id').eq('user_id', authUser.id).like('strava_id', 'gh_%');
+      const existingIds = new Set((existing || []).map(r => r.strava_id));
+      const newLogs = dps.filter(dp => {
+        const id = 'gh_' + (dp.interval?.startTime || '');
+        return !existingIds.has(id);
+      }).map(dp => ghActivityToLog(dp, authUser.id));
+      if (newLogs.length) {
+        await supa.from('vertex_workout_logs').insert(newLogs);
+        toast(`Google Health: ${newLogs.length} new activit${newLogs.length === 1 ? 'y' : 'ies'} synced`);
+      }
+    }
+  } catch(e) {
+    console.warn('Google Health sync error:', e);
+  }
+}
+
+function ghUpdateSettingsUI() {
+  const btn = document.getElementById('btn-google-health-connect');
+  const status = document.getElementById('google-health-status-text');
+  if (!btn || !status) return;
+  if (ghIsConnected()) {
+    btn.textContent = 'DISCONNECT';
+    btn.classList.remove('acc');
+    btn.style.color = 'var(--red)';
+    btn.style.borderColor = 'rgba(255,77,77,.4)';
+    status.textContent = '● Connected · Fitbit + Pixel Watch';
+    status.style.color = 'var(--green)';
+  } else {
+    btn.textContent = 'CONNECT';
+    btn.classList.add('acc');
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    status.textContent = 'Fitbit · Pixel Watch · Not connected';
+    status.style.color = 'var(--muted)';
+  }
+}
+
+// Handle OAuth callback
+(async function ghHandleCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const state = params.get('state');
+  const storedState = localStorage.getItem('vertex_gh_state');
+  if (code && state && state === storedState && state.startsWith('gh_oauth_')) {
+    localStorage.removeItem('vertex_gh_state');
+    history.replaceState({}, '', window.location.pathname);
+    try {
+      const token = await ghExchangeCode(code);
+      token.expires_at = Math.floor(Date.now() / 1000) + (token.expires_in || 3600);
+      ghSetToken(token);
+      toast('Google Health connected!');
+      ghUpdateSettingsUI();
+      if (authUser) await ghSync();
+    } catch(e) {
+      toast('Google Health connection failed');
+      console.error(e);
+    }
+  }
+})();
+
+// Wire connect/disconnect button
+document.addEventListener('click', async function(e) {
+  if (e.target.id !== 'btn-google-health-connect') return;
+  if (ghIsConnected()) {
+    if (await vertexConfirm('Disconnect Google Health? Your synced activities will remain.')) {
+      ghClearToken();
+      ghUpdateSettingsUI();
+      toast('Google Health disconnected');
+    }
+  } else {
+    ghConnect();
+  }
+});
+
+// Update UI when settings opens
+const _origOpenSettingsGH = window.openSettingsModal;
+window.openSettingsModal = function() {
+  if (typeof _origOpenSettingsGH === 'function') _origOpenSettingsGH();
+  setTimeout(() => { ghUpdateSettingsUI(); if (typeof stravaUpdateSettingsUI === 'function') stravaUpdateSettingsUI(); }, 50);
+};
+
+// Auto-sync on login
+window.addEventListener('vertex-auth-ready', async function() {
+  if (ghIsConnected()) await ghSync();
 }, { once: true });
 </script>

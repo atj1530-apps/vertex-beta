@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-n OAUTH CALLBACK GUARD
+   v20260525-o OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-n AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-o AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,7 +2702,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-n PROGRESS + WELLNESS POLISH
+   v20260525-o PROGRESS + WELLNESS POLISH
    CSS only. Cross-app visual consistency.
    ============================================================ */
 
@@ -2950,7 +2950,7 @@ body.app-page-health .empty-cta{
 
 
 /* ============================================================
-   v20260525-n STABLE ROLLBACK + WELLNESS TAB WIDTH
+   v20260525-o STABLE ROLLBACK + WELLNESS TAB WIDTH
    CSS only. No runtime script. No auth/render changes.
    ============================================================ */
 
@@ -2994,18 +2994,12 @@ body.app-page-health .progress-tab{
 
 
 /* ============================================================
-   v20260525-n WELLNESS FULL LABELS + TARGET AREA RESTORE
-   CSS only. No runtime JS. No auth/render changes.
+   v20260525-o WELLNESS FULL LABEL FIX
+   CSS only. Uses existing full labels already in markup.
    ============================================================ */
 
-/* Wellness full-label horizontal scroll.
-   Uses CSS pseudo-labels so we do not touch JS/state/rendering. */
-body.app-page-wellness .page-panel .segment,
-body.app-page-wellness .page-panel .pill-scroll,
-body.app-page-wellness .page-panel .progress-tabs,
-body.app-page-health .page-panel .segment,
-body.app-page-health .page-panel .pill-scroll,
-body.app-page-health .page-panel .progress-tabs{
+/* The Wellness subtabs already have full text. Prior CSS was shrinking/ellipsizing them. */
+.progress-tabs:has([data-wtab]){
   display:flex!important;
   flex-direction:row!important;
   flex-wrap:nowrap!important;
@@ -3014,27 +3008,17 @@ body.app-page-health .page-panel .progress-tabs{
   -webkit-overflow-scrolling:touch!important;
   scrollbar-width:none!important;
   gap:8px!important;
+  width:100%!important;
+  max-width:100%!important;
   padding:6px 2px 12px!important;
   margin:10px 0 14px!important;
-  max-width:100%!important;
 }
 
-body.app-page-wellness .page-panel .segment::-webkit-scrollbar,
-body.app-page-wellness .page-panel .pill-scroll::-webkit-scrollbar,
-body.app-page-wellness .page-panel .progress-tabs::-webkit-scrollbar,
-body.app-page-health .page-panel .segment::-webkit-scrollbar,
-body.app-page-health .page-panel .pill-scroll::-webkit-scrollbar,
-body.app-page-health .page-panel .progress-tabs::-webkit-scrollbar{
+.progress-tabs:has([data-wtab])::-webkit-scrollbar{
   display:none!important;
 }
 
-/* Only target rows that look like the 7 Wellness subtabs. */
-body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button,
-body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button,
-body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button,
-body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button,
-body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button,
-body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button{
+.progress-tab[data-wtab]{
   flex:0 0 auto!important;
   width:auto!important;
   min-width:max-content!important;
@@ -3043,97 +3027,53 @@ body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > but
   border-radius:999px!important;
   padding:10px 17px!important;
   white-space:nowrap!important;
-  overflow:hidden!important;
+  overflow:visible!important;
   text-overflow:clip!important;
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
-  font-size:0!important; /* hide abbreviated app text */
-  line-height:1!important;
-}
-
-/* Full visible labels */
-body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button::before,
-body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button::before,
-body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button::before,
-body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button::before,
-body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button::before,
-body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button::before{
   font-size:14px!important;
   line-height:1!important;
   letter-spacing:.01em!important;
-  white-space:nowrap!important;
 }
 
-body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(1)::before,
-body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(1)::before,
-body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(1)::before,
-body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(1)::before,
-body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(1)::before,
-body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(1)::before{content:"Dashboard";}
+/* Hide legacy stack tab since stack is unified into Protocol */
+.progress-tab[data-wtab="stack"]{
+  display:none!important;
+}
 
-body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(2)::before,
-body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(2)::before,
-body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(2)::before,
-body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(2)::before,
-body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(2)::before,
-body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(2)::before{content:"Health";}
-
-body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(3)::before,
-body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(3)::before,
-body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(3)::before,
-body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(3)::before,
-body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(3)::before,
-body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(3)::before{content:"Protocol";}
-
-body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(4)::before,
-body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(4)::before,
-body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(4)::before,
-body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(4)::before,
-body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(4)::before,
-body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(4)::before{content:"Check-In";}
-
-body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(5)::before,
-body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(5)::before,
-body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(5)::before,
-body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(5)::before,
-body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(5)::before,
-body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(5)::before{content:"History";}
-
-body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(6)::before,
-body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(6)::before,
-body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(6)::before,
-body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(6)::before,
-body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(6)::before,
-body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(6)::before{content:"Metrics";}
-
-body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(7)::before,
-body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(7)::before,
-body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(7)::before,
-body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(7)::before,
-body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(7)::before,
-body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(7)::before{content:"Body";}
-
-/* Active state remains strong */
-body.app-page-wellness .page-panel .segment > button.on,
-body.app-page-wellness .page-panel .pill-scroll > button.on,
-body.app-page-wellness .page-panel .progress-tabs > button.on,
-body.app-page-wellness .page-panel .segment > button.chosen,
-body.app-page-wellness .page-panel .pill-scroll > button.chosen,
-body.app-page-wellness .page-panel .progress-tabs > button.chosen,
-body.app-page-health .page-panel .segment > button.on,
-body.app-page-health .page-panel .pill-scroll > button.on,
-body.app-page-health .page-panel .progress-tabs > button.on,
-body.app-page-health .page-panel .segment > button.chosen,
-body.app-page-health .page-panel .pill-scroll > button.chosen,
-body.app-page-health .page-panel .progress-tabs > button.chosen{
+.progress-tab[data-wtab].on{
   background:var(--acc)!important;
   border-color:var(--acc)!important;
   color:#000!important;
   box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
 }
 
-/* Restore/protect Workout muscle group / target area horizontal scroll */
+/* Right-edge scroll hint without covering text too aggressively */
+.progress-tabs:has([data-wtab]){
+  mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 32px),transparent 100%);
+  -webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 32px),transparent 100%);
+}
+
+/* Mobile override against older QA rules that forced 50%/33% tabs */
+@media(max-width:900px){
+  .progress-tabs:has([data-wtab]){
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+  }
+
+  .progress-tab[data-wtab]{
+    flex:0 0 auto!important;
+    min-width:max-content!important;
+    max-width:none!important;
+    width:auto!important;
+    padding:11px 18px!important;
+    font-size:14px!important;
+  }
+}
+
+/* Restore/protect Workout muscle group / target-area horizontal scroll when it appears */
 body.app-page-workout .muscles,
 body.app-page-workout #muscles,
 body.app-page-workout [id*="muscle" i],
@@ -3156,220 +3096,6 @@ body.app-page-workout [id*="muscle" i]::-webkit-scrollbar,
 body.app-page-workout [class*="muscle" i]::-webkit-scrollbar,
 body.app-page-workout [class*="target" i]::-webkit-scrollbar{
   display:none!important;
-}
-
-body.app-page-workout .muscles .chip,
-body.app-page-workout [class*="muscle" i] .chip,
-body.app-page-workout [class*="target" i] .chip{
-  flex:0 0 auto!important;
-  white-space:nowrap!important;
-  min-width:max-content!important;
-}
-
-
-/* ============================================================
-   v20260525-n WELLNESS INNER LABEL EXPANSION
-   CSS only. Targets inner clipped label wrappers.
-   ============================================================ */
-
-/* Identify likely Wellness nav rows and force true horizontal scrolling */
-body.app-page-wellness .page-panel .segment,
-body.app-page-wellness .page-panel .pill-scroll,
-body.app-page-wellness .page-panel .progress-tabs,
-body.app-page-health .page-panel .segment,
-body.app-page-health .page-panel .pill-scroll,
-body.app-page-health .page-panel .progress-tabs{
-  display:flex!important;
-  flex-direction:row!important;
-  flex-wrap:nowrap!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  gap:10px!important;
-  padding:6px 2px 14px!important;
-  max-width:100%!important;
-}
-
-body.app-page-wellness .page-panel .segment::-webkit-scrollbar,
-body.app-page-wellness .page-panel .pill-scroll::-webkit-scrollbar,
-body.app-page-wellness .page-panel .progress-tabs::-webkit-scrollbar,
-body.app-page-health .page-panel .segment::-webkit-scrollbar,
-body.app-page-health .page-panel .pill-scroll::-webkit-scrollbar,
-body.app-page-health .page-panel .progress-tabs::-webkit-scrollbar{
-  display:none!important;
-}
-
-/* Force pill buttons to expand */
-body.app-page-wellness .page-panel .segment button,
-body.app-page-wellness .page-panel .pill-scroll button,
-body.app-page-wellness .page-panel .progress-tabs button,
-body.app-page-wellness .page-panel .seg-btn,
-body.app-page-wellness .page-panel .chip,
-body.app-page-wellness .page-panel .progress-tab,
-body.app-page-health .page-panel .segment button,
-body.app-page-health .page-panel .pill-scroll button,
-body.app-page-health .page-panel .progress-tabs button,
-body.app-page-health .page-panel .seg-btn,
-body.app-page-health .page-panel .chip,
-body.app-page-health .page-panel .progress-tab{
-  flex:0 0 auto!important;
-  width:auto!important;
-  min-width:104px!important;
-  max-width:none!important;
-  min-height:44px!important;
-  border-radius:999px!important;
-  padding:10px 18px!important;
-  white-space:nowrap!important;
-  overflow:visible!important;
-  text-overflow:clip!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-}
-
-/* Force all inner wrappers/labels to stop clipping */
-body.app-page-wellness .page-panel .segment button *,
-body.app-page-wellness .page-panel .pill-scroll button *,
-body.app-page-wellness .page-panel .progress-tabs button *,
-body.app-page-wellness .page-panel .seg-btn *,
-body.app-page-wellness .page-panel .chip *,
-body.app-page-wellness .page-panel .progress-tab *,
-body.app-page-health .page-panel .segment button *,
-body.app-page-health .page-panel .pill-scroll button *,
-body.app-page-health .page-panel .progress-tabs button *,
-body.app-page-health .page-panel .seg-btn *,
-body.app-page-health .page-panel .chip *,
-body.app-page-health .page-panel .progress-tab *{
-  width:auto!important;
-  min-width:max-content!important;
-  max-width:none!important;
-  height:auto!important;
-  display:inline!important;
-  flex:0 0 auto!important;
-  white-space:nowrap!important;
-  overflow:visible!important;
-  text-overflow:clip!important;
-  clip:auto!important;
-  clip-path:none!important;
-  font-size:inherit!important;
-}
-
-/* If the visible text is still the abbreviated text, replace visually using CSS-only pseudo labels.
-   This targets the first 7 pill buttons in the Wellness tab row, including nested wrappers. */
-body.app-page-wellness .page-panel .segment button,
-body.app-page-wellness .page-panel .pill-scroll button,
-body.app-page-wellness .page-panel .progress-tabs button,
-body.app-page-health .page-panel .segment button,
-body.app-page-health .page-panel .pill-scroll button,
-body.app-page-health .page-panel .progress-tabs button{
-  font-size:0!important;
-}
-
-body.app-page-wellness .page-panel .segment button *,
-body.app-page-wellness .page-panel .pill-scroll button *,
-body.app-page-wellness .page-panel .progress-tabs button *,
-body.app-page-health .page-panel .segment button *,
-body.app-page-health .page-panel .pill-scroll button *,
-body.app-page-health .page-panel .progress-tabs button *{
-  font-size:0!important;
-}
-
-body.app-page-wellness .page-panel .segment button::before,
-body.app-page-wellness .page-panel .pill-scroll button::before,
-body.app-page-wellness .page-panel .progress-tabs button::before,
-body.app-page-health .page-panel .segment button::before,
-body.app-page-health .page-panel .pill-scroll button::before,
-body.app-page-health .page-panel .progress-tabs button::before{
-  font-size:14px!important;
-  line-height:1!important;
-  white-space:nowrap!important;
-}
-
-/* Positional labels */
-body.app-page-wellness .page-panel .segment button:nth-child(1)::before,
-body.app-page-wellness .page-panel .pill-scroll button:nth-child(1)::before,
-body.app-page-wellness .page-panel .progress-tabs button:nth-child(1)::before,
-body.app-page-health .page-panel .segment button:nth-child(1)::before,
-body.app-page-health .page-panel .pill-scroll button:nth-child(1)::before,
-body.app-page-health .page-panel .progress-tabs button:nth-child(1)::before{content:"Dashboard";}
-
-body.app-page-wellness .page-panel .segment button:nth-child(2)::before,
-body.app-page-wellness .page-panel .pill-scroll button:nth-child(2)::before,
-body.app-page-wellness .page-panel .progress-tabs button:nth-child(2)::before,
-body.app-page-health .page-panel .segment button:nth-child(2)::before,
-body.app-page-health .page-panel .pill-scroll button:nth-child(2)::before,
-body.app-page-health .page-panel .progress-tabs button:nth-child(2)::before{content:"Health";}
-
-body.app-page-wellness .page-panel .segment button:nth-child(3)::before,
-body.app-page-wellness .page-panel .pill-scroll button:nth-child(3)::before,
-body.app-page-wellness .page-panel .progress-tabs button:nth-child(3)::before,
-body.app-page-health .page-panel .segment button:nth-child(3)::before,
-body.app-page-health .page-panel .pill-scroll button:nth-child(3)::before,
-body.app-page-health .page-panel .progress-tabs button:nth-child(3)::before{content:"Protocol";}
-
-body.app-page-wellness .page-panel .segment button:nth-child(4)::before,
-body.app-page-wellness .page-panel .pill-scroll button:nth-child(4)::before,
-body.app-page-wellness .page-panel .progress-tabs button:nth-child(4)::before,
-body.app-page-health .page-panel .segment button:nth-child(4)::before,
-body.app-page-health .page-panel .pill-scroll button:nth-child(4)::before,
-body.app-page-health .page-panel .progress-tabs button:nth-child(4)::before{content:"Check-In";}
-
-body.app-page-wellness .page-panel .segment button:nth-child(5)::before,
-body.app-page-wellness .page-panel .pill-scroll button:nth-child(5)::before,
-body.app-page-wellness .page-panel .progress-tabs button:nth-child(5)::before,
-body.app-page-health .page-panel .segment button:nth-child(5)::before,
-body.app-page-health .page-panel .pill-scroll button:nth-child(5)::before,
-body.app-page-health .page-panel .progress-tabs button:nth-child(5)::before{content:"History";}
-
-body.app-page-wellness .page-panel .segment button:nth-child(6)::before,
-body.app-page-wellness .page-panel .pill-scroll button:nth-child(6)::before,
-body.app-page-wellness .page-panel .progress-tabs button:nth-child(6)::before,
-body.app-page-health .page-panel .segment button:nth-child(6)::before,
-body.app-page-health .page-panel .pill-scroll button:nth-child(6)::before,
-body.app-page-health .page-panel .progress-tabs button:nth-child(6)::before{content:"Metrics";}
-
-body.app-page-wellness .page-panel .segment button:nth-child(7)::before,
-body.app-page-wellness .page-panel .pill-scroll button:nth-child(7)::before,
-body.app-page-wellness .page-panel .progress-tabs button:nth-child(7)::before,
-body.app-page-health .page-panel .segment button:nth-child(7)::before,
-body.app-page-health .page-panel .pill-scroll button:nth-child(7)::before,
-body.app-page-health .page-panel .progress-tabs button:nth-child(7)::before{content:"Body";}
-
-/* Make active state readable */
-body.app-page-wellness .page-panel .segment button.on,
-body.app-page-wellness .page-panel .pill-scroll button.on,
-body.app-page-wellness .page-panel .progress-tabs button.on,
-body.app-page-wellness .page-panel .segment button.chosen,
-body.app-page-wellness .page-panel .pill-scroll button.chosen,
-body.app-page-wellness .page-panel .progress-tabs button.chosen,
-body.app-page-health .page-panel .segment button.on,
-body.app-page-health .page-panel .pill-scroll button.on,
-body.app-page-health .page-panel .progress-tabs button.on,
-body.app-page-health .page-panel .segment button.chosen,
-body.app-page-health .page-panel .pill-scroll button.chosen,
-body.app-page-health .page-panel .progress-tabs button.chosen{
-  background:var(--acc)!important;
-  border-color:var(--acc)!important;
-  color:#000!important;
-  box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
-}
-
-/* Restore/protect Workout muscle group / target-area horizontal scroll */
-body.app-page-workout .muscles,
-body.app-page-workout #muscles,
-body.app-page-workout [id*="muscle" i],
-body.app-page-workout [class*="muscle" i],
-body.app-page-workout [class*="target" i]{
-  display:flex!important;
-  flex-direction:row!important;
-  flex-wrap:nowrap!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  gap:8px!important;
-  max-width:100%!important;
 }
 
 body.app-page-workout .muscles .chip,
@@ -11425,7 +11151,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-n';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-o';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

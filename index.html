@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-c-callback OAUTH CALLBACK GUARD
+   v20260525-d-callback OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-c-callback AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-d-callback AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2698,6 +2698,165 @@ body.auth-ready #vertex-auth-loader{
 @media(max-width:760px){
   body.auth-resolving #app{display:flex!important}
   body.authenticated.auth-show-app #app{display:flex!important}
+}
+
+
+/* ============================================================
+   v20260525-d PREMIUM CSS-ONLY POLISH
+   Safe layer: no JS, no render changes, no auth changes.
+   ============================================================ */
+
+:root{
+  --vx-ease:cubic-bezier(0.16,1,0.3,1);
+  --vx-fast:160ms;
+  --vx-med:260ms;
+  --vx-border-soft:rgba(255,255,255,.075);
+  --vx-card-bg:rgba(24,24,24,.72);
+}
+
+button,.btn,.chip,.seg-btn,.progress-tab,.ex-add-btn,.fwm-set-done-btn{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.btn,.chip,.seg-btn,.progress-tab,.ex-add-btn,.fwm-set-done-btn{
+  transition:
+    transform var(--vx-fast) var(--vx-ease),
+    border-color var(--vx-fast) var(--vx-ease),
+    background var(--vx-fast) var(--vx-ease),
+    color var(--vx-fast) var(--vx-ease),
+    opacity var(--vx-fast) var(--vx-ease);
+}
+.btn:active,.chip:active,.seg-btn:active,.progress-tab:active,.ex-add-btn:active,.fwm-set-done-btn:active{
+  transform:scale(.985);
+}
+
+.panel,.accordion,.page-panel,.progress-card,.coach-card,.intel-box,.stat-box,.saved-item,.day-card,.exercise-card,.flow-card,.phase-card{
+  border-color:var(--vx-border-soft)!important;
+}
+.panel,.accordion,.progress-card,.coach-card,.stat-box,.saved-item,.day-card{
+  box-shadow:none;
+}
+
+body.app-page-home #home-dashboard{
+  max-width:1180px;
+  margin-left:auto;
+  margin-right:auto;
+}
+body.app-page-home #home-dashboard .panel,
+body.app-page-home #home-dashboard .accordion,
+body.app-page-home #home-dashboard .progress-card,
+body.app-page-home #home-dashboard .coach-card,
+body.app-page-home #home-dashboard .page-panel{
+  border-color:var(--vx-border-soft)!important;
+}
+body.app-page-home #home-dashboard .home-stat-box,
+body.app-page-home #home-dashboard .home-rec-card,
+body.app-page-home #home-dashboard .intel-box,
+body.app-page-home #home-dashboard .stat-box{
+  background:var(--vx-card-bg)!important;
+  border-color:var(--vx-border-soft)!important;
+  border-radius:10px!important;
+}
+body.app-page-home #home-dashboard .acc-head{
+  background:rgba(24,24,24,.72);
+  min-height:46px;
+}
+body.app-page-home #home-dashboard .accordion{
+  border-radius:12px;
+  overflow:hidden;
+}
+body.app-page-home #home-dashboard .intel-grid{
+  gap:10px;
+}
+body.app-page-home #home-dashboard canvas{
+  min-height:180px;
+}
+body.app-page-home #vertex-home-readiness,
+body.app-page-home [id*="readiness" i],
+body.app-page-home .home-readiness-card{
+  border-color:rgba(232,255,71,.32)!important;
+}
+body.app-page-home #vertex-home-readiness{
+  box-shadow:0 0 0 1px rgba(232,255,71,.04),0 18px 50px rgba(0,0,0,.22);
+}
+body.app-page-home #home-dashboard .progress-card,
+body.app-page-home #home-dashboard .coach-card,
+body.app-page-home #home-dashboard .intel-box,
+body.app-page-home #home-dashboard .home-rec-card,
+body.app-page-home #home-dashboard .home-stat-box,
+body.app-page-home #home-dashboard .panel{
+  min-height:72px;
+}
+
+.acc-head{
+  transition:background var(--vx-fast) var(--vx-ease), border-color var(--vx-fast) var(--vx-ease);
+}
+.accordion.open .acc-head{
+  border-bottom-color:rgba(255,255,255,.06);
+}
+
+body.app-page-workout .exercise-card{
+  border-radius:12px;
+  border-color:rgba(255,255,255,.08)!important;
+}
+body.app-page-workout .ex-head{
+  background:rgba(24,24,24,.82);
+}
+body.app-page-workout .set-row input{
+  min-height:42px;
+  font-size:15px;
+}
+body.app-page-workout .ex-add-btn,
+body.app-page-workout .remove{
+  min-width:36px;
+  min-height:36px;
+}
+.quick-btn{
+  transition:background var(--vx-fast) var(--vx-ease), color var(--vx-fast) var(--vx-ease), border-color var(--vx-fast) var(--vx-ease);
+}
+
+.fwm-overlay{
+  background:rgba(7,7,7,.975);
+}
+.fwm-sets-card{
+  border-color:rgba(255,255,255,.08)!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.26);
+}
+.fwm-set-done-btn.done{
+  animation:vxSetDone 360ms var(--vx-ease) both;
+}
+@keyframes vxSetDone{
+  0%{transform:scale(.92);box-shadow:0 0 0 0 rgba(72,255,138,0)}
+  45%{transform:scale(1.07);box-shadow:0 0 0 10px rgba(72,255,138,.08)}
+  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(72,255,138,0)}
+}
+
+.modal-overlay .modal,
+.session-card,
+.welcome-card,
+.account-menu{
+  transition-timing-function:var(--vx-ease)!important;
+}
+
+@media(max-width:900px){
+  body.app-page-home #home-dashboard{
+    padding-bottom:10px;
+  }
+  body.app-page-home #home-dashboard .home-stat-strip{
+    gap:8px;
+  }
+  body.app-page-home #home-dashboard .accordion:not(.open){
+    opacity:.95;
+  }
+  body.app-page-workout .set-row input{
+    min-height:44px;
+  }
+  body.app-page-workout .exercise-card{
+    border-radius:12px;
+  }
+  .page-panel{
+    border-radius:12px;
+  }
 }
 
 </style>
@@ -10745,7 +10904,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-c';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-d';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

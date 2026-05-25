@@ -3118,21 +3118,12 @@ button.acc-hint {
 
     <div style="margin-top:20px;margin-bottom:20px;padding-top:16px;border-top:1px solid var(--line2)">
       <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Health & Integrations</div>
-      <div style="display:flex;flex-direction:column;gap:0">
-        <div id="strava-integration-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line2)">
-          <div>
-            <div style="font-size:13px;color:var(--text)">Strava</div>
-            <div id="strava-status-text" style="font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace">Not connected</div>
-          </div>
-          <button id="btn-strava-connect" class="btn small acc" style="font-size:11px">CONNECT</button>
+      <div id="strava-integration-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line2)">
+        <div>
+          <div style="font-size:13px;color:var(--text)">Strava</div>
+          <div id="strava-status-text" style="font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace">Not connected</div>
         </div>
-        <div id="google-health-integration-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
-          <div>
-            <div style="font-size:13px;color:var(--text)">Google Health</div>
-            <div id="google-health-status-text" style="font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace">Fitbit · Pixel Watch · Not connected</div>
-          </div>
-          <button id="btn-google-health-connect" class="btn small acc" style="font-size:11px">CONNECT</button>
-        </div>
+        <button id="btn-strava-connect" class="btn small acc" style="font-size:11px">CONNECT</button>
       </div>
     </div>
     <div style="margin-top:4px;padding-top:16px;border-top:1px solid var(--line2)">
@@ -4828,7 +4819,7 @@ function hardLocalSignOut(){
 async function signOut(){
   const supa=getSupa();
   hardLocalSignOut();
-  toast('Signed out');
+  if(!new URLSearchParams(window.location.search).has('code') && !new URLSearchParams(window.location.hash.replace('#','')).has('access_token')) toast('Signed out');
   try{
     if(supa){
       await Promise.race([
@@ -4952,16 +4943,17 @@ async function initAuth(){
   };
 
   supa.auth.onAuthStateChange(async (event,session)=>{
-    // Only treat as signed-out on explicit SIGNED_OUT event.
-    // INITIAL_SESSION with null session is a cold-start race — ignore it,
-    // getSession() below will handle the actual session state.
+    // Suppress SIGNED_OUT during OAuth redirect — Supabase fires it falsely mid-callback
     if(event==='SIGNED_OUT'){
+      const params=new URLSearchParams(window.location.search);
+      const hash=new URLSearchParams(window.location.hash.replace('#',''));
+      if(params.has('code')||hash.has('access_token')||params.has('state')) return;
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
       _hydratedUserId=null; _hydrationInFlight=false;
       document.body.classList.remove('authenticated');
       setSyncStatus('local','Local mode'); renderAccountMenu(); syncAuthShell(); renderAll(); return;
     }
-    if(!session || !session.user) return; // ignore null sessions from cold-start races
+    if(!session || !session.user) return;
     await applyAuthenticatedSession(session);
   });
 
@@ -10556,7 +10548,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-au';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-av';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

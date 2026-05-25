@@ -8001,6 +8001,7 @@ function setPage(page){
   updateWorkoutBottomBar();
 }
 function renderHomeDashboard(){
+  if(state && state.page && state.page !== 'home') return;
   const authUser = window.authUser || null;
   const el = document.getElementById('home-dashboard');
   if(!el) return;
@@ -8319,6 +8320,14 @@ ${dueToday.length ? `
     el.innerHTML = '';
   }
 }
+// Debounce wrapper — prevents rapid successive calls
+let _rhdTimer = null;
+const _renderHomeDashboardOrig = renderHomeDashboard;
+window.renderHomeDashboard = renderHomeDashboard = function(){
+  if(_rhdTimer) clearTimeout(_rhdTimer);
+  _rhdTimer = setTimeout(_renderHomeDashboardOrig, 50);
+};
+
 
 function renderAll(){
   const pg = state.page || defaultPage();
@@ -8339,14 +8348,12 @@ function renderAll(){
     renderRight();
     renderIntel();
   } else if(pg === 'progress'){
-    // progress page renders on demand via renderProgressPage
     if(typeof renderProgressPage === 'function') renderProgressPage();
   } else if(pg === 'wellness'){
     if(typeof renderHealthPage === 'function') renderHealthPage();
   } else if(pg === 'ai'){
     if(typeof renderAiCoachPage === 'function') renderAiCoachPage();
   }
-  // Always keep planner in sync (lightweight)
   renderPlanner();
 }
 function updateWorkoutBottomBar(){try{
@@ -10558,7 +10565,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-al';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-aq';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -12754,34 +12761,11 @@ window.vertexImportHKWorkout = async function(idx) {
   addAcademyButton();
 
 
-  // v13.60.67 Keep Home readiness card visible after tab navigation.
-  document.addEventListener('click',function(e){
-    const nav=e.target && e.target.closest ? e.target.closest('[data-nav="home"]') : null;
-    if(nav){
-      setTimeout(function(){
-        try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(err){}
-      },120);
-    }
-  },true);
+  // Home nav re-render removed — setPage handles home render
 
-  const vertexHomeObserver = new MutationObserver(function(){
-    try{
-      const home=document.getElementById('homePage') || document.getElementById('home-dashboard');
-      const dash=document.getElementById('home-dashboard');
-      if(dash && !document.getElementById('vertex-home-readiness')){
-        setTimeout(function(){ try{ window.renderHomeDashboard&&window.renderHomeDashboard(); }catch(e){} },60);
-      }
-    }catch(e){}
-  });
-  setTimeout(function(){
-    try{ vertexHomeObserver.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']}); }catch(e){}
-  },500);
+  // MutationObserver removed — was causing renderHomeDashboard loop on every DOM mutation
 
-  // First render touch-up.
-  setTimeout(function(){
-    try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
-    try{ if(typeof window.renderAiCoachPage==='function') window.renderAiCoachPage(); }catch(e){}
-  },500);
+  // Touch-up removed — renderAll handles initial paint
 
   console.log('Vertex Academy + AI Coach readiness layer loaded', VERSION);
 })();

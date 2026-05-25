@@ -69,7 +69,7 @@
 .skeleton{background:linear-gradient(90deg,var(--panel2) 25%,var(--panel3) 50%,var(--panel2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r-sm)}
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;overflow:auto}
 @font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;
-/* v20260525-w */
+/* v20260525-x */
 html.vertex-auth-booting body{
   background:#070707 !important;
 }
@@ -2626,7 +2626,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-w-callback OAUTH CALLBACK GUARD
+   v20260525-x OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2673,7 +2673,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-w-callback AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-x AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2745,7 +2745,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-w ACCORDION + FLOATING BUTTON FINAL TUNE
+   v20260525-x ACCORDION + FLOATING BUTTON FINAL TUNE
    ============================================================ */
 
 @media(max-width:900px){
@@ -2807,6 +2807,136 @@ button[data-muscle="all"]:not(.on):not(.active):not([aria-selected="true"]),
   border-color:rgba(255,255,255,.11)!important;
   color:var(--muted)!important;
   box-shadow:none!important;
+}
+
+
+/* ============================================================
+   v20260525-x HOME ACCORDION TAP TARGET FIX
+   CSS only. No JS/runtime/auth changes.
+   ============================================================ */
+
+/* The app handler only toggles when event.target matches .acc-head.
+   On mobile taps land on .acc-title/.acc-hint, so force children to pass through. */
+#plannerAcc .acc-head,
+#intelAcc .acc-head{
+  pointer-events:auto!important;
+  cursor:pointer!important;
+  touch-action:manipulation!important;
+}
+
+#plannerAcc .acc-head *,
+#intelAcc .acc-head *{
+  pointer-events:none!important;
+}
+
+/* Keep the accordion body strictly tied to .open */
+#plannerAcc .acc-body,
+#intelAcc .acc-body{
+  display:none!important;
+}
+
+#plannerAcc.open .acc-body,
+#intelAcc.open .acc-body{
+  display:block!important;
+}
+
+/* Keep floating up button right-of-center where approved */
+@media(max-width:900px){
+  button[id*="top" i],
+  button[class*="top" i],
+  button[id*="scroll" i],
+  button[class*="scroll" i],
+  button[id*="float" i],
+  button[class*="float" i],
+  .back-to-top,
+  .scroll-to-top,
+  .floating-action,
+  .floating-btn{
+    left:58%!important;
+    right:auto!important;
+    bottom:max(72px, calc(env(safe-area-inset-bottom) + 72px))!important;
+    transform:translateX(-50%)!important;
+    z-index:65!important;
+  }
+}
+
+/* Quiet default for unselected Workout/Progress/Wellness/Settings pills */
+.segment .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
+.pill-scroll .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
+.progress-tabs .progress-tab:not(.on):not(.active):not([aria-selected="true"]),
+.progress-tab:not(.on):not(.active):not([aria-selected="true"]),
+.chip:not(.on):not(.active):not([aria-selected="true"]),
+.tpl-pill:not(.on):not(.active):not([aria-selected="true"]),
+button[data-tab]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-wtab]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-ptab]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-program-tab]:not(.on):not(.active):not([aria-selected="true"]),
+.settings-modal .btn:not(.on):not(.active):not([aria-selected="true"]),
+.settings-panel .btn:not(.on):not(.active):not([aria-selected="true"]){
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.11)!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
+}
+
+/* Selected only */
+.segment .seg-btn.on,
+.segment .seg-btn.active,
+.segment .seg-btn[aria-selected="true"],
+.pill-scroll .seg-btn.on,
+.pill-scroll .seg-btn.active,
+.pill-scroll .seg-btn[aria-selected="true"],
+.progress-tabs .progress-tab.on,
+.progress-tabs .progress-tab.active,
+.progress-tabs .progress-tab[aria-selected="true"],
+.progress-tab.on,
+.progress-tab.active,
+.progress-tab[aria-selected="true"],
+.chip.on,
+.chip.active,
+.chip[aria-selected="true"],
+.tpl-pill.on,
+.tpl-pill.active,
+.tpl-pill[aria-selected="true"],
+button[data-tab].on,
+button[data-tab].active,
+button[data-tab][aria-selected="true"],
+button[data-wtab].on,
+button[data-wtab].active,
+button[data-wtab][aria-selected="true"],
+button[data-ptab].on,
+button[data-ptab].active,
+button[data-ptab][aria-selected="true"],
+button[data-program-tab].on,
+button[data-program-tab].active,
+button[data-program-tab][aria-selected="true"],
+.settings-modal .btn.on,
+.settings-modal .btn.active,
+.settings-modal .btn[aria-selected="true"],
+.settings-panel .btn.on,
+.settings-panel .btn.active,
+.settings-panel .btn[aria-selected="true"]{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.58)!important;
+  color:var(--acc)!important;
+  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
+}
+
+/* True CTAs stay filled */
+#aiPage .btn.acc,
+#aiPlanPage .btn.acc,
+[id*="aiPlan" i] .btn.acc,
+body.app-page-ai .btn.acc,
+body.app-page-aiplan .btn.acc,
+body.app-page-ai-plan .btn.acc,
+button[id*="generate" i],
+button[id*="add" i][id*="exercise" i],
+#btn-add-exercise,
+#addExercise,
+.btn-add-exercise{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
 }
 
 </style>
@@ -10882,7 +11012,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-w';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-x';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

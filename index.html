@@ -4870,6 +4870,8 @@ async function applyAuthenticatedSession(session){
   clearLoginInputs();
   renderAccountMenu();
   syncAuthShell();
+  // Defer renderAll one frame so auth-loader fade covers the initial paint
+  await new Promise(r => requestAnimationFrame(r));
   renderAll();
 
   // Skip re-hydration if we've already done it for this user.
@@ -4885,14 +4887,22 @@ async function applyAuthenticatedSession(session){
   clearCurrent();
   setSyncStatus('synced','Supabase synced');
 
-  // All three loads happen in background — UI is already shown
-  hydratePlannerFromCloud().then(()=>{ savePlanner(); renderPlanner(); renderToday(); if(state.page==='home'||!state.page) renderHomeDashboard(); }).catch(()=>{});
-  loadSavedWorkoutsFromCloud().catch(()=>{});
-  loadProgressLogs().catch(()=>{});
-  loadCheckinLogs().catch(()=>{});
-  loadWcLogs().catch(()=>{});
+  // All loads fire in parallel — single batched re-render when they settle
   window.__vertexHealthMetricLoadOnce = false;
-  loadHealthMetricsFromCloud().then(ok=>{ if(ok){ try{ renderHealthPage(); }catch(e){} try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){} } }).catch(()=>{});
+  Promise.all([
+    hydratePlannerFromCloud().then(()=>{ savePlanner(); }).catch(()=>{}),
+    loadSavedWorkoutsFromCloud().catch(()=>{}),
+    loadProgressLogs().catch(()=>{}),
+    loadCheckinLogs().catch(()=>{}),
+    loadWcLogs().catch(()=>{}),
+    loadHealthMetricsFromCloud().catch(()=>{})
+  ]).then(()=>{
+    requestAnimationFrame(()=>{
+      renderAll();
+      try{ renderHealthPage(); }catch(e){}
+      try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
+    });
+  });
 
   // Auto-refresh when PWA comes back to foreground (tab focus / app switch)
   if(!window.__vertexVisibilityListenerAdded){
@@ -10518,7 +10528,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-am';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-al';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

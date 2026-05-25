@@ -3112,6 +3112,16 @@ button.acc-hint {
       </div>
     </div>
 
+    <div style="margin-top:20px;margin-bottom:20px;padding-top:16px;border-top:1px solid var(--line2)">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Health & Integrations</div>
+      <div id="strava-integration-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line2)">
+        <div>
+          <div style="font-size:13px;color:var(--text)">Strava</div>
+          <div id="strava-status-text" style="font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace">Not connected</div>
+        </div>
+        <button id="btn-strava-connect" class="btn small acc" style="font-size:11px">CONNECT</button>
+      </div>
+    </div>
     <div style="margin-top:4px;padding-top:16px;border-top:1px solid var(--line2)">
       <button class="btn small" id="btn-notif-setup" style="width:100%;margin-bottom:8px">🔔 Notification Reminders</button>
       <button class="btn small" id="settings-clear-cache" style="width:100%;color:#ff6b6b;font-size:11px">🗑 Clear Cache & Reload</button>
@@ -7615,6 +7625,171 @@ function protoSelectDate(dateStr){
           <tbody>${items.map(s=>`<tr><td><b>${escapeHtml(s.name||'')}</b></td><td>${escapeHtml(s.supplement_type||'')}</td><td>${s.dose||'—'} ${escapeHtml(s.unit||'')}</td><td>${escapeHtml(vertexFrequencyLabel(s))}</td><td>${escapeHtml(s.timing||'Morning')}</td><td>${s.cycle_start_date||'—'}</td><td>${escapeHtml(s.notes||'—')}</td></tr>`).join('')}
           </tbody></table>
 
+
+<script>
+// ============================================================
+// STRAVA INTEGRATION
+// ============================================================
+const STRAVA_CLIENT_ID = '250525';
+const STRAVA_REDIRECT_URI = 'https://vertex-beta-five.vercel.app';
+const STRAVA_SCOPE = 'read,activity:read_all';
+
+function stravaGetToken() {
+  try { return JSON.parse(localStorage.getItem('vertex_strava_token') || 'null'); } catch(e) { return null; }
+}
+function stravaSetToken(t) {
+  try { localStorage.setItem('vertex_strava_token', JSON.stringify(t)); } catch(e) {}
+}
+function stravaClearToken() {
+  try { localStorage.removeItem('vertex_strava_token'); } catch(e) {}
+}
+function stravaIsConnected() {
+  const t = stravaGetToken();
+  return !!(t && t.access_token);
+}
+
+function stravaConnect() {
+  const url = `https://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}&redirect_uri=${encodeURIComponent(STRAVA_REDIRECT_URI)}&response_type=code&approval_prompt=auto&scope=${STRAVA_SCOPE}&state=strava_oauth`;
+  window.location.href = url;
+}
+
+async function stravaExchangeCode(code) {
+  const r = await fetch('/api/strava-auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, grant_type: 'authorization_code' })
+  });
+  if (!r.ok) throw new Error('Token exchange failed');
+  return r.json();
+}
+
+async function stravaRefreshToken() {
+  const t = stravaGetToken();
+  if (!t || !t.refresh_token) return null;
+  if (Date.now() / 1000 < t.expires_at - 300) return t.access_token;
+  const r = await fetch('/api/strava-auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: t.refresh_token })
+  });
+  if (!r.ok) { stravaClearToken(); return null; }
+  const data = await r.json();
+  stravaSetToken(data);
+  return data.access_token;
+}
+
+async function stravaFetchActivities(accessToken, perPage = 30) {
+  const after = Math.floor(Date.now() / 1000) - (90 * 24 * 60 * 60);
+  const r = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}&after=${after}`, {
+    headers: { 'Authorization': `Bearer ${accessToken}` }
+  });
+  if (!r.ok) throw new Error('Failed to fetch activities');
+  return r.json();
+}
+
+function stravaActivityToLog(activity, userId) {
+  const typeMap = { 'Run': 'cardio', 'Ride': 'cardio', 'Swim': 'cardio', 'WeightTraining': 'strength', 'Workout': 'strength', 'Walk': 'cardio', 'Hike': 'cardio', 'Yoga': 'flexibility', 'CrossFit': 'strength' };
+  return {
+    user_id: userId,
+    logged_at: activity.start_date,
+    workout_name: activity.name || activity.type,
+    workout_type: typeMap[activity.type] || 'cardio',
+    duration_min: Math.round((activity.moving_time || 0) / 60),
+    notes: `Strava · ${activity.type}${activity.distance ? ' · ' + (activity.distance / 1000).toFixed(1) + 'km' : ''}`,
+    source: 'strava',
+    strava_id: String(activity.id)
+  };
+}
+
+async function stravaSyncActivities() {
+  if (!authUser) return;
+  const accessToken = await stravaRefreshToken();
+  if (!accessToken) return;
+  try {
+    const activities = await stravaFetchActivities(accessToken);
+    if (!activities || !activities.length) return;
+    const supa = getSupa();
+    const { data: existing } = await supa.from('vertex_workout_logs').select('strava_id').eq('user_id', authUser.id).not('strava_id', 'is', null);
+    const existingIds = new Set((existing || []).map(r => r.strava_id));
+    const newLogs = activities.filter(a => !existingIds.has(String(a.id))).map(a => stravaActivityToLog(a, authUser.id));
+    if (newLogs.length) {
+      await supa.from('vertex_workout_logs').insert(newLogs);
+      toast(`Strava: ${newLogs.length} new activit${newLogs.length === 1 ? 'y' : 'ies'} synced`);
+    }
+  } catch(e) {
+    console.warn('Strava sync error:', e);
+  }
+}
+
+function stravaUpdateSettingsUI() {
+  const btn = document.getElementById('btn-strava-connect');
+  const status = document.getElementById('strava-status-text');
+  if (!btn || !status) return;
+  if (stravaIsConnected()) {
+    const t = stravaGetToken();
+    btn.textContent = 'DISCONNECT';
+    btn.classList.remove('acc');
+    btn.style.color = 'var(--red)';
+    btn.style.borderColor = 'rgba(255,77,77,.4)';
+    status.textContent = t?.athlete?.firstname ? `Connected as ${t.athlete.firstname} ${t.athlete.lastname || ''}`.trim() : '● Connected';
+    status.style.color = 'var(--green)';
+  } else {
+    btn.textContent = 'CONNECT';
+    btn.classList.add('acc');
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    status.textContent = 'Not connected';
+    status.style.color = 'var(--muted)';
+  }
+}
+
+// Handle Strava OAuth callback
+(async function stravaHandleCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const state = params.get('state');
+  if (code && state === 'strava_oauth') {
+    history.replaceState({}, '', window.location.pathname);
+    try {
+      const token = await stravaExchangeCode(code);
+      stravaSetToken(token);
+      toast('Strava connected!');
+      stravaUpdateSettingsUI();
+      if (authUser) await stravaSyncActivities();
+    } catch(e) {
+      toast('Strava connection failed');
+      console.error(e);
+    }
+  }
+})();
+
+// Wire up connect/disconnect button
+document.addEventListener('click', async function(e) {
+  if (e.target.id !== 'btn-strava-connect') return;
+  if (stravaIsConnected()) {
+    if (await vertexConfirm('Disconnect Strava? Your synced activities will remain.')) {
+      stravaClearToken();
+      stravaUpdateSettingsUI();
+      toast('Strava disconnected');
+    }
+  } else {
+    stravaConnect();
+  }
+});
+
+// Update UI when settings modal opens
+const _origOpenSettings = window.openSettingsModal;
+window.openSettingsModal = function() {
+  if (typeof _origOpenSettings === 'function') _origOpenSettings();
+  setTimeout(stravaUpdateSettingsUI, 50);
+};
+
+// Auto-sync on login
+window.addEventListener('vertex-auth-ready', async function() {
+  if (stravaIsConnected()) await stravaSyncActivities();
+}, { once: true });
+</script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -10500,7 +10675,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-aj';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ak';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

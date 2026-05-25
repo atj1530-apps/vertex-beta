@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-r OAUTH CALLBACK GUARD
+   v20260525-s OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-r AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-s AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,7 +2702,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-r PROGRESS + WELLNESS POLISH
+   v20260525-s PROGRESS + WELLNESS POLISH
    CSS only. Cross-app visual consistency.
    ============================================================ */
 
@@ -2950,7 +2950,7 @@ body.app-page-health .empty-cta{
 
 
 /* ============================================================
-   v20260525-r STABLE ROLLBACK + WELLNESS TAB WIDTH
+   v20260525-s STABLE ROLLBACK + WELLNESS TAB WIDTH
    CSS only. No runtime script. No auth/render changes.
    ============================================================ */
 
@@ -2994,7 +2994,7 @@ body.app-page-health .progress-tab{
 
 
 /* ============================================================
-   v20260525-r WELLNESS FULL LABEL FIX
+   v20260525-s WELLNESS FULL LABEL FIX
    CSS only. Uses existing full labels already in markup.
    ============================================================ */
 
@@ -3108,7 +3108,7 @@ body.app-page-workout [class*="target" i] .chip{
 
 
 /* ============================================================
-   v20260525-r AI PLAN PREMIUM REDESIGN
+   v20260525-s AI PLAN PREMIUM REDESIGN
    CSS only. No auth/data/runtime changes.
    ============================================================ */
 
@@ -3321,7 +3321,7 @@ body.app-page-plan .empty-cta,
 
 
 /* ============================================================
-   v20260525-r COHESION + INTERACTION REPAIR
+   v20260525-s COHESION + INTERACTION REPAIR
    CSS only. No auth/data/runtime changes.
    ============================================================ */
 
@@ -3519,46 +3519,96 @@ body.app-page-plan .btn.acc,
 
 
 /* ============================================================
-   v20260525-r MOBILE HOME ACCORDION TOUCH FIX
-   Targets Weekly Intelligence + Weekly Planner only.
+   v20260525-s STABLE CSS-ONLY ROLLBACK + ACCOUNT COHESION
+   No JS. No auth/render/data changes.
    ============================================================ */
 
-#plannerAcc,
-#intelAcc{
-  position:relative!important;
-  z-index:2!important;
+/* Account button follows same rule as pills:
+   quiet by default, yellow border/text on hover/open/active. */
+#btn-account,
+.hdr-account-desktop,
+button[id*="account" i],
+.btn[id*="account" i],
+button[aria-label*="account" i]{
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:var(--text)!important;
+  box-shadow:none!important;
 }
 
-#plannerAcc .acc-head,
-#intelAcc .acc-head{
-  position:relative!important;
-  z-index:3!important;
-  pointer-events:auto!important;
-  cursor:pointer!important;
-  touch-action:manipulation!important;
-  -webkit-user-select:none!important;
-  user-select:none!important;
+#btn-account:hover,
+.hdr-account-desktop:hover,
+button[id*="account" i]:hover,
+.btn[id*="account" i]:hover,
+button[aria-label*="account" i]:hover{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.58)!important;
+  color:var(--acc)!important;
+  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
 }
 
-/* Allow mobile tap target to register whether the user taps title or hint */
-#plannerAcc .acc-head *,
-#intelAcc .acc-head *{
-  pointer-events:auto!important;
+/* When account menu is open, visually pair it with the account trigger */
+body:has(.account-menu.on) #btn-account,
+body:has(.account-menu.on) .hdr-account-desktop,
+body:has(.account-menu.on) button[id*="account" i],
+body:has(.account-menu.on) .btn[id*="account" i]{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.58)!important;
+  color:var(--acc)!important;
+  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
 }
 
-/* Make mobile hit area more forgiving */
+/* Account menu itself: quieter premium surface */
+.account-menu{
+  background:rgba(24,24,24,.96)!important;
+  border-color:rgba(232,255,71,.24)!important;
+  box-shadow:0 22px 60px rgba(0,0,0,.42)!important;
+}
+
+.account-menu input{
+  background:rgba(8,8,8,.92)!important;
+  border-color:rgba(255,255,255,.10)!important;
+}
+
+.account-menu input:focus{
+  outline:none!important;
+  border-color:rgba(232,255,71,.55)!important;
+  box-shadow:0 0 0 4px rgba(232,255,71,.075)!important;
+}
+
+.account-menu .btn{
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:var(--text)!important;
+}
+
+.account-menu .btn:hover{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.58)!important;
+  color:var(--acc)!important;
+}
+
+/* True account primary actions can still go filled yellow if already .acc */
+.account-menu .btn.acc{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+}
+
+/* CSS-only support for mobile accordion hit area, no JS. */
 @media(max-width:900px){
   #plannerAcc .acc-head,
   #intelAcc .acc-head{
     min-height:52px!important;
     padding-top:14px!important;
     padding-bottom:14px!important;
+    touch-action:manipulation!important;
+    cursor:pointer!important;
+    pointer-events:auto!important;
   }
 
-  #plannerAcc .acc-title,
-  #intelAcc .acc-title,
-  #plannerAcc .acc-hint,
-  #intelAcc .acc-hint{
+  #plannerAcc .acc-head *,
+  #intelAcc .acc-head *{
     pointer-events:none!important;
   }
 }
@@ -8710,80 +8760,6 @@ function protoSelectDate(dateStr){
 
 
 
-<script>
-
-(function(){
-  'use strict';
-  if(window.__vertexMobileHomeAccordionFixR) return;
-  window.__vertexMobileHomeAccordionFixR = true;
-
-  function isMobileLike(){
-    try{
-      return window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
-    }catch(e){
-      return false;
-    }
-  }
-
-  function syncHint(acc){
-    try{
-      var hint = acc.querySelector('.acc-hint');
-      if(!hint) return;
-      hint.textContent = acc.classList.contains('open') ? '▼ COLLAPSE' : '▶ EXPAND';
-    }catch(e){}
-  }
-
-  function toggleAcc(acc){
-    if(!acc) return;
-    acc.classList.toggle('open');
-    syncHint(acc);
-    try{
-      localStorage.setItem('vertex_acc_' + acc.id, acc.classList.contains('open') ? 'open' : 'closed');
-    }catch(e){}
-  }
-
-  function install(){
-    ['plannerAcc','intelAcc'].forEach(function(id){
-      var acc = document.getElementById(id);
-      if(!acc || acc.__vertexMobileAccordionFixed) return;
-      var head = acc.querySelector('.acc-head');
-      if(!head) return;
-      acc.__vertexMobileAccordionFixed = true;
-
-      head.addEventListener('touchend', function(ev){
-        if(!isMobileLike()) return;
-        try{
-          ev.preventDefault();
-          ev.stopPropagation();
-        }catch(e){}
-        toggleAcc(acc);
-      }, {passive:false});
-
-      head.addEventListener('click', function(ev){
-        if(!isMobileLike()) return;
-        var now = Date.now();
-        if(head.__lastTouchToggle && now - head.__lastTouchToggle < 450) return;
-        try{
-          ev.preventDefault();
-          ev.stopPropagation();
-        }catch(e){}
-        toggleAcc(acc);
-      }, true);
-    });
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', install);
-  }else{
-    install();
-  }
-
-  window.addEventListener('vertex:authenticated', function(){ setTimeout(install, 150); });
-  window.addEventListener('resize', function(){ setTimeout(install, 150); });
-})();
-
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -11682,7 +11658,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-r';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-s';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

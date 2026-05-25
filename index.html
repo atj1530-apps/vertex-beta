@@ -370,67 +370,31 @@ body.authenticated #app{
 
 
 /* ============================================================
-   v20260524-ax PREMIUM AUTH REVEAL — single source of truth
-   Login stays mounted for fade-out; app shell preloads hidden, then settles in.
+   v20260524-ax PREMIUM AUTH REVEAL — curtain-based scene change
+   The app renders behind a Vertex curtain, then the curtain releases.
    ============================================================ */
-body:not(.auth-done) .login-screen{
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
+#vertex-auth-curtain{
+  position:fixed;inset:0;z-index:9998;background:radial-gradient(circle at 70% 22%,rgba(232,255,71,.13),transparent 34%),#070707;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 520ms cubic-bezier(.22,1,.36,1),visibility 0s linear 520ms;will-change:opacity;
 }
-body.auth-done:not(.authenticated) .login-screen{
-  display:flex !important;
-  opacity:1 !important;
-  visibility:visible !important;
-  pointer-events:auto !important;
-}
-body.authenticated .login-screen{
-  display:flex !important;
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-  transition:opacity 420ms cubic-bezier(0.22,1,0.36,1), visibility 0s linear 420ms !important;
-}
-body.authenticated .login-card{
-  transform:translate3d(0,-10px,0) scale(.985) !important;
-  opacity:0 !important;
-  transition:transform 460ms cubic-bezier(0.22,1,0.36,1), opacity 320ms ease !important;
-}
-#app-header,#app{
-  transform:translate3d(0,10px,0);
-  will-change:opacity,transform;
-}
-body.authenticated:not(.auth-show-app) #app-header,
-body.authenticated:not(.auth-show-app) #app{
-  display:grid !important;
-  opacity:0 !important;
-  visibility:visible !important;
-  pointer-events:none !important;
-  transform:translate3d(0,10px,0) scale(.995) !important;
-}
-body.authenticated.auth-show-app #app-header,
-body.authenticated.auth-show-app #app{
-  opacity:1 !important;
-  visibility:visible !important;
-  pointer-events:auto !important;
-  transform:translate3d(0,0,0) scale(1) !important;
-  transition:opacity 520ms cubic-bezier(0.22,1,0.36,1), transform 620ms cubic-bezier(0.22,1,0.36,1) !important;
-}
-body.authenticated.auth-show-app #app-header{transition-delay:80ms !important;}
-body.authenticated.auth-show-app #app{transition-delay:120ms !important;}
-@media (max-width:760px){
-  body.authenticated:not(.auth-show-app) #app,
-  body.authenticated.auth-show-app #app{display:flex !important;}
-}
-@media (prefers-reduced-motion: reduce){
-  body.authenticated .login-screen,
-  body.authenticated .login-card,
-  body.authenticated.auth-show-app #app-header,
-  body.authenticated.auth-show-app #app{
-    transition-duration:0.01ms !important;
-    transform:none !important;
-  }
-}
+.vertex-curtain-inner{display:flex;flex-direction:column;align-items:center;gap:18px;transform:translate3d(0,8px,0) scale(.985);opacity:.92;transition:transform 620ms cubic-bezier(.22,1,.36,1),opacity 420ms ease;will-change:transform,opacity;}
+.vertex-curtain-brand{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:9px;color:var(--acc);line-height:1;text-shadow:0 0 28px rgba(232,255,71,.12)}
+.vertex-curtain-line{width:118px;height:2px;background:rgba(255,255,255,.09);border-radius:999px;overflow:hidden;}
+.vertex-curtain-line span{display:block;width:48%;height:100%;background:var(--acc);border-radius:999px;animation:vertexCurtainLine 900ms cubic-bezier(.22,1,.36,1) infinite alternate;}
+@keyframes vertexCurtainLine{from{transform:translateX(-20%);opacity:.55}to{transform:translateX(130%);opacity:1}}
+body.auth-curtain-on #vertex-auth-curtain{opacity:1;visibility:visible;transition:opacity 240ms ease,visibility 0s linear 0s;}
+body.auth-curtain-on .vertex-curtain-inner{transform:translate3d(0,0,0) scale(1);opacity:1;}
+body.auth-curtain-release #vertex-auth-curtain{opacity:0;visibility:hidden;transition:opacity 620ms cubic-bezier(.22,1,.36,1),visibility 0s linear 620ms;}
+body.auth-curtain-release .vertex-curtain-inner{transform:translate3d(0,-10px,0) scale(1.015);opacity:0;}
+body:not(.auth-done) .login-screen{opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
+body.auth-done:not(.authenticated) .login-screen{display:flex!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;}
+body.authenticated .login-screen{display:flex!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;transition:opacity 220ms ease,visibility 0s linear 220ms!important;}
+body.authenticated .login-card{transform:translate3d(0,-8px,0) scale(.985)!important;opacity:0!important;transition:transform 260ms cubic-bezier(.22,1,.36,1),opacity 200ms ease!important;}
+#app-header,#app{will-change:opacity,transform;}
+body.authenticated:not(.auth-show-app) #app-header,body.authenticated:not(.auth-show-app) #app{display:grid!important;opacity:0!important;visibility:visible!important;pointer-events:none!important;transform:translate3d(0,8px,0) scale(.997)!important;}
+body.authenticated.auth-show-app #app-header,body.authenticated.auth-show-app #app{opacity:1!important;visibility:visible!important;pointer-events:auto!important;transform:translate3d(0,0,0) scale(1)!important;transition:opacity 420ms cubic-bezier(.22,1,.36,1),transform 520ms cubic-bezier(.22,1,.36,1)!important;}
+body.authenticated.auth-show-app #app-header{transition-delay:40ms!important;} body.authenticated.auth-show-app #app{transition-delay:80ms!important;}
+@media(max-width:760px){body.authenticated:not(.auth-show-app) #app,body.authenticated.auth-show-app #app{display:flex!important;}}
+@media(prefers-reduced-motion:reduce){#vertex-auth-curtain,.vertex-curtain-inner,body.authenticated .login-screen,body.authenticated .login-card,body.authenticated.auth-show-app #app-header,body.authenticated.auth-show-app #app{transition-duration:.01ms!important;animation:none!important;transform:none!important;}}
 
 /* ============================================================
    v13.61 WELCOME MODAL — first-run onboarding (3 steps)
@@ -3111,6 +3075,7 @@ button.acc-hint {
 
 <!-- v13.63 Exercise Demo Modal — YouTube embed + form cues -->
 <div id="vertex-auth-loader"><div style="font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:8px;color:#e8ff47;opacity:.9">VERTEX</div></div>
+<div id="vertex-auth-curtain" aria-hidden="true"><div class="vertex-curtain-inner"><div class="vertex-curtain-brand">VERTEX</div><div class="vertex-curtain-line"><span></span></div></div></div>
 <div id="settingsModal" class="modal-overlay">
   <div class="modal" style="max-width:460px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
@@ -5621,26 +5586,40 @@ function syncAuthShell(){
     }
   }
 
+  // Signed out: cleanly reset all transition classes and show login after loader.
   if(!hasAuth){
-    body.classList.remove('authenticated','auth-revealing','auth-show-app','welcome-active');
+    if(window.__vertexAuthRevealTimer){ clearTimeout(window.__vertexAuthRevealTimer); window.__vertexAuthRevealTimer=null; }
+    if(window.__vertexCurtainTimer){ clearTimeout(window.__vertexCurtainTimer); window.__vertexCurtainTimer=null; }
+    body.classList.remove('authenticated','auth-revealing','auth-show-app','auth-curtain-on','auth-curtain-release','welcome-active');
     finishLoader();
     return;
   }
 
-  body.classList.add('authenticated','auth-revealing');
+  // Already revealed; do not restart the animation when renderAccountMenu or renderAll calls back here.
+  if(body.classList.contains('auth-show-app')){
+    finishLoader();
+    return;
+  }
+
+  body.classList.add('authenticated','auth-revealing','auth-curtain-on');
+  body.classList.remove('auth-curtain-release');
   finishLoader();
 
-  // Stage the reveal after the current render pass so the home shell is already mounted.
+  // Curtain sequence: app mounts hidden behind the curtain, then the app reveals, then curtain fades away.
   if(!window.__vertexAuthRevealTimer){
     window.__vertexAuthRevealTimer=setTimeout(()=>{
       window.__vertexAuthRevealTimer=null;
       requestAnimationFrame(()=>{
         requestAnimationFrame(()=>{
           body.classList.add('auth-show-app');
-          body.classList.remove('auth-revealing');
+          window.__vertexCurtainTimer=setTimeout(()=>{
+            body.classList.add('auth-curtain-release');
+            body.classList.remove('auth-revealing');
+            setTimeout(()=>body.classList.remove('auth-curtain-on'), 700);
+          }, 220);
         });
       });
-    }, 110);
+    }, 360);
   }
 }
 function renderAccountMenu(){syncAuthShell();const menu=document.getElementById('account-menu'); const btn=document.getElementById('btn-account-desktop'); if(!menu) return; if(btn) btn.textContent=authUser?'Account':'Sign In'; if(authUser){menu.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div class="acct-title">Account</div><button type="button" onclick="document.getElementById('account-menu').classList.remove('on')" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0;line-height:1">×</button></div><div class="acct-email">${escapeHtml(authUser.email)}</div><div style="font-size:10px;color:var(--green);font-family:'DM Mono',monospace;letter-spacing:.5px;margin:4px 0 10px">● Synced</div><button type="button" class="btn small" id="btn-open-settings" style="width:100%;margin-top:4px">⚙ Settings</button><button type="button" class="btn small" id="btn-notif-setup" style="width:100%;margin-top:6px">🔔 Notifications</button><button type="button" class="btn small" id="btn-generate-pdf-report" style="width:100%;margin-top:6px">↓ Export PDF Report</button><button type="button" class="btn small" id="acct-signout" onclick="window.VertexSignOut && window.VertexSignOut(); return false;" style="width:100%;margin-top:10px;border-color:rgba(255,77,77,.4);color:var(--red)">Sign Out</button>`; return;} menu.innerHTML=`<div class="acct-title">Sign in / Create Account</div><div class="acct-sub">Real Supabase auth. Use Google or email/password.</div><button type="button" class="btn acc small" id="acct-google" onclick="signInGoogle(this).then(err=>{const eb=document.getElementById('landing-error');if(eb)eb.textContent=err||'';})" style="width:100%;margin-top:10px">Continue with Google</button><div class="acct-muted" style="text-align:center;margin:10px 0 2px">or use email</div><input id="acct-email" type="email" name="vertex-menu-email" autocomplete="off" autocapitalize="none" spellcheck="false" value="" placeholder="Email"><input id="acct-pass" type="password" name="vertex-menu-pass" autocomplete="new-password" value="" placeholder="Password"><div class="acct-actions"><button class="btn acc small" id="acct-signin">Sign In</button><button class="btn small" id="acct-create">Create</button></div><div id="acct-error" class="acct-error"></div><div class="acct-muted">OAuth redirects back to this Vertex URL after Google confirms the account.</div>`;}

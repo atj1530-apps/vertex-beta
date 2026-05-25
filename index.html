@@ -367,40 +367,6 @@ body.authenticated #app{
   }
 }
 
-
-
-/* ============================================================
-   v20260524-ax PREMIUM AUTH REVEAL — curtain-based scene change
-   The app renders behind a Vertex curtain, then the curtain releases.
-   ============================================================ */
-#vertex-auth-curtain{
-  position:fixed;inset:0;z-index:9998;background:radial-gradient(circle at 70% 22%,rgba(232,255,71,.13),transparent 34%),#070707;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 520ms cubic-bezier(.22,1,.36,1),visibility 0s linear 520ms;will-change:opacity;
-}
-.vertex-curtain-inner{display:flex;flex-direction:column;align-items:center;gap:18px;transform:translate3d(0,8px,0) scale(.985);opacity:.92;transition:transform 620ms cubic-bezier(.22,1,.36,1),opacity 420ms ease;will-change:transform,opacity;}
-.vertex-curtain-brand{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:9px;color:var(--acc);line-height:1;text-shadow:0 0 28px rgba(232,255,71,.12)}
-.vertex-curtain-line{width:118px;height:2px;background:rgba(255,255,255,.09);border-radius:999px;overflow:hidden;}
-.vertex-curtain-line span{display:block;width:48%;height:100%;background:var(--acc);border-radius:999px;animation:vertexCurtainLine 900ms cubic-bezier(.22,1,.36,1) infinite alternate;}
-@keyframes vertexCurtainLine{from{transform:translateX(-20%);opacity:.55}to{transform:translateX(130%);opacity:1}}
-body.auth-curtain-on #vertex-auth-curtain{opacity:1;visibility:visible;transition:opacity 240ms ease,visibility 0s linear 0s;}
-body.auth-curtain-on .vertex-curtain-inner{transform:translate3d(0,0,0) scale(1);opacity:1;}
-body.auth-curtain-release #vertex-auth-curtain{opacity:0;visibility:hidden;transition:opacity 620ms cubic-bezier(.22,1,.36,1),visibility 0s linear 620ms;}
-body.auth-curtain-release .vertex-curtain-inner{transform:translate3d(0,-10px,0) scale(1.015);opacity:0;}
-/* v20260524-ax.2 OAuth return shield: prevents the Google webview from revealing the stale login card while Supabase exchanges the callback for a session. */
-body.oauth-returning #vertex-auth-curtain{opacity:1!important;visibility:visible!important;pointer-events:auto!important;transition:opacity 120ms ease,visibility 0s linear 0s!important;}
-body.oauth-returning .vertex-curtain-inner{transform:translate3d(0,0,0) scale(1)!important;opacity:1!important;}
-body.oauth-returning .login-screen{opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
-body.oauth-returning #app-header,body.oauth-returning #app{opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
-body:not(.auth-done) .login-screen{opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
-body.auth-done:not(.authenticated) .login-screen{display:flex!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;}
-body.authenticated .login-screen{display:flex!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;transition:opacity 220ms ease,visibility 0s linear 220ms!important;}
-body.authenticated .login-card{transform:translate3d(0,-8px,0) scale(.985)!important;opacity:0!important;transition:transform 260ms cubic-bezier(.22,1,.36,1),opacity 200ms ease!important;}
-#app-header,#app{will-change:opacity,transform;}
-body.authenticated:not(.auth-show-app) #app-header,body.authenticated:not(.auth-show-app) #app{display:grid!important;opacity:0!important;visibility:visible!important;pointer-events:none!important;transform:translate3d(0,8px,0) scale(.997)!important;}
-body.authenticated.auth-show-app #app-header,body.authenticated.auth-show-app #app{opacity:1!important;visibility:visible!important;pointer-events:auto!important;transform:translate3d(0,0,0) scale(1)!important;transition:opacity 420ms cubic-bezier(.22,1,.36,1),transform 520ms cubic-bezier(.22,1,.36,1)!important;}
-body.authenticated.auth-show-app #app-header{transition-delay:40ms!important;} body.authenticated.auth-show-app #app{transition-delay:80ms!important;}
-@media(max-width:760px){body.authenticated:not(.auth-show-app) #app,body.authenticated.auth-show-app #app{display:flex!important;}}
-@media(prefers-reduced-motion:reduce){#vertex-auth-curtain,.vertex-curtain-inner,body.authenticated .login-screen,body.authenticated .login-card,body.authenticated.auth-show-app #app-header,body.authenticated.auth-show-app #app{transition-duration:.01ms!important;animation:none!important;transform:none!important;}}
-
 /* ============================================================
    v13.61 WELCOME MODAL — first-run onboarding (3 steps)
    Shown once per user (vertex_onboarded_<userId> in localStorage)
@@ -2599,9 +2565,82 @@ button.acc-hint {
   letter-spacing:.5px !important;
 }
 
+
+
+/* ============================================================
+   v20260524-ax AUTH BOOTSTRAP GATE — native-feeling login → home
+   Single source of truth:
+   - auth-resolving: nothing mounts visually except loader/curtain
+   - auth-ready: unauthenticated login can appear
+   - authenticated + auth-show-app: app shell reveals
+   This prevents Google OAuth callback from briefly remounting login.
+   ============================================================ */
+body.auth-resolving{background:#070707!important;overflow:hidden!important}
+body.auth-resolving #app-header,
+body.auth-resolving #app,
+body.auth-resolving .login-screen{
+  display:block!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+body.auth-resolving #app-header{display:grid!important}
+body.auth-resolving #app{display:grid!important}
+body.auth-resolving #vertex-auth-loader{
+  display:flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+body.auth-ready:not(.authenticated) .login-screen{
+  display:flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:opacity 320ms ease, visibility 0s linear 0s;
+}
+body.auth-ready:not(.authenticated) #app-header,
+body.auth-ready:not(.authenticated) #app{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+body.authenticated.auth-show-app #app-header,
+body.authenticated.auth-show-app #app{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transform:translate3d(0,0,0);
+  transition:opacity 420ms cubic-bezier(0.22,1,0.36,1), transform 420ms cubic-bezier(0.22,1,0.36,1);
+}
+body.authenticated:not(.auth-show-app) #app-header,
+body.authenticated:not(.auth-show-app) #app{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transform:translate3d(0,6px,0);
+}
+body.authenticated .login-screen{
+  display:flex!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+body.authenticated.auth-show-app #vertex-auth-loader,
+body.auth-ready #vertex-auth-loader{
+  opacity:0!important;
+  pointer-events:none!important;
+  visibility:hidden!important;
+  transition:opacity 280ms ease, visibility 0s linear 280ms;
+}
+@media(max-width:760px){
+  body.auth-resolving #app{display:flex!important}
+  body.authenticated.auth-show-app #app{display:flex!important}
+}
+
 </style>
 </head>
-<body>
+<body class="auth-resolving">
 
 <!-- v13.61 Welcome modal — shown once per user after first sign-in -->
 <div id="welcome-overlay" class="welcome-overlay" role="dialog" aria-modal="true" aria-labelledby="welcome-title-active">
@@ -3080,7 +3119,6 @@ button.acc-hint {
 
 <!-- v13.63 Exercise Demo Modal — YouTube embed + form cues -->
 <div id="vertex-auth-loader"><div style="font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:8px;color:#e8ff47;opacity:.9">VERTEX</div></div>
-<div id="vertex-auth-curtain" aria-hidden="true"><div class="vertex-curtain-inner"><div class="vertex-curtain-brand">VERTEX</div><div class="vertex-curtain-line"><span></span></div></div></div>
 <div id="settingsModal" class="modal-overlay">
   <div class="modal" style="max-width:460px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
@@ -4746,22 +4784,19 @@ async function createAccount(email,password){
         // Only handle our deep link scheme
         if(url.indexOf('com.atj1530.vertex://') === -1) return;
         console.log('[Vertex OAuth] appUrlOpen received:', url);
+        try{ vertexSetAuthResolving(); }catch(_e){}
         try{
           var supa = getSupa();
           if(!supa) return;
           // Exchange the code in the URL for a real session
           var result = await supa.auth.exchangeCodeForSession(url);
           if(result && result.data && result.data.session){
-            try{ sessionStorage.removeItem('vertex_oauth_pending'); }catch(e){}
             await applyAuthenticatedSession(result.data.session);
-            vertexEndOAuthReturnShield(true);
           } else if(result && result.error){
             console.error('[Vertex OAuth] exchangeCodeForSession error:', result.error.message);
-            vertexEndOAuthReturnShield(false);
           }
         }catch(e){
           console.error('[Vertex OAuth] appUrlOpen handler failed:', e);
-          vertexEndOAuthReturnShield(false);
         }
       });
       console.log('[Vertex OAuth] appUrlOpen listener registered');
@@ -4778,35 +4813,6 @@ async function createAccount(email,password){
   document.addEventListener('deviceready', setupCapacitorOAuthListener);
   window._vertexSetupCapacitorOAuthListener = setupCapacitorOAuthListener;
 })();
-
-function vertexBeginOAuthReturnShield(){
-  try{
-    window.__vertexOAuthInFlight=true;
-    const body=document.body;
-    if(body){
-      body.classList.add('oauth-returning','auth-curtain-on','auth-done');
-      body.classList.remove('auth-curtain-release');
-    }
-  }catch(e){}
-}
-function vertexEndOAuthReturnShield(success){
-  try{
-    window.__vertexOAuthInFlight=false;
-    const body=document.body;
-    if(!body) return;
-    body.classList.remove('oauth-returning');
-    if(!success && !body.classList.contains('authenticated')){
-      body.classList.remove('auth-curtain-on','auth-curtain-release','auth-revealing','auth-show-app');
-    }
-  }catch(e){}
-}
-async function vertexCloseOAuthBrowser(){
-  try{
-    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser && window.Capacitor.Plugins.Browser.close){
-      await window.Capacitor.Plugins.Browser.close();
-    }
-  }catch(e){ console.warn('[Vertex OAuth] Browser close warning:', e); }
-}
 
 async function signInGoogle(btn){
   const originalText=btn?btn.textContent:'';
@@ -4828,10 +4834,7 @@ async function signInGoogle(btn){
     });
     if(error) throw error;
     if(data&&data.url){
-      try{ sessionStorage.setItem('vertex_oauth_pending','1'); }catch(e){}
-      if(isNative && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser && window.Capacitor.Plugins.Browser.open){
-        await window.Capacitor.Plugins.Browser.open({url:data.url, presentationStyle:'fullscreen'});
-      } else if(isNative&&window.open){ window.open(data.url,'_system'); }
+      if(isNative&&window.open){ window.open(data.url,'_system'); }
       else { window.location.assign(data.url); }
       return '';
     }
@@ -4933,14 +4936,15 @@ async function applyAuthenticatedSession(session){
   window.__hkCurrentUser = session && session.user ? session.user : null;
   // Force-initialize Supabase client so it's ready for Import button
   try{ if(!_supa) getSupa(); }catch(e){}
-  if(!authUser){ syncAuthShell(); return false; }
+  if(!authUser){ vertexShowUnauthenticatedShell(); syncAuthShell(); return false; }
   document.body.classList.add('authenticated');
-  /* v13.61: notify welcome-modal controller immediately, before home screen renders */
+  /* v20260524-ax: keep app hidden until first authenticated render is ready. */
   try{ window.dispatchEvent(new CustomEvent('vertex:authenticated',{detail:{userId:authUser&&(authUser.id||authUser.email)}})); }catch(e){}
   clearLoginInputs();
   renderAccountMenu();
-  syncAuthShell();
   renderAll();
+  vertexRevealAuthenticatedShell();
+  syncAuthShell();
 
   // Skip re-hydration if we've already done it for this user.
   // Auth events like TOKEN_REFRESHED would otherwise overwrite local edits.
@@ -4997,15 +5001,10 @@ async function applyAuthenticatedSession(session){
   return true;
 }
 async function initAuth(){
+  vertexSetAuthResolving();
 
   const supa=getSupa();
-  if(!supa){ syncAuthShell(); return; }
-  try{
-    const bootParams=new URLSearchParams(window.location.search);
-    const bootHash=new URLSearchParams(window.location.hash.replace('#',''));
-    const oauthPending=sessionStorage.getItem('vertex_oauth_pending')==='1';
-    if(oauthPending || bootParams.has('code') || bootParams.has('state') || bootHash.has('access_token')) vertexBeginOAuthReturnShield();
-  }catch(e){}
+  if(!supa){ vertexShowUnauthenticatedShell(); syncAuthShell(); return; }
 
   // Expose retry function so the sync pill onclick can trigger it
   window.vertexRetrySync=async function(){
@@ -5020,11 +5019,10 @@ async function initAuth(){
     if(event==='SIGNED_OUT'){
       const params=new URLSearchParams(window.location.search);
       const hash=new URLSearchParams(window.location.hash.replace('#',''));
-      let pending=false; try{ pending=sessionStorage.getItem('vertex_oauth_pending')==='1'; }catch(e){}
-      if(window.__vertexOAuthInFlight || pending || params.has('code')||hash.has('access_token')||params.has('state')) return;
+      if(params.has('code')||hash.has('access_token')||params.has('state')) return;
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
       _hydratedUserId=null; _hydrationInFlight=false;
-      document.body.classList.remove('authenticated');
+      vertexShowUnauthenticatedShell();
       setSyncStatus('local','Local mode'); renderAccountMenu(); syncAuthShell(); renderAll(); return;
     }
     if(!session || !session.user) return;
@@ -5055,7 +5053,7 @@ async function initAuth(){
           const ebox=document.getElementById('landing-error');
           if(ebox) ebox.textContent='Sign-in redirect failed: '+(error.message||'unknown error');
         }
-        if(data && data.session){ try{ sessionStorage.removeItem('vertex_oauth_pending'); }catch(e){} await applyAuthenticatedSession(data.session); vertexEndOAuthReturnShield(true); }
+        if(data && data.session) await applyAuthenticatedSession(data.session);
       }catch(codeErr){
         console.error('exchangeCodeForSession threw:',codeErr);
       }
@@ -5071,17 +5069,14 @@ async function initAuth(){
       window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
     }
     if(sd && sd.data && sd.data.session && sd.data.session.user){
-      try{ sessionStorage.removeItem('vertex_oauth_pending'); }catch(e){}
       await applyAuthenticatedSession(sd.data.session);
-      vertexEndOAuthReturnShield(true);
     } else {
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
-      vertexEndOAuthReturnShield(false);
-      renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll();
+      vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll();
     }
   }catch(err){
     console.warn('Auth init warning:',err);
-    authUser=null; vertexEndOAuthReturnShield(false); syncAuthShell(); renderAll();
+    authUser=null; vertexShowUnauthenticatedShell(); syncAuthShell(); renderAll();
   }
 }
 function emptyPlanner(){return Object.fromEntries(DAYS.map(d=>[d,null]))}
@@ -5619,59 +5614,45 @@ function renderProgressSparklines(rows){
   makeSparkline('spark-duration',weeks.map(w=>w.dur),'rgb(75,189,255)');
 }
 
-function syncAuthShell(){
-  const hasAuth=!!authUser;
-  const body=document.body;
-  const isNative=!!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-  body.classList.toggle('is-native', isNative);
+function vertexSetAuthResolving(){
+  document.body.classList.add('auth-resolving');
+  document.body.classList.remove('auth-ready','auth-show-app','auth-done');
+}
+function vertexShowUnauthenticatedShell(){
+  authUser=null;
+  window.authUser=null;
+  document.body.classList.remove('authenticated','auth-resolving','auth-show-app');
+  document.body.classList.add('auth-ready','auth-done');
+  const loader=document.getElementById('vertex-auth-loader');
+  if(loader){ loader.classList.add('fade'); setTimeout(()=>{ try{loader.remove();}catch(e){} },320); }
+}
+function vertexRevealAuthenticatedShell(){
+  document.body.classList.add('authenticated');
+  document.body.classList.remove('auth-resolving','auth-ready');
+  document.body.classList.add('auth-done');
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      document.body.classList.add('auth-show-app');
+      const loader=document.getElementById('vertex-auth-loader');
+      if(loader){ loader.classList.add('fade'); setTimeout(()=>{ try{loader.remove();}catch(e){} },360); }
+    });
+  });
+}
 
-  function finishLoader(){
-    if(window.__vertexLoaderDone) return;
+function syncAuthShell(){
+  document.body.classList.toggle('authenticated',!!authUser);
+  const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  document.body.classList.toggle('is-native', isNative);
+  if(document.body.classList.contains('auth-resolving')) return;
+  if(!window.__vertexLoaderDone){
     window.__vertexLoaderDone=true;
     const loader=document.getElementById('vertex-auth-loader');
     if(loader){
       loader.classList.add('fade');
-      setTimeout(()=>{ try{ loader.remove(); }catch(e){} body.classList.add('auth-done'); }, 320);
-    }else{
-      body.classList.add('auth-done');
+      setTimeout(()=>{ loader.remove(); document.body.classList.add('auth-done'); }, 320);
+    } else {
+      document.body.classList.add('auth-done');
     }
-  }
-
-  // Signed out: cleanly reset all transition classes and show login after loader.
-  if(!hasAuth){
-    if(window.__vertexOAuthInFlight){ finishLoader(); return; }
-    if(window.__vertexAuthRevealTimer){ clearTimeout(window.__vertexAuthRevealTimer); window.__vertexAuthRevealTimer=null; }
-    if(window.__vertexCurtainTimer){ clearTimeout(window.__vertexCurtainTimer); window.__vertexCurtainTimer=null; }
-    body.classList.remove('authenticated','auth-revealing','auth-show-app','auth-curtain-on','auth-curtain-release','welcome-active');
-    finishLoader();
-    return;
-  }
-
-  // Already revealed; do not restart the animation when renderAccountMenu or renderAll calls back here.
-  if(body.classList.contains('auth-show-app')){
-    finishLoader();
-    return;
-  }
-
-  body.classList.add('authenticated','auth-revealing','auth-curtain-on');
-  body.classList.remove('auth-curtain-release','oauth-returning');
-  finishLoader();
-
-  // Curtain sequence: app mounts hidden behind the curtain, then the app reveals, then curtain fades away.
-  if(!window.__vertexAuthRevealTimer){
-    window.__vertexAuthRevealTimer=setTimeout(()=>{
-      window.__vertexAuthRevealTimer=null;
-      requestAnimationFrame(()=>{
-        requestAnimationFrame(()=>{
-          body.classList.add('auth-show-app');
-          window.__vertexCurtainTimer=setTimeout(()=>{
-            body.classList.add('auth-curtain-release');
-            body.classList.remove('auth-revealing');
-            setTimeout(()=>body.classList.remove('auth-curtain-on'), 700);
-          }, 220);
-        });
-      });
-    }, 360);
   }
 }
 function renderAccountMenu(){syncAuthShell();const menu=document.getElementById('account-menu'); const btn=document.getElementById('btn-account-desktop'); if(!menu) return; if(btn) btn.textContent=authUser?'Account':'Sign In'; if(authUser){menu.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div class="acct-title">Account</div><button type="button" onclick="document.getElementById('account-menu').classList.remove('on')" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0;line-height:1">×</button></div><div class="acct-email">${escapeHtml(authUser.email)}</div><div style="font-size:10px;color:var(--green);font-family:'DM Mono',monospace;letter-spacing:.5px;margin:4px 0 10px">● Synced</div><button type="button" class="btn small" id="btn-open-settings" style="width:100%;margin-top:4px">⚙ Settings</button><button type="button" class="btn small" id="btn-notif-setup" style="width:100%;margin-top:6px">🔔 Notifications</button><button type="button" class="btn small" id="btn-generate-pdf-report" style="width:100%;margin-top:6px">↓ Export PDF Report</button><button type="button" class="btn small" id="acct-signout" onclick="window.VertexSignOut && window.VertexSignOut(); return false;" style="width:100%;margin-top:10px;border-color:rgba(255,77,77,.4);color:var(--red)">Sign Out</button>`; return;} menu.innerHTML=`<div class="acct-title">Sign in / Create Account</div><div class="acct-sub">Real Supabase auth. Use Google or email/password.</div><button type="button" class="btn acc small" id="acct-google" onclick="signInGoogle(this).then(err=>{const eb=document.getElementById('landing-error');if(eb)eb.textContent=err||'';})" style="width:100%;margin-top:10px">Continue with Google</button><div class="acct-muted" style="text-align:center;margin:10px 0 2px">or use email</div><input id="acct-email" type="email" name="vertex-menu-email" autocomplete="off" autocapitalize="none" spellcheck="false" value="" placeholder="Email"><input id="acct-pass" type="password" name="vertex-menu-pass" autocomplete="new-password" value="" placeholder="Password"><div class="acct-actions"><button class="btn acc small" id="acct-signin">Sign In</button><button class="btn small" id="acct-create">Create</button></div><div id="acct-error" class="acct-error"></div><div class="acct-muted">OAuth redirects back to this Vertex URL after Google confirms the account.</div>`;}
@@ -10665,7 +10646,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ax2';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ax';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

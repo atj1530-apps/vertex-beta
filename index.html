@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-o OAUTH CALLBACK GUARD
+   v20260525-p OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-o AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-p AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,7 +2702,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-o PROGRESS + WELLNESS POLISH
+   v20260525-p PROGRESS + WELLNESS POLISH
    CSS only. Cross-app visual consistency.
    ============================================================ */
 
@@ -2950,7 +2950,7 @@ body.app-page-health .empty-cta{
 
 
 /* ============================================================
-   v20260525-o STABLE ROLLBACK + WELLNESS TAB WIDTH
+   v20260525-p STABLE ROLLBACK + WELLNESS TAB WIDTH
    CSS only. No runtime script. No auth/render changes.
    ============================================================ */
 
@@ -2994,7 +2994,7 @@ body.app-page-health .progress-tab{
 
 
 /* ============================================================
-   v20260525-o WELLNESS FULL LABEL FIX
+   v20260525-p WELLNESS FULL LABEL FIX
    CSS only. Uses existing full labels already in markup.
    ============================================================ */
 
@@ -3104,6 +3104,219 @@ body.app-page-workout [class*="target" i] .chip{
   flex:0 0 auto!important;
   white-space:nowrap!important;
   min-width:max-content!important;
+}
+
+
+/* ============================================================
+   v20260525-p AI PLAN PREMIUM REDESIGN
+   CSS only. No auth/data/runtime changes.
+   ============================================================ */
+
+:root{
+  --vx-ai-panel:rgba(18,18,18,.78);
+  --vx-ai-panel-2:rgba(24,24,24,.78);
+  --vx-ai-border:rgba(255,255,255,.075);
+  --vx-ai-glow:rgba(232,255,71,.12);
+}
+
+/* AI Plan page shell */
+body.app-page-ai #aiPage,
+body.app-page-aiplan #aiPage,
+body.app-page-ai-plan #aiPage,
+body.app-page-ai .page-panel,
+body.app-page-aiplan .page-panel,
+body.app-page-ai-plan .page-panel,
+body.app-page-plan .page-panel,
+body.app-page-ai [id*="ai" i],
+body.app-page-aiplan [id*="ai" i]{
+  max-width:1180px;
+}
+
+/* Generic AI Plan surface targeting */
+body.app-page-ai .page-panel,
+body.app-page-aiplan .page-panel,
+body.app-page-ai-plan .page-panel,
+body.app-page-plan .page-panel,
+#aiPage.page-panel,
+#aiPlanPage.page-panel,
+[id*="aiPlan" i].page-panel,
+[id*="ai-page" i],
+[id*="aiPage" i]{
+  background:
+    radial-gradient(circle at 12% 0%,rgba(232,255,71,.075),transparent 34%),
+    rgba(17,17,17,.82)!important;
+  border-color:var(--vx-ai-border)!important;
+  border-radius:16px!important;
+  box-shadow:0 18px 55px rgba(0,0,0,.24);
+}
+
+/* AI title treatment */
+body.app-page-ai .page-title,
+body.app-page-aiplan .page-title,
+body.app-page-ai-plan .page-title,
+body.app-page-plan .page-title,
+#aiPage .page-title,
+#aiPlanPage .page-title,
+[id*="aiPlan" i] .page-title{
+  text-shadow:0 0 30px rgba(232,255,71,.10);
+  letter-spacing:4.5px;
+}
+
+/* AI copy: calmer command-center feel */
+body.app-page-ai .page-copy,
+body.app-page-aiplan .page-copy,
+body.app-page-ai-plan .page-copy,
+body.app-page-plan .page-copy,
+#aiPage .page-copy,
+#aiPlanPage .page-copy,
+[id*="aiPlan" i] .page-copy{
+  max-width:760px!important;
+  color:rgba(242,242,242,.68)!important;
+}
+
+/* Cards inside AI Plan */
+body.app-page-ai .page-tile,
+body.app-page-aiplan .page-tile,
+body.app-page-ai-plan .page-tile,
+body.app-page-plan .page-tile,
+#aiPage .page-tile,
+#aiPlanPage .page-tile,
+[id*="aiPlan" i] .page-tile,
+[id*="ai" i] .coach-card,
+[id*="ai" i] .progress-card,
+[id*="ai" i] .panel,
+[id*="brief" i],
+[id*="recommend" i],
+[id*="insight" i]{
+  background:var(--vx-ai-panel-2)!important;
+  border-color:var(--vx-ai-border)!important;
+  border-radius:14px!important;
+  box-shadow:none;
+}
+
+/* AI cards hover/tap sophistication */
+body.app-page-ai .page-tile:hover,
+body.app-page-aiplan .page-tile:hover,
+body.app-page-ai-plan .page-tile:hover,
+body.app-page-plan .page-tile:hover,
+#aiPage .page-tile:hover,
+#aiPlanPage .page-tile:hover{
+  border-color:rgba(232,255,71,.18)!important;
+  background:rgba(28,28,28,.82)!important;
+}
+
+/* AI grid spacing */
+body.app-page-ai .page-grid,
+body.app-page-aiplan .page-grid,
+body.app-page-ai-plan .page-grid,
+body.app-page-plan .page-grid,
+#aiPage .page-grid,
+#aiPlanPage .page-grid{
+  gap:14px!important;
+}
+
+/* AI CTA / buttons */
+body.app-page-ai .btn.acc,
+body.app-page-aiplan .btn.acc,
+body.app-page-ai-plan .btn.acc,
+body.app-page-plan .btn.acc,
+#aiPage .btn.acc,
+#aiPlanPage .btn.acc{
+  box-shadow:0 0 0 5px rgba(232,255,71,.08),0 16px 38px rgba(0,0,0,.20);
+}
+
+/* AI text hierarchy */
+body.app-page-ai .page-tile b,
+body.app-page-aiplan .page-tile b,
+body.app-page-ai-plan .page-tile b,
+body.app-page-plan .page-tile b,
+#aiPage .page-tile b,
+#aiPlanPage .page-tile b{
+  font-size:16px!important;
+  letter-spacing:.01em;
+}
+
+body.app-page-ai .page-tile span,
+body.app-page-aiplan .page-tile span,
+body.app-page-ai-plan .page-tile span,
+body.app-page-plan .page-tile span,
+#aiPage .page-tile span,
+#aiPlanPage .page-tile span{
+  color:rgba(242,242,242,.62)!important;
+}
+
+/* AI empty/loading states */
+body.app-page-ai .empty-note,
+body.app-page-aiplan .empty-note,
+body.app-page-ai-plan .empty-note,
+body.app-page-plan .empty-note,
+body.app-page-ai .empty-cta,
+body.app-page-aiplan .empty-cta,
+body.app-page-ai-plan .empty-cta,
+body.app-page-plan .empty-cta,
+#aiPage .empty-note,
+#aiPage .empty-cta,
+#aiPlanPage .empty-note,
+#aiPlanPage .empty-cta{
+  border-color:rgba(232,255,71,.16)!important;
+  background:
+    linear-gradient(135deg,rgba(232,255,71,.04),rgba(255,255,255,.018)),
+    rgba(18,18,18,.72)!important;
+  border-radius:16px!important;
+}
+
+/* Ambient AI sections if rendered on Home/Coach too */
+.coach-status,
+[id*="ai" i] .coach-status{
+  text-shadow:0 0 28px rgba(232,255,71,.12);
+}
+
+.coach-item,
+[id*="ai" i] .coach-item{
+  border-color:rgba(232,255,71,.16)!important;
+  background:rgba(232,255,71,.032)!important;
+  border-radius:12px!important;
+}
+
+/* Mobile AI Plan */
+@media(max-width:900px){
+  body.app-page-ai .page-panel,
+  body.app-page-aiplan .page-panel,
+  body.app-page-ai-plan .page-panel,
+  body.app-page-plan .page-panel,
+  #aiPage.page-panel,
+  #aiPlanPage.page-panel{
+    border-radius:16px!important;
+    padding:18px!important;
+  }
+
+  body.app-page-ai .page-title,
+  body.app-page-aiplan .page-title,
+  body.app-page-ai-plan .page-title,
+  body.app-page-plan .page-title,
+  #aiPage .page-title,
+  #aiPlanPage .page-title{
+    font-size:44px!important;
+  }
+
+  body.app-page-ai .page-grid,
+  body.app-page-aiplan .page-grid,
+  body.app-page-ai-plan .page-grid,
+  body.app-page-plan .page-grid,
+  #aiPage .page-grid,
+  #aiPlanPage .page-grid{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+
+  body.app-page-ai .page-tile,
+  body.app-page-aiplan .page-tile,
+  body.app-page-ai-plan .page-tile,
+  body.app-page-plan .page-tile,
+  #aiPage .page-tile,
+  #aiPlanPage .page-tile{
+    min-height:96px;
+  }
 }
 
 </style>
@@ -11151,7 +11364,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-o';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-p';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

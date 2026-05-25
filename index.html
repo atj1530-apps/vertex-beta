@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-h-callback OAUTH CALLBACK GUARD
+   v20260525-i OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-h-callback AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-i AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,7 +2702,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-h PROGRESS + WELLNESS POLISH
+   v20260525-i PROGRESS + WELLNESS POLISH
    CSS only. Cross-app visual consistency.
    ============================================================ */
 
@@ -2945,6 +2945,118 @@ body.app-page-health .empty-cta{
 
   .health-form{
     grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+
+
+/* ============================================================
+   v20260525-i WELLNESS SUBTAB NAVIGATION FIX
+   CSS only. Readable horizontal scroll tabs.
+   ============================================================ */
+
+/* Wellness / health sub-tab rows: readable, scrollable, no stacking */
+body.app-page-wellness .progress-tabs,
+body.app-page-health .progress-tabs,
+body.app-page-wellness .segment,
+body.app-page-health .segment,
+body.app-page-wellness .pill-scroll,
+body.app-page-health .pill-scroll{
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  gap:8px!important;
+  padding:4px 2px 8px!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+
+body.app-page-wellness .progress-tabs::-webkit-scrollbar,
+body.app-page-health .progress-tabs::-webkit-scrollbar,
+body.app-page-wellness .segment::-webkit-scrollbar,
+body.app-page-health .segment::-webkit-scrollbar,
+body.app-page-wellness .pill-scroll::-webkit-scrollbar,
+body.app-page-health .pill-scroll::-webkit-scrollbar{
+  display:none;
+}
+
+/* Do not let wellness tabs collapse to single letters */
+body.app-page-wellness .progress-tab,
+body.app-page-health .progress-tab,
+body.app-page-wellness .seg-btn,
+body.app-page-health .seg-btn,
+body.app-page-wellness .chip,
+body.app-page-health .chip{
+  flex:0 0 auto!important;
+  min-width:max-content!important;
+  width:auto!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  border-radius:999px!important;
+  padding:9px 16px!important;
+  font-size:13px!important;
+  letter-spacing:.02em!important;
+}
+
+/* Active wellness tab clarity */
+body.app-page-wellness .progress-tab.on,
+body.app-page-health .progress-tab.on,
+body.app-page-wellness .seg-btn.on,
+body.app-page-health .seg-btn.on,
+body.app-page-wellness .chip.on,
+body.app-page-health .chip.on,
+body.app-page-wellness .seg-btn.chosen,
+body.app-page-health .seg-btn.chosen{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+  box-shadow:0 0 0 5px rgba(232,255,71,.08);
+}
+
+/* Wellness nav fade hint: implies horizontal scroll without clutter */
+body.app-page-wellness .page-panel,
+body.app-page-health .page-panel{
+  position:relative;
+}
+
+body.app-page-wellness .page-panel:after,
+body.app-page-health .page-panel:after{
+  content:"";
+  position:absolute;
+  top:126px;
+  right:0;
+  width:38px;
+  height:58px;
+  background:linear-gradient(to right,rgba(9,9,9,0),rgba(9,9,9,.82));
+  pointer-events:none;
+  opacity:.75;
+}
+
+/* Mobile: stronger readability */
+@media(max-width:900px){
+  body.app-page-wellness .progress-tab,
+  body.app-page-health .progress-tab,
+  body.app-page-wellness .seg-btn,
+  body.app-page-health .seg-btn,
+  body.app-page-wellness .chip,
+  body.app-page-health .chip{
+    min-height:44px!important;
+    padding:10px 17px!important;
+    font-size:14px!important;
+  }
+
+  body.app-page-wellness .progress-tabs,
+  body.app-page-health .progress-tabs,
+  body.app-page-wellness .segment,
+  body.app-page-health .segment,
+  body.app-page-wellness .pill-scroll,
+  body.app-page-health .pill-scroll{
+    margin-bottom:12px!important;
   }
 }
 
@@ -10993,7 +11105,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-h';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-i';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

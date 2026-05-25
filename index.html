@@ -2568,7 +2568,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260524-ax AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260524-ax-authgate2 AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -4926,80 +4926,99 @@ async function waitForSupabaseSession(supa, attempts=10){
 // and overwriting local edits like cleared days.
 let _hydratedUserId=null;
 let _hydrationInFlight=false;
+let _authApplyPromise=null;
+let _authApplyKey=null;
+let _authShellRevealedFor=null;
 
 // v13.63 helper — race a promise against a ms timeout, returning null on timeout
 function withTimeout(promise, ms){ return Promise.race([promise, new Promise(r=>setTimeout(()=>r(null),ms))]); }
+function vertexWait(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
 async function applyAuthenticatedSession(session){
-  authUser=authFromUser(session && session.user);
-  window.authUser=authUser;
-  window.__hkCurrentUser = session && session.user ? session.user : null;
-  // Force-initialize Supabase client so it's ready for Import button
-  try{ if(!_supa) getSupa(); }catch(e){}
-  if(!authUser){ vertexShowUnauthenticatedShell(); syncAuthShell(); return false; }
-  document.body.classList.add('authenticated');
-  /* v20260524-ax: keep app hidden until first authenticated render is ready. */
-  try{ window.dispatchEvent(new CustomEvent('vertex:authenticated',{detail:{userId:authUser&&(authUser.id||authUser.email)}})); }catch(e){}
-  clearLoginInputs();
-  renderAccountMenu();
-  renderAll();
-  vertexRevealAuthenticatedShell();
-  syncAuthShell();
+  const incomingUser=session && session.user ? session.user : null;
+  const incomingAuth=authFromUser(incomingUser);
+  const incomingKey=incomingAuth && (incomingAuth.id || incomingAuth.email);
+  if(!incomingAuth || !incomingKey){ vertexShowUnauthenticatedShell(); return false; }
 
-  // Skip re-hydration if we've already done it for this user.
-  // Auth events like TOKEN_REFRESHED would otherwise overwrite local edits.
-  if(_hydratedUserId===authUser.id || _hydrationInFlight){
-    if(state.syncStatus!=='failed' && state.syncStatus!=='unsaved') setSyncStatus('synced','Supabase synced');
-    return true;
-  }
-  // Fire-and-forget all data loads — never block login on Supabase queries.
-  // Show the app immediately, data populates in background as Supabase wakes up.
-  _hydrationInFlight=false;
-  _hydratedUserId=authUser.id;
-  clearCurrent();
-  setSyncStatus('synced','Supabase synced');
+  // Supabase commonly fires INITIAL_SESSION/SIGNED_IN/getSession in close succession.
+  // Treat all matching calls as the same bootstrap so the login/home shell cannot replay.
+  if(_authApplyPromise && _authApplyKey===incomingKey) return _authApplyPromise;
 
-  // All loads fire in parallel — single batched re-render when they settle
-  window.__vertexHealthMetricLoadOnce = false;
-  Promise.all([
-    hydratePlannerFromCloud().then(()=>{ savePlanner(); }).catch(()=>{}),
-    loadSavedWorkoutsFromCloud().catch(()=>{}),
-    loadProgressLogs().catch(()=>{}),
-    loadCheckinLogs().catch(()=>{}),
-    loadWcLogs().catch(()=>{}),
-    loadHealthMetricsFromCloud().catch(()=>{})
-  ]).then(()=>{
-    requestAnimationFrame(()=>{
-      renderAll();
-      try{ renderHealthPage(); }catch(e){}
-      try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
+  _authApplyKey=incomingKey;
+  _authApplyPromise=(async()=>{
+    authUser=incomingAuth;
+    window.authUser=authUser;
+    window.__hkCurrentUser=incomingUser;
+    try{ if(!_supa) getSupa(); }catch(e){}
+
+    document.body.classList.add('authenticated');
+    document.body.classList.remove('auth-ready');
+    clearLoginInputs();
+    try{ window.dispatchEvent(new CustomEvent('vertex:authenticated',{detail:{userId:incomingKey}})); }catch(e){}
+
+    // If the shell is already revealed for this user, do not re-render/re-animate.
+    if(_authShellRevealedFor===incomingKey){
+      if(state.syncStatus!=='failed' && state.syncStatus!=='unsaved') setSyncStatus('synced','Supabase synced');
+      return true;
+    }
+
+    setSyncStatus('syncing','Loading account');
+    _hydrationInFlight=true;
+
+    // Build the authenticated home while still hidden. This removes the visual jump
+    // where login disappears, Home appears empty, then Home re-renders with data.
+    try{ clearCurrent(); }catch(e){}
+    const firstHydrate=Promise.allSettled([
+      hydratePlannerFromCloud().then(()=>{ try{ savePlanner(); }catch(e){} }),
+      loadSavedWorkoutsFromCloud(),
+      loadProgressLogs(),
+      loadCheckinLogs(),
+      loadWcLogs(),
+      loadHealthMetricsFromCloud()
+    ]);
+
+    // Wait briefly for warm-cache data, but do not trap the user on a cold Supabase start.
+    await Promise.race([firstHydrate, vertexWait(1400)]);
+
+    _hydratedUserId=incomingKey;
+    _hydrationInFlight=false;
+    setSyncStatus('synced','Supabase synced');
+    try{ renderAccountMenu(); }catch(e){}
+    try{ renderAll(); }catch(e){}
+    try{ if(typeof renderHealthPage==='function') renderHealthPage(); }catch(e){}
+    try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
+
+    _authShellRevealedFor=incomingKey;
+    vertexRevealAuthenticatedShell();
+
+    // If the initial hydration timed out, let it finish silently. Avoid renderAll(); only
+    // refresh the main data surfaces to prevent a second full-home flicker.
+    firstHydrate.then(()=>{
+      if(_authShellRevealedFor!==incomingKey) return;
+      requestAnimationFrame(()=>{
+        try{ if(typeof renderHomeDashboard==='function') renderHomeDashboard(); }catch(e){}
+        try{ if(typeof renderProgressPage==='function' && state.page==='progress') renderProgressPage(); }catch(e){}
+        try{ if(typeof renderHealthPage==='function' && state.page==='wellness') renderHealthPage(); }catch(e){}
+      });
     });
+
+    if(!window.__vertexVisibilityListenerAdded){
+      window.__vertexVisibilityListenerAdded=true;
+      document.addEventListener('visibilitychange',()=>{
+        if(document.visibilityState==='visible' && authUser){
+          if(typeof vertexDrainOfflineQueue==='function') vertexDrainOfflineQueue();
+        }
+      });
+    }
+
+    return true;
+  })().finally(()=>{
+    setTimeout(()=>{ if(_authApplyKey===incomingKey){ _authApplyPromise=null; _authApplyKey=null; } }, 500);
   });
 
-  // Auto-refresh when PWA comes back to foreground (tab focus / app switch)
-  if(!window.__vertexVisibilityListenerAdded){
-    window.__vertexVisibilityListenerAdded = true;
-    document.addEventListener('visibilitychange', ()=>{
-      if(document.visibilityState==='visible' && authUser){
-        if(typeof vertexDrainOfflineQueue==='function') vertexDrainOfflineQueue();
-        const last = window.__vertexLastHealthRefresh || 0;
-        if(Date.now() - last > 5 * 60 * 1000){
-          window.__vertexLastHealthRefresh = Date.now();
-          window.__vertexHealthMetricLoadOnce = false;
-          loadHealthMetricsFromCloud().then(ok=>{
-            if(ok){
-              try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
-              try{ if(typeof renderHealthPage==='function') renderHealthPage(); }catch(e){}
-              try{ if(typeof wcRenderDashboard==='function' && wellnessTab==='dashboard') wcRenderDashboard(); }catch(e){}
-            }
-          }).catch(()=>{});
-          loadWcLogs().catch(()=>{});
-        }
-      }
-    });
-  }
-  return true;
+  return _authApplyPromise;
 }
+
 async function initAuth(){
   vertexSetAuthResolving();
 
@@ -5021,7 +5040,7 @@ async function initAuth(){
       const hash=new URLSearchParams(window.location.hash.replace('#',''));
       if(params.has('code')||hash.has('access_token')||params.has('state')) return;
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
-      _hydratedUserId=null; _hydrationInFlight=false;
+      _hydratedUserId=null; _hydrationInFlight=false; _authShellRevealedFor=null;
       vertexShowUnauthenticatedShell();
       setSyncStatus('local','Local mode'); renderAccountMenu(); syncAuthShell(); renderAll(); return;
     }
@@ -5045,6 +5064,7 @@ async function initAuth(){
       // Clean URL after getSession completes, not before
       console.log('[Vertex OAuth] Hash token detected — letting Supabase handle via detectSessionInUrl');
     }
+    let sessionApplied=false;
     if(hasOAuthCode){
       try{
         const {data,error}=await supa.auth.exchangeCodeForSession(window.location.href);
@@ -5053,7 +5073,7 @@ async function initAuth(){
           const ebox=document.getElementById('landing-error');
           if(ebox) ebox.textContent='Sign-in redirect failed: '+(error.message||'unknown error');
         }
-        if(data && data.session) await applyAuthenticatedSession(data.session);
+        if(data && data.session){ await applyAuthenticatedSession(data.session); sessionApplied=true; }
       }catch(codeErr){
         console.error('exchangeCodeForSession threw:',codeErr);
       }
@@ -5062,6 +5082,7 @@ async function initAuth(){
 
     // Auth shell shown after session resolves — loader covers the flash
     // Single direct getSession call with timeout — Supabase free tier can be slow on cold start
+    if(sessionApplied) return;
     const sessionResult=await withTimeout(supa.auth.getSession(), 8000);
     const sd=sessionResult;
     // Clean hash/code from URL now that getSession has had a chance to read it
@@ -5076,7 +5097,7 @@ async function initAuth(){
     }
   }catch(err){
     console.warn('Auth init warning:',err);
-    authUser=null; vertexShowUnauthenticatedShell(); syncAuthShell(); renderAll();
+    authUser=null; _authShellRevealedFor=null; vertexShowUnauthenticatedShell(); syncAuthShell(); renderAll();
   }
 }
 function emptyPlanner(){return Object.fromEntries(DAYS.map(d=>[d,null]))}
@@ -5640,10 +5661,15 @@ function vertexRevealAuthenticatedShell(){
 }
 
 function syncAuthShell(){
-  document.body.classList.toggle('authenticated',!!authUser);
   const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
   document.body.classList.toggle('is-native', isNative);
   if(document.body.classList.contains('auth-resolving')) return;
+  // During authenticated bootstrap, applyAuthenticatedSession owns the reveal.
+  if(authUser){
+    document.body.classList.add('authenticated');
+    return;
+  }
+  document.body.classList.remove('authenticated','auth-show-app');
   if(!window.__vertexLoaderDone){
     window.__vertexLoaderDone=true;
     const loader=document.getElementById('vertex-auth-loader');
@@ -10646,7 +10672,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ax';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ax-authgate2';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -69,7 +69,7 @@
 .skeleton{background:linear-gradient(90deg,var(--panel2) 25%,var(--panel3) 50%,var(--panel2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r-sm)}
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;overflow:auto}
 @font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;
-/* v20260524-ay */
+/* v20260524-az */
 html.vertex-auth-booting body{
   background:#070707 !important;
 }
@@ -2626,7 +2626,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260524-ay-callback OAUTH CALLBACK GUARD
+   v20260524-az-callback OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2673,7 +2673,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260524-ay-callback AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260524-az-callback AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2745,7 +2745,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260524-ay — Home hierarchy + stability pass
+   v20260524-az — Home hierarchy + stability pass
    ============================================================ */
 body.app-page-home #home-dashboard{
   max-width:1180px;
@@ -8116,7 +8116,7 @@ function protoSelectDate(dateStr){
 
 
 <script>
-/* v20260524-ay — non-destructive home enhancement */
+/* v20260524-az — non-destructive home enhancement */
 (function(){
   if(window.__vertexPremiumHomeInstalled) return;
   window.__vertexPremiumHomeInstalled=true;
@@ -8283,6 +8283,17 @@ function protoSelectDate(dateStr){
     setTimeout(function(){ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); },1200);
   });
 })();
+</script>
+
+
+<script>
+window.vertexBootEmergencyRelease=setTimeout(function(){
+  try{
+    document.documentElement.classList.remove('vertex-auth-booting');
+    var el=document.getElementById('vertex-bootstrap-screen');
+    if(el){ el.classList.add('fade-out'); setTimeout(function(){try{el.remove()}catch(e){}},400); }
+  }catch(e){}
+},5000);
 </script>
 
 </body></html>`;
@@ -11183,7 +11194,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-ay';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-az';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

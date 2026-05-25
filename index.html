@@ -68,50 +68,7 @@
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 .skeleton{background:linear-gradient(90deg,var(--panel2) 25%,var(--panel3) 50%,var(--panel2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r-sm)}
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;overflow:auto}
-@font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;
-/* v20260524-az */
-html.vertex-auth-booting body{
-  background:#070707 !important;
-}
-html.vertex-auth-booting .login-screen,
-html.vertex-auth-booting #app,
-html.vertex-auth-booting #app-header{
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-}
-#vertex-bootstrap-screen{
-  position:fixed;
-  inset:0;
-  z-index:100000;
-  background:#070707;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  gap:14px;
-  opacity:1;
-  transition:opacity .45s cubic-bezier(0.16,1,0.3,1);
-}
-#vertex-bootstrap-screen.fade-out{
-  opacity:0;
-  pointer-events:none;
-}
-.vertex-boot-logo{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:58px;
-  letter-spacing:8px;
-  color:var(--acc);
-}
-.vertex-boot-sub{
-  font-family:'DM Mono',monospace;
-  font-size:10px;
-  letter-spacing:4px;
-  color:#8d8d8d;
-  text-transform:uppercase;
-}
-
-letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
+@font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
 .btn{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:5px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.btn:hover{border-color:var(--acc);color:var(--acc)}.btn.acc{background:var(--acc);border-color:var(--acc);color:#000}.btn.red{color:var(--red);border-color:rgba(255,77,77,.4);background:transparent}.btn.small{padding:6px 9px;font-size:11px}.btn:disabled{opacity:.45;cursor:not-allowed}
 #app-header{position:fixed;top:0;left:0;right:0;height:58px;background:#070707;border-bottom:1px solid var(--line);display:grid;grid-template-columns:260px 1fr 560px;align-items:center;padding:0 16px;z-index:50;padding-top:env(safe-area-inset-top,0px)}.logo{display:flex;align-items:center;gap:10px}.logo-main{font-family:'Bebas Neue';font-size:26px;letter-spacing:5px;color:var(--acc)}.logo-sub{font-family:'DM Mono';font-size:10px;letter-spacing:3px;color:var(--dim)}.nav{justify-self:center;display:flex;border:0;border-radius:0;overflow:hidden}.nav button{background:var(--panel2);color:var(--muted);border:0;border-right:1px solid var(--line);padding:8px 12px;font-size:12px;cursor:pointer}.nav button:last-child{border-right:0}.nav button.on{background:transparent;color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
 /* Desktop: hide hamburger inside nav-row, show Account in hdr-actions */
@@ -2626,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260524-az-callback OAUTH CALLBACK GUARD
+   v20260525-a-callback OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2673,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260524-az-callback AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-a-callback AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2744,223 +2701,75 @@ body.auth-ready #vertex-auth-loader{
 }
 
 
-/* ============================================================
-   v20260524-az — Home hierarchy + stability pass
-   ============================================================ */
-body.app-page-home #home-dashboard{
-  max-width:1180px;
-  margin:0 auto;
-  opacity:1;
-}
-body.app-page-home #home-dashboard.page-entering{
-  animation:vertexHomeEnter 360ms cubic-bezier(0.16,1,0.3,1) both;
-}
-@keyframes vertexHomeEnter{
-  from{opacity:0;transform:translate3d(0,8px,0)}
-  to{opacity:1;transform:translate3d(0,0,0)}
-}
-.vertex-home-hero{
-  position:relative;
-  overflow:hidden;
-  border:1px solid rgba(232,255,71,.22);
-  background:
-    radial-gradient(circle at 14% 0%,rgba(232,255,71,.16),transparent 30%),
-    linear-gradient(135deg,rgba(232,255,71,.07),rgba(255,255,255,.018) 48%,rgba(72,255,138,.035));
-  border-radius:16px;
-  padding:22px 24px;
-  margin:0 0 14px;
-  min-height:150px;
-  box-shadow:0 18px 50px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.04);
-}
-.vertex-home-hero:after{
-  content:"";
-  position:absolute;
-  inset:auto -20% -65% auto;
-  width:360px;
-  height:360px;
-  background:radial-gradient(circle,rgba(232,255,71,.10),transparent 62%);
-  pointer-events:none;
-}
-.vertex-home-hero-top{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:18px;
-  position:relative;
-  z-index:1;
-}
-.vertex-home-state{
-  min-width:0;
-}
-.vertex-home-eyebrow{
-  font-family:'DM Mono',monospace;
-  font-size:10px;
-  letter-spacing:2.8px;
-  text-transform:uppercase;
-  color:var(--acc);
-  margin-bottom:8px;
-}
-.vertex-home-title{
-  font-family:'Bebas Neue',sans-serif;
-  letter-spacing:4px;
-  font-size:58px;
-  line-height:.92;
-  color:var(--text);
-}
-.vertex-home-copy{
-  margin-top:10px;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.45;
-  max-width:680px;
-}
-.vertex-readiness-orb{
-  width:96px;
-  height:96px;
-  border-radius:50%;
-  border:1px solid rgba(232,255,71,.34);
-  background:rgba(7,7,7,.45);
-  display:flex;
-  flex-direction:column;
+/* v20260525-a safe auth splash */
+#vertex-bootstrap-screen{
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  background:#070707;
+  display:none;
   align-items:center;
   justify-content:center;
-  flex:0 0 auto;
-  box-shadow:0 0 0 8px rgba(232,255,71,.035),0 0 36px rgba(232,255,71,.12);
+  flex-direction:column;
+  gap:14px;
+  opacity:1;
+  transition:opacity .38s cubic-bezier(0.16,1,0.3,1);
 }
-.vertex-readiness-score{
+html.vertex-oauth-callback-boot #vertex-bootstrap-screen,
+html.vertex-auth-booting #vertex-bootstrap-screen{
+  display:flex;
+}
+#vertex-bootstrap-screen.fade-out{
+  opacity:0;
+  pointer-events:none;
+}
+.vertex-boot-logo{
   font-family:'Bebas Neue',sans-serif;
-  font-size:42px;
-  line-height:.9;
+  font-size:58px;
+  letter-spacing:8px;
   color:var(--acc);
 }
-.vertex-readiness-label{
+.vertex-boot-sub{
   font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:1.4px;
-  color:var(--muted);
+  font-size:10px;
+  letter-spacing:4px;
+  color:#8d8d8d;
   text-transform:uppercase;
 }
-.vertex-home-pulse-row{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:8px;
-  margin-top:16px;
-  position:relative;
-  z-index:1;
-}
-.vertex-home-pulse{
-  border:1px solid rgba(255,255,255,.07);
-  background:rgba(17,17,17,.55);
-  border-radius:10px;
-  padding:10px 12px;
-  min-height:58px;
-}
-.vertex-home-pulse b{
-  display:block;
-  font-size:13px;
-  margin-bottom:3px;
-}
-.vertex-home-pulse span{
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.35;
-}
-body.app-page-home #home-dashboard .panel,
-body.app-page-home #home-dashboard .accordion,
-body.app-page-home #home-dashboard .progress-card,
-body.app-page-home #home-dashboard .coach-card,
-body.app-page-home #home-dashboard .page-panel{
-  border-color:rgba(255,255,255,.07);
-  box-shadow:none;
-}
-body.app-page-home #home-dashboard .home-stat-strip{
-  gap:8px;
-  margin-bottom:14px;
-}
-body.app-page-home #home-dashboard .home-stat-box,
-body.app-page-home #home-dashboard .home-rec-card,
-body.app-page-home #home-dashboard .intel-box{
-  border-color:rgba(255,255,255,.07)!important;
-  background:rgba(24,24,24,.72)!important;
-  border-radius:10px!important;
-}
-body.app-page-home #home-dashboard .accordion{
-  border-radius:12px;
-  overflow:hidden;
-}
-body.app-page-home #home-dashboard .acc-head{
-  min-height:46px;
-  background:rgba(24,24,24,.72);
-}
-body.app-page-home #home-dashboard canvas{
-  min-height:180px;
-}
-.vertex-stable-min{
-  min-height:120px;
-}
-@media(max-width:900px){
-  .vertex-home-hero{
-    padding:18px 16px;
-    border-radius:14px;
-    min-height:168px;
-  }
-  .vertex-home-hero-top{
-    gap:12px;
-  }
-  .vertex-home-title{
-    font-size:44px;
-    letter-spacing:3px;
-  }
-  .vertex-home-copy{
-    font-size:13px;
-  }
-  .vertex-readiness-orb{
-    width:82px;
-    height:82px;
-  }
-  .vertex-readiness-score{
-    font-size:36px;
-  }
-  .vertex-home-pulse-row{
-    grid-template-columns:1fr;
-  }
+html.vertex-oauth-callback-boot body .login-screen{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
 }
 
 </style>
 </head>
 <body class="auth-resolving">
 
-
 <div id="vertex-bootstrap-screen">
   <div class="vertex-boot-logo">VERTEX</div>
-  <div class="vertex-boot-sub">Loading</div>
+  <div class="vertex-boot-sub">Signing You In</div>
 </div>
 <script>
 (function(){
-  document.documentElement.classList.add('vertex-auth-booting');
   window.__vertexBootComplete=false;
   window.vertexFinishBootstrap=function(){
     if(window.__vertexBootComplete) return;
-    try{ if(window.vertexBootFailsafe) clearTimeout(window.vertexBootFailsafe); }catch(e){}
     window.__vertexBootComplete=true;
-    document.documentElement.classList.remove('vertex-auth-booting');
-    document.body && document.body.classList.remove('vertex-auth-locked');
-    const el=document.getElementById('vertex-bootstrap-screen');
+    try{ document.documentElement.classList.remove('vertex-auth-booting'); }catch(e){}
+    try{ document.documentElement.classList.remove('vertex-oauth-callback-boot'); }catch(e){}
+    var el=document.getElementById('vertex-bootstrap-screen');
     if(el){
       el.classList.add('fade-out');
-      setTimeout(()=>{ try{el.remove();}catch(e){} },420);
+      setTimeout(function(){ try{el.remove();}catch(e){} },420);
     }
   };
-  // Hard fail-safe: never let the splash trap the user.
-  window.vertexBootFailsafe=setTimeout(function(){
-    try{
-      console.warn('[Vertex] Bootstrap failsafe released shell');
-      window.vertexFinishBootstrap && window.vertexFinishBootstrap();
-    }catch(e){}
-  },2600);
+  // Never allow splash to trap app.
+  setTimeout(function(){
+    try{ window.vertexFinishBootstrap(); }catch(e){}
+  },3000);
 })();
 </script>
-
 
 
 <!-- v13.61 Welcome modal — shown once per user after first sign-in -->
@@ -5069,7 +4878,7 @@ async function signIn(email,password){
     authUser=authFromUser(data.user);
     window.authUser=authUser;
     document.body.classList.add('authenticated');
-    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
+    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll();
   }
   return '';
 }
@@ -5082,7 +4891,7 @@ async function createAccount(email,password){
   if(error) return error.message;
   if(data.user && data.session){
     if(typeof applyAuthenticatedSession==='function') await applyAuthenticatedSession(data.session);
-    else { authUser=authFromUser(data.user); window.authUser=authUser; document.body.classList.add('authenticated'); await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); }
+    else { authUser=authFromUser(data.user); window.authUser=authUser; document.body.classList.add('authenticated'); await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); }
     return '';
   }
   return 'Account created. Check your email to confirm, then sign in.';
@@ -5315,7 +5124,7 @@ async function applyAuthenticatedSession(session){
     try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
 
     _authShellRevealedFor=incomingKey;
-    vertexRevealAuthenticatedShell();
+    vertexRevealAuthenticatedShell(); try{ setTimeout(function(){ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); },180); }catch(e){}
 
     // Let any cold-start hydration finish silently. Do not re-render Home after reveal;
     // post-reveal surface refreshes were the source of the second visible flicker.
@@ -5342,7 +5151,7 @@ async function initAuth(){
   vertexSetAuthResolving();
 
   const supa=getSupa();
-  if(!supa){ vertexShowUnauthenticatedShell(); syncAuthShell(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); return; }
+  if(!supa){ vertexShowUnauthenticatedShell(); syncAuthShell(); try{ setTimeout(function(){ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); },180); }catch(e){} return; }
 
   // Expose retry function so the sync pill onclick can trigger it
   window.vertexRetrySync=async function(){
@@ -5361,18 +5170,10 @@ async function initAuth(){
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
       _hydratedUserId=null; _hydrationInFlight=false; _authShellRevealedFor=null;
       vertexShowUnauthenticatedShell();
-      setSyncStatus('local','Local mode'); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); return;
+      setSyncStatus('local','Local mode'); renderAccountMenu(); syncAuthShell(); renderAll(); return;
     }
     if(!session || !session.user) return;
-    
-if(window.__vertexApplyingSession){
-  console.log('[Vertex] Duplicate auth hydration prevented');
-  return;
-}
-window.__vertexApplyingSession=true;
-setTimeout(()=>{ window.__vertexApplyingSession=false; },1200);
-
-await applyAuthenticatedSession(session);
+    await applyAuthenticatedSession(session);
   });
 
   try{
@@ -5424,11 +5225,11 @@ await applyAuthenticatedSession(session);
       try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
       try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
-      vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
+      vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll();
     }
   }catch(err){
     console.warn('Auth init warning:',err);
-    authUser=null; _authShellRevealedFor=null; vertexShowUnauthenticatedShell(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
+    authUser=null; _authShellRevealedFor=null; vertexShowUnauthenticatedShell(); syncAuthShell(); renderAll();
   }
 }
 function emptyPlanner(){return Object.fromEntries(DAYS.map(d=>[d,null]))}
@@ -8116,184 +7917,9 @@ function protoSelectDate(dateStr){
 
 
 <script>
-/* v20260524-az — non-destructive home enhancement */
-(function(){
-  if(window.__vertexPremiumHomeInstalled) return;
-  window.__vertexPremiumHomeInstalled=true;
-
-  function safeText(v){ return String(v==null?'':v).replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c]}); }
-  function n(v){ var x=Number(v); return Number.isFinite(x)?x:null; }
-
-  function getReadiness(){
-    try{
-      if(window.VertexReadiness && typeof window.VertexReadiness.cached==='function'){
-        var r=window.VertexReadiness.cached();
-        if(r && r.score!=null) return {score:r.score,label:r.label||'Ready',note:(r.drivers&&r.drivers[0])||r.summary||''};
-      }
-    }catch(e){}
-    try{
-      var rows=typeof loadHealthEntries==='function'?loadHealthEntries():[];
-      var latest=rows&&rows[0];
-      var raw=n(latest&& (latest.readiness || latest.energy));
-      if(raw!=null){
-        var score=Math.max(1,Math.min(5,Math.round(raw)));
-        var label=score>=4?'Ready To Push':score<=2?'Recover':'Maintain';
-        return {score:score,label:label,note:score>=4?'Recovery supports a stronger training day.':score<=2?'Keep the session controlled and protect recovery.':'Solid baseline. Train with control.'};
-      }
-    }catch(e){}
-    return {score:'—',label:'Ready To Train',note:'Open the day with one clear action: train, recover, or plan.'};
-  }
-
-  function getWorkoutPulse(){
-    try{
-      var logs=typeof progressRows==='function'?progressRows():[];
-      var sum=typeof progressSummary==='function'?progressSummary(logs):null;
-      var sessions=sum&&sum.thisWeek?sum.thisWeek.length:0;
-      var days=sum&&sum.daysSince!=null?sum.daysSince:null;
-      if(sessions>0){
-        return {title:sessions+' This Week',body:days===0?'Logged today. Momentum is active.':days===1?'Last workout yesterday. Keep the rhythm.':(days!=null?days+' days since last log.':'Momentum building.')};
-      }
-    }catch(e){}
-    return {title:'Today',body:'Start with the planned workout or log a quick session.'};
-  }
-
-  function getRecoveryPulse(){
-    try{
-      var sleep=null, hrv=null;
-      var s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null');
-      if(s&&s.latestMinutes) sleep=Math.round(s.latestMinutes/60*10)/10;
-      var h=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null');
-      if(h&&h.latest) hrv=Math.round(h.latest);
-      if(sleep||hrv){
-        return {title:'Recovery',body:(sleep?('Sleep '+sleep+'h'):'Sleep pending')+(hrv?(' · HRV '+hrv):'')};
-      }
-    }catch(e){}
-    return {title:'Recovery',body:'Health data will refine today’s recommendation.'};
-  }
-
-  function getProgressPulse(){
-    try{
-      var logs=typeof progressRows==='function'?progressRows():[];
-      if(logs && logs.length){
-        return {title:'Progress',body:'Latest training history is loaded and ready.'};
-      }
-    }catch(e){}
-    return {title:'Progress',body:'Log consistently to unlock trend intelligence.'};
-  }
-
-  function enhanceHome(){
-    try{
-      var el=document.getElementById('home-dashboard');
-      if(!el || (window.state && state.page && state.page!=='home')) return;
-      document.body.classList.add('app-page-home');
-      el.classList.add('vertex-stable-min');
-
-      var existing=document.getElementById('vertex-premium-home-hero');
-      var r=getReadiness();
-      var w=getWorkoutPulse();
-      var rec=getRecoveryPulse();
-      var p=getProgressPulse();
-      var stateTitle = String(r.label||'Ready To Train').toUpperCase();
-      if(stateTitle==='PUSH') stateTitle='READY TO PUSH';
-      if(stateTitle==='GOOD') stateTitle='READY TO PUSH';
-      if(stateTitle==='NORMAL') stateTitle='MAINTAIN RHYTHM';
-      if(stateTitle==='RECOVER') stateTitle='RECOVER SMART';
-
-      var html =
-        '<section id="vertex-premium-home-hero" class="vertex-home-hero">'+
-          '<div class="vertex-home-hero-top">'+
-            '<div class="vertex-home-state">'+
-              '<div class="vertex-home-eyebrow">Today\\'s Performance State</div>'+
-              '<div class="vertex-home-title">'+safeText(stateTitle)+'</div>'+
-              '<div class="vertex-home-copy">'+safeText(r.note||'Vertex is ready. Pick the next best action and keep momentum clean.')+'</div>'+
-            '</div>'+
-            '<div class="vertex-readiness-orb">'+
-              '<div class="vertex-readiness-score">'+safeText(r.score)+'</div>'+
-              '<div class="vertex-readiness-label">Readiness</div>'+
-            '</div>'+
-          '</div>'+
-          '<div class="vertex-home-pulse-row">'+
-            '<div class="vertex-home-pulse"><b>'+safeText(w.title)+'</b><span>'+safeText(w.body)+'</span></div>'+
-            '<div class="vertex-home-pulse"><b>'+safeText(rec.title)+'</b><span>'+safeText(rec.body)+'</span></div>'+
-            '<div class="vertex-home-pulse"><b>'+safeText(p.title)+'</b><span>'+safeText(p.body)+'</span></div>'+
-          '</div>'+
-        '</section>';
-
-      if(existing) existing.outerHTML=html;
-      else el.insertAdjacentHTML('afterbegin', html);
-
-      // Collapse advanced intelligence by default on small screens to reduce dashboard density.
-      if(window.innerWidth<=900){
-        ['intelAcc','plannerAcc'].forEach(function(id){
-          var acc=document.getElementById(id);
-          if(acc && !acc.dataset.vertexUserOpened){
-            acc.classList.remove('open');
-            var hint=acc.querySelector('.acc-hint');
-            if(hint) hint.textContent='▶ EXPAND';
-          }
-        });
-      }
-
-      // Add stable minimums to chart/card containers so hydration doesn't jump.
-      el.querySelectorAll('.progress-card,.coach-card,.intel-box,.home-rec-card,.home-stat-box,.panel').forEach(function(x){
-        x.classList.add('vertex-stable-min');
-      });
-    }catch(e){
-      console.warn('premium home enhance failed',e);
-    }
-  }
-
-  var install=function(){
-    if(typeof window.renderHomeDashboard==='function' && !window.renderHomeDashboard.__premiumWrapped){
-      var original=window.renderHomeDashboard;
-      window.renderHomeDashboard=function(){
-        var res=original.apply(this,arguments);
-        requestAnimationFrame(function(){ enhanceHome(); });
-        return res;
-      };
-      window.renderHomeDashboard.__premiumWrapped=true;
-    }
-    requestAnimationFrame(function(){ enhanceHome(); });
-  };
-
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',install);
-  else install();
-  window.addEventListener('vertex:authenticated',function(){ setTimeout(install,120); });
-  window.addEventListener('resize',function(){ setTimeout(enhanceHome,120); });
-})();
-</script>
-
-
-<script>
-(function(){
-  function releaseWhenReady(){
-    try{
-      const hasLogin=document.querySelector('.login-screen');
-      const hasApp=document.getElementById('app');
-      const body=document.body;
-      const isAuthed=body&&body.classList.contains('authenticated');
-      if(hasLogin || hasApp || isAuthed){
-        setTimeout(function(){ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); },900);
-      }
-    }catch(e){}
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',releaseWhenReady);
-  else releaseWhenReady();
-  window.addEventListener('load',function(){
-    setTimeout(function(){ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); },1200);
-  });
-})();
-</script>
-
-
-<script>
-window.vertexBootEmergencyRelease=setTimeout(function(){
-  try{
-    document.documentElement.classList.remove('vertex-auth-booting');
-    var el=document.getElementById('vertex-bootstrap-screen');
-    if(el){ el.classList.add('fade-out'); setTimeout(function(){try{el.remove()}catch(e){}},400); }
-  }catch(e){}
-},5000);
+window.addEventListener('load',function(){
+  setTimeout(function(){ try{ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); }catch(e){} },1200);
+});
 </script>
 
 </body></html>`;
@@ -11194,7 +10820,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260524-az';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-a';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

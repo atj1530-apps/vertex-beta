@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-t OAUTH CALLBACK GUARD
+   v20260525-u OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-t AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-u AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,7 +2702,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-t PROGRESS + WELLNESS POLISH
+   v20260525-u PROGRESS + WELLNESS POLISH
    CSS only. Cross-app visual consistency.
    ============================================================ */
 
@@ -2950,7 +2950,7 @@ body.app-page-health .empty-cta{
 
 
 /* ============================================================
-   v20260525-t STABLE ROLLBACK + WELLNESS TAB WIDTH
+   v20260525-u STABLE ROLLBACK + WELLNESS TAB WIDTH
    CSS only. No runtime script. No auth/render changes.
    ============================================================ */
 
@@ -2994,7 +2994,7 @@ body.app-page-health .progress-tab{
 
 
 /* ============================================================
-   v20260525-t WELLNESS FULL LABEL FIX
+   v20260525-u WELLNESS FULL LABEL FIX
    CSS only. Uses existing full labels already in markup.
    ============================================================ */
 
@@ -3108,7 +3108,7 @@ body.app-page-workout [class*="target" i] .chip{
 
 
 /* ============================================================
-   v20260525-t AI PLAN PREMIUM REDESIGN
+   v20260525-u AI PLAN PREMIUM REDESIGN
    CSS only. No auth/data/runtime changes.
    ============================================================ */
 
@@ -3321,7 +3321,7 @@ body.app-page-plan .empty-cta,
 
 
 /* ============================================================
-   v20260525-t COHESION + INTERACTION REPAIR
+   v20260525-u COHESION + INTERACTION REPAIR
    CSS only. No auth/data/runtime changes.
    ============================================================ */
 
@@ -3519,7 +3519,7 @@ body.app-page-plan .btn.acc,
 
 
 /* ============================================================
-   v20260525-t STABLE CSS-ONLY ROLLBACK + ACCOUNT COHESION
+   v20260525-u STABLE CSS-ONLY ROLLBACK + ACCOUNT COHESION
    No JS. No auth/render/data changes.
    ============================================================ */
 
@@ -3615,7 +3615,7 @@ body:has(.account-menu.on) .btn[id*="account" i]{
 
 
 /* ============================================================
-   v20260525-t COHESION CLEANUP + MOBILE ACCORDION REPAIR
+   v20260525-u COHESION CLEANUP + MOBILE ACCORDION REPAIR
    CSS only. No auth/data/runtime changes.
    ============================================================ */
 
@@ -3823,6 +3823,162 @@ body:has(.account-menu.on) .btn[id*="account" i]{
   background:rgba(232,255,71,.035)!important;
   border-color:rgba(232,255,71,.58)!important;
   color:var(--acc)!important;
+}
+
+
+/* ============================================================
+   v20260525-u MOBILE ACCORDION OVERLAY + QUIET DEFAULT CLEANUP
+   CSS only. No auth/data/runtime changes.
+   ============================================================ */
+
+/* 1) Move floating up/scroll controls away from Home accordion headers on mobile.
+   The yellow up button was sitting over Weekly Planner and stealing taps. */
+@media(max-width:900px){
+  button[id*="top" i],
+  button[class*="top" i],
+  button[id*="scroll" i],
+  button[class*="scroll" i],
+  button[id*="float" i],
+  button[class*="float" i],
+  .back-to-top,
+  .scroll-to-top,
+  .floating-action,
+  .floating-btn{
+    right:14px!important;
+    left:auto!important;
+    bottom:max(92px, calc(env(safe-area-inset-bottom) + 92px))!important;
+    transform:none!important;
+    z-index:70!important;
+  }
+
+  /* If the button is inside Home content, keep it from covering accordion headers. */
+  body.app-page-home button[id*="top" i],
+  body.app-page-home button[class*="top" i],
+  body.app-page-home button[id*="scroll" i],
+  body.app-page-home button[class*="scroll" i],
+  body.app-page-home button[id*="float" i],
+  body.app-page-home button[class*="float" i],
+  body.app-page-home .back-to-top,
+  body.app-page-home .scroll-to-top,
+  body.app-page-home .floating-action,
+  body.app-page-home .floating-btn{
+    bottom:max(116px, calc(env(safe-area-inset-bottom) + 116px))!important;
+  }
+
+  #plannerAcc,
+  #intelAcc{
+    position:relative!important;
+    z-index:80!important;
+  }
+
+  #plannerAcc .acc-head,
+  #intelAcc .acc-head{
+    position:relative!important;
+    z-index:81!important;
+    pointer-events:auto!important;
+    cursor:pointer!important;
+    touch-action:manipulation!important;
+  }
+
+  #plannerAcc .acc-head *,
+  #intelAcc .acc-head *{
+    pointer-events:auto!important;
+  }
+}
+
+/* 2) Remove default gold borders from all scroll pills unless actually selected. */
+.segment .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
+.pill-scroll .seg-btn:not(.on):not(.active):not([aria-selected="true"]),
+.progress-tabs .progress-tab:not(.on):not(.active):not([aria-selected="true"]),
+.progress-tab:not(.on):not(.active):not([aria-selected="true"]),
+.chip:not(.on):not(.active):not([aria-selected="true"]),
+.tpl-pill:not(.on):not(.active):not([aria-selected="true"]),
+button[data-tab]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-wtab]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-ptab]:not(.on):not(.active):not([aria-selected="true"]),
+button[data-program-tab]:not(.on):not(.active):not([aria-selected="true"]){
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.11)!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
+}
+
+/* Some defaults are marked .chosen by the app even before the user chooses.
+   Treat .chosen as quiet unless it is also .on/.active/aria-selected. */
+.segment .seg-btn.chosen:not(.on):not(.active):not([aria-selected="true"]),
+.pill-scroll .seg-btn.chosen:not(.on):not(.active):not([aria-selected="true"]),
+.progress-tabs .progress-tab.chosen:not(.on):not(.active):not([aria-selected="true"]),
+.chip.chosen:not(.on):not(.active):not([aria-selected="true"]),
+.tpl-pill.chosen:not(.on):not(.active):not([aria-selected="true"]){
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.11)!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
+}
+
+/* Selected states only */
+.segment .seg-btn.on,
+.segment .seg-btn.active,
+.segment .seg-btn[aria-selected="true"],
+.pill-scroll .seg-btn.on,
+.pill-scroll .seg-btn.active,
+.pill-scroll .seg-btn[aria-selected="true"],
+.progress-tabs .progress-tab.on,
+.progress-tabs .progress-tab.active,
+.progress-tabs .progress-tab[aria-selected="true"],
+.progress-tab.on,
+.progress-tab.active,
+.progress-tab[aria-selected="true"],
+.chip.on,
+.chip.active,
+.chip[aria-selected="true"],
+.tpl-pill.on,
+.tpl-pill.active,
+.tpl-pill[aria-selected="true"],
+button[data-tab].on,
+button[data-tab].active,
+button[data-tab][aria-selected="true"],
+button[data-wtab].on,
+button[data-wtab].active,
+button[data-wtab][aria-selected="true"],
+button[data-ptab].on,
+button[data-ptab].active,
+button[data-ptab][aria-selected="true"],
+button[data-program-tab].on,
+button[data-program-tab].active,
+button[data-program-tab][aria-selected="true"]{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.58)!important;
+  color:var(--acc)!important;
+  box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
+}
+
+/* But keep true primary CTAs filled yellow. */
+#aiPage .btn.acc,
+#aiPlanPage .btn.acc,
+[id*="aiPlan" i] .btn.acc,
+body.app-page-ai .btn.acc,
+body.app-page-aiplan .btn.acc,
+body.app-page-ai-plan .btn.acc,
+button[id*="generate" i],
+button[id*="add" i][id*="exercise" i],
+#btn-add-exercise,
+#addExercise,
+.btn-add-exercise{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+  box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
+}
+
+/* Settings stays correct: quiet default, gold only selected/hover/open. */
+.settings-modal .btn:not(.on):not(.active):not([aria-selected="true"]),
+.settings-panel .btn:not(.on):not(.active):not([aria-selected="true"]),
+[id*="settings" i] .btn:not(.on):not(.active):not([aria-selected="true"]){
+  background:var(--panel2)!important;
+  border-color:rgba(255,255,255,.11)!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
 }
 
 </style>
@@ -11870,7 +12026,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-t';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-u';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-l OAUTH CALLBACK GUARD
+   v20260525-m OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-l AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-m AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,7 +2702,7 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-l PROGRESS + WELLNESS POLISH
+   v20260525-m PROGRESS + WELLNESS POLISH
    CSS only. Cross-app visual consistency.
    ============================================================ */
 
@@ -2950,7 +2950,7 @@ body.app-page-health .empty-cta{
 
 
 /* ============================================================
-   v20260525-l STABLE ROLLBACK + WELLNESS TAB WIDTH
+   v20260525-m STABLE ROLLBACK + WELLNESS TAB WIDTH
    CSS only. No runtime script. No auth/render changes.
    ============================================================ */
 
@@ -2990,6 +2990,180 @@ body.app-page-health .progress-tab{
   width:auto!important;
   border-radius:999px!important;
   padding:10px 16px!important;
+}
+
+
+/* ============================================================
+   v20260525-m WELLNESS FULL LABELS + TARGET AREA RESTORE
+   CSS only. No runtime JS. No auth/render changes.
+   ============================================================ */
+
+/* Wellness full-label horizontal scroll.
+   Uses CSS pseudo-labels so we do not touch JS/state/rendering. */
+body.app-page-wellness .page-panel .segment,
+body.app-page-wellness .page-panel .pill-scroll,
+body.app-page-wellness .page-panel .progress-tabs,
+body.app-page-health .page-panel .segment,
+body.app-page-health .page-panel .pill-scroll,
+body.app-page-health .page-panel .progress-tabs{
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  gap:8px!important;
+  padding:6px 2px 12px!important;
+  margin:10px 0 14px!important;
+  max-width:100%!important;
+}
+
+body.app-page-wellness .page-panel .segment::-webkit-scrollbar,
+body.app-page-wellness .page-panel .pill-scroll::-webkit-scrollbar,
+body.app-page-wellness .page-panel .progress-tabs::-webkit-scrollbar,
+body.app-page-health .page-panel .segment::-webkit-scrollbar,
+body.app-page-health .page-panel .pill-scroll::-webkit-scrollbar,
+body.app-page-health .page-panel .progress-tabs::-webkit-scrollbar{
+  display:none!important;
+}
+
+/* Only target rows that look like the 7 Wellness subtabs. */
+body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button,
+body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button,
+body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button,
+body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button,
+body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button,
+body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:max-content!important;
+  max-width:none!important;
+  min-height:44px!important;
+  border-radius:999px!important;
+  padding:10px 17px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:0!important; /* hide abbreviated app text */
+  line-height:1!important;
+}
+
+/* Full visible labels */
+body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button::before,
+body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button::before,
+body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button::before,
+body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button::before,
+body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button::before,
+body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button::before{
+  font-size:14px!important;
+  line-height:1!important;
+  letter-spacing:.01em!important;
+  white-space:nowrap!important;
+}
+
+body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(1)::before,
+body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(1)::before,
+body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(1)::before,
+body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(1)::before,
+body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(1)::before,
+body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(1)::before{content:"Dashboard";}
+
+body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(2)::before,
+body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(2)::before,
+body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(2)::before,
+body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(2)::before,
+body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(2)::before,
+body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(2)::before{content:"Health";}
+
+body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(3)::before,
+body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(3)::before,
+body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(3)::before,
+body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(3)::before,
+body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(3)::before,
+body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(3)::before{content:"Protocol";}
+
+body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(4)::before,
+body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(4)::before,
+body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(4)::before,
+body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(4)::before,
+body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(4)::before,
+body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(4)::before{content:"Check-In";}
+
+body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(5)::before,
+body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(5)::before,
+body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(5)::before,
+body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(5)::before,
+body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(5)::before,
+body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(5)::before{content:"History";}
+
+body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(6)::before,
+body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(6)::before,
+body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(6)::before,
+body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(6)::before,
+body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(6)::before,
+body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(6)::before{content:"Metrics";}
+
+body.app-page-wellness .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(7)::before,
+body.app-page-wellness .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(7)::before,
+body.app-page-wellness .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(7)::before,
+body.app-page-health .page-panel .segment:has(> button:nth-child(7)) > button:nth-child(7)::before,
+body.app-page-health .page-panel .pill-scroll:has(> button:nth-child(7)) > button:nth-child(7)::before,
+body.app-page-health .page-panel .progress-tabs:has(> button:nth-child(7)) > button:nth-child(7)::before{content:"Body";}
+
+/* Active state remains strong */
+body.app-page-wellness .page-panel .segment > button.on,
+body.app-page-wellness .page-panel .pill-scroll > button.on,
+body.app-page-wellness .page-panel .progress-tabs > button.on,
+body.app-page-wellness .page-panel .segment > button.chosen,
+body.app-page-wellness .page-panel .pill-scroll > button.chosen,
+body.app-page-wellness .page-panel .progress-tabs > button.chosen,
+body.app-page-health .page-panel .segment > button.on,
+body.app-page-health .page-panel .pill-scroll > button.on,
+body.app-page-health .page-panel .progress-tabs > button.on,
+body.app-page-health .page-panel .segment > button.chosen,
+body.app-page-health .page-panel .pill-scroll > button.chosen,
+body.app-page-health .page-panel .progress-tabs > button.chosen{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+  box-shadow:0 0 0 5px rgba(232,255,71,.08)!important;
+}
+
+/* Restore/protect Workout muscle group / target area horizontal scroll */
+body.app-page-workout .muscles,
+body.app-page-workout #muscles,
+body.app-page-workout [id*="muscle" i],
+body.app-page-workout [class*="muscle" i],
+body.app-page-workout [class*="target" i]{
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  gap:8px!important;
+  max-width:100%!important;
+}
+
+body.app-page-workout .muscles::-webkit-scrollbar,
+body.app-page-workout #muscles::-webkit-scrollbar,
+body.app-page-workout [id*="muscle" i]::-webkit-scrollbar,
+body.app-page-workout [class*="muscle" i]::-webkit-scrollbar,
+body.app-page-workout [class*="target" i]::-webkit-scrollbar{
+  display:none!important;
+}
+
+body.app-page-workout .muscles .chip,
+body.app-page-workout [class*="muscle" i] .chip,
+body.app-page-workout [class*="target" i] .chip{
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+  min-width:max-content!important;
 }
 
 </style>
@@ -11037,7 +11211,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-l';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-m';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

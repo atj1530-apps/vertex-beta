@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-g OAUTH CALLBACK GUARD
+   v20260525-h-callback OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-g AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-h-callback AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2702,752 +2702,249 @@ body.auth-ready #vertex-auth-loader{
 
 
 /* ============================================================
-   v20260525-g PREMIUM CSS-ONLY POLISH
-   Safe layer: no JS, no render changes, no auth changes.
+   v20260525-h PROGRESS + WELLNESS POLISH
+   CSS only. Cross-app visual consistency.
    ============================================================ */
 
 :root{
-  --vx-ease:cubic-bezier(0.16,1,0.3,1);
-  --vx-fast:160ms;
-  --vx-med:260ms;
-  --vx-border-soft:rgba(255,255,255,.075);
-  --vx-card-bg:rgba(24,24,24,.72);
+  --vx-data-panel:rgba(18,18,18,.78);
+  --vx-data-panel-2:rgba(24,24,24,.76);
+  --vx-data-border:rgba(255,255,255,.075);
 }
 
-button,.btn,.chip,.seg-btn,.progress-tab,.ex-add-btn,.fwm-set-done-btn{
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
-}
-.btn,.chip,.seg-btn,.progress-tab,.ex-add-btn,.fwm-set-done-btn{
-  transition:
-    transform var(--vx-fast) var(--vx-ease),
-    border-color var(--vx-fast) var(--vx-ease),
-    background var(--vx-fast) var(--vx-ease),
-    color var(--vx-fast) var(--vx-ease),
-    opacity var(--vx-fast) var(--vx-ease);
-}
-.btn:active,.chip:active,.seg-btn:active,.progress-tab:active,.ex-add-btn:active,.fwm-set-done-btn:active{
-  transform:scale(.985);
-}
-
-.panel,.accordion,.page-panel,.progress-card,.coach-card,.intel-box,.stat-box,.saved-item,.day-card,.exercise-card,.flow-card,.phase-card{
-  border-color:var(--vx-border-soft)!important;
-}
-.panel,.accordion,.progress-card,.coach-card,.stat-box,.saved-item,.day-card{
-  box-shadow:none;
-}
-
-body.app-page-home #home-dashboard{
+body.app-page-progress .progress-page,
+body.app-page-progress .page-panel{
   max-width:1180px;
   margin-left:auto;
   margin-right:auto;
 }
-body.app-page-home #home-dashboard .panel,
-body.app-page-home #home-dashboard .accordion,
-body.app-page-home #home-dashboard .progress-card,
-body.app-page-home #home-dashboard .coach-card,
-body.app-page-home #home-dashboard .page-panel{
-  border-color:var(--vx-border-soft)!important;
-}
-body.app-page-home #home-dashboard .home-stat-box,
-body.app-page-home #home-dashboard .home-rec-card,
-body.app-page-home #home-dashboard .intel-box,
-body.app-page-home #home-dashboard .stat-box{
-  background:var(--vx-card-bg)!important;
-  border-color:var(--vx-border-soft)!important;
-  border-radius:10px!important;
-}
-body.app-page-home #home-dashboard .acc-head{
-  background:rgba(24,24,24,.72);
-  min-height:46px;
-}
-body.app-page-home #home-dashboard .accordion{
-  border-radius:12px;
-  overflow:hidden;
-}
-body.app-page-home #home-dashboard .intel-grid{
-  gap:10px;
-}
-body.app-page-home #home-dashboard canvas{
-  min-height:180px;
-}
-body.app-page-home #vertex-home-readiness,
-body.app-page-home [id*="readiness" i],
-body.app-page-home .home-readiness-card{
-  border-color:rgba(232,255,71,.32)!important;
-}
-body.app-page-home #vertex-home-readiness{
-  box-shadow:0 0 0 1px rgba(232,255,71,.04),0 18px 50px rgba(0,0,0,.22);
-}
-body.app-page-home #home-dashboard .progress-card,
-body.app-page-home #home-dashboard .coach-card,
-body.app-page-home #home-dashboard .intel-box,
-body.app-page-home #home-dashboard .home-rec-card,
-body.app-page-home #home-dashboard .home-stat-box,
-body.app-page-home #home-dashboard .panel{
-  min-height:72px;
-}
 
-.acc-head{
-  transition:background var(--vx-fast) var(--vx-ease), border-color var(--vx-fast) var(--vx-ease);
-}
-.accordion.open .acc-head{
-  border-bottom-color:rgba(255,255,255,.06);
-}
-
-body.app-page-workout .exercise-card{
-  border-radius:12px;
-  border-color:rgba(255,255,255,.08)!important;
-}
-body.app-page-workout .ex-head{
-  background:rgba(24,24,24,.82);
-}
-body.app-page-workout .set-row input{
-  min-height:42px;
-  font-size:15px;
-}
-body.app-page-workout .ex-add-btn,
-body.app-page-workout .remove{
-  min-width:36px;
-  min-height:36px;
-}
-.quick-btn{
-  transition:background var(--vx-fast) var(--vx-ease), color var(--vx-fast) var(--vx-ease), border-color var(--vx-fast) var(--vx-ease);
-}
-
-.fwm-overlay{
-  background:rgba(7,7,7,.975);
-}
-.fwm-sets-card{
-  border-color:rgba(255,255,255,.08)!important;
-  box-shadow:0 18px 50px rgba(0,0,0,.26);
-}
-.fwm-set-done-btn.done{
-  animation:vxSetDone 360ms var(--vx-ease) both;
-}
-@keyframes vxSetDone{
-  0%{transform:scale(.92);box-shadow:0 0 0 0 rgba(72,255,138,0)}
-  45%{transform:scale(1.07);box-shadow:0 0 0 10px rgba(72,255,138,.08)}
-  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(72,255,138,0)}
-}
-
-.modal-overlay .modal,
-.session-card,
-.welcome-card,
-.account-menu{
-  transition-timing-function:var(--vx-ease)!important;
-}
-
-@media(max-width:900px){
-  body.app-page-home #home-dashboard{
-    padding-bottom:10px;
-  }
-  body.app-page-home #home-dashboard .home-stat-strip{
-    gap:8px;
-  }
-  body.app-page-home #home-dashboard .accordion:not(.open){
-    opacity:.95;
-  }
-  body.app-page-workout .set-row input{
-    min-height:44px;
-  }
-  body.app-page-workout .exercise-card{
-    border-radius:12px;
-  }
-  .page-panel{
-    border-radius:12px;
-  }
-}
-
-
-/* ============================================================
-   v20260525-g READINESS + HIERARCHY PASS
-   CSS only. Stable branch refinement.
-   ============================================================ */
-
-:root{
-  --vx-glow:rgba(232,255,71,.18);
-  --vx-soft:rgba(255,255,255,.06);
-  --vx-panel:rgba(22,22,22,.76);
-}
-
-/* Stronger hierarchy for first-screen metrics */
-body.app-page-home #vertex-home-readiness,
-body.app-page-home [id*="readiness" i],
-body.app-page-home .home-readiness-card{
-  position:relative;
-  isolation:isolate;
-  background:
-    radial-gradient(circle at top left, rgba(232,255,71,.08), transparent 42%),
-    rgba(22,22,22,.82)!important;
-  border-color:rgba(232,255,71,.34)!important;
-  overflow:hidden;
-}
-
-body.app-page-home #vertex-home-readiness:before,
-body.app-page-home .home-readiness-card:before{
-  content:"";
-  position:absolute;
-  inset:auto -40px -70px auto;
-  width:160px;
-  height:160px;
-  background:radial-gradient(circle,var(--vx-glow),transparent 68%);
-  pointer-events:none;
-  z-index:0;
-}
-
-body.app-page-home #vertex-home-readiness *,
-body.app-page-home .home-readiness-card *{
-  position:relative;
-  z-index:1;
-}
-
-/* Softer, more premium panel layering */
-body.app-page-home .panel,
-body.app-page-home .accordion,
-body.app-page-home .progress-card,
-body.app-page-home .coach-card,
-body.app-page-home .page-panel{
-  background:rgba(18,18,18,.74)!important;
-  backdrop-filter:blur(8px);
-}
-
-/* Reduce dashboard feel */
-body.app-page-home .intel-box,
-body.app-page-home .home-stat-box,
-body.app-page-home .home-rec-card{
-  background:var(--vx-panel)!important;
-}
-
-/* Better breathing room */
-body.app-page-home .home-stat-strip{
-  gap:10px!important;
-}
-body.app-page-home .intel-grid{
+.progress-summary{
   gap:12px!important;
 }
 
-/* Typography hierarchy */
-body.app-page-home .acc-title,
-body.app-page-home .section-title{
-  letter-spacing:.04em;
-}
-
-/* Subtle premium hover/press response */
-.panel:hover,
-.progress-card:hover,
-.coach-card:hover{
-  border-color:rgba(255,255,255,.11)!important;
-}
-
-/* Workout mode feels more focused */
-body.app-page-workout .exercise-card{
-  background:rgba(20,20,20,.84)!important;
-}
-
-body.app-page-workout .set-row input{
-  background:rgba(12,12,12,.92)!important;
-  border-color:rgba(255,255,255,.08)!important;
-}
-
-/* Completion state polish */
-.fwm-set-done-btn.done{
-  box-shadow:0 0 0 1px rgba(72,255,138,.10), 0 0 26px rgba(72,255,138,.10);
-}
-
-/* Modal polish */
-.modal,
-.session-card,
-.welcome-card{
-  background:rgba(18,18,18,.92)!important;
-  border-color:rgba(255,255,255,.08)!important;
-  box-shadow:0 22px 60px rgba(0,0,0,.34);
-}
-
-/* Native-feeling transitions */
-.accordion,
-.panel,
-.progress-card,
-.coach-card,
-.intel-box,
-.home-rec-card,
-.home-stat-box{
-  transition:
-    background 180ms cubic-bezier(0.16,1,0.3,1),
-    border-color 180ms cubic-bezier(0.16,1,0.3,1),
-    transform 180ms cubic-bezier(0.16,1,0.3,1),
-    opacity 180ms cubic-bezier(0.16,1,0.3,1);
-}
-
-/* Mobile refinement */
-@media(max-width:900px){
-
-  body.app-page-home #home-dashboard{
-    padding-inline:2px;
-  }
-
-  body.app-page-home .panel,
-  body.app-page-home .accordion,
-  body.app-page-home .page-panel{
-    border-radius:14px!important;
-  }
-
-  body.app-page-home .home-stat-strip{
-    gap:8px!important;
-  }
-
-  body.app-page-home .intel-grid{
-    gap:10px!important;
-  }
-
-  body.app-page-home .accordion:not(.open){
-    opacity:.96;
-  }
-
-}
-
-
-/* ============================================================
-   v20260525-g PERCEIVED PERFORMANCE PASS
-   CSS only. Stable branch refinement.
-   ============================================================ */
-
-:root{
-  --vx-skeleton-a:rgba(255,255,255,.035);
-  --vx-skeleton-b:rgba(255,255,255,.075);
-  --vx-depth:0 18px 50px rgba(0,0,0,.24);
-}
-
-/* Stable async surfaces */
-body.app-page-home #home-dashboard .panel,
-body.app-page-home #home-dashboard .accordion,
-body.app-page-home #home-dashboard .home-stat-box,
-body.app-page-home #home-dashboard .home-rec-card,
-body.app-page-home #home-dashboard .intel-box,
-body.app-page-home #home-dashboard .progress-card,
-body.app-page-home #home-dashboard .coach-card{
-  contain:layout paint;
-}
-
-/* Reserve visual space to reduce loading jump */
-body.app-page-home #home-dashboard .home-stat-strip{
-  min-height:72px;
-}
-body.app-page-home #home-dashboard .intel-grid{
-  min-height:142px;
-}
-body.app-page-home #home-dashboard .progress-card,
-body.app-page-home #home-dashboard .coach-card{
-  min-height:154px;
-}
-body.app-page-home #home-dashboard .home-rec-card{
-  min-height:96px;
-}
-
-/* Soft skeleton feeling for empty/delayed areas */
-.empty-note,
-.empty-cta{
+.progress-kpi{
   background:
-    linear-gradient(90deg,var(--vx-skeleton-a),var(--vx-skeleton-b),var(--vx-skeleton-a));
-  background-size:220% 100%;
-  animation:vxSkeleton 1.6s linear infinite;
-  border-color:rgba(255,255,255,.07)!important;
-}
-@keyframes vxSkeleton{
-  from{background-position:220% 0}
-  to{background-position:-220% 0}
+    radial-gradient(circle at top left,rgba(232,255,71,.045),transparent 42%),
+    var(--vx-data-panel-2)!important;
+  border-color:var(--vx-data-border)!important;
+  border-radius:12px!important;
+  min-height:112px;
+  box-shadow:none;
 }
 
-/* Smooth metric reveal feel */
-.stat-val,
-.progress-kpi b,
-.flow-stat b,
-.fwm-complete-stat b,
-.home-stat-box b,
-.home-rec-card b,
-.intel-box b{
-  animation:vxMetricReveal 280ms cubic-bezier(0.16,1,0.3,1) both;
-}
-@keyframes vxMetricReveal{
-  from{opacity:.35;transform:translate3d(0,4px,0)}
-  to{opacity:1;transform:translate3d(0,0,0)}
+.progress-kpi b{
+  text-shadow:0 0 24px rgba(232,255,71,.08);
 }
 
-/* Home: further calm the first scan */
-body.app-page-home #home-dashboard .label,
-body.app-page-home #home-dashboard .stat-lbl,
-body.app-page-home #home-dashboard .acc-hint{
-  opacity:.82;
-}
-body.app-page-home #home-dashboard .panel.hl{
-  box-shadow:var(--vx-depth);
-}
-
-/* Make accordions feel less mechanical */
-.accordion .acc-body{
-  animation:vxAccordionIn 220ms cubic-bezier(0.16,1,0.3,1) both;
-}
-@keyframes vxAccordionIn{
-  from{opacity:.4;transform:translate3d(0,-4px,0)}
-  to{opacity:1;transform:translate3d(0,0,0)}
-}
-
-/* Workout completion / focus polish */
-.fwm-complete-screen.on{
-  animation:vxCompleteIn 420ms cubic-bezier(0.16,1,0.3,1) both;
-}
-@keyframes vxCompleteIn{
-  from{opacity:0;transform:scale(.985)}
-  to{opacity:1;transform:scale(1)}
-}
-.fwm-complete-title{
-  text-shadow:0 0 28px rgba(232,255,71,.16);
-}
-.fwm-complete-icon{
-  animation:vxCompleteIcon 520ms cubic-bezier(0.16,1,0.3,1) both;
-}
-@keyframes vxCompleteIcon{
-  0%{opacity:0;transform:scale(.82) rotate(-4deg)}
-  55%{opacity:1;transform:scale(1.08) rotate(1deg)}
-  100%{opacity:1;transform:scale(1) rotate(0deg)}
-}
-
-/* Better input confidence */
-.set-row input:focus,
-.fwm-set-inputs input:focus,
-input:focus,
-textarea:focus,
-select:focus{
-  outline:none!important;
-  border-color:rgba(232,255,71,.55)!important;
-  box-shadow:0 0 0 3px rgba(232,255,71,.08);
-}
-
-/* Native-feeling click feedback */
-.ex-item:active,
-.day-card:active,
-.saved-item:active{
-  transform:scale(.995);
-}
-
-/* Chart containers should feel intentional while loading */
-canvas{
-  opacity:.98;
-  transition:opacity 220ms cubic-bezier(0.16,1,0.3,1);
-}
-
-/* Mobile stability and touch feel */
-@media(max-width:900px){
-  body.app-page-home #home-dashboard .home-stat-strip{
-    min-height:88px;
-  }
-  body.app-page-home #home-dashboard .intel-grid{
-    min-height:164px;
-  }
-  .acc-head{
-    min-height:48px;
-  }
-  .btn,.seg-btn,.chip{
-    min-height:40px;
-  }
-  .fwm-actions .btn{
-    min-height:48px;
-  }
-}
-
-/* Accessibility: reduce motion preference */
-@media (prefers-reduced-motion: reduce){
-  .empty-note,
-  .empty-cta,
-  .stat-val,
-  .progress-kpi b,
-  .flow-stat b,
-  .fwm-complete-stat b,
-  .home-stat-box b,
-  .home-rec-card b,
-  .intel-box b,
-  .accordion .acc-body,
-  .fwm-complete-screen.on,
-  .fwm-complete-icon{
-    animation-duration:.01ms!important;
-    animation-iteration-count:1!important;
-  }
-}
-
-
-/* ============================================================
-   v20260525-g WORKOUT EXPERIENCE V2
-   CSS only. Training loop refinement.
-   ============================================================ */
-
-:root{
-  --vx-workout-card:rgba(18,18,18,.88);
-  --vx-workout-head:rgba(27,27,27,.88);
-  --vx-active-glow:rgba(232,255,71,.12);
-  --vx-complete-glow:rgba(72,255,138,.14);
-}
-
-/* Workout builder: stronger active hierarchy */
-body.app-page-workout .exercise-card{
-  background:var(--vx-workout-card)!important;
+.progress-card{
+  background:var(--vx-data-panel)!important;
+  border-color:var(--vx-data-border)!important;
   border-radius:14px!important;
-  overflow:hidden;
-  box-shadow:0 12px 34px rgba(0,0,0,.18);
+  min-height:172px;
 }
 
-body.app-page-workout .exercise-card:hover{
-  border-color:rgba(232,255,71,.16)!important;
+.progress-card.wide{
+  min-height:210px;
 }
 
-body.app-page-workout .ex-head{
-  background:
-    linear-gradient(90deg,rgba(232,255,71,.035),transparent 42%),
-    var(--vx-workout-head)!important;
-  min-height:54px;
+.progress-tabs{
+  gap:8px!important;
 }
 
-body.app-page-workout .ex-name{
-  font-size:15px;
+.progress-tab{
+  border-radius:999px!important;
+  padding:8px 14px!important;
+  background:rgba(24,24,24,.82)!important;
+  border-color:rgba(255,255,255,.08)!important;
+}
+
+.progress-tab.on{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+  box-shadow:0 0 0 4px rgba(232,255,71,.08);
+}
+
+.history-row{
+  border-top-color:rgba(255,255,255,.06)!important;
+  border-radius:8px;
+  transition:background 160ms cubic-bezier(0.16,1,0.3,1), transform 160ms cubic-bezier(0.16,1,0.3,1);
+}
+
+.history-row:hover{
+  background:rgba(255,255,255,.025);
+}
+
+.history-row:active{
+  transform:scale(.996);
+}
+
+.history-date{
+  opacity:.86;
+}
+
+.progress-card canvas,
+.page-panel canvas,
+.chart-card canvas{
+  min-height:190px;
+}
+
+body.app-page-wellness .page-panel,
+body.app-page-health .page-panel{
+  max-width:1180px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.health-input,
+.roadmap-card,
+.wellness-card,
+.metric-card,
+.checkin-card,
+.protocol-card,
+.body-comp-card,
+.scan-card,
+.dexa-card{
+  background:var(--vx-data-panel-2)!important;
+  border-color:var(--vx-data-border)!important;
+  border-radius:12px!important;
+}
+
+.health-form{
+  gap:12px!important;
+}
+
+.health-input{
+  min-height:106px;
+}
+
+.health-input input,
+.health-input select,
+.manual-grid input,
+.manual-grid select,
+.manual-grid textarea{
+  background:rgba(8,8,8,.92)!important;
+  border-color:rgba(255,255,255,.08)!important;
+  border-radius:9px!important;
+  min-height:42px;
+}
+
+.health-input input:focus,
+.health-input select:focus,
+.manual-grid input:focus,
+.manual-grid select:focus,
+.manual-grid textarea:focus{
+  border-color:rgba(232,255,71,.55)!important;
+  box-shadow:0 0 0 4px rgba(232,255,71,.075);
+  outline:none!important;
+}
+
+body.app-page-wellness .accordion,
+body.app-page-health .accordion,
+body.app-page-wellness .panel,
+body.app-page-health .panel{
+  border-color:var(--vx-data-border)!important;
+  border-radius:14px!important;
+  background:rgba(18,18,18,.74)!important;
+}
+
+body.app-page-wellness .acc-head,
+body.app-page-health .acc-head{
+  background:rgba(24,24,24,.78)!important;
+  min-height:48px;
+}
+
+.roadmap-card{
+  min-height:94px;
+}
+
+.roadmap-card b,
+.health-input b,
+.metric-card b,
+.protocol-card b{
   letter-spacing:.01em;
 }
 
-body.app-page-workout .badge.acc{
-  box-shadow:0 0 0 3px rgba(232,255,71,.08);
-}
-
-body.app-page-workout .sets{
-  padding:14px;
-}
-
-body.app-page-workout .set-row{
-  gap:9px;
-  margin-bottom:9px;
-}
-
-body.app-page-workout .set-row.head{
-  opacity:.78;
-}
-
-body.app-page-workout .set-row input{
-  min-height:44px;
-  border-radius:8px;
-  background:rgba(9,9,9,.92)!important;
+.progress-page .empty-note,
+.progress-page .empty-cta,
+body.app-page-wellness .empty-note,
+body.app-page-health .empty-note,
+body.app-page-wellness .empty-cta,
+body.app-page-health .empty-cta{
   border-color:rgba(255,255,255,.08)!important;
-  font-size:15px;
-}
-
-body.app-page-workout .set-row input:focus{
-  border-color:rgba(232,255,71,.58)!important;
-  box-shadow:0 0 0 4px rgba(232,255,71,.075);
-}
-
-body.app-page-workout .quick-add-row{
-  gap:6px;
-  margin-top:-2px;
-  margin-bottom:10px;
-}
-
-body.app-page-workout .quick-btn{
-  min-height:26px;
-  border-radius:999px;
-  padding:4px 10px;
-  background:rgba(32,32,32,.9);
-}
-
-body.app-page-workout .quick-btn:active{
-  transform:scale(.98);
-}
-
-/* Add buttons feel more tactile */
-body.app-page-workout .ex-add-btn{
-  width:36px;
-  height:36px;
-  border-color:rgba(232,255,71,.26);
-  background:rgba(232,255,71,.035);
-}
-
-body.app-page-workout .ex-add-btn.added{
-  box-shadow:0 0 0 4px rgba(72,255,138,.10);
-}
-
-/* Focus Workout Mode V2 */
-.fwm-overlay{
+  border-radius:14px!important;
   background:
-    radial-gradient(circle at top,rgba(232,255,71,.05),transparent 32%),
-    rgba(5,5,5,.982)!important;
+    linear-gradient(135deg,rgba(232,255,71,.035),rgba(255,255,255,.018)),
+    rgba(18,18,18,.68)!important;
 }
 
-.fwm-header{
-  background:rgba(5,5,5,.58);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
+.progress-card .label,
+.progress-kpi span,
+.health-input .label,
+.roadmap-card span,
+.metric-card span{
+  opacity:.84;
 }
 
-.fwm-progress-track{
-  height:4px;
-  background:rgba(255,255,255,.08);
-}
-
-.fwm-progress-fill{
-  box-shadow:0 0 18px rgba(232,255,71,.20);
-}
-
-.fwm-ex-label{
-  opacity:.82;
-}
-
-.fwm-ex-name{
-  font-size:54px;
-  letter-spacing:2.8px;
-  text-shadow:0 14px 38px rgba(0,0,0,.32);
-}
-
-.fwm-ex-meta{
-  font-size:14px;
-}
-
-.fwm-sets-card{
-  border-radius:16px!important;
-  background:rgba(15,15,15,.92)!important;
-  border-color:rgba(255,255,255,.08)!important;
-}
-
-.fwm-set-row{
-  padding:10px 0;
-  gap:12px;
-}
-
-.fwm-set-inputs input{
-  min-height:44px;
-  border-radius:10px;
-  background:rgba(8,8,8,.96)!important;
-  border-color:rgba(255,255,255,.08)!important;
-  font-size:16px;
-}
-
-.fwm-set-done-btn{
-  width:44px;
-  height:44px;
-  border-color:rgba(255,255,255,.16);
-}
-
-.fwm-set-done-btn.done{
-  background:var(--green)!important;
-  border-color:var(--green)!important;
-  box-shadow:0 0 0 5px rgba(72,255,138,.10),0 0 28px rgba(72,255,138,.12);
-}
-
-.fwm-set-row.logged{
-  opacity:.62;
-}
-
-.fwm-footer{
-  background:rgba(5,5,5,.72);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-}
-
-.fwm-actions .btn{
-  min-height:52px;
-  border-radius:12px;
-  font-size:15px;
-}
-
-.fwm-next-up{
-  color:rgba(242,242,242,.62);
-}
-
-/* Completion experience */
-.fwm-complete-screen.on{
-  background:
-    radial-gradient(circle at 50% 22%,rgba(232,255,71,.09),transparent 32%),
-    rgba(5,5,5,.985)!important;
-}
-
-.fwm-complete-title{
-  font-size:62px;
-  letter-spacing:4.5px;
-  text-shadow:0 0 34px rgba(232,255,71,.18);
-}
-
-.fwm-complete-stats{
-  background:rgba(18,18,18,.78);
-  border:1px solid rgba(255,255,255,.075);
-  border-radius:16px;
-  padding:16px 20px;
-  box-shadow:0 18px 50px rgba(0,0,0,.24);
-}
-
-.fwm-complete-stat b{
-  color:var(--acc);
-}
-
-/* Rest timer gets more premium */
-.rest-timer-overlay{
-  background:rgba(0,0,0,.92)!important;
-}
-
-.rest-timer-card{
-  border-color:rgba(255,255,255,.08)!important;
-  border-radius:18px!important;
-  background:
-    radial-gradient(circle at top,rgba(232,255,71,.07),transparent 40%),
-    rgba(17,17,17,.94)!important;
-  box-shadow:0 22px 70px rgba(0,0,0,.42);
-}
-
-.rest-timer-count{
-  text-shadow:0 0 30px rgba(232,255,71,.16);
-}
-
-/* Mobile workout density */
 @media(max-width:900px){
-  body.app-page-workout .sets{
-    padding:12px;
+  .progress-summary{
+    gap:10px!important;
   }
 
-  body.app-page-workout .set-row{
-    gap:8px;
+  .progress-kpi{
+    min-height:104px;
+    border-radius:12px!important;
   }
 
-  body.app-page-workout .set-row input{
-    min-height:46px;
-    font-size:16px;
+  .progress-card{
+    min-height:164px;
   }
 
-  body.app-page-workout .quick-add-row{
-    padding-left:42px;
+  .progress-tabs{
+    flex-wrap:nowrap!important;
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding-bottom:4px;
   }
 
-  .fwm-ex-name{
-    font-size:46px;
+  .progress-tabs::-webkit-scrollbar{
+    display:none;
   }
 
-  .fwm-body{
-    justify-content:flex-start;
-    padding-top:24px;
+  .progress-tab{
+    flex:0 0 auto;
+    min-height:38px;
   }
 
-  .fwm-set-inputs input{
-    min-height:46px;
-    font-size:16px;
+  .history-row{
+    padding:12px 0!important;
   }
 
-  .fwm-set-done-btn{
-    width:46px;
-    height:46px;
+  .health-form,
+  .roadmap-row{
+    gap:10px!important;
   }
 
-  .fwm-complete-title{
-    font-size:52px;
+  .health-input{
+    min-height:96px;
   }
 
-  .fwm-complete-stats{
-    width:100%;
-    justify-content:space-around;
-    gap:10px;
+  body.app-page-wellness .page-title,
+  body.app-page-health .page-title,
+  body.app-page-progress .page-title{
+    font-size:42px;
+  }
+}
+
+@media(min-width:901px){
+  .progress-layout{
+    gap:14px!important;
+  }
+
+  .health-form{
+    grid-template-columns:repeat(3,minmax(0,1fr));
   }
 }
 
@@ -11496,7 +10993,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-g';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-h';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

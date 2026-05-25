@@ -68,7 +68,50 @@
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 .skeleton{background:linear-gradient(90deg,var(--panel2) 25%,var(--panel3) 50%,var(--panel2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--r-sm)}
 *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;overflow:auto}
-@font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
+@font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:'DM Mono',monospace}.title{font-family:'Bebas Neue',sans-serif;
+/* v20260525-premium-authgate */
+html.vertex-auth-booting body{
+  background:#070707 !important;
+}
+html.vertex-auth-booting .login-screen,
+html.vertex-auth-booting #app,
+html.vertex-auth-booting #app-header{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+#vertex-bootstrap-screen{
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  background:#070707;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:14px;
+  opacity:1;
+  transition:opacity .45s cubic-bezier(0.16,1,0.3,1);
+}
+#vertex-bootstrap-screen.fade-out{
+  opacity:0;
+  pointer-events:none;
+}
+.vertex-boot-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:58px;
+  letter-spacing:8px;
+  color:var(--acc);
+}
+.vertex-boot-sub{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:4px;
+  color:#8d8d8d;
+  text-transform:uppercase;
+}
+
+letter-spacing:3px}.label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted)}
 .btn{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:5px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.btn:hover{border-color:var(--acc);color:var(--acc)}.btn.acc{background:var(--acc);border-color:var(--acc);color:#000}.btn.red{color:var(--red);border-color:rgba(255,77,77,.4);background:transparent}.btn.small{padding:6px 9px;font-size:11px}.btn:disabled{opacity:.45;cursor:not-allowed}
 #app-header{position:fixed;top:0;left:0;right:0;height:58px;background:#070707;border-bottom:1px solid var(--line);display:grid;grid-template-columns:260px 1fr 560px;align-items:center;padding:0 16px;z-index:50;padding-top:env(safe-area-inset-top,0px)}.logo{display:flex;align-items:center;gap:10px}.logo-main{font-family:'Bebas Neue';font-size:26px;letter-spacing:5px;color:var(--acc)}.logo-sub{font-family:'DM Mono';font-size:10px;letter-spacing:3px;color:var(--dim)}.nav{justify-self:center;display:flex;border:0;border-radius:0;overflow:hidden}.nav button{background:var(--panel2);color:var(--muted);border:0;border-right:1px solid var(--line);padding:8px 12px;font-size:12px;cursor:pointer}.nav button:last-child{border-right:0}.nav button.on{background:transparent;color:var(--acc);font-weight:700;box-shadow:inset 0 -2px 0 var(--acc)}
 /* Desktop: hide hamburger inside nav-row, show Account in hdr-actions */
@@ -2704,6 +2747,26 @@ body.auth-ready #vertex-auth-loader{
 </head>
 <body class="auth-resolving">
 
+<div id="vertex-bootstrap-screen">
+  <div class="vertex-boot-logo">VERTEX</div>
+  <div class="vertex-boot-sub">Signing You In</div>
+</div>
+<script>
+document.documentElement.classList.add('vertex-auth-booting');
+window.__vertexBootComplete=false;
+window.vertexFinishBootstrap=function(){
+  if(window.__vertexBootComplete) return;
+  window.__vertexBootComplete=true;
+  document.documentElement.classList.remove('vertex-auth-booting');
+  const el=document.getElementById('vertex-bootstrap-screen');
+  if(el){
+    el.classList.add('fade-out');
+    setTimeout(()=>{ try{el.remove();}catch(e){} },500);
+  }
+};
+</script>
+
+
 <!-- v13.61 Welcome modal — shown once per user after first sign-in -->
 <div id="welcome-overlay" class="welcome-overlay" role="dialog" aria-modal="true" aria-labelledby="welcome-title-active">
   <div class="welcome-card">
@@ -4810,7 +4873,7 @@ async function signIn(email,password){
     authUser=authFromUser(data.user);
     window.authUser=authUser;
     document.body.classList.add('authenticated');
-    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll();
+    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
   }
   return '';
 }
@@ -4823,7 +4886,7 @@ async function createAccount(email,password){
   if(error) return error.message;
   if(data.user && data.session){
     if(typeof applyAuthenticatedSession==='function') await applyAuthenticatedSession(data.session);
-    else { authUser=authFromUser(data.user); window.authUser=authUser; document.body.classList.add('authenticated'); await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); }
+    else { authUser=authFromUser(data.user); window.authUser=authUser; document.body.classList.add('authenticated'); await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); }
     return '';
   }
   return 'Account created. Check your email to confirm, then sign in.';
@@ -5083,7 +5146,7 @@ async function initAuth(){
   vertexSetAuthResolving();
 
   const supa=getSupa();
-  if(!supa){ vertexShowUnauthenticatedShell(); syncAuthShell(); return; }
+  if(!supa){ vertexShowUnauthenticatedShell(); syncAuthShell(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); return; }
 
   // Expose retry function so the sync pill onclick can trigger it
   window.vertexRetrySync=async function(){
@@ -5102,10 +5165,18 @@ async function initAuth(){
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
       _hydratedUserId=null; _hydrationInFlight=false; _authShellRevealedFor=null;
       vertexShowUnauthenticatedShell();
-      setSyncStatus('local','Local mode'); renderAccountMenu(); syncAuthShell(); renderAll(); return;
+      setSyncStatus('local','Local mode'); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); return;
     }
     if(!session || !session.user) return;
-    await applyAuthenticatedSession(session);
+    
+if(window.__vertexApplyingSession){
+  console.log('[Vertex] Duplicate auth hydration prevented');
+  return;
+}
+window.__vertexApplyingSession=true;
+setTimeout(()=>{ window.__vertexApplyingSession=false; },1200);
+
+await applyAuthenticatedSession(session);
   });
 
   try{
@@ -5157,11 +5228,11 @@ async function initAuth(){
       try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
       try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
-      vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll();
+      vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
     }
   }catch(err){
     console.warn('Auth init warning:',err);
-    authUser=null; _authShellRevealedFor=null; vertexShowUnauthenticatedShell(); syncAuthShell(); renderAll();
+    authUser=null; _authShellRevealedFor=null; vertexShowUnauthenticatedShell(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
   }
 }
 function emptyPlanner(){return Object.fromEntries(DAYS.map(d=>[d,null]))}

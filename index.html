@@ -2583,7 +2583,7 @@ button.acc-hint {
 
 
 /* ============================================================
-   v20260525-b OAUTH CALLBACK GUARD
+   v20260525-c-callback OAUTH CALLBACK GUARD
    Prevents stale login repaint while Google/Supabase session hydrates.
    ============================================================ */
 html.vertex-oauth-callback-boot body{background:#070707!important;overflow:hidden!important}
@@ -2630,7 +2630,7 @@ html.vertex-oauth-callback-boot body.oauth-callback-leaving::after{
 }
 
 /* ============================================================
-   v20260525-b AUTH BOOTSTRAP GATE — native-feeling login → home
+   v20260525-c-callback AUTH BOOTSTRAP GATE — native-feeling login → home
    Single source of truth:
    - auth-resolving: nothing mounts visually except loader/curtain
    - auth-ready: unauthenticated login can appear
@@ -2698,128 +2698,6 @@ body.auth-ready #vertex-auth-loader{
 @media(max-width:760px){
   body.auth-resolving #app{display:flex!important}
   body.authenticated.auth-show-app #app{display:flex!important}
-}
-
-
-/* ============================================================
-   v20260525-b PREMIUM OVERHAUL — CSS-first safe layer
-   Core logic untouched.
-   ============================================================ */
-:root{
-  --motion-fast:180ms;
-  --motion-med:280ms;
-  --motion-slow:420ms;
-  --ease-premium:cubic-bezier(0.16,1,0.3,1);
-}
-.panel,.accordion,.page-panel,.progress-card,.coach-card,.intel-box,.stat-box,.saved-item,.day-card,.exercise-card,
-.btn,.chip,.seg-btn,.progress-tab,.modal,.session-card,.welcome-card{
-  transition:
-    border-color var(--motion-fast) var(--ease-premium),
-    background var(--motion-fast) var(--ease-premium),
-    transform var(--motion-fast) var(--ease-premium),
-    opacity var(--motion-fast) var(--ease-premium),
-    box-shadow var(--motion-fast) var(--ease-premium);
-}
-button,.btn,.chip,.seg-btn,.progress-tab{
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
-}
-.btn:active,.chip:active,.seg-btn:active,.progress-tab:active{
-  transform:scale(.985);
-}
-body.app-page-home #home-dashboard{
-  max-width:1180px;
-  margin:0 auto;
-}
-body.app-page-home #home-dashboard.page-entering{
-  animation:vertexHomeEnter var(--motion-med) var(--ease-premium) both;
-}
-@keyframes vertexHomeEnter{
-  from{opacity:0;transform:translate3d(0,8px,0)}
-  to{opacity:1;transform:translate3d(0,0,0)}
-}
-body.app-page-home #home-dashboard .panel,
-body.app-page-home #home-dashboard .accordion,
-body.app-page-home #home-dashboard .progress-card,
-body.app-page-home #home-dashboard .coach-card,
-body.app-page-home #home-dashboard .page-panel{
-  border-color:rgba(255,255,255,.07)!important;
-}
-body.app-page-home #home-dashboard .home-stat-box,
-body.app-page-home #home-dashboard .home-rec-card,
-body.app-page-home #home-dashboard .intel-box,
-body.app-page-home #home-dashboard .stat-box{
-  border-color:rgba(255,255,255,.07)!important;
-  background:rgba(24,24,24,.72)!important;
-  border-radius:10px!important;
-}
-body.app-page-home #home-dashboard .accordion{
-  border-radius:12px;
-  overflow:hidden;
-}
-body.app-page-home #home-dashboard .acc-head{
-  background:rgba(24,24,24,.72);
-  min-height:46px;
-}
-body.app-page-home #home-dashboard canvas{
-  min-height:180px;
-}
-body.app-page-home #vertex-home-readiness,
-body.app-page-home .home-readiness-card,
-body.app-page-home [id*="readiness" i]{
-  border-color:rgba(232,255,71,.30)!important;
-}
-body.app-page-home #vertex-home-readiness{
-  box-shadow:0 0 0 1px rgba(232,255,71,.04),0 18px 50px rgba(0,0,0,.22);
-}
-body.app-page-home #home-dashboard .progress-card,
-body.app-page-home #home-dashboard .coach-card,
-body.app-page-home #home-dashboard .intel-box,
-body.app-page-home #home-dashboard .home-rec-card,
-body.app-page-home #home-dashboard .home-stat-box,
-body.app-page-home #home-dashboard .panel{
-  min-height:72px;
-}
-body.app-page-workout .exercise-card{
-  border-color:rgba(255,255,255,.08);
-  border-radius:12px;
-}
-body.app-page-workout .set-row input{
-  min-height:42px;
-  font-size:15px;
-}
-body.app-page-workout .ex-add-btn,
-body.app-page-workout .set-row button,
-body.app-page-workout .remove{
-  min-width:36px;
-  min-height:36px;
-}
-.fwm-overlay.on .fwm-set-done-btn.done{
-  animation:vertexSetDone 360ms var(--ease-premium) both;
-}
-@keyframes vertexSetDone{
-  0%{transform:scale(.92);box-shadow:0 0 0 0 rgba(72,255,138,0)}
-  45%{transform:scale(1.07);box-shadow:0 0 0 10px rgba(72,255,138,.08)}
-  100%{transform:scale(1);box-shadow:0 0 0 0 rgba(72,255,138,0)}
-}
-.modal-overlay.on .modal,
-.session.on .session-card,
-.welcome-overlay.on .welcome-card{
-  transition-timing-function:var(--ease-premium)!important;
-}
-@media(max-width:900px){
-  body.app-page-home #home-dashboard{
-    padding-bottom:10px;
-  }
-  body.app-page-home #home-dashboard .home-stat-strip{
-    gap:8px;
-  }
-  body.app-page-home #home-dashboard .accordion:not(.open){
-    opacity:.94;
-  }
-  body.app-page-workout .set-row input{
-    min-height:44px;
-  }
 }
 
 </style>
@@ -7969,51 +7847,6 @@ function protoSelectDate(dateStr){
 
 
 
-<script>
-
-(function(){
-  'use strict';
-  if(window.__vertexPremiumSafeB){ return; }
-  window.__vertexPremiumSafeB = true;
-
-  function applyPageClass(){
-    try{
-      var pg = window.state && window.state.page ? window.state.page : '';
-      document.body.classList.toggle('app-page-home', pg === 'home' || pg === '');
-      document.body.classList.toggle('app-page-workout', pg === 'workout');
-    }catch(e){}
-  }
-
-  function installHaptics(){
-    try{
-      if(!window.navigator || !navigator.vibrate){ return; }
-      document.addEventListener('click', function(ev){
-        try{
-          var t = ev.target;
-          if(!t || !t.classList){ return; }
-          if(t.classList.contains('fwm-set-done-btn') || t.classList.contains('ex-add-btn') || t.classList.contains('btn')){
-            navigator.vibrate(6);
-          }
-        }catch(e){}
-      }, {passive:true});
-    }catch(e){}
-  }
-
-  function boot(){
-    applyPageClass();
-    installHaptics();
-    setInterval(applyPageClass, 700);
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', boot);
-  }else{
-    boot();
-  }
-  window.addEventListener('vertex:authenticated', function(){ setTimeout(applyPageClass, 120); });
-})();
-
-</script>
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -10912,7 +10745,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-b';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260525-c';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

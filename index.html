@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: adaptive training intelligence foundation; service worker/cache unchanged -->
+<!-- v20260526-ac: adaptive performance engine; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -17059,6 +17059,323 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     cardio:buildCardioStrain,
     coach:buildAdaptiveCoach,
     render:renderAdaptivePanels
+  };
+
+  function schedule(){
+    setTimeout(run, 250);
+    setTimeout(run, 900);
+    setTimeout(run, 1800);
+    setTimeout(run, 3500);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(run, 250); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac adaptive performance engine */
+(function(){
+  function safeJson(key, fallback){
+    try{
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+
+  function saveJson(key,value){
+    try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){}
+  }
+
+  function getReadiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var intel = window.VertexRecoveryInsights.build() || {};
+        if(Number.isFinite(Number(intel.recovery))){
+          return Math.round(Number(intel.recovery));
+        }
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function getWorkoutMemory(){
+    try{
+      if(window.VertexWorkoutPersistence && typeof window.VertexWorkoutPersistence.summary === 'function'){
+        return window.VertexWorkoutPersistence.summary() || {};
+      }
+    }catch(e){}
+    return {exercises:0,totalSets:0,totalSessions:0};
+  }
+
+  function getExerciseHistory(){
+    return safeJson('vertexWorkoutExerciseHistory', {});
+  }
+
+  function stravaConnected(){
+    var keys = ['vertex_strava_connected','vertex_strava_token','vertex_strava_access_token','strava_access_token','stravaToken'];
+    try{
+      for(var i=0;i<keys.length;i++){
+        var v = localStorage.getItem(keys[i]) || sessionStorage.getItem(keys[i]);
+        if(v && v !== 'false' && v !== 'null' && v !== 'undefined') return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function getStravaActivities(){
+    var keys = ['vertexStravaActivities','vertex_strava_activities','stravaActivities','vertexCardioActivities'];
+    for(var i=0;i<keys.length;i++){
+      var arr = safeJson(keys[i], null);
+      if(Array.isArray(arr)) return arr;
+    }
+    return [];
+  }
+
+  function buildCardioLoad(){
+    var activities = getStravaActivities();
+    var connected = stravaConnected();
+    var sessions = 0, minutes = 0, miles = 0, elevation = 0, intensity = 0;
+
+    activities.slice(0,30).forEach(function(a){
+      var min = Number(a.minutes || a.durationMin || (a.moving_time ? a.moving_time/60 : 0) || (a.elapsed_time ? a.elapsed_time/60 : 0));
+      var dist = Number(a.distanceMiles || a.miles || (a.distance ? a.distance / 1609.34 : 0));
+      var elev = Number(a.elevationGain || a.total_elevation_gain || 0);
+      var hr = Number(a.average_heartrate || a.avgHr || 0);
+
+      if(min > 0){
+        sessions += 1;
+        minutes += min;
+        miles += dist || 0;
+        elevation += elev || 0;
+        intensity += hr ? Math.max(0, (hr - 100) / 2) : 8;
+      }
+    });
+
+    var score = Math.round(Math.min(100, sessions*8 + minutes*0.25 + miles*1.8 + elevation*0.008 + intensity));
+    var label = !connected && sessions === 0 ? 'Ready for Strava' :
+                score >= 75 ? 'High endurance load' :
+                score >= 45 ? 'Moderate endurance load' :
+                score > 0 ? 'Low endurance load' :
+                'No cardio load';
+
+    var recoveryImpact = score >= 75 ? 'Reduce strength volume after hard cardio.' :
+                         score >= 45 ? 'Keep strength volume controlled around cardio.' :
+                         score > 0 ? 'Cardio load is manageable.' :
+                         'No endurance fatigue detected.';
+
+    return {
+      connected:connected,
+      sessions:sessions,
+      minutes:Math.round(minutes),
+      miles:Math.round(miles * 10) / 10,
+      elevation:Math.round(elevation),
+      score:score,
+      label:label,
+      recoveryImpact:recoveryImpact
+    };
+  }
+
+  function buildProgression(){
+    var history = getExerciseHistory();
+    var names = Object.keys(history);
+    if(!names.length){
+      return {
+        label:'Progression baseline pending',
+        opportunity:'Log repeated movements to unlock progression guidance.',
+        movement:null,
+        status:'Pending'
+      };
+    }
+
+    var ranked = names.map(function(n){ return history[n]; })
+      .filter(Boolean)
+      .sort(function(a,b){
+        return Number(b.estimatedVolume || 0) - Number(a.estimatedVolume || 0);
+      });
+
+    var top = ranked[0] || null;
+    var recent = top && Array.isArray(top.entries) ? top.entries.slice(0,5) : [];
+    var bestWeight = Number(top && top.bestWeight || 0);
+    var bestReps = Number(top && top.bestReps || 0);
+
+    var opportunity = 'Maintain current progression until more repeated data exists.';
+    var status = 'Building baseline';
+
+    if(top && Number(top.sessions || 0) >= 2){
+      status = 'Progression ready';
+      opportunity = 'Repeat ' + top.name + ' and add 1 rep or a small load increase if form is stable.';
+    }
+
+    if(bestWeight > 0 && bestReps > 0 && recent.length >= 2){
+      opportunity = 'Top movement is ' + top.name + '. Previous best: ' + bestWeight + ' lb × ' + bestReps + ' reps.';
+    }
+
+    return {
+      label:status,
+      opportunity:opportunity,
+      movement:top ? top.name : null,
+      bestWeight:bestWeight,
+      bestReps:bestReps,
+      exercises:names.length
+    };
+  }
+
+  function buildPerformanceDecision(){
+    var readiness = getReadiness();
+    var cardio = buildCardioLoad();
+    var progression = buildProgression();
+    var memory = getWorkoutMemory();
+
+    var decision = 'Build baseline';
+    var action = 'Continue logging workouts to strengthen performance recommendations.';
+    var volume = 'Maintain';
+    var intensity = 'Moderate';
+
+    if(readiness !== null){
+      if(readiness >= 80 && cardio.score < 45){
+        decision = 'Progression opportunity';
+        action = progression.movement ? progression.opportunity : 'Recovery supports progression. Add load or reps where form is clean.';
+        volume = 'Increase slightly';
+        intensity = 'Moderate–High';
+      }else if(readiness >= 65 && cardio.score < 75){
+        decision = 'Push with control';
+        action = progression.movement ? progression.opportunity : 'Train hard but keep progression selective.';
+        volume = 'Controlled increase';
+        intensity = 'Moderate';
+      }else if(readiness >= 65 && cardio.score >= 75){
+        decision = 'Endurance load caution';
+        action = 'Recovery is acceptable, but cardio load is high. Keep lifting volume moderate.';
+        volume = 'Hold';
+        intensity = 'Moderate';
+      }else if(readiness >= 50){
+        decision = 'Maintain';
+        action = 'Keep work productive, avoid unnecessary max-effort sets.';
+        volume = 'Hold';
+        intensity = 'Moderate–Low';
+      }else{
+        decision = 'Recovery priority';
+        action = 'Reduce load, shorten session, or choose recovery work.';
+        volume = 'Reduce';
+        intensity = 'Low';
+      }
+    }
+
+    if(Number(memory.totalSets || 0) > 350 && readiness !== null && readiness < 75){
+      decision = 'Accumulated load watch';
+      action = 'Stored training volume is rising. Keep progression conservative until recovery improves.';
+      volume = 'Hold';
+    }
+
+    return {
+      decision:decision,
+      action:action,
+      volume:volume,
+      intensity:intensity,
+      readiness:readiness,
+      cardio:cardio,
+      progression:progression
+    };
+  }
+
+  function ensurePanel(id,title){
+    var holder = document.getElementById('vertexProgressIntelligenceHolder');
+    if(!holder) return null;
+
+    var panel = document.getElementById(id);
+    if(panel) return panel;
+
+    panel = document.createElement('div');
+    panel.id = id;
+    panel.style.cssText = 'margin-bottom:0;min-height:132px;padding:16px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)';
+    panel.innerHTML =
+      '<div style="font-size:11px;letter-spacing:.35em;color:var(--muted);margin-bottom:12px">'+title+'</div>' +
+      '<div class="vertex-panel-body" style="color:var(--muted);font-size:13px;line-height:1.5"></div>';
+    holder.appendChild(panel);
+    return panel;
+  }
+
+  function renderPerformancePanels(){
+    try{
+      var cardio = buildCardioLoad();
+      var progression = buildProgression();
+      var decision = buildPerformanceDecision();
+
+      var cardioPanel = ensurePanel('vertexCardioStrainPanel','CARDIO STRAIN');
+      var progressionPanel = ensurePanel('vertexProgressionPanel','PROGRESSION ENGINE');
+      var performancePanel = ensurePanel('vertexPerformanceDecisionPanel','PERFORMANCE DECISION');
+
+      if(cardioPanel){
+        var cb = cardioPanel.querySelector('.vertex-panel-body');
+        cb.innerHTML =
+          '<div style="font-size:18px;color:'+(cardio.connected || cardio.sessions ? 'var(--green)' : 'var(--muted)')+';font-weight:700">'+cardio.label+'</div>' +
+          '<div style="margin-top:10px">Strava: <b style="color:var(--text)">'+(cardio.connected ? 'Connected' : 'Not connected')+'</b></div>' +
+          '<div>Sessions: <b style="color:var(--text)">'+cardio.sessions+'</b></div>' +
+          '<div>Cardio strain: <b style="color:var(--acc)">'+cardio.score+'</b></div>' +
+          '<div style="margin-top:6px">'+cardio.recoveryImpact+'</div>';
+      }
+
+      if(progressionPanel){
+        var pb = progressionPanel.querySelector('.vertex-panel-body');
+        pb.innerHTML =
+          '<div style="font-size:18px;color:var(--green);font-weight:700">'+progression.label+'</div>' +
+          '<div style="margin-top:10px">Movement: <b style="color:var(--text)">'+(progression.movement || 'Pending')+'</b></div>' +
+          '<div style="margin-top:6px">'+progression.opportunity+'</div>';
+      }
+
+      if(performancePanel){
+        var db = performancePanel.querySelector('.vertex-panel-body');
+        db.innerHTML =
+          '<div style="font-size:18px;color:var(--green);font-weight:700">'+decision.decision+'</div>' +
+          '<div style="margin-top:10px">Volume: <b style="color:var(--text)">'+decision.volume+'</b></div>' +
+          '<div>Intensity: <b style="color:var(--text)">'+decision.intensity+'</b></div>' +
+          '<div style="margin-top:6px">'+decision.action+'</div>';
+      }
+    }catch(e){
+      console.error('Adaptive performance panels failed', e);
+    }
+  }
+
+  function updateWorkoutCoach(){
+    try{
+      var copy = document.getElementById('rightCoachCopy');
+      if(!copy) return false;
+
+      var decision = buildPerformanceDecision();
+      var html = copy.innerHTML || '';
+
+      var block =
+        '<div id="vertexPerformanceCoachBlock" style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:12px;line-height:1.45">' +
+          '<div><b style="color:var(--text)">Performance decision:</b> '+decision.decision+'</div>' +
+          '<div>'+decision.action+'</div>' +
+        '</div>';
+
+      var existing = document.getElementById('vertexPerformanceCoachBlock');
+      if(existing){
+        existing.outerHTML = block;
+      }else{
+        copy.innerHTML = html + block;
+      }
+
+      return true;
+    }catch(e){
+      console.error('Workout performance coach update failed', e);
+      return false;
+    }
+  }
+
+  function run(){
+    renderPerformancePanels();
+    updateWorkoutCoach();
+  }
+
+  window.VertexAdaptivePerformanceEngine = {
+    cardio:buildCardioLoad,
+    progression:buildProgression,
+    decision:buildPerformanceDecision,
+    render:renderPerformancePanels
   };
 
   function schedule(){

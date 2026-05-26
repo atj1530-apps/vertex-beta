@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: black screen repair clean adaptive base; service worker/cache unchanged -->
+<!-- v20260526-ac: home metric row correct final; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -17450,6 +17450,145 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('click', function(){
     setTimeout(clean, 180);
   }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac home metric row correct final */
+(function(){
+  function activeTab(){
+    try{
+      var on = document.querySelector('.nav button.on');
+      return on ? String(on.textContent || '').trim().toLowerCase() : '';
+    }catch(e){ return ''; }
+  }
+
+  function cleanText(el){
+    return String((el && el.textContent) || '').replace(/\s+/g,' ').trim();
+  }
+
+  function isHomeReady(){
+    var body = document.body ? cleanText(document.body) : '';
+    return activeTab() === 'home' && /VERTEX/i.test(body) && /TODAY'S BRIEFING|No workout planned|Moderate Recovery/i.test(body);
+  }
+
+  function getSleepAvg(){
+    try{
+      var s = JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary') || 'null');
+      if(s && Number(s.avg7Minutes) > 0){
+        var h = Number(s.avg7Minutes) / 60;
+        return (Math.abs(h - Math.round(h)) < 0.05 ? Math.round(h) : Math.round(h * 10) / 10) + 'h';
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function getHrvAvg(){
+    try{
+      var h = JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary') || 'null');
+      if(h && Number(h.avg7) > 0) return Math.round(Number(h.avg7)) + ' ms';
+    }catch(e){}
+    return null;
+  }
+
+  function allCandidateCards(){
+    return Array.from(document.querySelectorAll('div,section,article')).filter(function(el){
+      var t = cleanText(el);
+      if(t.length < 5 || t.length > 95) return false;
+      var r = el.getBoundingClientRect ? el.getBoundingClientRect() : null;
+      if(r && (r.width < 90 || r.height < 45)) return false;
+      return /\b(SLEEP|HRV)\b/i.test(t) && /(\d+(?:\.\d+)?\s*h|\d+(?:\.\d+)?\s*ms|7D\s*Avg)/i.test(t);
+    });
+  }
+
+  function exactDuplicateSleep(card){
+    var t = cleanText(card);
+    return /^\d+(?:\.\d+)?\s*h\s+SLEEP\s+7D\s*Avg\s+\d+(?:\.\d+)?\s*h$/i.test(t);
+  }
+
+  function exactDuplicateHrv(card){
+    var t = cleanText(card);
+    return /^\d+(?:\.\d+)?\s*ms\s+HRV\s+7D\s*Avg\s+\d+(?:\.\d+)?\s*ms$/i.test(t);
+  }
+
+  function primarySleep(card){
+    var t = cleanText(card);
+    return /\bSLEEP\b/i.test(t) && !/7D\s*Avg/i.test(t) && /\d+(?:\.\d+)?\s*h/i.test(t);
+  }
+
+  function primaryHrv(card){
+    var t = cleanText(card);
+    return /\bHRV\b/i.test(t) && !/7D\s*Avg/i.test(t) && /\d+(?:\.\d+)?\s*ms/i.test(t);
+  }
+
+  function extractSleepAvgFromDuplicate(card){
+    var m = cleanText(card).match(/7D\s*Avg\s+(\d+(?:\.\d+)?)\s*h/i);
+    return m ? m[1] + 'h' : null;
+  }
+
+  function extractHrvAvgFromDuplicate(card){
+    var m = cleanText(card).match(/7D\s*Avg\s+(\d+(?:\.\d+)?)\s*ms/i);
+    return m ? Math.round(Number(m[1])) + ' ms' : null;
+  }
+
+  function addInline(card, avg){
+    if(!card || !avg) return;
+    var line = card.querySelector('.vertex-home-inline-final-avg');
+    if(!line){
+      line = document.createElement('div');
+      line.className = 'vertex-home-inline-final-avg';
+      line.style.cssText = 'margin-top:5px;font-family:DM Mono,monospace;font-size:11px;color:var(--acc);letter-spacing:.04em;text-align:center;line-height:1.2;';
+      card.appendChild(line);
+    }
+    line.textContent = '7D Avg · ' + avg;
+  }
+
+  function fix(){
+    try{
+      if(!isHomeReady()) return;
+
+      var cards = allCandidateCards();
+
+      var sleepPrimary = cards.find(primarySleep);
+      var hrvPrimary = cards.find(primaryHrv);
+      var sleepDup = cards.find(exactDuplicateSleep);
+      var hrvDup = cards.find(exactDuplicateHrv);
+
+      var sleepAvg = getSleepAvg() || (sleepDup ? extractSleepAvgFromDuplicate(sleepDup) : null);
+      var hrvAvg = getHrvAvg() || (hrvDup ? extractHrvAvgFromDuplicate(hrvDup) : null);
+
+      addInline(sleepPrimary, sleepAvg);
+      addInline(hrvPrimary, hrvAvg);
+
+      if(sleepDup && sleepDup !== sleepPrimary){
+        sleepDup.style.display = 'none';
+        sleepDup.setAttribute('data-vertex-hidden-duplicate-home-metric','sleep');
+      }
+
+      if(hrvDup && hrvDup !== hrvPrimary){
+        hrvDup.style.display = 'none';
+        hrvDup.setAttribute('data-vertex-hidden-duplicate-home-metric','hrv');
+      }
+
+      document.body.setAttribute('data-vertex-home-metric-row-correct','true');
+    }catch(e){
+      console.error('Home metric row correct final failed', e);
+    }
+  }
+
+  window.vertexHomeMetricRowCorrectFinal = fix;
+
+  function schedule(){
+    setTimeout(fix, 150);
+    setTimeout(fix, 400);
+    setTimeout(fix, 1000);
+    setTimeout(fix, 2000);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(fix, 150); }, true);
 })();
 </script>
 

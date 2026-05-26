@@ -3166,8 +3166,8 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 }
 </style>
 
-<style id="vertex-v20260526-z-intelligence-layer">
-/* v20260526-z — Readiness + recovery insight layer */
+<style id="vertex-v20260526-aa-intelligence-layer">
+/* v20260526-aa — Wellness recovery center + insight drivers */
 .vertex-rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .vertex-rec-card{border:1px solid rgba(255,255,255,.08);background:var(--panel2);border-radius:8px;padding:10px 11px;min-width:0}
 .vertex-rec-card b{display:block;font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;color:var(--acc);letter-spacing:1.5px}
@@ -3183,6 +3183,13 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 .vertex-rec-driver.warn{border-color:rgba(255,176,71,.24);background:rgba(255,176,71,.035)}
 .vertex-rec-driver.bad{border-color:rgba(255,77,77,.24);background:rgba(255,77,77,.035)}
 .vertex-rec-trend{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin-top:7px}
+
+.vertex-wellness-recovery-center{border:1px solid rgba(72,255,138,.18);background:linear-gradient(180deg,rgba(72,255,138,.035),rgba(255,255,255,.015));border-radius:10px;padding:14px;margin:12px 0 14px;box-shadow:0 0 0 1px rgba(232,255,71,.025)}
+.vertex-wellness-recovery-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.vertex-wellness-recovery-title{font-weight:800;font-size:16px;color:var(--text);margin:0}
+.vertex-wellness-recovery-sub{color:var(--muted);font-size:12px;line-height:1.45;margin:4px 0 0;max-width:760px}
+.vertex-wellness-recovery-source{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--acc);border:1px solid rgba(232,255,71,.18);border-radius:999px;padding:5px 8px;white-space:nowrap;background:rgba(232,255,71,.035)}
+@media(max-width:760px){.vertex-wellness-recovery-head{display:block}.vertex-wellness-recovery-source{display:inline-flex;margin-top:8px}.vertex-wellness-recovery-center{padding:12px}}
 @media(max-width:520px){.vertex-rec-grid{grid-template-columns:1fr}.vertex-rec-card b{font-size:28px}}
 </style>
 
@@ -3356,6 +3363,7 @@ window.vertexFinishBootstrap=function(){
 <!-- CHECK-IN SUB-TAB -->
 <!-- DASHBOARD SUB-TAB -->
 <div id="wtab-dashboard" style="display:none">
+  <section id="vertexWellnessRecoveryCenter" class="vertex-wellness-recovery-center"></section>
   <div id="wc-dash-kpis" class="wc-kpi-grid"></div>
 
   <div class="wc-dash-grid"><div class="wc-dash-card" style="grid-column:1/-1"><div class="wc-dash-card-label">Weight Trajectory &amp; 8-Week Projection</div><div class="wc-chart-wrap"><canvas id="wc-dc-weight"></canvas></div></div></div>
@@ -6987,7 +6995,22 @@ function wcGetFlags(e){
   return flags;
 }
 
+
+function vertexRenderWellnessRecoveryCenter(){
+  const el=document.getElementById('vertexWellnessRecoveryCenter');
+  if(!el) return;
+  try{
+    const x=(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.build==='function')?window.VertexRecoveryInsights.build():null;
+    const html=(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.html==='function')?window.VertexRecoveryInsights.html(false):'';
+    const source=x&&x.source?x.source:'Not connected';
+    el.innerHTML=`<div class="vertex-wellness-recovery-head"><div><div class="label" style="color:var(--acc);margin-bottom:5px">Recovery Center</div><h2 class="vertex-wellness-recovery-title">Readiness, training capacity, and recovery drivers</h2><p class="vertex-wellness-recovery-sub">This is the main recovery view. Vertex combines wearable or manual recovery signals with training load so the recommendation is about what your body can handle today.</p></div><div class="vertex-wellness-recovery-source">Source · ${escapeHtml(source)}</div></div>${html||'<div class="empty-cta"><div class="empty-cta-title">No recovery signal yet</div><div class="empty-cta-desc">Sync Apple Health, connect Oura data, or complete a check-in to unlock recovery insights.</div></div>'}`;
+  }catch(e){
+    el.innerHTML='<div class="empty-cta"><div class="empty-cta-title">Recovery insights unavailable</div><div class="empty-cta-desc">Refresh Wellness after your health data finishes loading.</div></div>';
+  }
+}
+
 function wcRenderDashboard(){
+  vertexRenderWellnessRecoveryCenter();
   // Show Apple Health recovery summary even if no check-ins
   const ahRecovEl = document.getElementById('wc-dash-kpis');
   // Always render Apple Health metrics (with or without check-ins)
@@ -7291,6 +7314,7 @@ function renderWellnessPage(){
   if(!wcDexaScans.length && authUser) loadWcDexa().then(()=>{if(wellnessTab==='bodycomp'){ wcRenderDexaDashboard(); if(typeof renderSegmentTrends==='function') renderSegmentTrends(); if(typeof renderBFforecast==='function') renderBFforecast(); if(typeof renderGainLossRate==='function') renderGainLossRate(); if(typeof renderSymmetry==='function') renderSymmetry(); }}).catch(()=>{});
   if(!protocolLogs.length && authUser) loadProtocolLogs().then(()=>{if(wellnessTab==='protocol')renderProtocolTab();}).catch(()=>{});
   setWellnessTab(wellnessTab||'dashboard');
+  if((wellnessTab||'dashboard')==='dashboard') setTimeout(vertexRenderWellnessRecoveryCenter,50);
 }
 
 // ── CHECK-IN ──────────────────────────────────────────────────
@@ -11428,7 +11452,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-z';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-aa';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

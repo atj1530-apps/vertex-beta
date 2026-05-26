@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: safe home metric consolidation; service worker/cache unchanged -->
+<!-- v20260526-ac: home duplicate metric card removal; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -17578,6 +17578,143 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(consolidateHomeMetrics, 180); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac home duplicate metric card removal */
+(function(){
+  function activeTab(){
+    try{
+      var on = document.querySelector('.nav button.on');
+      return on ? String(on.textContent || '').trim().toLowerCase() : '';
+    }catch(e){ return ''; }
+  }
+
+  function cleanText(el){
+    return String((el && el.textContent) || '').replace(/\s+/g,' ').trim();
+  }
+
+  function metricCardFor(el){
+    var cur = el;
+    for(var i=0;i<7 && cur;i++,cur=cur.parentElement){
+      var t = cleanText(cur);
+      if(t.length > 10 && t.length < 140){
+        var r = cur.getBoundingClientRect ? cur.getBoundingClientRect() : null;
+        if(!r || (r.width >= 120 && r.height >= 60)){
+          return cur;
+        }
+      }
+    }
+    return null;
+  }
+
+  function avgFromText(type){
+    var all = Array.from(document.querySelectorAll('div,section,article,span'));
+    for(var i=0;i<all.length;i++){
+      var t = cleanText(all[i]);
+      if(type === 'sleep' && /\bSLEEP\b/i.test(t) && /7D\s*Avg/i.test(t)){
+        var sm = t.match(/7D\s*Avg\s*(\d+(?:\.\d+)?)\s*h/i);
+        if(sm) return sm[1] + 'h';
+      }
+      if(type === 'hrv' && /\bHRV\b/i.test(t) && /7D\s*Avg/i.test(t)){
+        var hm = t.match(/7D\s*Avg\s*(\d+(?:\.\d+)?)\s*ms/i);
+        if(hm) return Math.round(Number(hm[1])) + ' ms';
+      }
+    }
+    return null;
+  }
+
+  function findPrimaryCard(type){
+    var all = Array.from(document.querySelectorAll('div,section,article,span'));
+    for(var i=0;i<all.length;i++){
+      var t = cleanText(all[i]);
+      if(/7D\s*Avg/i.test(t)) continue;
+
+      if(type === 'sleep' && /\bSLEEP\b/i.test(t) && /\d+(?:\.\d+)?\s*h/i.test(t)){
+        var c = metricCardFor(all[i]);
+        if(c) return c;
+      }
+
+      if(type === 'hrv' && /\bHRV\b/i.test(t) && /\d+(?:\.\d+)?\s*ms/i.test(t)){
+        var c2 = metricCardFor(all[i]);
+        if(c2) return c2;
+      }
+    }
+    return null;
+  }
+
+  function addInlineAvg(card, avg){
+    if(!card || !avg) return;
+    var existing = card.querySelector('.vertex-home-inline-avg');
+    if(existing){
+      existing.textContent = '7D Avg · ' + avg;
+      return;
+    }
+    var line = document.createElement('div');
+    line.className = 'vertex-home-inline-avg';
+    line.style.cssText = 'margin-top:4px;font-family:DM Mono,monospace;font-size:11px;color:var(--acc);letter-spacing:.04em;text-align:center';
+    line.textContent = '7D Avg · ' + avg;
+    card.appendChild(line);
+  }
+
+  function hideDuplicateCards(type){
+    var all = Array.from(document.querySelectorAll('div,section,article,span'));
+    var hidden = new Set();
+
+    all.forEach(function(el){
+      var t = cleanText(el);
+      var match = false;
+
+      if(type === 'sleep'){
+        match = /\bSLEEP\b/i.test(t) && /7D\s*Avg/i.test(t) && /\d+(?:\.\d+)?\s*h/i.test(t);
+      }
+
+      if(type === 'hrv'){
+        match = /\bHRV\b/i.test(t) && /7D\s*Avg/i.test(t) && /\d+(?:\.\d+)?\s*ms/i.test(t);
+      }
+
+      if(match){
+        var card = metricCardFor(el) || el;
+        if(card && !hidden.has(card)){
+          card.style.display = 'none';
+          card.setAttribute('data-vertex-removed-duplicate-home-metric', type);
+          hidden.add(card);
+        }
+      }
+    });
+  }
+
+  function run(){
+    try{
+      if(activeTab() !== 'home') return;
+
+      var sleepAvg = avgFromText('sleep');
+      var hrvAvg = avgFromText('hrv');
+
+      addInlineAvg(findPrimaryCard('sleep'), sleepAvg);
+      addInlineAvg(findPrimaryCard('hrv'), hrvAvg);
+
+      hideDuplicateCards('sleep');
+      hideDuplicateCards('hrv');
+    }catch(e){
+      console.error('Home duplicate metric card removal failed', e);
+    }
+  }
+
+  window.vertexRemoveDuplicateHomeMetricCards = run;
+
+  function schedule(){
+    setTimeout(run, 100);
+    setTimeout(run, 350);
+    setTimeout(run, 900);
+    setTimeout(run, 1800);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(run, 150); }, true);
 })();
 </script>
 

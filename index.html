@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: readiness side-card final-safe repair; service worker/cache unchanged -->
+<!-- v20260526-ac: readiness scoring refinement; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -14310,6 +14310,119 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', scheduleSync);
   window.addEventListener('load', scheduleSync);
   document.addEventListener('click', function(){ setTimeout(syncReadinessCard, 150); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac readiness scoring refinement */
+(function(){
+  function readinessStatus(score){
+    score = Number(score);
+    if(score >= 90) return 'PEAK';
+    if(score >= 80) return 'HIGH';
+    if(score >= 65) return 'MODERATE';
+    if(score >= 50) return 'LOW';
+    return 'RECOVER';
+  }
+
+  function confidenceFromIntel(intel){
+    if(!intel) return 'Low';
+    var source = String(intel.source || '').toLowerCase();
+    var drivers = Array.isArray(intel.drivers) ? intel.drivers.length : 0;
+    if(source.indexOf('hybrid') >= 0 || source.indexOf('oura') >= 0) return 'High';
+    if(source.indexOf('apple') >= 0 && drivers >= 2) return 'Medium';
+    if(source.indexOf('apple') >= 0) return 'Medium';
+    if(source.indexOf('manual') >= 0) return 'Low';
+    return drivers >= 3 ? 'Medium' : 'Low';
+  }
+
+  function trendLabel(intel){
+    try{
+      if(intel && intel.trend && intel.trend.label) return intel.trend.label;
+      if(intel && intel.trend && Number.isFinite(Number(intel.trend.delta))){
+        var d = Number(intel.trend.delta);
+        if(d > 1) return 'Improving';
+        if(d < -1) return 'Declining';
+        return 'Stable';
+      }
+    }catch(e){}
+    return 'Stable';
+  }
+
+  function driverRows(intel){
+    var rows = [];
+    try{
+      if(intel && Array.isArray(intel.drivers)){
+        intel.drivers.slice(0,4).forEach(function(d){
+          if(!d) return;
+          var text = d.text || d.label || d.name || '';
+          if(!text) return;
+          var type = d.type || '';
+          var sign = type === 'good' || type === 'positive' ? '+' : (type === 'warn' || type === 'bad' || type === 'negative' ? '-' : '•');
+          rows.push('<div style="display:flex;justify-content:space-between;gap:10px;margin-top:6px"><span>'+text+'</span><b>'+sign+'</b></div>');
+        });
+      }
+    }catch(e){}
+
+    if(!rows.length){
+      rows.push('<div style="margin-top:6px">Apple Health recovery signal available</div>');
+      rows.push('<div style="margin-top:6px">Training guidance aligned to current recovery</div>');
+    }
+
+    return rows.join('');
+  }
+
+  function syncRefinedReadinessCard(){
+    try{
+      var title = document.getElementById('rightCoachTitle');
+      var copy = document.getElementById('rightCoachCopy');
+      if(!title || !copy) return false;
+      if(!window.VertexRecoveryInsights || typeof window.VertexRecoveryInsights.build !== 'function') return false;
+
+      var intel = window.VertexRecoveryInsights.build();
+      var score = intel && Number.isFinite(Number(intel.recovery)) ? Math.round(Number(intel.recovery)) : null;
+
+      if(score === null){
+        title.textContent = 'READINESS';
+        copy.textContent = 'Not enough recovery data yet';
+        return true;
+      }
+
+      var status = readinessStatus(score);
+      var source = (intel && intel.source) ? intel.source : 'Hybrid';
+      var confidence = confidenceFromIntel(intel);
+      var trend = trendLabel(intel);
+
+      title.textContent = 'READINESS · ' + status + ' ' + score;
+      copy.innerHTML =
+        '<div style="color:var(--muted);line-height:1.55">' +
+          '<div>Source: ' + source + '</div>' +
+          '<div>Confidence: ' + confidence + '</div>' +
+          '<div>Trend: ' + trend + '</div>' +
+          '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:12px">' +
+            driverRows(intel) +
+          '</div>' +
+        '</div>';
+      return true;
+    }catch(e){
+      console.error('Readiness refinement sync failed', e);
+      return false;
+    }
+  }
+
+  window.vertexSyncRightReadinessCard = syncRefinedReadinessCard;
+
+  function schedule(){
+    setTimeout(syncRefinedReadinessCard, 250);
+    setTimeout(syncRefinedReadinessCard, 800);
+    setTimeout(syncRefinedReadinessCard, 1600);
+    setTimeout(syncRefinedReadinessCard, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(syncRefinedReadinessCard, 150); }, true);
 })();
 </script>
 

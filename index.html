@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: apple health routing bridge; service worker/cache unchanged -->
+<!-- v20260526-ac: unified health signal routing; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -15551,6 +15551,147 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(run, 180); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac unified health signal routing */
+(function(){
+  function getRecoveryIntel(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        return window.VertexRecoveryInsights.build() || {};
+      }
+    }catch(e){}
+    return {};
+  }
+
+  function hasAppleRecoverySource(){
+    try{
+      var intel = getRecoveryIntel();
+      var source = String(intel.source || '').toLowerCase();
+      if(source.indexOf('apple') >= 0) return true;
+
+      var body = document.body && document.body.textContent ? document.body.textContent.toLowerCase() : '';
+      if(body.indexOf('source: apple health') >= 0) return true;
+      if(body.indexOf('apple health + vertex') >= 0) return true;
+      if(body.indexOf('recovery source: apple health') >= 0) return true;
+    }catch(e){}
+    return false;
+  }
+
+  function hasNumericRecovery(){
+    var intel = getRecoveryIntel();
+    return intel && Number.isFinite(Number(intel.recovery));
+  }
+
+  function buildUnifiedHealthSignals(){
+    var appleRecovery = hasAppleRecoverySource();
+    var recoveryAvailable = hasNumericRecovery();
+
+    return {
+      source: appleRecovery && recoveryAvailable ? 'Apple Health + Vertex' : (appleRecovery ? 'Apple Health' : 'Vertex'),
+      confidence: appleRecovery && recoveryAvailable ? 'Medium' : 'Low',
+      routing: {
+        sleep: appleRecovery ? 'Apple Health' : 'Pending',
+        hrv: appleRecovery ? 'Apple Health' : 'Pending',
+        resting_hr: appleRecovery ? 'Apple Health' : 'Pending',
+        workouts: 'Vertex Logs',
+        recovery: 'Vertex synthesis'
+      },
+      activeLabel: appleRecovery ? 'Apple + Vertex' : 'Single source'
+    };
+  }
+
+  function syncWorkoutReadinessRouting(){
+    try{
+      var title = document.getElementById('rightCoachTitle');
+      var copy = document.getElementById('rightCoachCopy');
+      if(!title || !copy) return false;
+      if(!window.VertexRecoveryInsights || typeof window.VertexRecoveryInsights.build !== 'function') return false;
+
+      var intel = getRecoveryIntel();
+      var score = intel && Number.isFinite(Number(intel.recovery)) ? Math.round(Number(intel.recovery)) : null;
+      if(score === null) return false;
+
+      var unified = buildUnifiedHealthSignals();
+      var status = score >= 90 ? 'PEAK' : score >= 80 ? 'HIGH' : score >= 65 ? 'MODERATE' : score >= 50 ? 'LOW' : 'RECOVER';
+      var recLabel = score >= 80 ? 'Push with confidence' : score >= 65 ? 'Push with control' : score >= 50 ? 'Maintain' : 'Recover';
+      var risk = score >= 80 ? 'Low' : score >= 65 ? 'Low–Moderate' : score >= 50 ? 'Moderate' : 'High';
+      var action = score >= 65 ? 'Add load or reps only where form is stable.' : 'Keep intensity controlled and protect recovery.';
+
+      title.textContent = 'READINESS · ' + status + ' ' + score;
+      copy.innerHTML =
+        '<div style="color:var(--muted);line-height:1.55">' +
+          '<div>Source: ' + unified.source + '</div>' +
+          '<div>Confidence: ' + unified.confidence + '</div>' +
+          '<div>Recovery synthesis active</div>' +
+          '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">' +
+            '<div><b style="color:var(--text)">Recommended:</b> ' + recLabel + '</div>' +
+            '<div><b style="color:var(--text)">Fatigue risk:</b> ' + risk + '</div>' +
+            '<div style="margin-top:8px;color:var(--text);font-size:12px;line-height:1.45">' + action + '</div>' +
+          '</div>' +
+          '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:12px">' +
+            '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:7px"><span>Sleep</span><b style="color:var(--text)">' + unified.routing.sleep + '</b></div>' +
+            '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:7px"><span>HRV</span><b style="color:var(--text)">' + unified.routing.hrv + '</b></div>' +
+            '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:7px"><span>Workouts</span><b style="color:var(--text)">' + unified.routing.workouts + '</b></div>' +
+            '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:7px"><span>Recovery</span><b style="color:var(--green)">' + unified.routing.recovery + '</b></div>' +
+          '</div>' +
+        '</div>';
+
+      return true;
+    }catch(e){
+      console.error('Unified workout readiness routing failed', e);
+      return false;
+    }
+  }
+
+  function syncProgressHybridRouting(){
+    try{
+      var panel = document.getElementById('vertexHybridRoutingPanel');
+      if(!panel) return false;
+
+      var body = panel.querySelector('.vertex-panel-body');
+      if(!body) return false;
+
+      var unified = buildUnifiedHealthSignals();
+
+      body.innerHTML =
+        '<div style="font-size:18px;color:var(--green);font-weight:700">' + unified.activeLabel + '</div>' +
+        '<div style="margin-top:10px">Sleep: <b style="color:var(--text)">' + unified.routing.sleep + '</b></div>' +
+        '<div>HRV: <b style="color:var(--text)">' + unified.routing.hrv + '</b></div>' +
+        '<div>Resting HR: <b style="color:var(--text)">' + unified.routing.resting_hr + '</b></div>' +
+        '<div>Workouts: <b style="color:var(--text)">' + unified.routing.workouts + '</b></div>' +
+        '<div>Recovery: <b style="color:var(--text)">' + unified.routing.recovery + '</b></div>';
+
+      return true;
+    }catch(e){
+      console.error('Unified progress hybrid routing failed', e);
+      return false;
+    }
+  }
+
+  function runUnifiedRouting(){
+    syncWorkoutReadinessRouting();
+    syncProgressHybridRouting();
+  }
+
+  window.VertexUnifiedHealthSignals = {
+    build: buildUnifiedHealthSignals,
+    sync: runUnifiedRouting
+  };
+
+  function schedule(){
+    setTimeout(runUnifiedRouting, 200);
+    setTimeout(runUnifiedRouting, 800);
+    setTimeout(runUnifiedRouting, 1600);
+    setTimeout(runUnifiedRouting, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(runUnifiedRouting, 180); }, true);
 })();
 </script>
 

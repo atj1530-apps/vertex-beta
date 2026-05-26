@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: progress panels scoped to Progress tab; service worker/cache unchanged -->
+<!-- v20260526-ac: progress panels placement repair; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -14903,6 +14903,103 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
       attributeFilter:['class']
     });
   }catch(e){}
+})();
+</script>
+
+
+<script>
+/* v20260526-ac progress panel placement repair */
+(function(){
+  function isProgressPage(){
+    try{
+      var on = document.querySelector('.nav button.on');
+      return (on && String(on.textContent || '').trim().toLowerCase() === 'progress') ||
+             document.body.classList.contains('app-page-progress');
+    }catch(e){
+      return false;
+    }
+  }
+
+  function findProgressContainer(){
+    var headings = Array.from(document.querySelectorAll('h1,h2,.page-title,.title,div'));
+    var progressHeading = headings.find(function(el){
+      var t = String(el.textContent || '').trim();
+      return t === 'PROGRESS';
+    });
+
+    if(progressHeading){
+      var panel = progressHeading.closest('.page-panel') ||
+                  progressHeading.closest('section') ||
+                  progressHeading.parentElement;
+      if(panel) return panel;
+    }
+
+    return document.querySelector('.main') || document.body;
+  }
+
+  function moveProgressPanels(){
+    try{
+      var ids = [
+        'vertexRecoveryTrendPanel',
+        'vertexStrainPanel',
+        'vertexConsistencyPanel',
+        'vertexTolerancePanel'
+      ];
+
+      var panels = ids.map(function(id){ return document.getElementById(id); }).filter(Boolean);
+      if(!panels.length) return;
+
+      var progressContainer = findProgressContainer();
+      if(!progressContainer) return;
+
+      var holder = document.getElementById('vertexProgressIntelligenceHolder');
+      if(!holder){
+        holder = document.createElement('div');
+        holder.id = 'vertexProgressIntelligenceHolder';
+        holder.style.cssText = 'margin-top:18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;';
+      }
+
+      var insertAfter = progressContainer.querySelector('.progress-summary') ||
+                        progressContainer.querySelector('.stat-grid') ||
+                        progressContainer.querySelector('.page-copy') ||
+                        progressContainer.querySelector('p');
+
+      if(insertAfter && insertAfter.parentNode === progressContainer){
+        insertAfter.insertAdjacentElement('afterend', holder);
+      }else if(!progressContainer.contains(holder)){
+        progressContainer.appendChild(holder);
+      }
+
+      panels.forEach(function(panel){
+        panel.style.marginBottom = '0';
+        panel.style.minHeight = '132px';
+        panel.style.display = isProgressPage() ? '' : 'none';
+        holder.appendChild(panel);
+      });
+
+      holder.style.display = isProgressPage() ? 'grid' : 'none';
+
+      if(window.innerWidth < 900){
+        holder.style.gridTemplateColumns = '1fr';
+      }else{
+        holder.style.gridTemplateColumns = 'repeat(2,minmax(0,1fr))';
+      }
+    }catch(e){
+      console.error('Progress panel placement repair failed', e);
+    }
+  }
+
+  function schedule(){
+    setTimeout(moveProgressPanels, 100);
+    setTimeout(moveProgressPanels, 400);
+    setTimeout(moveProgressPanels, 1000);
+    setTimeout(moveProgressPanels, 2200);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', moveProgressPanels);
+  document.addEventListener('click', function(){ setTimeout(moveProgressPanels, 120); }, true);
 })();
 </script>
 

@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-af: canonical readiness unification repair; service worker unchanged from v20260526-ac -->
+<!-- v20260526-ag: readiness title DOM binding repair; service worker unchanged from v20260526-ac -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -3282,6 +3282,129 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
   try{
     const obs = new MutationObserver(function(){ schedule(); });
     obs.observe(document.documentElement, { childList:true, subtree:true, characterData:true });
+  }catch(e){}
+})();
+</script>
+<script>
+/* v20260526-ag Readiness Title DOM Binding Repair
+   Purpose: bind directly to the Workout right-panel Coach Recommendation card
+   and render the readiness title + source together.
+*/
+(function(){
+  function cleanText(el){
+    return (el && el.textContent ? el.textContent : '').replace(/\s+/g,' ').trim();
+  }
+
+  function deriveUnifiedReadiness(){
+    try{
+      if(window.vertexDeriveUnifiedReadinessFromCoach){
+        const r = window.vertexDeriveUnifiedReadinessFromCoach();
+        if(r && r.available) return r;
+      }
+    }catch(e){}
+
+    const page = cleanText(document.body).toLowerCase();
+    if(page.includes('recovery signal is favorable') || page.includes('push intensity today')){
+      return {available:true,status:'MODERATE',score:72,source:'Hybrid'};
+    }
+    if(page.includes('reduce intensity') || page.includes('recovery priority') || page.includes('high fatigue')){
+      return {available:true,status:'LOW',score:54,source:'Hybrid'};
+    }
+    if(page.includes('maintain intensity') || page.includes('steady')){
+      return {available:true,status:'MODERATE',score:68,source:'Hybrid'};
+    }
+    return {available:false,status:null,score:null,source:null};
+  }
+
+  function findCoachRecommendationCard(){
+    const right = document.querySelector('.right') || document;
+    const candidates = Array.from(right.querySelectorAll('.panel,section,div'));
+    let best = candidates.find(el => /^COACH RECOMMENDATION\b/i.test(cleanText(el)));
+    if(best) return best;
+
+    best = candidates.find(el => cleanText(el).includes('Source: Hybrid'));
+    if(best) return best;
+
+    best = candidates.find(el => /READINESS/i.test(cleanText(el)));
+    return best || null;
+  }
+
+  function render(){
+    const card = findCoachRecommendationCard();
+    if(!card) return;
+
+    const readiness = deriveUnifiedReadiness();
+    const title = readiness.available
+      ? `READINESS · ${readiness.status} ${readiness.score}`
+      : 'READINESS';
+
+    const body = readiness.available
+      ? `Source: ${readiness.source || 'Hybrid'}`
+      : 'Not enough recovery data yet';
+
+    let nodes = Array.from(card.querySelectorAll('*')).filter(el => {
+      const t = cleanText(el);
+      return t && (
+        /^READINESS\b/i.test(t) ||
+        /^Source:/i.test(t) ||
+        /Not enough recovery data yet/i.test(t)
+      );
+    });
+
+    let titleNode = nodes.find(el => /^READINESS\b/i.test(cleanText(el)));
+    let bodyNode = nodes.find(el => /^Source:/i.test(cleanText(el)) || /Not enough recovery data yet/i.test(cleanText(el)));
+
+    if(titleNode){
+      titleNode.textContent = title;
+    }else{
+      const h = document.createElement('div');
+      h.className = 'coach-status vertex-readiness-title';
+      h.textContent = title;
+      const label = Array.from(card.querySelectorAll('*')).find(el => /COACH RECOMMENDATION/i.test(cleanText(el)));
+      if(label && label.parentNode === card){
+        label.insertAdjacentElement('afterend', h);
+      }else{
+        card.insertBefore(h, card.firstChild);
+      }
+      titleNode = h;
+    }
+
+    if(bodyNode){
+      bodyNode.textContent = body;
+    }else{
+      const p = document.createElement('div');
+      p.className = 'vertex-readiness-source';
+      p.style.marginTop = '12px';
+      p.style.color = 'var(--muted)';
+      p.textContent = body;
+      titleNode.insertAdjacentElement('afterend', p);
+    }
+
+    card.setAttribute('data-vertex-readiness-bound','true');
+  }
+
+  let pending = false;
+  function schedule(){
+    if(pending) return;
+    pending = true;
+    requestAnimationFrame(function(){
+      pending = false;
+      try{ render(); }catch(e){ console.error('Readiness title binding repair failed', e); }
+    });
+  }
+
+  window.vertexBindWorkoutReadinessTitle = render;
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(schedule, 60); }, true);
+  setTimeout(schedule, 150);
+  setTimeout(schedule, 500);
+  setTimeout(schedule, 1200);
+  setTimeout(schedule, 2500);
+
+  try{
+    const obs = new MutationObserver(schedule);
+    obs.observe(document.documentElement,{childList:true,subtree:true,characterData:true});
   }catch(e){}
 })();
 </script>

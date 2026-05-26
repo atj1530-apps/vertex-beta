@@ -2,7 +2,7 @@
    Cache: v20260526-z
    Network-first for app shell so new deploys are visible immediately. */
 
-const CACHE_NAME = 'vertex-v20260526-z';
+const CACHE_NAME = 'vertex-v20260526-aa';
 const APP_SHELL = [
   './',
   './index.html',

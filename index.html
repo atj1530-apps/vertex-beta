@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: settings integrations cleanup; service worker/cache unchanged -->
+<!-- v20260526-ac: settings integration layout anchor repair; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -16100,6 +16100,195 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(cleanupSettingsIntegrations, 120); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac settings integration layout anchor repair */
+(function(){
+  function hasToken(keys){
+    try{
+      for(var i=0;i<keys.length;i++){
+        var v = localStorage.getItem(keys[i]) || sessionStorage.getItem(keys[i]);
+        if(v && v !== 'null' && v !== 'undefined' && v !== 'false') return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function appleActive(){
+    try{
+      var sleep = JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary') || 'null');
+      var hrv = JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary') || 'null');
+      if(sleep && (Number(sleep.latestMinutes) > 0 || Number(sleep.avg7Minutes) > 0)) return true;
+      if(hrv && (Number(hrv.latest) > 0 || Number(hrv.avg7) > 0)) return true;
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var intel = window.VertexRecoveryInsights.build() || {};
+        if(String(intel.source || '').toLowerCase().indexOf('apple') >= 0) return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function googleActive(){
+    return hasToken([
+      'vertex_google_connected',
+      'vertex_google_token',
+      'vertex_google_access_token',
+      'google_access_token',
+      'googleToken',
+      'vertex_oauth_google',
+      'vertex_google_auth'
+    ]);
+  }
+
+  function stravaActive(){
+    return hasToken([
+      'vertex_strava_connected',
+      'vertex_strava_token',
+      'vertex_strava_access_token',
+      'strava_access_token',
+      'stravaToken'
+    ]);
+  }
+
+  function row(provider, status, active, action){
+    var color = active ? 'var(--green)' : 'var(--orange)';
+    var right = active
+      ? '<span style="font-family:DM Mono,monospace;font-size:10px;color:var(--green);letter-spacing:1px">ACTIVE</span>'
+      : '<button class="btn small vertex-int-btn" data-provider="'+provider.toLowerCase()+'">'+(action || 'CONNECT')+'</button>';
+
+    return '<div class="vertex-settings-int-row" style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border-top:1px solid var(--line);padding:13px 0">' +
+      '<div>' +
+        '<div style="font-weight:800;color:var(--text);font-size:14px">'+provider+'</div>' +
+        '<div style="display:flex;align-items:center;gap:7px;margin-top:4px;color:var(--muted);font-size:12px">' +
+          '<span style="width:8px;height:8px;border-radius:50%;background:'+color+';display:inline-block"></span>' +
+          '<span>'+status+'</span>' +
+        '</div>' +
+      '</div>' +
+      '<div>'+right+'</div>' +
+    '</div>';
+  }
+
+  function findSettingsModal(){
+    var openModals = Array.from(document.querySelectorAll('.modal-overlay.on .modal,.modal.on,.modal,.account-menu.on,div'));
+    return openModals.find(function(el){
+      var t = String(el.textContent || '').toLowerCase();
+      return t.indexOf('settings') >= 0 &&
+             t.indexOf('health') >= 0 &&
+             t.indexOf('integrations') >= 0 &&
+             (t.indexOf('weight goal') >= 0 || t.indexOf('clear cache') >= 0);
+    }) || null;
+  }
+
+  function findHealthHeading(modal){
+    if(!modal) return null;
+    return Array.from(modal.querySelectorAll('*')).find(function(el){
+      var t = String(el.textContent || '').trim();
+      return /^HEALTH\s*&\s*INTEGRATIONS$/i.test(t);
+    }) || null;
+  }
+
+  function removeBrokenRows(modal){
+    try{
+      Array.from(modal.querySelectorAll('#vertexSettingsIntegrationsBlock,.vertex-settings-int-block')).forEach(function(el){
+        el.remove();
+      });
+
+      Array.from(modal.querySelectorAll('[data-vertex-integration-action],.vertex-integration-row')).forEach(function(el){
+        var parent = el.closest('.vertex-settings-int-block,#vertexSettingsIntegrationsBlock') || el;
+        if(parent && parent.remove) parent.remove();
+      });
+
+      Array.from(modal.querySelectorAll('button')).forEach(function(btn){
+        var txt = String(btn.textContent || '').trim();
+        if(txt === 'CONNECT'){
+          var sectionText = String((btn.parentElement && btn.parentElement.parentElement && btn.parentElement.parentElement.textContent) || '');
+          if(sectionText.indexOf('HEALTH') >= 0 || sectionText.indexOf('Strava') >= 0 || sectionText.length < 80){
+            var container = btn.parentElement;
+            if(container && container !== modal) container.style.display = 'none';
+          }
+        }
+      });
+    }catch(e){}
+  }
+
+  function renderSettingsIntegrations(){
+    try{
+      var modal = findSettingsModal();
+      if(!modal) return false;
+
+      var heading = findHealthHeading(modal);
+      if(!heading) return false;
+
+      removeBrokenRows(modal);
+
+      var block = document.createElement('div');
+      block.id = 'vertexSettingsIntegrationsBlock';
+      block.className = 'vertex-settings-int-block';
+      block.style.cssText = 'margin-top:12px;margin-bottom:14px;width:100%;';
+
+      var apple = appleActive();
+      var google = googleActive();
+      var strava = stravaActive();
+
+      block.innerHTML =
+        row('Apple Health', apple ? 'Native sync active' : 'Open native app to sync HealthKit', apple, 'SYNC NATIVE') +
+        row('Google', google ? 'Connected' : 'Not connected', google, 'CONNECT') +
+        row('Strava', strava ? 'Connected' : 'Not connected', strava, 'CONNECT');
+
+      var insertAfter = heading;
+      var next = heading.nextElementSibling;
+
+      /* Put the block directly under HEALTH & INTEGRATIONS, before any legacy provider controls. */
+      heading.insertAdjacentElement('afterend', block);
+
+      return true;
+    }catch(e){
+      console.error('Settings integration layout repair failed', e);
+      return false;
+    }
+  }
+
+  function providerAction(provider){
+    if(provider === 'apple health'){
+      alert('Apple Health sync runs through the native iOS app. Open the native app and approve Health permissions.');
+      return;
+    }
+
+    var search = provider === 'google' ? /google/i : /strava/i;
+    var target = Array.from(document.querySelectorAll('button,a,.btn')).find(function(el){
+      return search.test(String(el.textContent || '')) &&
+             !el.classList.contains('vertex-int-btn') &&
+             !el.closest('#vertexSettingsIntegrationsBlock');
+    });
+
+    if(target) target.click();
+    else alert(provider.charAt(0).toUpperCase()+provider.slice(1)+' connect action is not available in this settings view.');
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target && e.target.closest ? e.target.closest('.vertex-int-btn') : null;
+    if(btn){
+      providerAction(btn.getAttribute('data-provider'));
+      return;
+    }
+    setTimeout(renderSettingsIntegrations, 120);
+    setTimeout(renderSettingsIntegrations, 500);
+  }, true);
+
+  window.vertexRenderSettingsIntegrations = renderSettingsIntegrations;
+
+  function schedule(){
+    setTimeout(renderSettingsIntegrations, 150);
+    setTimeout(renderSettingsIntegrations, 500);
+    setTimeout(renderSettingsIntegrations, 1200);
+    setTimeout(renderSettingsIntegrations, 2500);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
 })();
 </script>
 

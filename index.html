@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ag: readiness title DOM binding repair; service worker unchanged from v20260526-ac -->
+<!-- v20260526-ah: direct renderRight readiness repair; service worker unchanged from v20260526-ac -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -3193,221 +3193,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 @media(max-width:520px){.vertex-rec-grid{grid-template-columns:1fr}.vertex-rec-card b{font-size:28px}}
 </style>
 
-<script>
-/* v20260526-af Canonical Readiness Unification Repair
-   Purpose: force Workout side-panel readiness to consume the same recovery signal
-   that Auto Coach already resolves, without fake 60 fallback or stuck loading.
-*/
-(function(){
-  const EMPTY_BODY = 'Not enough recovery data yet';
-
-  function text(el){
-    return (el && el.textContent ? el.textContent : '').replace(/\s+/g,' ').trim();
-  }
-
-  function clampScore(n){
-    n = Number(n);
-    if(!Number.isFinite(n)) return null;
-    return Math.max(1, Math.min(100, Math.round(n)));
-  }
-
-  function statusFromScore(score){
-    if(score >= 80) return 'HIGH';
-    if(score >= 65) return 'MODERATE';
-    return 'LOW';
-  }
-
-  function deriveScoreFromCoach(){
-    const body = document.body ? text(document.body).toLowerCase() : '';
-
-    /* This is not a fake fallback. It is a banded translation of the
-       resolved Auto Coach recovery recommendation when a numeric readiness
-       score is not present in the current data model. */
-    if(body.includes('recovery signal is favorable') || body.includes('push intensity today')){
-      return { score:72, status:'MODERATE', source:'Hybrid', available:true };
-    }
-    if(body.includes('reduce intensity') || body.includes('recovery priority') || body.includes('high fatigue')){
-      return { score:54, status:'LOW', source:'Hybrid', available:true };
-    }
-    if(body.includes('maintain intensity') || body.includes('steady') || body.includes('moderate')){
-      return { score:68, status:'MODERATE', source:'Hybrid', available:true };
-    }
-    return { available:false, score:null, status:null, source:null };
-  }
-
-  function findReadinessCard(){
-    const panels = Array.from(document.querySelectorAll('.panel,.coach-card,.page-tile,section,div'));
-    return panels.find(el => {
-      const t = text(el);
-      return /^COACH RECOMMENDATION\s+READINESS/i.test(t) || /READINESS\s+·\s+/.test(t);
-    });
-  }
-
-  function renderWorkoutReadiness(){
-    const card = findReadinessCard();
-    if(!card) return;
-
-    const derived = deriveScoreFromCoach();
-    let title = 'READINESS';
-    let body = EMPTY_BODY;
-
-    if(derived.available){
-      title = `READINESS · ${derived.status} ${derived.score}`;
-      body = derived.source ? `Source: ${derived.source}` : '';
-    }
-
-    const titleEl = Array.from(card.querySelectorAll('*')).find(el => /READINESS/i.test(text(el)) && text(el).length < 40);
-    const bodyEl = Array.from(card.querySelectorAll('*')).find(el => /Loading unified recovery guidance|Not enough recovery data yet|Source:/i.test(text(el)));
-
-    if(titleEl) titleEl.textContent = title;
-    if(bodyEl) bodyEl.textContent = body;
-  }
-
-  function schedule(){
-    requestAnimationFrame(function(){
-      try{ renderWorkoutReadiness(); }catch(e){ console.error('Workout readiness unification render failed', e); }
-    });
-  }
-
-  window.vertexDeriveUnifiedReadinessFromCoach = deriveScoreFromCoach;
-  window.vertexRenderUnifiedWorkoutReadiness = renderWorkoutReadiness;
-
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  document.addEventListener('click', function(){ setTimeout(schedule, 80); }, true);
-  setTimeout(schedule, 350);
-  setTimeout(schedule, 1000);
-  setTimeout(schedule, 2000);
-
-  try{
-    const obs = new MutationObserver(function(){ schedule(); });
-    obs.observe(document.documentElement, { childList:true, subtree:true, characterData:true });
-  }catch(e){}
-})();
-</script>
-<script>
-/* v20260526-ag Readiness Title DOM Binding Repair
-   Purpose: bind directly to the Workout right-panel Coach Recommendation card
-   and render the readiness title + source together.
-*/
-(function(){
-  function cleanText(el){
-    return (el && el.textContent ? el.textContent : '').replace(/\s+/g,' ').trim();
-  }
-
-  function deriveUnifiedReadiness(){
-    try{
-      if(window.vertexDeriveUnifiedReadinessFromCoach){
-        const r = window.vertexDeriveUnifiedReadinessFromCoach();
-        if(r && r.available) return r;
-      }
-    }catch(e){}
-
-    const page = cleanText(document.body).toLowerCase();
-    if(page.includes('recovery signal is favorable') || page.includes('push intensity today')){
-      return {available:true,status:'MODERATE',score:72,source:'Hybrid'};
-    }
-    if(page.includes('reduce intensity') || page.includes('recovery priority') || page.includes('high fatigue')){
-      return {available:true,status:'LOW',score:54,source:'Hybrid'};
-    }
-    if(page.includes('maintain intensity') || page.includes('steady')){
-      return {available:true,status:'MODERATE',score:68,source:'Hybrid'};
-    }
-    return {available:false,status:null,score:null,source:null};
-  }
-
-  function findCoachRecommendationCard(){
-    const right = document.querySelector('.right') || document;
-    const candidates = Array.from(right.querySelectorAll('.panel,section,div'));
-    let best = candidates.find(el => /^COACH RECOMMENDATION\b/i.test(cleanText(el)));
-    if(best) return best;
-
-    best = candidates.find(el => cleanText(el).includes('Source: Hybrid'));
-    if(best) return best;
-
-    best = candidates.find(el => /READINESS/i.test(cleanText(el)));
-    return best || null;
-  }
-
-  function render(){
-    const card = findCoachRecommendationCard();
-    if(!card) return;
-
-    const readiness = deriveUnifiedReadiness();
-    const title = readiness.available
-      ? `READINESS · ${readiness.status} ${readiness.score}`
-      : 'READINESS';
-
-    const body = readiness.available
-      ? `Source: ${readiness.source || 'Hybrid'}`
-      : 'Not enough recovery data yet';
-
-    let nodes = Array.from(card.querySelectorAll('*')).filter(el => {
-      const t = cleanText(el);
-      return t && (
-        /^READINESS\b/i.test(t) ||
-        /^Source:/i.test(t) ||
-        /Not enough recovery data yet/i.test(t)
-      );
-    });
-
-    let titleNode = nodes.find(el => /^READINESS\b/i.test(cleanText(el)));
-    let bodyNode = nodes.find(el => /^Source:/i.test(cleanText(el)) || /Not enough recovery data yet/i.test(cleanText(el)));
-
-    if(titleNode){
-      titleNode.textContent = title;
-    }else{
-      const h = document.createElement('div');
-      h.className = 'coach-status vertex-readiness-title';
-      h.textContent = title;
-      const label = Array.from(card.querySelectorAll('*')).find(el => /COACH RECOMMENDATION/i.test(cleanText(el)));
-      if(label && label.parentNode === card){
-        label.insertAdjacentElement('afterend', h);
-      }else{
-        card.insertBefore(h, card.firstChild);
-      }
-      titleNode = h;
-    }
-
-    if(bodyNode){
-      bodyNode.textContent = body;
-    }else{
-      const p = document.createElement('div');
-      p.className = 'vertex-readiness-source';
-      p.style.marginTop = '12px';
-      p.style.color = 'var(--muted)';
-      p.textContent = body;
-      titleNode.insertAdjacentElement('afterend', p);
-    }
-
-    card.setAttribute('data-vertex-readiness-bound','true');
-  }
-
-  let pending = false;
-  function schedule(){
-    if(pending) return;
-    pending = true;
-    requestAnimationFrame(function(){
-      pending = false;
-      try{ render(); }catch(e){ console.error('Readiness title binding repair failed', e); }
-    });
-  }
-
-  window.vertexBindWorkoutReadinessTitle = render;
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  document.addEventListener('click', function(){ setTimeout(schedule, 60); }, true);
-  setTimeout(schedule, 150);
-  setTimeout(schedule, 500);
-  setTimeout(schedule, 1200);
-  setTimeout(schedule, 2500);
-
-  try{
-    const obs = new MutationObserver(schedule);
-    obs.observe(document.documentElement,{childList:true,subtree:true,characterData:true});
-  }catch(e){}
-})();
-</script>
 </head>
 <body class="auth-resolving">
 
@@ -3899,7 +3684,7 @@ window.vertexFinishBootstrap=function(){
     <section id="builder"></section>
   </main>
   <aside class="right">
-    <section class="panel home-hide" id="coachRecommendationPanel"><div class="label">Coach Recommendation</div><h2 id="rightCoachTitle" style="color:var(--green);font-family:'DM Mono';font-size:28px">READINESS · —</h2><p id="rightCoachCopy" style="color:var(--muted);line-height:1.5">Loading unified recovery guidance...</p></section>
+    <section class="panel home-hide" id="coachRecommendationPanel"><div class="label">Coach Recommendation</div><h2 id="rightCoachTitle" style="color:var(--green);font-family:'DM Mono';font-size:28px">READINESS</h2><p id="rightCoachCopy" style="color:var(--muted);line-height:1.5">Not enough recovery data yet</p></section>
     <section class="panel home-hide"><div class="label">Volume Stats</div><div id="stats" class="stat-grid"></div></section>
     <section class="panel home-hide"><div class="label">Muscle Volume</div><div id="muscleVol"></div></section>
     <section class="accordion" id="savedWorkoutsAcc"><div class="acc-head"><span class="acc-title">Saved Workouts <span id="savedWorkoutsCount" style="color:var(--acc);font-weight:600;margin-left:6px"></span></span><span class="acc-hint">▶ EXPAND</span></div><div class="acc-body"><div id="savedWorkoutsPanel"><p style="color:var(--dim);text-align:center">No saved workouts yet</p></div></div></section>
@@ -8675,6 +8460,23 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
+
+<script>
+/* v20260526-ah post-render readiness guard */
+(function(){
+  function run(){
+    try{
+      if(typeof window.renderRight === 'function') window.renderRight();
+    }catch(e){}
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(run, 250);
+    setTimeout(run, 900);
+  });
+  window.addEventListener('load', function(){ setTimeout(run, 350); });
+})();
+</script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -9757,7 +9559,7 @@ function renderPhaseWorkout(w){
   const moveCount=phases.reduce((a,x)=>a+(x.moves?.length||0),0);
   return `<div class="flow-card"><div class="flow-grid"><div><div class="label">${escapeHtml(w.displayType||'Recovery / Mobility Day')} · volume excluded</div><h2>${escapeHtml(w.name)}</h2><p style="color:var(--muted)">${escapeHtml(p.name)} · ${modeHelp(p.mode)}</p><div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn acc" data-start-current="1">▶ Start Session</button><button class="btn" data-phase-prev="1" ${idx===0?'disabled':''}>Prev</button><button class="btn acc" data-phase-next="1" ${idx>=phases.length-1?'disabled':''}>Next Phase</button><button class="btn red" data-clear-current="1">Clear Workout</button></div></div><div class="flow-stats"><div class="flow-stat"><b>${w.duration||0}</b><span class="label">min</span></div><div class="flow-stat"><b>${idx+1}/${phases.length}</b><span class="label">phase</span></div><div class="flow-stat"><b>${moveCount}</b><span class="label">moves</span></div></div></div></div><div class="flow-list">${(p.moves||[]).map((m,i)=>`<div class="flow-move"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(m.name)}${m.side?` <span class="badge green">${escapeHtml(m.side)}</span>`:''}</strong><span class="time">${escapeHtml(moveTimeText(m))}</span></div>`).join('')}</div>`
 }
-function renderRight(){const s=stats(state.current); document.getElementById('stats').innerHTML=`<div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.ex:s.type}</div><div class="stat-lbl">${state.current.type==='strength'?'Exercises':'Type'}</div></div><div class="stat-box"><div class="stat-val">${s.est}</div><div class="stat-lbl">Est. Min</div></div><div class="stat-box"><div class="stat-val">${state.current.excludeFromVolume?0:(state.current.type==='strength'?s.sets:s.blocks)}</div><div class="stat-lbl">${state.current.excludeFromVolume?'Volume':'Blocks / Sets'}</div></div><div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.reps:s.moves}</div><div class="stat-lbl">${state.current.type==='strength'?'Total Reps':'Moves'}</div></div>`; const mv=muscleVolume(); const max=Math.max(1,...Object.values(mv)); document.getElementById('muscleVol').innerHTML=Object.keys(mv).length?Object.entries(mv).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${m}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<p style="color:var(--dim);text-align:center">Add exercises to see breakdown</p>'; const title=document.getElementById('rightCoachTitle'), copy=document.getElementById('rightCoachCopy'); if(title&&copy){try{ const intel=(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.build==='function')?window.VertexRecoveryInsights.build():null; title.textContent=intel?`RECOVERY · ${intel.recovery}`:'RECOVERY · —'; copy.innerHTML=(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.html==='function')?window.VertexRecoveryInsights.html(true):'Log recovery data to unlock coaching insights.'; }catch(e){ title.textContent='RECOVERY · —'; copy.textContent='Log recovery data to unlock coaching insights.'; }} renderSavedWorkouts();}
+function renderRight(){const s=stats(state.current); document.getElementById('stats').innerHTML=`<div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.ex:s.type}</div><div class="stat-lbl">${state.current.type==='strength'?'Exercises':'Type'}</div></div><div class="stat-box"><div class="stat-val">${s.est}</div><div class="stat-lbl">Est. Min</div></div><div class="stat-box"><div class="stat-val">${state.current.excludeFromVolume?0:(state.current.type==='strength'?s.sets:s.blocks)}</div><div class="stat-lbl">${state.current.excludeFromVolume?'Volume':'Blocks / Sets'}</div></div><div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.reps:s.moves}</div><div class="stat-lbl">${state.current.type==='strength'?'Total Reps':'Moves'}</div></div>`; const mv=muscleVolume(); const max=Math.max(1,...Object.values(mv)); document.getElementById('muscleVol').innerHTML=Object.keys(mv).length?Object.entries(mv).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${m}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<p style="color:var(--dim);text-align:center">Add exercises to see breakdown</p>'; const title=document.getElementById('rightCoachTitle'), copy=document.getElementById('rightCoachCopy'); if(title&&copy){try{ const intel=(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.build==='function')?window.VertexRecoveryInsights.build():null; const score=intel&&Number.isFinite(Number(intel.recovery))?Math.round(Number(intel.recovery)):null; const source=(intel&&intel.source&&intel.source!=='Not connected')?intel.source:(score!=null?'Hybrid':null); const status=score==null?null:(score>=80?'HIGH':score>=65?'MODERATE':score>=50?'LOW':'RECOVER'); if(score!=null){ title.textContent=`READINESS · ${status} ${score}`; copy.textContent=`Source: ${source||'Hybrid'}`; }else{ title.textContent='READINESS'; copy.textContent='Not enough recovery data yet'; } }catch(e){ title.textContent='READINESS'; copy.textContent='Not enough recovery data yet'; }} renderSavedWorkouts();}
 function summary(w){const s=stats(w); return w.type==='strength'?`${s.ex} exercises planned`:(w.type==='mobility_strength_hybrid'?`${w.displayType||'Recovery / Mobility Day'} · ${s.blocks} phases · volume 0`:`${s.type} · ${s.est} min · ${s.moves} moves`)}
 function preview(w){return w.type==='strength'?(w.exercises||[]).map(e=>e.name).join(', '):(w.type==='mobility_strength_hybrid'?(w.phases||[]).map(p=>p.name).join(', '):(w.moves||[]).slice(0,5).map(m=>m.name).join(', '))}
 function openAssign(w){state.pendingTemplate=clone(w); const sel=document.getElementById('assignDay'); if(sel) sel.value=todayKey; document.getElementById('assignModal').classList.add('on')}

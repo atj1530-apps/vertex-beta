@@ -1,6 +1,6 @@
 /* Vertex Workout Builder — PWA Service Worker
    v20260526-o: cache bump to bust old app shells. */
-const CACHE_NAME = 'v20260526-o';
+const CACHE_NAME = 'v20260526-p';
 const APP_SHELL = [
   './',
   './index.html',

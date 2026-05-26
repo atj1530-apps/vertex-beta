@@ -3371,7 +3371,7 @@ window.vertexFinishBootstrap=function(){
 
 </section><section id="aiPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">AI Coach</h1><p class="page-copy">Coaching from your training history, recovery data, and Apple Health metrics.</p></div><button id="btn-refresh-ai" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh Coach</button></div><div id="aiCoachSummary" class="progress-summary"></div><div class="coach-grid"><section class="coach-card"><div class="label">Daily Recommendation</div><div id="aiDailyCoach"></div></section><section class="coach-card"><div class="label">Training Warnings</div><div id="aiWarnings"></div></section><section class="coach-card"><div class="label">Smart Suggestions</div><div id="aiSuggestions"></div></section><section class="coach-card"><div class="label">Weekly Focus</div><div id="aiWeeklyFocus"></div></section></div></section>
     <section id="today" class="panel hl today-card"></section>
-    <section id="plannerAcc" class="accordion open"><div class="acc-head" onclick="(function(el){const a=el.closest('.accordion');a.classList.toggle('open');try{localStorage.setItem('vertex_acc_'+a.id,a.classList.contains('open')?'1':'0');}catch(e){}if(typeof updateAccordionHints==='function')updateAccordionHints();})(this)"><span class="acc-title">Weekly Planner</span><span class="acc-hint">▼ COLLAPSE</span></div><div class="acc-body"><div class="label">Weekly Planner v2 · Start Today Flow</div><p style="color:var(--muted);margin:8px 0 14px">Build custom workouts from the library for each day, then start <b style="color:var(--acc)">today’s workout.</b></p><div style="overflow-x:auto;margin:0 -8px;padding:0 8px 0 8px;box-sizing:border-box"><div id="planner" class="planner-grid"></div></div></div></section>
+    <section id="plannerAcc" class="accordion open"><div class="acc-head" id="plannerAccHead"><span class="acc-title">Weekly Planner</span><span class="acc-hint">▼ COLLAPSE</span></div><div class="acc-body"><div class="label">Weekly Planner v2 · Start Today Flow</div><p style="color:var(--muted);margin:8px 0 14px">Build custom workouts from the library for each day, then start <b style="color:var(--acc)">today’s workout.</b></p><div style="overflow-x:auto;margin:0 -8px;padding:0 8px 0 8px;box-sizing:border-box"><div id="planner" class="planner-grid"></div></div></div></section>
 
     <div id="coachBar" class="coachbar">Ready: Push intensity today.</div>
     <section id="autoCoachAcc" class="accordion open"><div class="acc-head"><span class="acc-title">Auto Coach</span><span class="acc-hint">▼ COLLAPSE</span></div><div class="acc-body"><div id="autoCoachBody"><div class="label" style="color:var(--acc)">Auto Coach</div><p style="color:var(--muted);margin:4px 0 12px">Optional plan guidance based on recovery, workout type, and live performance signals.</p><div class="panel" style="margin:0"><b>Recovery signal is favorable.</b><br><span style="color:var(--muted)">Add a small load or rep increase where form is stable.</span></div></div></div></section>
@@ -8705,7 +8705,7 @@ ${dueToday.length ? `
     if(_vCards.intel !== false){
     el.innerHTML += `
 <section class="accordion open" style="margin-top:12px" id="intelAcc">
-  <div class="acc-head" onclick="(function(el){const a=el.closest('.accordion');a.classList.toggle('open');try{localStorage.setItem('vertex_acc_'+a.id,a.classList.contains('open')?'1':'0');}catch(e){}if(typeof updateAccordionHints==='function')updateAccordionHints();})(this)"><span class="acc-title">Weekly Intelligence</span><span class="acc-hint">▼ COLLAPSE</span></div>
+  <div class="acc-head" id="intelAccHead"><span class="acc-title">Weekly Intelligence</span><span class="acc-hint">▼ COLLAPSE</span></div>
   <div class="acc-body">
     <div class="intel-grid">
       <div class="intel-box"><b>${escapeHtml(_intelConsistencyNote)}</b><span>${escapeHtml(intelGap)}. ${_intelPlanned > 0 ? 'Keep executing the plan.' : 'Target 3+ weekly sessions before adding complexity.'}</span></div>
@@ -10378,7 +10378,6 @@ document.addEventListener('change', e=>{
     }catch(e){}
   }
   const collapseByDefaultOnMobile=['autoCoachAcc','savedWorkoutsAcc'];
-  // plannerAcc and intelAcc controlled by localStorage only
   const alwaysCollapseOnMobile=[];
   const alwaysOpen=['templatesAcc'];
   document.querySelectorAll('.accordion').forEach(acc=>{
@@ -10392,6 +10391,19 @@ document.addEventListener('change', e=>{
     else if(isMobile && collapseByDefaultOnMobile.includes(acc.id)){acc.classList.remove('open');}
   });
   updateAccordionHints();
+
+  // Wire plannerAcc and intelAcc directly — CSP-safe, no inline handlers
+  function _toggleAcc(accId) {
+    var acc = document.getElementById(accId);
+    if (!acc) return;
+    acc.classList.toggle('open');
+    try { localStorage.setItem('vertex_acc_' + accId, acc.classList.contains('open') ? '1' : '0'); } catch(e) {}
+    updateAccordionHints();
+  }
+  var _plannerHead = document.getElementById('plannerAccHead');
+  var _intelHead = document.getElementById('intelAccHead');
+  if (_plannerHead) _plannerHead.addEventListener('click', function() { _toggleAcc('plannerAcc'); });
+  if (_intelHead) _intelHead.addEventListener('click', function() { _toggleAcc('intelAcc'); });
 })();
 // v13.61 Saved Workouts mobile accordion — click on header zone toggles open/closed
 (function initRightPanelMobileAccordion(){
@@ -10962,7 +10974,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-e';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-f';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: home rollback stable wellness fix; service worker/cache unchanged -->
+<!-- v20260526-ac: home metric ribbon render fix; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -17453,6 +17453,216 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(safeWellnessWarningCleanup, 150); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac home metric ribbon render fix */
+(function(){
+  function activeTab(){
+    try{
+      var on = document.querySelector('.nav button.on');
+      return on ? String(on.textContent || '').trim().toLowerCase() : '';
+    }catch(e){ return ''; }
+  }
+
+  function t(el){
+    return String((el && el.textContent) || '').replace(/\s+/g,' ').trim();
+  }
+
+  function sleepSummary(){
+    try{
+      var s = JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary') || 'null');
+      if(s){
+        var latest = Number(s.latestMinutes || s.lastMinutes || s.todayMinutes || 0);
+        var avg = Number(s.avg7Minutes || s.average7Minutes || s.sevenDayAvgMinutes || 0);
+        return {
+          current: latest > 0 ? fmtHours(latest) : null,
+          avg: avg > 0 ? fmtHours(avg) : null
+        };
+      }
+    }catch(e){}
+    return {current:null, avg:null};
+  }
+
+  function hrvSummary(){
+    try{
+      var h = JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary') || 'null');
+      if(h){
+        var latest = Number(h.latest || h.last || h.today || 0);
+        var avg = Number(h.avg7 || h.average7 || h.sevenDayAvg || 0);
+        return {
+          current: latest > 0 ? Math.round(latest) + ' ms' : null,
+          avg: avg > 0 ? Math.round(avg) + ' ms' : null
+        };
+      }
+    }catch(e){}
+    return {current:null, avg:null};
+  }
+
+  function fmtHours(min){
+    var h = Number(min) / 60;
+    if(!Number.isFinite(h) || h <= 0) return null;
+    return (Math.abs(h - Math.round(h)) < .05 ? Math.round(h) : Math.round(h*10)/10) + 'h';
+  }
+
+  function visible(el){
+    try{
+      var r = el.getBoundingClientRect();
+      return r.width > 40 && r.height > 30;
+    }catch(e){ return true; }
+  }
+
+  function likelyMetricGrid(){
+    var candidates = Array.from(document.querySelectorAll('.stat-grid,.page-grid,.intel-grid,div'));
+    var best = null;
+    var bestScore = 0;
+
+    candidates.forEach(function(el){
+      if(!visible(el)) return;
+      var txt = t(el);
+      if(txt.length > 900) return;
+
+      var score = 0;
+      if(/\bSLEEP\b/i.test(txt)) score++;
+      if(/\bHRV\b/i.test(txt)) score++;
+      if(/7D\s*Avg/i.test(txt)) score++;
+      if(/\bSTEPS\b|\bCALORIES\b|\bWEIGHT\b|\bRHR\b/i.test(txt)) score++;
+      if(score > bestScore){
+        best = el;
+        bestScore = score;
+      }
+    });
+
+    return bestScore >= 3 ? best : null;
+  }
+
+  function directChildrenCards(grid){
+    if(!grid) return [];
+    var kids = Array.from(grid.children || []).filter(function(el){
+      var txt = t(el);
+      return txt.length > 0 && txt.length < 220 && visible(el);
+    });
+    if(kids.length >= 3) return kids;
+
+    // fallback: search one level deeper for compact cards
+    return Array.from(grid.querySelectorAll(':scope > div, :scope > section, :scope > article')).filter(function(el){
+      var txt = t(el);
+      return txt.length > 0 && txt.length < 220 && visible(el);
+    });
+  }
+
+  function classify(card){
+    var txt = t(card);
+    var isAvg = /7D\s*Avg/i.test(txt);
+    if(/\bSLEEP\b/i.test(txt) && isAvg) return 'sleepAvg';
+    if(/\bHRV\b/i.test(txt) && isAvg) return 'hrvAvg';
+    if(/\bSLEEP\b/i.test(txt) && /\d+(?:\.\d+)?\s*h/i.test(txt)) return 'sleep';
+    if(/\bHRV\b/i.test(txt) && /\d+(?:\.\d+)?\s*ms/i.test(txt)) return 'hrv';
+    return null;
+  }
+
+  function findValueNode(card, type){
+    var nodes = Array.from(card.querySelectorAll('*'));
+    for(var i=0;i<nodes.length;i++){
+      var txt = t(nodes[i]);
+      if(type === 'sleep' && /^\d+(?:\.\d+)?\s*h$/i.test(txt)) return nodes[i];
+      if(type === 'hrv' && /^\d+(?:\.\d+)?\s*ms$/i.test(txt)) return nodes[i];
+    }
+    return null;
+  }
+
+  function extractAvgFromCard(card, type){
+    var txt = t(card);
+    if(type === 'sleep'){
+      var sm = txt.match(/7D\s*Avg\s*(\d+(?:\.\d+)?)\s*h/i);
+      return sm ? sm[1] + 'h' : null;
+    }
+    if(type === 'hrv'){
+      var hm = txt.match(/7D\s*Avg\s*(\d+(?:\.\d+)?)\s*ms/i);
+      return hm ? Math.round(Number(hm[1])) + ' ms' : null;
+    }
+    return null;
+  }
+
+  function setInlineAvg(card, avg){
+    if(!card || !avg) return;
+    var line = card.querySelector('.vertex-home-inline-7d');
+    if(!line){
+      line = document.createElement('div');
+      line.className = 'vertex-home-inline-7d';
+      line.style.cssText = 'margin-top:4px;font-family:DM Mono,monospace;font-size:11px;color:var(--acc);letter-spacing:.04em;text-align:center;line-height:1.2;';
+      card.appendChild(line);
+    }
+    line.textContent = '7D Avg · ' + avg;
+  }
+
+  function run(){
+    try{
+      if(activeTab() !== 'home') return;
+
+      var grid = likelyMetricGrid();
+      if(!grid) return;
+
+      var cards = directChildrenCards(grid);
+      var sleepCard = null, hrvCard = null, sleepAvgCard = null, hrvAvgCard = null;
+
+      cards.forEach(function(card){
+        var c = classify(card);
+        if(c === 'sleep' && !sleepCard) sleepCard = card;
+        if(c === 'hrv' && !hrvCard) hrvCard = card;
+        if(c === 'sleepAvg' && !sleepAvgCard) sleepAvgCard = card;
+        if(c === 'hrvAvg' && !hrvAvgCard) hrvAvgCard = card;
+      });
+
+      var s = sleepSummary();
+      var h = hrvSummary();
+
+      var sleepAvg = s.avg || (sleepAvgCard ? extractAvgFromCard(sleepAvgCard, 'sleep') : null);
+      var hrvAvg = h.avg || (hrvAvgCard ? extractAvgFromCard(hrvAvgCard, 'hrv') : null);
+
+      if(sleepCard){
+        var sv = findValueNode(sleepCard, 'sleep');
+        if(sv && s.current) sv.textContent = s.current;
+        setInlineAvg(sleepCard, sleepAvg);
+      }
+
+      if(hrvCard){
+        var hv = findValueNode(hrvCard, 'hrv');
+        if(hv && h.current) hv.textContent = h.current;
+        setInlineAvg(hrvCard, hrvAvg);
+      }
+
+      if(sleepAvgCard){
+        sleepAvgCard.style.display = 'none';
+        sleepAvgCard.setAttribute('data-vertex-merged-into','sleep');
+      }
+
+      if(hrvAvgCard){
+        hrvAvgCard.style.display = 'none';
+        hrvAvgCard.setAttribute('data-vertex-merged-into','hrv');
+      }
+
+      document.body.setAttribute('data-vertex-home-metric-ribbon-fixed','true');
+    }catch(e){
+      console.error('Home metric ribbon render fix failed', e);
+    }
+  }
+
+  window.vertexHomeMetricRibbonRenderFix = run;
+
+  function schedule(){
+    setTimeout(run, 100);
+    setTimeout(run, 300);
+    setTimeout(run, 800);
+    setTimeout(run, 1500);
+    setTimeout(run, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(run, 120); }, true);
 })();
 </script>
 

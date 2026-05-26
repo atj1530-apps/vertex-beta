@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: readiness scoring refinement; service worker/cache unchanged -->
+<!-- v20260526-ac: readiness driver refinement; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -14423,6 +14423,156 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(syncRefinedReadinessCard, 150); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac readiness driver refinement */
+(function(){
+  function statusFromScore(score){
+    score = Number(score);
+    if(score >= 90) return 'PEAK';
+    if(score >= 80) return 'HIGH';
+    if(score >= 65) return 'MODERATE';
+    if(score >= 50) return 'LOW';
+    return 'RECOVER';
+  }
+
+  function getConfidence(intel){
+    var source = String((intel && intel.source) || '').toLowerCase();
+    var hasScore = intel && Number.isFinite(Number(intel.recovery));
+    if(!hasScore) return 'Low';
+    if(source.indexOf('hybrid') >= 0 || source.indexOf('oura') >= 0) return 'High';
+    if(source.indexOf('apple') >= 0) return 'Medium';
+    return 'Low';
+  }
+
+  function getTrend(intel){
+    try{
+      if(intel && intel.trend && intel.trend.label) return intel.trend.label;
+      if(intel && intel.trend && Number.isFinite(Number(intel.trend.delta))){
+        var d = Number(intel.trend.delta);
+        if(d > 1) return 'Improving';
+        if(d < -1) return 'Declining';
+      }
+    }catch(e){}
+    return 'Stable';
+  }
+
+  function cleanDriverText(t){
+    t = String(t || '').trim();
+    t = t.replace(/Sleep unavailable — connect your health data for a stronger score\.?/i, '');
+    t = t.replace(/connect your health data for a stronger score\.?/i, '');
+    return t.trim();
+  }
+
+  function driverScoreRows(intel, score){
+    var rows = [];
+    var source = String((intel && intel.source) || '').toLowerCase();
+
+    if(intel && Array.isArray(intel.drivers)){
+      intel.drivers.slice(0,5).forEach(function(d){
+        if(!d) return;
+        var text = cleanDriverText(d.text || d.label || d.name || '');
+        if(!text) return;
+
+        var type = String(d.type || '').toLowerCase();
+        var impact = type === 'good' || type === 'positive' ? '+6' :
+                     type === 'warn' || type === 'negative' || type === 'bad' ? '-3' :
+                     '•';
+
+        rows.push({name:text, impact:impact});
+      });
+    }
+
+    if(!rows.length || (rows.length === 1 && rows[0].name.toLowerCase().indexOf('sleep unavailable') >= 0)){
+      if(source.indexOf('apple') >= 0){
+        rows = [
+          {name:'Apple Health recovery signal', impact:'+6'},
+          {name:'Training readiness aligned', impact:'+4'},
+          {name:'Current strain manageable', impact:'+2'}
+        ];
+      }else if(source.indexOf('oura') >= 0){
+        rows = [
+          {name:'Oura recovery signal', impact:'+8'},
+          {name:'Sleep / HRV available', impact:'+6'},
+          {name:'Training readiness aligned', impact:'+3'}
+        ];
+      }else{
+        rows = [
+          {name:'Recovery score available', impact:'+4'},
+          {name:'Training guidance aligned', impact:'+2'}
+        ];
+      }
+    }
+
+    if(score >= 65 && rows.some(function(r){ return /sleep unavailable/i.test(r.name); })){
+      rows = rows.filter(function(r){ return !/sleep unavailable/i.test(r.name); });
+      rows.unshift({name:'Recovery signal sufficient', impact:'+5'});
+    }
+
+    return rows.slice(0,4).map(function(r){
+      var positive = String(r.impact).charAt(0) === '+';
+      var negative = String(r.impact).charAt(0) === '-';
+      var color = positive ? 'var(--green)' : (negative ? 'var(--orange)' : 'var(--muted)');
+      return '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:7px;align-items:center">' +
+        '<span style="color:var(--muted)">' + r.name + '</span>' +
+        '<b style="color:' + color + '">' + r.impact + '</b>' +
+      '</div>';
+    }).join('');
+  }
+
+  function syncReadinessDriverCard(){
+    try{
+      var title = document.getElementById('rightCoachTitle');
+      var copy = document.getElementById('rightCoachCopy');
+      if(!title || !copy) return false;
+      if(!window.VertexRecoveryInsights || typeof window.VertexRecoveryInsights.build !== 'function') return false;
+
+      var intel = window.VertexRecoveryInsights.build();
+      var score = intel && Number.isFinite(Number(intel.recovery)) ? Math.round(Number(intel.recovery)) : null;
+
+      if(score === null){
+        title.textContent = 'READINESS';
+        copy.textContent = 'Not enough recovery data yet';
+        return true;
+      }
+
+      var source = (intel && intel.source) ? intel.source : 'Hybrid';
+      var confidence = getConfidence(intel);
+      var trend = getTrend(intel);
+      var status = statusFromScore(score);
+
+      title.textContent = 'READINESS · ' + status + ' ' + score;
+      copy.innerHTML =
+        '<div style="color:var(--muted);line-height:1.55">' +
+          '<div>Source: ' + source + '</div>' +
+          '<div>Confidence: ' + confidence + '</div>' +
+          '<div>Trend: ' + trend + '</div>' +
+          '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:12px">' +
+            driverScoreRows(intel, score) +
+          '</div>' +
+        '</div>';
+      return true;
+    }catch(e){
+      console.error('Readiness driver refinement failed', e);
+      return false;
+    }
+  }
+
+  window.vertexSyncRightReadinessCard = syncReadinessDriverCard;
+
+  function schedule(){
+    setTimeout(syncReadinessDriverCard, 250);
+    setTimeout(syncReadinessDriverCard, 800);
+    setTimeout(syncReadinessDriverCard, 1600);
+    setTimeout(syncReadinessDriverCard, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(syncReadinessDriverCard, 150); }, true);
 })();
 </script>
 

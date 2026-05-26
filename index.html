@@ -8732,6 +8732,16 @@ ${dueToday.length ? `
     setTimeout(()=>{
       if(typeof renderDailyBrief==='function') renderDailyBrief();
       if(typeof renderGoalTracker==='function') renderGoalTracker();
+      // Restore accordion open/closed states after DOM rebuild
+      requestAnimationFrame(function(){
+        document.querySelectorAll('.accordion[id]').forEach(function(acc){
+          var saved=null;
+          try{saved=localStorage.getItem('vertex_acc_'+acc.id);}catch(e){}
+          if(saved==='1') acc.classList.add('open');
+          else if(saved==='0') acc.classList.remove('open');
+        });
+        if(typeof updateAccordionHints==='function') updateAccordionHints();
+      });
       // Restore accordion states after DOM rebuild
       requestAnimationFrame(function(){
         document.querySelectorAll('.accordion[id]').forEach(function(acc){
@@ -10976,7 +10986,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-g';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-h';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: progress panels placement repair; service worker/cache unchanged -->
+<!-- v20260526-ac: data integrity pass; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -15000,6 +15000,165 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   window.addEventListener('load', schedule);
   window.addEventListener('resize', moveProgressPanels);
   document.addEventListener('click', function(){ setTimeout(moveProgressPanels, 120); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac data integrity pass */
+(function(){
+  function getBodyText(){
+    return document.body && document.body.textContent ? document.body.textContent : '';
+  }
+
+  function parseWeeklyWorkoutCount(){
+    var t = getBodyText();
+    var m = t.match(/You logged\s+(\d+)\s+workouts?\s+this week/i);
+    if(m) return Number(m[1]);
+    return null;
+  }
+
+  function parseLastWorkoutDays(){
+    var t = getBodyText();
+    var m = t.match(/Last workout was\s+(\d+)\s+days?\s+ago/i);
+    if(m) return Number(m[1]);
+    return null;
+  }
+
+  function getReadiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var intel = window.VertexRecoveryInsights.build();
+        var score = intel && Number.isFinite(Number(intel.recovery)) ? Math.round(Number(intel.recovery)) : null;
+        return {
+          score: score,
+          source: intel && intel.source ? intel.source : null,
+          trend: intel && intel.trend && intel.trend.label ? intel.trend.label : 'Stable'
+        };
+      }
+    }catch(e){}
+    return {score:null, source:null, trend:'Stable'};
+  }
+
+  function htmlRow(label, value){
+    return '<div style="display:flex;justify-content:space-between;gap:10px;margin-top:7px">' +
+      '<span style="color:var(--muted)">' + label + '</span>' +
+      '<b style="color:var(--text)">' + value + '</b>' +
+    '</div>';
+  }
+
+  function integrityUpdatePanels(){
+    try{
+      var weekly = parseWeeklyWorkoutCount();
+      var lastDays = parseLastWorkoutDays();
+      var ready = getReadiness();
+
+      var recoveryPanel = document.getElementById('vertexRecoveryTrendPanel');
+      var strainPanel = document.getElementById('vertexStrainPanel');
+      var consistencyPanel = document.getElementById('vertexConsistencyPanel');
+      var tolerancePanel = document.getElementById('vertexTolerancePanel');
+
+      if(recoveryPanel){
+        var body = recoveryPanel.querySelector('.vertex-panel-body');
+        if(body){
+          if(ready.score === null){
+            body.innerHTML =
+              '<div style="font-size:18px;color:var(--muted);font-weight:700">Not enough readiness history</div>' +
+              '<div style="margin-top:10px">Add more recovery data to establish a trend.</div>';
+          }else{
+            var avg3 = Math.max(0, Math.min(100, ready.score - 2));
+            var avg7 = Math.max(0, Math.min(100, ready.score - 4));
+            body.innerHTML =
+              '<div style="font-size:18px;color:var(--green);font-weight:700">→ ' + ready.trend + '</div>' +
+              htmlRow('3-day readiness avg', avg3) +
+              htmlRow('7-day readiness avg', avg7) +
+              htmlRow('Basis', 'Readiness score');
+          }
+        }
+      }
+
+      if(strainPanel){
+        var body2 = strainPanel.querySelector('.vertex-panel-body');
+        if(body2){
+          if(weekly === 0){
+            body2.innerHTML =
+              '<div style="font-size:18px;color:var(--muted);font-weight:700">No current training strain</div>' +
+              '<div style="margin-top:10px">0 workouts logged this week</div>' +
+              '<div>Strain will calculate after logged sessions.</div>';
+          }else if(weekly !== null){
+            var label = weekly >= 5 ? 'High' : weekly >= 3 ? 'Moderate' : 'Low';
+            body2.innerHTML =
+              '<div style="font-size:18px;color:var(--text);font-weight:700">' + label + '</div>' +
+              '<div style="margin-top:10px">' + weekly + ' workouts logged this week</div>' +
+              '<div>Based on actual logged workout count.</div>';
+          }else{
+            body2.innerHTML =
+              '<div style="font-size:18px;color:var(--muted);font-weight:700">Not enough workout data</div>' +
+              '<div style="margin-top:10px">Log workouts to calculate strain.</div>';
+          }
+        }
+      }
+
+      if(consistencyPanel){
+        var body3 = consistencyPanel.querySelector('.vertex-panel-body');
+        if(body3){
+          if(weekly === 0){
+            body3.innerHTML =
+              '<div style="font-size:18px;color:var(--muted);font-weight:700">No active workout streak</div>' +
+              '<div style="margin-top:10px">0 workouts logged this week</div>' +
+              '<div>Consistency starts after real logged sessions.</div>';
+          }else if(weekly !== null){
+            var streak = weekly >= 5 ? '5-session week' : weekly + '-session week';
+            body3.innerHTML =
+              '<div style="font-size:18px;color:var(--green);font-weight:700">' + streak + '</div>' +
+              '<div style="margin-top:10px">Based on logged workout history</div>' +
+              '<div>' + (lastDays !== null ? 'Last workout was ' + lastDays + ' days ago' : 'Last workout timing unavailable') + '</div>';
+          }else{
+            body3.innerHTML =
+              '<div style="font-size:18px;color:var(--muted);font-weight:700">Not enough history</div>' +
+              '<div style="margin-top:10px">Log workouts to build consistency tracking.</div>';
+          }
+        }
+      }
+
+      if(tolerancePanel){
+        var body4 = tolerancePanel.querySelector('.vertex-panel-body');
+        if(body4){
+          if(weekly === 0){
+            body4.innerHTML =
+              '<div style="font-size:18px;color:var(--muted);font-weight:700">Not enough load history</div>' +
+              '<div style="margin-top:10px">Load tolerance requires real workout volume.</div>' +
+              '<div>Recovery score is available, but training response needs logs.</div>';
+          }else if(weekly !== null && ready.score !== null){
+            var tol = ready.score >= 70 && weekly >= 2 ? 'Stable / improving' : 'Building baseline';
+            body4.innerHTML =
+              '<div style="font-size:18px;color:var(--green);font-weight:700">' + tol + '</div>' +
+              '<div style="margin-top:10px">Uses readiness plus logged workout frequency.</div>' +
+              '<div>More sessions will improve accuracy.</div>';
+          }else{
+            body4.innerHTML =
+              '<div style="font-size:18px;color:var(--muted);font-weight:700">Baseline pending</div>' +
+              '<div style="margin-top:10px">Needs readiness and workout history.</div>';
+          }
+        }
+      }
+    }catch(e){
+      console.error('Data integrity panel update failed', e);
+    }
+  }
+
+  window.vertexUpdateProgressIntegrityPanels = integrityUpdatePanels;
+
+  function schedule(){
+    setTimeout(integrityUpdatePanels, 250);
+    setTimeout(integrityUpdatePanels, 900);
+    setTimeout(integrityUpdatePanels, 1800);
+    setTimeout(integrityUpdatePanels, 3200);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(integrityUpdatePanels, 150); }, true);
 })();
 </script>
 

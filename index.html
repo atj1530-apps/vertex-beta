@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-o: Auth boot repair + unified readiness source -->
+<!-- v20260526-q: Builder quiet defaults + readiness resolve -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -3145,6 +3145,29 @@ button[data-ai-generate="today"],
   color:#000!important;
 }
 
+
+/* ============================================================
+   v20260526-q BUILDER QUIET DEFAULTS
+   Functional defaults remain in JS, but workout filter pills stay visually quiet
+   until a user deliberately chooses a value.
+   ============================================================ */
+#program-seg:not(.user-picked) .seg-btn,
+#training-seg:not(.user-picked) .seg-btn,
+.segment:not(.user-picked) .seg-btn[data-env]{
+  background:var(--panel2)!important;
+  color:var(--muted)!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
+#program-seg.user-picked .seg-btn.chosen,
+#training-seg.user-picked .seg-btn.chosen,
+.segment.user-picked .seg-btn[data-env].chosen{
+  background:var(--panel2)!important;
+  color:var(--acc)!important;
+  border-color:var(--acc)!important;
+  box-shadow:none!important;
+}
+
 </style>
 </head>
 <body class="auth-resolving">
@@ -3186,26 +3209,24 @@ window.vertexFinishBootstrap=function(){
         <p class="welcome-body">Your training, planned and tracked in one place. Built for people who take their training seriously.</p>
       </div>
 
-      <!-- Screen 2: Goal -->
+      <!-- Screen 2: Capabilities -->
       <div class="welcome-step" data-step="2">
-        <p class="welcome-eyebrow">Your Goal</p>
-        <h2 class="welcome-title" style="font-size:22px;margin-bottom:10px">What are you training for?</h2>
-        <div style="display:flex;flex-direction:column;gap:6px" id="welcome-goals">
-          <button class="welcome-goal-btn" data-goal="build_muscle">💪 Build Muscle</button>
-          <button class="welcome-goal-btn" data-goal="lose_fat">🔥 Lose Fat</button>
-          <button class="welcome-goal-btn" data-goal="improve_endurance">⚡ Improve Endurance</button>
-          <button class="welcome-goal-btn" data-goal="stay_active">🏃 Stay Active</button>
+        <p class="welcome-eyebrow">Your Command Center</p>
+        <h2 class="welcome-title" style="font-size:28px;margin-bottom:12px">Train with better context.</h2>
+        <p class="welcome-body">Vertex brings your workouts, recovery signals, readiness, and progress tracking into one clean daily view.</p>
+        <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px;text-align:left">
+          <div class="intel-box"><b>AI Workout Planning</b><span>Build sessions around your goals, equipment, and recovery state.</span></div>
+          <div class="intel-box"><b>Readiness + Recovery</b><span>Use wellness signals to decide when to push, maintain, or recover.</span></div>
+          <div class="intel-box"><b>Progress Tracking</b><span>Keep volume, exercise history, and performance trends in view.</span></div>
         </div>
       </div>
 
-      <!-- Screen 3: Setup -->
+      <!-- Screen 3: Motivation -->
       <div class="welcome-step" data-step="3">
-        <p class="welcome-eyebrow">Your Setup</p>
-        <h2 class="welcome-title" style="font-size:28px;margin-bottom:12px">Where do you train?</h2>
-        <div style="display:flex;gap:8px;margin-bottom:16px" id="welcome-env">
-          <button class="welcome-choice-btn active" data-wenv="gym">🏋️ Gym</button>
-          <button class="welcome-choice-btn" data-wenv="home">🏠 Home</button>
-        </div>
+        <p class="welcome-eyebrow">Momentum Starts Here</p>
+        <h2 class="welcome-title" style="font-size:32px;margin-bottom:12px">Ready to focus on your health?</h2>
+        <p class="welcome-body">Start with today. Build consistency. Let Vertex help you train smarter, recover better, and keep moving forward.</p>
+      </div>
         <p style="font-family:'DM Mono';font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:0 0 8px">Training Type</p>
         <div style="display:flex;flex-wrap:wrap;gap:8px" id="welcome-training">
           <button class="welcome-choice-btn active" data-wtraining="Strength">🏋️ Strength</button>
@@ -3636,7 +3657,7 @@ window.vertexFinishBootstrap=function(){
     <section id="builder"></section>
   </main>
   <aside class="right">
-    <section class="panel home-hide" id="coachRecommendationPanel"><div class="label">Coach Recommendation</div><h2 id="rightCoachTitle" style="color:var(--green);font-family:'DM Mono';font-size:28px">READINESS · —</h2><p id="rightCoachCopy" style="color:var(--muted);line-height:1.5">Loading unified recovery guidance...</p></section>
+    <section class="panel home-hide" id="coachRecommendationPanel"><div class="label">Coach Recommendation</div><h2 id="rightCoachTitle" style="color:var(--green);font-family:'DM Mono';font-size:28px">READINESS · LOADING</h2><p id="rightCoachCopy" style="color:var(--muted);line-height:1.5">Loading unified recovery guidance...</p></section>
     <section class="panel home-hide"><div class="label">Volume Stats</div><div id="stats" class="stat-grid"></div></section>
     <section class="panel home-hide"><div class="label">Muscle Volume</div><div id="muscleVol"></div></section>
     <section class="accordion" id="savedWorkoutsAcc"><div class="acc-head"><span class="acc-title">Saved Workouts <span id="savedWorkoutsCount" style="color:var(--acc);font-weight:600;margin-left:6px"></span></span><span class="acc-hint">▶ EXPAND</span></div><div class="acc-body"><div id="savedWorkoutsPanel"><p style="color:var(--dim);text-align:center">No saved workouts yet</p></div></div></section>
@@ -6366,20 +6387,28 @@ async function programStartTodayWorkout(){
   openFocusedWorkoutMode(state.current);
 }
 function renderControls(){
+  // v20260526-q: Builder filters can keep functional defaults internally,
+  // but they must not LOOK selected until the user actually chooses them.
   document.querySelectorAll('[data-program]').forEach(b=>{
+    const picked=!!b.closest('.segment,.pill-fade-wrap')?.classList.contains('user-picked');
     const isActive=b.getAttribute('data-program')===state.program;
-    b.classList.toggle('on',isActive);
-    b.classList.toggle('chosen',isActive && b.closest('.segment,.pill-fade-wrap')?.classList.contains('user-picked'));
+    b.classList.toggle('on',picked && isActive);
+    b.classList.toggle('chosen',picked && isActive);
+    b.setAttribute('aria-selected', picked && isActive ? 'true' : 'false');
   });
   document.querySelectorAll('[data-training]').forEach(b=>{
+    const picked=!!b.closest('.segment,.pill-fade-wrap')?.classList.contains('user-picked');
     const isActive=b.getAttribute('data-training')===state.training;
-    b.classList.toggle('on',isActive);
-    b.classList.toggle('chosen',isActive && b.closest('.segment,.pill-fade-wrap')?.classList.contains('user-picked'));
+    b.classList.toggle('on',picked && isActive);
+    b.classList.toggle('chosen',picked && isActive);
+    b.setAttribute('aria-selected', picked && isActive ? 'true' : 'false');
   });
   document.querySelectorAll('[data-env]').forEach(b=>{
+    const picked=!!b.closest('.segment,.pill-fade-wrap')?.classList.contains('user-picked');
     const isActive=b.getAttribute('data-env')===state.env;
-    b.classList.toggle('on',isActive);
-    b.classList.toggle('chosen',isActive && b.closest('.segment,.pill-fade-wrap')?.classList.contains('user-picked'));
+    b.classList.toggle('on',picked && isActive);
+    b.classList.toggle('chosen',picked && isActive);
+    b.setAttribute('aria-selected', picked && isActive ? 'true' : 'false');
   });
   document.querySelectorAll('[data-equip]').forEach(b=>b.classList.toggle('on',!!state.equipment?.[b.getAttribute('data-equip')]));
 }
@@ -9403,7 +9432,7 @@ function renderPhaseWorkout(w){
   const moveCount=phases.reduce((a,x)=>a+(x.moves?.length||0),0);
   return `<div class="flow-card"><div class="flow-grid"><div><div class="label">${escapeHtml(w.displayType||'Recovery / Mobility Day')} · volume excluded</div><h2>${escapeHtml(w.name)}</h2><p style="color:var(--muted)">${escapeHtml(p.name)} · ${modeHelp(p.mode)}</p><div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn acc" data-start-current="1">▶ Start Session</button><button class="btn" data-phase-prev="1" ${idx===0?'disabled':''}>Prev</button><button class="btn acc" data-phase-next="1" ${idx>=phases.length-1?'disabled':''}>Next Phase</button><button class="btn red" data-clear-current="1">Clear Workout</button></div></div><div class="flow-stats"><div class="flow-stat"><b>${w.duration||0}</b><span class="label">min</span></div><div class="flow-stat"><b>${idx+1}/${phases.length}</b><span class="label">phase</span></div><div class="flow-stat"><b>${moveCount}</b><span class="label">moves</span></div></div></div></div><div class="flow-list">${(p.moves||[]).map((m,i)=>`<div class="flow-move"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(m.name)}${m.side?` <span class="badge green">${escapeHtml(m.side)}</span>`:''}</strong><span class="time">${escapeHtml(moveTimeText(m))}</span></div>`).join('')}</div>`
 }
-function renderRight(){const s=stats(state.current); document.getElementById('stats').innerHTML=`<div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.ex:s.type}</div><div class="stat-lbl">${state.current.type==='strength'?'Exercises':'Type'}</div></div><div class="stat-box"><div class="stat-val">${s.est}</div><div class="stat-lbl">Est. Min</div></div><div class="stat-box"><div class="stat-val">${state.current.excludeFromVolume?0:(state.current.type==='strength'?s.sets:s.blocks)}</div><div class="stat-lbl">${state.current.excludeFromVolume?'Volume':'Blocks / Sets'}</div></div><div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.reps:s.moves}</div><div class="stat-lbl">${state.current.type==='strength'?'Total Reps':'Moves'}</div></div>`; const mv=muscleVolume(); const max=Math.max(1,...Object.values(mv)); document.getElementById('muscleVol').innerHTML=Object.keys(mv).length?Object.entries(mv).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${m}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<p style="color:var(--dim);text-align:center">Add exercises to see breakdown</p>'; const title=document.getElementById('rightCoachTitle'), copy=document.getElementById('rightCoachCopy'); if(title&&copy){const snap=getIntelligenceSnapshot(); const c=getCoachInsights(snap); let score=null, status=c.status, message=c.recommendation+' '+c.why; try{ if(window.VertexReadiness&&typeof window.VertexReadiness.cached==='function'){ const rd=window.VertexReadiness.cached(); if(rd&&Number.isFinite(Number(rd.score))){ score=Math.round(Number(rd.score)); status=String(rd.label||status).toUpperCase(); message=rd.action||message; } } }catch(e){} if(score===null){ score=snap.ready?Math.round(snap.ready*20):null; } title.textContent=score===null?'READINESS · —':`${status} · ${score}`; copy.textContent=message;} renderSavedWorkouts();}
+function renderRight(){const s=stats(state.current); document.getElementById('stats').innerHTML=`<div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.ex:s.type}</div><div class="stat-lbl">${state.current.type==='strength'?'Exercises':'Type'}</div></div><div class="stat-box"><div class="stat-val">${s.est}</div><div class="stat-lbl">Est. Min</div></div><div class="stat-box"><div class="stat-val">${state.current.excludeFromVolume?0:(state.current.type==='strength'?s.sets:s.blocks)}</div><div class="stat-lbl">${state.current.excludeFromVolume?'Volume':'Blocks / Sets'}</div></div><div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.reps:s.moves}</div><div class="stat-lbl">${state.current.type==='strength'?'Total Reps':'Moves'}</div></div>`; const mv=muscleVolume(); const max=Math.max(1,...Object.values(mv)); document.getElementById('muscleVol').innerHTML=Object.keys(mv).length?Object.entries(mv).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${m}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<p style="color:var(--dim);text-align:center">Add exercises to see breakdown</p>'; const title=document.getElementById('rightCoachTitle'), copy=document.getElementById('rightCoachCopy'); if(title&&copy){const snap=getIntelligenceSnapshot(); const c=getCoachInsights(snap); let score=null, status=c.status, message=c.recommendation+' '+c.why; try{ if(window.VertexReadiness&&typeof window.VertexReadiness.build==='function'){ const rd=window.VertexReadiness.build(); if(rd&&Number.isFinite(Number(rd.score))){ score=Math.round(Number(rd.score)); status=String(rd.label||status).toUpperCase(); message=rd.action||message; } } else if(window.VertexReadiness&&typeof window.VertexReadiness.cached==='function'){ const rd=window.VertexReadiness.cached(); if(rd&&Number.isFinite(Number(rd.score))){ score=Math.round(Number(rd.score)); status=String(rd.label||status).toUpperCase(); message=rd.action||message; } } }catch(e){} if(score===null&&snap.ready){ score=Math.round(snap.ready*20); } title.textContent=score===null?'READINESS · LOADING':`${status} · ${score}`; copy.textContent=score===null?'Recovery signals are loading. If this remains, check health sync or manual wellness entries.':message;} renderSavedWorkouts();}
 function summary(w){const s=stats(w); return w.type==='strength'?`${s.ex} exercises planned`:(w.type==='mobility_strength_hybrid'?`${w.displayType||'Recovery / Mobility Day'} · ${s.blocks} phases · volume 0`:`${s.type} · ${s.est} min · ${s.moves} moves`)}
 function preview(w){return w.type==='strength'?(w.exercises||[]).map(e=>e.name).join(', '):(w.type==='mobility_strength_hybrid'?(w.phases||[]).map(p=>p.name).join(', '):(w.moves||[]).slice(0,5).map(m=>m.name).join(', '))}
 function openAssign(w){state.pendingTemplate=clone(w); const sel=document.getElementById('assignDay'); if(sel) sel.value=todayKey; document.getElementById('assignModal').classList.add('on')}
@@ -11190,7 +11219,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-p';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-q';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: rollback-safe baseline; service worker/cache unchanged -->
+<!-- v20260526-ac: readiness model repair; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -9542,7 +9542,7 @@ function renderPhaseWorkout(w){
   const moveCount=phases.reduce((a,x)=>a+(x.moves?.length||0),0);
   return `<div class="flow-card"><div class="flow-grid"><div><div class="label">${escapeHtml(w.displayType||'Recovery / Mobility Day')} · volume excluded</div><h2>${escapeHtml(w.name)}</h2><p style="color:var(--muted)">${escapeHtml(p.name)} · ${modeHelp(p.mode)}</p><div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn acc" data-start-current="1">▶ Start Session</button><button class="btn" data-phase-prev="1" ${idx===0?'disabled':''}>Prev</button><button class="btn acc" data-phase-next="1" ${idx>=phases.length-1?'disabled':''}>Next Phase</button><button class="btn red" data-clear-current="1">Clear Workout</button></div></div><div class="flow-stats"><div class="flow-stat"><b>${w.duration||0}</b><span class="label">min</span></div><div class="flow-stat"><b>${idx+1}/${phases.length}</b><span class="label">phase</span></div><div class="flow-stat"><b>${moveCount}</b><span class="label">moves</span></div></div></div></div><div class="flow-list">${(p.moves||[]).map((m,i)=>`<div class="flow-move"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(m.name)}${m.side?` <span class="badge green">${escapeHtml(m.side)}</span>`:''}</strong><span class="time">${escapeHtml(moveTimeText(m))}</span></div>`).join('')}</div>`
 }
-function renderRight(){const s=stats(state.current); document.getElementById('stats').innerHTML=`<div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.ex:s.type}</div><div class="stat-lbl">${state.current.type==='strength'?'Exercises':'Type'}</div></div><div class="stat-box"><div class="stat-val">${s.est}</div><div class="stat-lbl">Est. Min</div></div><div class="stat-box"><div class="stat-val">${state.current.excludeFromVolume?0:(state.current.type==='strength'?s.sets:s.blocks)}</div><div class="stat-lbl">${state.current.excludeFromVolume?'Volume':'Blocks / Sets'}</div></div><div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.reps:s.moves}</div><div class="stat-lbl">${state.current.type==='strength'?'Total Reps':'Moves'}</div></div>`; const mv=muscleVolume(); const max=Math.max(1,...Object.values(mv)); document.getElementById('muscleVol').innerHTML=Object.keys(mv).length?Object.entries(mv).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${m}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<p style="color:var(--dim);text-align:center">Add exercises to see breakdown</p>'; const title=document.getElementById('rightCoachTitle'), copy=document.getElementById('rightCoachCopy'); if(title&&copy){try{ const intel=(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.build==='function')?window.VertexRecoveryInsights.build():null; title.textContent=intel?`RECOVERY · ${intel.recovery}`:'RECOVERY · —'; copy.innerHTML=(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.html==='function')?window.VertexRecoveryInsights.html(true):'Log recovery data to unlock coaching insights.'; }catch(e){ title.textContent='RECOVERY · —'; copy.textContent='Log recovery data to unlock coaching insights.'; }} renderSavedWorkouts();}
+function renderRight(){const s=stats(state.current); document.getElementById('stats').innerHTML=`<div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.ex:s.type}</div><div class="stat-lbl">${state.current.type==='strength'?'Exercises':'Type'}</div></div><div class="stat-box"><div class="stat-val">${s.est}</div><div class="stat-lbl">Est. Min</div></div><div class="stat-box"><div class="stat-val">${state.current.excludeFromVolume?0:(state.current.type==='strength'?s.sets:s.blocks)}</div><div class="stat-lbl">${state.current.excludeFromVolume?'Volume':'Blocks / Sets'}</div></div><div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.reps:s.moves}</div><div class="stat-lbl">${state.current.type==='strength'?'Total Reps':'Moves'}</div></div>`; const mv=muscleVolume(); const max=Math.max(1,...Object.values(mv)); document.getElementById('muscleVol').innerHTML=Object.keys(mv).length?Object.entries(mv).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${m}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<p style="color:var(--dim);text-align:center">Add exercises to see breakdown</p>'; const title=document.getElementById('rightCoachTitle'), copy=document.getElementById('rightCoachCopy'); if(title&&copy){try{ const intel=(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.build==='function')?window.VertexRecoveryInsights.build():null; const score=(intel&&Number.isFinite(Number(intel.recovery)))?Math.round(Number(intel.recovery)):null; const status=(score==null)?null:(score>=80?'HIGH':(score>=65?'MODERATE':(score>=50?'LOW':'RECOVER'))); if(score!=null){ title.textContent='READINESS · '+status+' '+score; copy.textContent='Source: '+(intel.source||'Hybrid'); }else{ title.textContent='READINESS'; copy.textContent='Not enough recovery data yet'; } }catch(e){ title.textContent='READINESS'; copy.textContent='Not enough recovery data yet'; }} renderSavedWorkouts();}
 function summary(w){const s=stats(w); return w.type==='strength'?`${s.ex} exercises planned`:(w.type==='mobility_strength_hybrid'?`${w.displayType||'Recovery / Mobility Day'} · ${s.blocks} phases · volume 0`:`${s.type} · ${s.est} min · ${s.moves} moves`)}
 function preview(w){return w.type==='strength'?(w.exercises||[]).map(e=>e.name).join(', '):(w.type==='mobility_strength_hybrid'?(w.phases||[]).map(p=>p.name).join(', '):(w.moves||[]).slice(0,5).map(m=>m.name).join(', '))}
 function openAssign(w){state.pendingTemplate=clone(w); const sel=document.getElementById('assignDay'); if(sel) sel.value=todayKey; document.getElementById('assignModal').classList.add('on')}
@@ -13239,11 +13239,11 @@ window.vertexImportHKWorkout = async function(idx) {
     }catch(e){}
     try{ return buildReadinessScore(); }catch(e){}
     return {
-      score:72,
-      label:'Moderate',
-      action:'Train, but avoid unnecessary max-effort work.',
-      drivers:[{type:'warn',text:'Sleep unavailable — connect your health data for a stronger score.'}],
-      metrics:{},
+      score:null,
+      label:'Not enough data',
+      action:'Add recovery data to unlock coaching.',
+      drivers:[{type:'warn',text:'Not enough recovery data yet.'}],
+      metrics:{signalsPresent:0},
       workouts:{}
     };
   }
@@ -13316,17 +13316,18 @@ window.vertexImportHKWorkout = async function(idx) {
     let rec={score:0,label:'Unknown',action:'Add recovery data to unlock coaching.',drivers:[],metrics:{}};
     try{ if(window.VertexReadiness&&typeof window.VertexReadiness.cached==='function') rec=window.VertexReadiness.cached(); }catch(e){}
     const latest=vertexLatestHealthEntry();
-    const recovery=Math.round(vertexClamp(rec&&rec.score,0,100));
-    const training=vertexTrainingCapacity(recovery,latest);
+    const rawRecovery=(rec&&Number.isFinite(Number(rec.score)))?Number(rec.score):null;
+    const recovery=(rawRecovery===null)?null:Math.round(vertexClamp(rawRecovery,0,100));
+    const training=(recovery===null)?null:vertexTrainingCapacity(recovery,latest);
     const source=vertexRecoverySource(latest);
-    const trend=vertexTrendFromCache(recovery);
-    const recommendation=vertexTrainingRecommendation(rec,training);
+    const trend=(recovery===null)?{label:'No baseline',delta:0}:vertexTrendFromCache(recovery);
+    const recommendation=(recovery===null)?'Add recovery data to unlock coaching.':vertexTrainingRecommendation(rec,training);
     let drivers=Array.isArray(rec&&rec.drivers)?rec.drivers.slice(0,3):[];
     if(!drivers.length){
       drivers=[{type:'warn',text: source==='Not connected'?'Connect Oura, Apple Health, or log a manual check-in to improve coaching.':'Recovery data is limited; log workouts and wellness inputs for stronger guidance.'}];
     }
-    try{ localStorage.setItem('vertex_readiness_cache_prev', JSON.stringify({score:recovery,ts:Date.now()})); }catch(e){}
-    return {recovery,training,label:(rec&&rec.label)||'Readiness',source,trend,recommendation,drivers,latest};
+    if(recovery!==null){ try{ localStorage.setItem('vertex_readiness_cache_prev', JSON.stringify({score:recovery,ts:Date.now()})); }catch(e){} }
+    return {recovery,training,label:(rec&&rec.label)||'Readiness',source:recovery===null?null:source,trend,recommendation,drivers,latest};
   }
   function vertexRecoveryInsightsHtml(compact){
     const x=vertexBuildRecoveryInsights();

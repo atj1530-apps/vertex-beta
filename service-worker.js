@@ -1,8 +1,6 @@
 /* Vertex Workout Builder — PWA Service Worker
-   Bump CACHE_NAME on every deploy to bust old caches.
-   Network-first for HTML so new deploys are always visible immediately. */
-
-const CACHE_NAME = 'v20260526-n';
+   v20260526-o: cache bump to bust old app shells. */
+const CACHE_NAME = 'v20260526-o';
 const APP_SHELL = [
   './',
   './index.html',
@@ -30,39 +28,34 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Never intercept Supabase, Anthropic, unpkg, YouTube
+  // Never intercept external APIs/CDNs/auth providers.
   if (
     url.hostname.includes('supabase') ||
     url.hostname.includes('anthropic') ||
     url.hostname.includes('unpkg') ||
-    url.hostname.includes('youtube') ||
-    url.hostname.includes('googleapis')
+    url.hostname.includes('cdnjs.cloudflare.com') ||
+    url.hostname.includes('fonts.googleapis.com') ||
+    url.hostname.includes('fonts.gstatic.com')
   ) {
     return;
   }
 
-  // Network-first for HTML
-  if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
+  // Navigation requests: network first, fallback to cached shell.
+  if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', copy)).catch(() => {});
           return response;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() => caches.match('./index.html'))
     );
     return;
   }
 
-  // Cache-first for other assets
+  // Static assets: cache first, then network.
   event.respondWith(
-    caches.match(event.request).then((cached) =>
-      cached || fetch(event.request).then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        return response;
-      })
-    )
+    caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
 });

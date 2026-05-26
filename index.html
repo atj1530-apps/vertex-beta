@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: unified health signal routing; service worker/cache unchanged -->
+<!-- v20260526-ac: healthkit summary routing repair; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -15692,6 +15692,125 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(runUnifiedRouting, 180); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac healthkit summary routing repair */
+(function(){
+  function hasHealthKitSummary(kind){
+    try{
+      if(kind === 'sleep'){
+        var s = JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary') || 'null');
+        if(s && (Number(s.latestMinutes) > 0 || Number(s.avg7Minutes) > 0)) return true;
+      }
+      if(kind === 'hrv'){
+        var h = JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary') || 'null');
+        if(h && (Number(h.latest) > 0 || Number(h.avg7) > 0)) return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function hasAppleRecovery(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var intel = window.VertexRecoveryInsights.build() || {};
+        if(String(intel.source || '').toLowerCase().indexOf('apple') >= 0) return true;
+        if(Number.isFinite(Number(intel.recovery))) return true;
+      }
+    }catch(e){}
+    return hasHealthKitSummary('sleep') || hasHealthKitSummary('hrv');
+  }
+
+  function buildRouting(){
+    var sleep = hasHealthKitSummary('sleep');
+    var hrv = hasHealthKitSummary('hrv');
+    var apple = hasAppleRecovery();
+
+    return {
+      label: apple ? 'Apple + Vertex' : 'Single source',
+      source: apple ? 'Apple Health + Vertex' : 'Vertex',
+      confidence: apple && sleep && hrv ? 'High' : apple ? 'Medium' : 'Low',
+      sleep: sleep ? 'Apple Health' : 'Pending',
+      hrv: hrv ? 'Apple Health' : 'Pending',
+      rhr: apple ? 'Apple Health' : 'Pending',
+      workouts: 'Vertex Logs',
+      recovery: 'Vertex synthesis'
+    };
+  }
+
+  function updateProgressRouting(){
+    try{
+      var panel = document.getElementById('vertexHybridRoutingPanel');
+      if(!panel) return false;
+
+      var body = panel.querySelector('.vertex-panel-body');
+      if(!body) return false;
+
+      var r = buildRouting();
+      body.innerHTML =
+        '<div style="font-size:18px;color:var(--green);font-weight:700">' + r.label + '</div>' +
+        '<div style="margin-top:10px">Sleep: <b style="color:var(--text)">' + r.sleep + '</b></div>' +
+        '<div>HRV: <b style="color:var(--text)">' + r.hrv + '</b></div>' +
+        '<div>Resting HR: <b style="color:var(--text)">' + r.rhr + '</b></div>' +
+        '<div>Workouts: <b style="color:var(--text)">' + r.workouts + '</b></div>' +
+        '<div>Recovery: <b style="color:var(--text)">' + r.recovery + '</b></div>';
+
+      return true;
+    }catch(e){
+      console.error('HealthKit summary routing progress update failed', e);
+      return false;
+    }
+  }
+
+  function updateWorkoutReadinessSource(){
+    try{
+      var title = document.getElementById('rightCoachTitle');
+      var copy = document.getElementById('rightCoachCopy');
+      if(!title || !copy) return false;
+
+      var r = buildRouting();
+      var html = copy.innerHTML || '';
+
+      if(hasAppleRecovery()){
+        html = html.replace(/Source:\s*(Apple Health \+ Vertex|Apple Health|Hybrid|Vertex)/i, 'Source: ' + r.source);
+        html = html.replace(/Confidence:\s*(Low|Medium|High)/i, 'Confidence: ' + r.confidence);
+        html = html.replace(/(<span>Sleep<\/span><b[^>]*>)(Pending|Apple Health|Hybrid|Vertex)(<\/b>)/i, '$1' + r.sleep + '$3');
+        html = html.replace(/(<span>HRV<\/span><b[^>]*>)(Pending|Apple Health|Hybrid|Vertex)(<\/b>)/i, '$1' + r.hrv + '$3');
+        html = html.replace(/(<span>Workouts<\/span><b[^>]*>)(Pending|Apple Health|Vertex Logs|Hybrid|Vertex)(<\/b>)/i, '$1' + r.workouts + '$3');
+        copy.innerHTML = html;
+      }
+
+      return true;
+    }catch(e){
+      console.error('HealthKit summary routing workout update failed', e);
+      return false;
+    }
+  }
+
+  function run(){
+    updateProgressRouting();
+    updateWorkoutReadinessSource();
+  }
+
+  window.VertexHealthKitSummaryRoutingRepair = {
+    build: buildRouting,
+    sync: run
+  };
+
+  function schedule(){
+    setTimeout(run, 100);
+    setTimeout(run, 400);
+    setTimeout(run, 1000);
+    setTimeout(run, 2000);
+    setTimeout(run, 4000);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(run, 150); }, true);
 })();
 </script>
 

@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: home metric row correct final; service worker/cache unchanged -->
+<!-- v20260526-ad: home metric row single Sleep HRV with inline 7D avg; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -8952,8 +8952,8 @@ function renderHomeDashboard(){
   ${_readinessCardHtml ? `<div style="width:100%">${_readinessCardHtml}</div>` : ''}
 </div>
 
-<!-- Desktop: full 8-card stat strip -->
-<div class="home-stat-strip home-stat-strip-desktop" style="grid-template-columns:repeat(8,1fr)">
+<!-- Desktop: single 6-card stat strip -->
+<div class="home-stat-strip home-stat-strip-desktop" style="grid-template-columns:repeat(6,1fr)">
   <div class="home-stat-box">
     <div class="home-stat-val">${sum.thisWeek.length}</div>
     <div class="home-stat-lbl">Sessions<br>This Week</div>
@@ -8970,26 +8970,18 @@ function renderHomeDashboard(){
     <div class="home-rec-icon">😴</div>
     <div class="home-rec-val">${ahSleep !== null ? ahSleep+'h' : '—'}</div>
     <div class="home-rec-lbl">Sleep</div>
+    <div style="font-size:9px;color:var(--acc);font-family:'DM Mono',monospace;margin-top:2px">7D Avg &nbsp;${_sleepAvg7 !== null ? _sleepAvg7+'h' : '—'}</div>
   </div>
   <div class="home-rec-card">
     <div class="home-rec-icon">💓</div>
     <div class="home-rec-val">${ahHrv !== null ? ahHrv+' ms' : '—'}</div>
     <div class="home-rec-lbl">HRV</div>
+    <div style="font-size:9px;color:var(--acc);font-family:'DM Mono',monospace;margin-top:2px">7D Avg &nbsp;${_hrvAvg7 !== null ? _hrvAvg7+' ms' : '—'}</div>
   </div>
   <div class="home-rec-card">
     <div class="home-rec-icon">❤️</div>
     <div class="home-rec-val">${ahRhr !== null ? ahRhr+' bpm' : '—'}</div>
     <div class="home-rec-lbl">Resting HR</div>
-  </div>
-  <div class="home-rec-card" style="min-height:76px;flex-direction:column;justify-content:center;gap:1px">
-    <div class="home-rec-val" style="font-size:15px">${ahSleep !== null ? ahSleep+'h' : '—'}</div>
-    <div class="home-rec-lbl">Sleep</div>
-    <div style="font-size:9px;color:var(--acc);font-family:'DM Mono',monospace;margin-top:2px">7D Avg &nbsp;${_sleepAvg7 !== null ? _sleepAvg7+'h' : '—'}</div>
-  </div>
-  <div class="home-rec-card" style="min-height:76px;flex-direction:column;justify-content:center;gap:1px">
-    <div class="home-rec-val" style="font-size:15px">${ahHrv !== null ? ahHrv+' ms' : '—'}</div>
-    <div class="home-rec-lbl">HRV</div>
-    <div style="font-size:9px;color:var(--acc);font-family:'DM Mono',monospace;margin-top:2px">7D Avg &nbsp;${_hrvAvg7 !== null ? _hrvAvg7+' ms' : '—'}</div>
   </div>
 </div>
 <!-- Motivational context line -->

@@ -1,60 +1,48 @@
-/* Vertex Workout Builder — PWA Service Worker
-   Cache: v20260526-z
-   Network-first for app shell so new deploys are visible immediately. */
-
-const CACHE_NAME = 'vertex-v20260526-aa';
+const CACHE_NAME = 'vertex-v20260526-ab';
 const APP_SHELL = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  '/',
+  '/index.html',
+  '/manifest.json'
 ];
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL).catch(() => {}))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL).catch(() => undefined))
   );
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys().then(keys => Promise.all(keys.map(key => {
+      if (key !== CACHE_NAME && key.startsWith('vertex-')) return caches.delete(key);
+    }))).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
 
-  if (
-    url.hostname.includes('supabase') ||
-    url.hostname.includes('anthropic') ||
-    url.hostname.includes('openai') ||
-    url.hostname.includes('unpkg') ||
-    url.hostname.includes('cdnjs.cloudflare.com')
-  ) {
-    return;
-  }
-
-  if (event.request.mode === 'navigate') {
+  if (url.origin === location.origin && (url.pathname === '/' || url.pathname.endsWith('/index.html'))) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match('./index.html'))
+      fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
+        return res;
+      }).catch(() => caches.match(req).then(cached => cached || caches.match('/index.html')))
     );
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') return response;
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => {});
-        return response;
-      });
-    })
+    caches.match(req).then(cached => cached || fetch(req).then(res => {
+      if (url.origin === location.origin) {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
+      }
+      return res;
+    }).catch(() => cached))
   );
 });

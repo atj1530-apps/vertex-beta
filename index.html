@@ -10485,27 +10485,14 @@ function renderSegmentTrends(){
     const maxVal = Math.max(...vals.map(v=>v.val));
     const minVal = Math.min(...vals.map(v=>v.val));
     const range = maxVal - minVal || 1;
-    // Mini sparkline SVG
     const W=120, H=36, pad=4;
     const points = vals.map((v,i)=>{
       const x = pad + (i/(vals.length-1))*(W-pad*2);
       const y = H - pad - ((v.val-minVal)/range)*(H-pad*2);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
+      return x.toFixed(1)+','+y.toFixed(1);
     }).join(' ');
-    return `<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:14px">
-      <div style="flex:1;min-width:0">
-        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${seg.label}</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap">
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${seg.color};white-space:nowrap">${Number(last.val).toFixed(1)} lb</span>
-          <span style="font-size:11px;font-weight:700;color:${deltaColor};white-space:nowrap">${parseFloat(delta)>=0?'+':''}${delta} lb since ${fmtDate(first.date)}</span>
-        </div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px">${vals.length} scans · ${fmtDate(first.date)} → ${fmtDate(last.date)}</div>
-      </div>
-      <svg width="${W}" height="${H}" style="flex-shrink:0;overflow:visible">
-        <polyline points="${points}" fill="none" stroke="${seg.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
-        ${vals.map((v,i)=>{ const x=pad+(i/(vals.length-1))*(W-pad*2); const y=H-pad-((v.val-minVal)/range)*(H-pad*2); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${seg.color}" opacity="0.9"/>`; }).join('')}
-      </svg>
-    </div>`;
+    const dots = vals.map((v,i)=>{ const x=pad+(i/(vals.length-1))*(W-pad*2); const y=H-pad-((v.val-minVal)/range)*(H-pad*2); return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="'+seg.color+'" opacity="0.9"></circle>'; }).join('');
+    return '<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:14px"><div style="flex:1;min-width:0"><div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">'+seg.label+'</div><div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap"><span style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:'+seg.color+';white-space:nowrap">'+Number(last.val).toFixed(1)+' lb</span><span style="font-size:11px;font-weight:700;color:'+deltaColor+';white-space:nowrap">'+(parseFloat(delta)>=0?'+':'')+delta+' lb since '+fmtDate(first.date)+'</span></div><div style="font-size:10px;color:var(--muted);margin-top:2px">'+vals.length+' scans · '+fmtDate(first.date)+' → '+fmtDate(last.date)+'</div></div><svg width="120" height="36" viewBox="0 0 120 36" style="flex-shrink:0;overflow:visible" aria-hidden="true"><polyline points="'+points+'" fill="none" stroke="'+seg.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"></polyline>'+dots+'</svg></div>';
   }).join('');
 }
 window.renderSegmentTrends = renderSegmentTrends;
@@ -10793,12 +10780,14 @@ function renderHomeSparklines(){
   const wRows=Object.entries(wByDate).sort((a,b)=>a[0].localeCompare(b[0])).slice(-7);
   const sparkSVG=(vals,color)=>{
     const clean=vals.map(v=>parseFloat(v)).filter(v=>!isNaN(v));
-    if(clean.length<2) return `<svg width="80" height="28"><text x="4" y="18" font-size="9" fill="var(--muted)">—</text></svg>`;
+    if(clean.length<2) return '<svg width="80" height="28" viewBox="0 0 80 28" aria-hidden="true"><text x="4" y="18" font-size="9" fill="var(--muted)">—</text></svg>';
     const mn=Math.min(...clean),mx=Math.max(...clean),rng=mx-mn||1;
     const W=80,H=28,pad=3;
-    const pts=clean.map((v,i)=>{const x=pad+(i/(clean.length-1))*(W-pad*2);const y=H-pad-((v-mn)/rng)*(H-pad*2);return `${x.toFixed(1)},${y.toFixed(1)}`;}).join(' ');
-    const last=pts.split(' ').pop().split(',');
-    return `<svg width="${W}" height="${H}" style="overflow:visible"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="${color}"/></svg>`;
+    const pts=clean.map((v,i)=>{const x=pad+(i/(clean.length-1))*(W-pad*2);const y=H-pad-((v-mn)/rng)*(H-pad*2);return x.toFixed(1)+','+y.toFixed(1);}).join(' ');
+    const lastPair=pts.split(' ').pop().split(',');
+    const cx=Number(lastPair[0])||pad;
+    const cy=Number(lastPair[1])||H-pad;
+    return '<svg width="80" height="28" viewBox="0 0 80 28" style="overflow:visible" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></polyline><circle cx="'+cx+'" cy="'+cy+'" r="2.5" fill="'+color+'"></circle></svg>';
   };
   const cards=[
     {label:'Weight',unit:'lb',color:'var(--acc)',vals:wRows.map(r=>r[1]),latest:wRows.length?Number(wRows[wRows.length-1][1]).toFixed(1):null},
@@ -10806,7 +10795,7 @@ function renderHomeSparklines(){
     {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(r=>r.hrv),latest:last7.length&&last7[last7.length-1]?.hrv!=null?Math.round(last7[last7.length-1].hrv):null},
     {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(r=>r.readiness||r.readinessScore),latest:last7.length&&(last7[last7.length-1]?.readiness||last7[last7.length-1]?.readinessScore)!=null?(last7[last7.length-1].readiness||last7[last7.length-1].readinessScore):null}
   ];
-  el.innerHTML=cards.map(c=>`<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">${c.label}</div><div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px"><div><span class="vertex-sparkline-val" style="color:${c.color}">${c.latest??'—'}</span>${c.unit?`<span style="font-size:9px;color:var(--muted);margin-left:1px">${c.unit}</span>`:''}</div>${sparkSVG(c.vals,c.color)}</div></div>`).join('');
+  el.innerHTML=cards.map(c=>'<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">'+c.label+'</div><div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px"><div><span class="vertex-sparkline-val" style="color:'+c.color+'">'+(c.latest??'—')+'</span>'+(c.unit?'<span style="font-size:9px;color:var(--muted);margin-left:1px">'+c.unit+'</span>':'')+'</div>'+sparkSVG(c.vals,c.color)+'</div></div>').join('');
 }
 window.renderHomeSparklines=renderHomeSparklines;
 
@@ -11446,6 +11435,8 @@ async function vertexRequestNotifPermission(){
 }
 function vertexShowNotifSettings(){
   const prefs=vertexGetNotifPrefs();
+  const wtHour=String(Math.max(0,Math.min(23,Number(prefs.workoutHour||8)))).padStart(2,'0')+':00';
+  const ctHour=String(Math.max(0,Math.min(23,Number(prefs.checkinHour||20)))).padStart(2,'0')+':00';
   document.getElementById('vertex-notif-modal')?.remove();
   const m=document.createElement('div'); m.id='vertex-notif-modal'; m.className='modal-overlay on';
   m.innerHTML=`<div class="modal" style="max-width:400px">
@@ -11454,11 +11445,11 @@ function vertexShowNotifSettings(){
     <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Active while Vertex is open in your browser. Background push on mobile requires APNs setup.</p>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
       <div><div style="font-weight:700">Workout Reminder</div><div style="font-size:12px;color:var(--muted)">Daily reminder to train</div></div>
-      <input type="time" id="vn-wt" value="${String(prefs.workoutHour||8).padStart(2,'0')}:00" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
+      <input type="time" id="vn-wt" value="${wtHour}" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-bottom:16px">
       <div><div style="font-weight:700">Check-In Reminder</div><div style="font-size:12px;color:var(--muted)">Evening wellness check-in</div></div>
-      <input type="time" id="vn-ct" value="${String(prefs.checkinHour||20).padStart(2,'0')}:00" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
+      <input type="time" id="vn-ct" value="${ctHour}" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn acc" id="vn-save" style="flex:1">Save</button>

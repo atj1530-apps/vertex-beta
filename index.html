@@ -3252,6 +3252,138 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
   .vertex-sparkline-card svg{width:70px!important;min-width:70px!important}
 }
 
+
+
+/* ============================================================
+   v20260526-ag PHASE A1 — SAFE UI CONSOLIDATION CSS ONLY
+   Scope: visual polish only. No JS, SVG, auth, sync, routing,
+   planner, recovery logic, or render lifecycle changes.
+   ============================================================ */
+
+/* Unified compact pill treatment for Progress + Wellness tabs */
+.progress-tabs,
+.wellness-tabs,
+#wellness-tabs{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  gap:8px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  margin:10px 0 14px!important;
+  padding:2px 2px 6px!important;
+  max-width:100%!important;
+}
+.progress-tabs::-webkit-scrollbar,
+.wellness-tabs::-webkit-scrollbar,
+#wellness-tabs::-webkit-scrollbar{display:none!important;}
+.progress-tab,
+.wellness-tabs button,
+#wellness-tabs button,
+#wellnessPage [data-wtab]{
+  flex:0 0 auto!important;
+  border-radius:var(--r-pill)!important;
+  padding:7px 13px!important;
+  min-height:32px!important;
+  line-height:1!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  letter-spacing:.7px!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  background:var(--panel2)!important;
+  color:var(--muted)!important;
+  white-space:nowrap!important;
+}
+.progress-tab.on,
+.wellness-tabs button.on,
+#wellness-tabs button.on,
+#wellnessPage [data-wtab].on{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+}
+
+/* Card shell normalization without changing structure */
+.progress-card,
+.vertex-wellness-recovery-center,
+.wc-card,
+.wc-section,
+.roadmap-card,
+.health-input{
+  border-radius:var(--r)!important;
+  border-color:rgba(255,255,255,.08)!important;
+}
+.progress-card,
+.wc-card,
+.wc-section{
+  padding:14px!important;
+}
+
+/* Chart shell sizing guard — CSS only, no canvas/SVG code changes */
+.progress-card canvas,
+.wc-card canvas,
+.wc-section canvas{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+}
+#progressSparklines > div,
+.vertex-sparkline-card{
+  min-height:82px!important;
+}
+#progressSparklines > div > div[style*="height"],
+.progress-card div[style*="height:60px"]{
+  min-height:64px!important;
+}
+
+/* Wellness density and manual-entry containment */
+#wellnessPage .progress-head{
+  gap:12px!important;
+  margin-bottom:8px!important;
+}
+#wellnessPage .page-title{
+  margin-bottom:0!important;
+}
+#healthManualEntryAcc{
+  margin-top:10px!important;
+}
+#healthManualEntryAcc .acc-head{
+  min-height:40px!important;
+  padding:10px 12px!important;
+}
+#healthManualEntryAcc .acc-body{
+  padding:12px!important;
+}
+.health-form{
+  gap:9px!important;
+}
+.health-input{
+  padding:10px!important;
+}
+
+/* Mobile density consolidation */
+@media(max-width:900px){
+  .page-panel{padding:14px!important;margin-bottom:10px!important;}
+  .progress-card,.wc-card,.wc-section,.vertex-wellness-recovery-center{padding:12px!important;margin-bottom:10px!important;}
+  .progress-summary{gap:8px!important;margin:12px 0!important;}
+  .progress-kpi{padding:11px!important;}
+  .progress-kpi b{font-size:32px!important;}
+  .progress-layout,.coach-grid{gap:10px!important;}
+  #progressSparklines{grid-template-columns:1fr!important;gap:10px!important;}
+  #progressSparklines > div{min-height:84px!important;}
+  .vertex-sparkline-row{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;}
+  .vertex-sparkline-card{max-width:none!important;min-width:0!important;width:100%!important;}
+  .right > section{margin:10px 12px!important;}
+  body.app-page-home .right > section{margin:10px 12px!important;}
+}
+@media(max-width:520px){
+  .progress-tabs,.wellness-tabs,#wellness-tabs{gap:6px!important;margin:8px 0 12px!important;}
+  .progress-tab,.wellness-tabs button,#wellness-tabs button,#wellnessPage [data-wtab]{padding:7px 11px!important;font-size:10px!important;}
+  .vertex-sparkline-row{grid-template-columns:1fr 1fr!important;}
+  .vertex-sparkline-card svg{max-width:78px!important;}
+}
+
 </style>
 
 <style id="vertex-v20260526-aa-intelligence-layer">

@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-s: Readiness source retained + builder quiet regression fix -->
+<!-- v20260526-t: stability repair + builder quiet guard -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -3146,48 +3146,24 @@ button[data-ai-generate="today"],
 }
 
 
-/* ============================================================
-   v20260526-s BUILDER QUIET REGRESSION GUARD
-   Keep Workout builder defaults functional but visually quiet until
-   the user deliberately chooses a category/program/training value.
-   ============================================================ */
-#program-seg:not(.user-picked) .seg-btn,
-#training-seg:not(.user-picked) .seg-btn,
-.sidebar .segment:not(.user-picked) .seg-btn[data-env]{
-  background:var(--panel2)!important;
-  color:var(--muted)!important;
-  border-color:transparent!important;
-  box-shadow:none!important;
-}
-#program-seg:not(.user-picked) .seg-btn.on,
-#program-seg:not(.user-picked) .seg-btn.chosen,
-#program-seg:not(.user-picked) .seg-btn.active,
-#training-seg:not(.user-picked) .seg-btn.on,
-#training-seg:not(.user-picked) .seg-btn.chosen,
-#training-seg:not(.user-picked) .seg-btn.active,
-.sidebar .segment:not(.user-picked) .seg-btn[data-env].on,
-.sidebar .segment:not(.user-picked) .seg-btn[data-env].chosen,
-.sidebar .segment:not(.user-picked) .seg-btn[data-env].active{
-  background:var(--panel2)!important;
-  color:var(--muted)!important;
-  border-color:transparent!important;
-  box-shadow:none!important;
-}
-#program-seg.user-picked .seg-btn.on,
-#program-seg.user-picked .seg-btn.chosen,
-#program-seg.user-picked .seg-btn.active,
-#training-seg.user-picked .seg-btn.on,
-#training-seg.user-picked .seg-btn.chosen,
-#training-seg.user-picked .seg-btn.active,
-.sidebar .segment.user-picked .seg-btn[data-env].on,
-.sidebar .segment.user-picked .seg-btn[data-env].chosen,
-.sidebar .segment.user-picked .seg-btn[data-env].active{
-  background:var(--pill-selected-bg,rgba(232,255,71,.035))!important;
-  color:var(--acc)!important;
-  border-color:var(--acc)!important;
-  box-shadow:none!important;
-}
 
+/* v20260526-t STABILITY REPAIR — workout builder quiet-start guard
+   Internal defaults may remain for logic, but default-rendered choices must not read as user-selected.
+   Once a user taps a group, existing .on selected treatment returns. */
+body.app-page-workout .sidebar .segment:not(.user-picked) .seg-btn[data-env].on,
+body.app-page-workout .sidebar #program-seg:not(.user-picked) .seg-btn.on,
+body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on{
+  background:var(--panel2)!important;
+  color:var(--muted)!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
+body.app-page-workout .sidebar .segment:not(.user-picked) .seg-btn[data-env].on:hover,
+body.app-page-workout .sidebar #program-seg:not(.user-picked) .seg-btn.on:hover,
+body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover{
+  color:var(--text)!important;
+  border-color:var(--line2)!important;
+}
 </style>
 </head>
 <body class="auth-resolving">
@@ -8365,29 +8341,6 @@ function protoSelectDate(dateStr){
 
 
 
-
-<script>
-/* v20260526-s: mark builder filter groups as user-picked only after an intentional tap.
-   This lets internal defaults exist without painting Manual/Strength/Home/Gym as user-selected on load. */
-(function(){
-  function markPicked(btn){
-    try{
-      var group = btn.closest('#program-seg,#training-seg,.sidebar .segment');
-      if(group) group.classList.add('user-picked');
-    }catch(e){}
-  }
-  document.addEventListener('pointerdown', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-program],button[data-training],button[data-env]') : null;
-    if(btn) markPicked(btn);
-  }, true);
-  document.addEventListener('keydown', function(e){
-    if(e.key !== 'Enter' && e.key !== ' ') return;
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-program],button[data-training],button[data-env]') : null;
-    if(btn) markPicked(btn);
-  }, true);
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -9949,29 +9902,6 @@ ${recentLogs.length ? `<table>
 </table>` : '<p style="color:#888;font-size:13px">No workout logs yet.</p>'}
 
 <div class="footer">Vertex · ${dateStr} · vertex-beta-five.vercel.app</div>
-
-<script>
-/* v20260526-s: mark builder filter groups as user-picked only after an intentional tap.
-   This lets internal defaults exist without painting Manual/Strength/Home/Gym as user-selected on load. */
-(function(){
-  function markPicked(btn){
-    try{
-      var group = btn.closest('#program-seg,#training-seg,.sidebar .segment');
-      if(group) group.classList.add('user-picked');
-    }catch(e){}
-  }
-  document.addEventListener('pointerdown', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-program],button[data-training],button[data-env]') : null;
-    if(btn) markPicked(btn);
-  }, true);
-  document.addEventListener('keydown', function(e){
-    if(e.key !== 'Enter' && e.key !== ' ') return;
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-program],button[data-training],button[data-env]') : null;
-    if(btn) markPicked(btn);
-  }, true);
-})();
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -10196,30 +10126,7 @@ window.renderSymmetry = renderSymmetry;
     const w = window.open('','_blank');
     if(!w) return;
     const rows = log.length ? log.map(e=>`<tr><td style="white-space:nowrap;color:#888;font-size:11px">${e.ts?.slice(0,19).replace('T',' ')||'—'}</td><td><span style="font-size:10px;background:${e.type==='error'?'#fee2e2':'#fef9c3'};padding:1px 6px;border-radius:3px;font-weight:700">${e.type}</span></td><td style="font-size:12px">${e.msg||''}</td><td style="font-size:11px;color:#999">${e.src||''}${e.line?':'+e.line:''}</td></tr>`).join('') : '<tr><td colspan="4" style="color:#888;text-align:center;padding:20px">No errors logged.</td></tr>';
-    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
-<script>
-/* v20260526-s: mark builder filter groups as user-picked only after an intentional tap.
-   This lets internal defaults exist without painting Manual/Strength/Home/Gym as user-selected on load. */
-(function(){
-  function markPicked(btn){
-    try{
-      var group = btn.closest('#program-seg,#training-seg,.sidebar .segment');
-      if(group) group.classList.add('user-picked');
-    }catch(e){}
-  }
-  document.addEventListener('pointerdown', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-program],button[data-training],button[data-env]') : null;
-    if(btn) markPicked(btn);
-  }, true);
-  document.addEventListener('keydown', function(e){
-    if(e.key !== 'Enter' && e.key !== ' ') return;
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-program],button[data-training],button[data-env]') : null;
-    if(btn) markPicked(btn);
-  }, true);
-})();
-</script>
-
-</body></html>`);
+    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
     w.document.close();
   };
 })();
@@ -10406,30 +10313,7 @@ function vertexShowSyncDiag(){
   }).join('');
   const w=window.open('','_blank');
   if(!w) return;
-  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
-<script>
-/* v20260526-s: mark builder filter groups as user-picked only after an intentional tap.
-   This lets internal defaults exist without painting Manual/Strength/Home/Gym as user-selected on load. */
-(function(){
-  function markPicked(btn){
-    try{
-      var group = btn.closest('#program-seg,#training-seg,.sidebar .segment');
-      if(group) group.classList.add('user-picked');
-    }catch(e){}
-  }
-  document.addEventListener('pointerdown', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-program],button[data-training],button[data-env]') : null;
-    if(btn) markPicked(btn);
-  }, true);
-  document.addEventListener('keydown', function(e){
-    if(e.key !== 'Enter' && e.key !== ' ') return;
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-program],button[data-training],button[data-env]') : null;
-    if(btn) markPicked(btn);
-  }, true);
-})();
-</script>
-
-</body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button></body></html>`);
   w.document.close();
 }
 window.vertexShowSyncDiag=vertexShowSyncDiag;
@@ -11325,7 +11209,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-s';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-t';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -12985,42 +12869,6 @@ window.vertexImportHKWorkout = async function(idx) {
     return 'Recovery day recommended. Avoid heavy loading.';
   }
 
-  function vertexReadinessSourcePreference(){
-    try{return (localStorage.getItem('vertex_recovery_source')||'auto').toLowerCase();}catch(e){return 'auto';}
-  }
-  function vertexSourceText(row){
-    if(!row) return '';
-    let raw='';
-    try{ raw = row.raw ? (typeof row.raw==='string'?row.raw:JSON.stringify(row.raw)) : ''; }catch(e){}
-    return [row.source,row.sourceName,row.source_name,row.device,row.deviceName,row.app,row.provider,row.origin,raw].filter(Boolean).join(' ').toLowerCase();
-  }
-  function vertexDetectRecoverySource(row){
-    const pref=vertexReadinessSourcePreference();
-    if(pref && pref!=='auto') return pref;
-    const txt=vertexSourceText(row);
-    if(/oura/.test(txt)) return 'oura';
-    if(/apple|healthkit|watch/.test(txt)) return 'apple_health';
-    if(row && (row.source==='health_entries' || row.source==='manual' || row.notes)) return 'manual';
-    return 'vertex';
-  }
-  function vertexExternalRecoveryScore(row){
-    const keys=['ouraReadiness','oura_readiness','ouraScore','oura_score','recoveryReadiness','recovery_readiness','wearableReadiness','wearable_readiness','physiologicalReadiness','physiological_readiness','readinessScore100'];
-    for(const k of keys){
-      const v=getMetric(row,[k]);
-      if(v!==null && v>=0) return Math.max(0,Math.min(100,Math.round(v)));
-    }
-    const src=vertexDetectRecoverySource(row);
-    const generic=getMetric(row,['readiness','readinessScore','readiness_score']);
-    if(generic!==null && generic>10 && (src==='oura' || src==='apple_health')) return Math.max(0,Math.min(100,Math.round(generic)));
-    return null;
-  }
-  function vertexRecoverySourceLabel(src){
-    if(src==='oura') return 'Oura recovery';
-    if(src==='apple_health') return 'Apple Health recovery';
-    if(src==='manual') return 'Manual recovery';
-    return 'Vertex recovery';
-  }
-
   function buildReadinessScore(){
     const rows=latestHealthRows();
     const latest=rows[0]||{};
@@ -13030,13 +12878,8 @@ window.vertexImportHKWorkout = async function(idx) {
     const checkins=latestCheckinRows();
     const latestCheckin=checkins.length ? checkins.slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0] : null;
 
-    const recoverySource=vertexDetectRecoverySource(latest);
-    const externalRecovery=vertexExternalRecoveryScore(latest);
-    let score=Number.isFinite(externalRecovery) ? externalRecovery : 72;
+    let score=72;
     const drivers=[];
-    if(Number.isFinite(externalRecovery)){
-      drivers.push({type:'good',text:`${vertexRecoverySourceLabel(recoverySource)} is being used as the physiological recovery base.`});
-    }
     let signalsPresent=0;
 
     const sleep=getMetric(latest,['sleepHours','sleep_hours']);
@@ -13098,7 +12941,7 @@ window.vertexImportHKWorkout = async function(idx) {
     }
 
     const readiness=getMetric(latest,['readiness','readinessScore']);
-    if(readiness!==null && readiness<=5){
+    if(readiness!==null){
       if(readiness>=4){score+=5; drivers.push({type:'good',text:'Subjective readiness is strong.'});}
       else if(readiness<=2){score-=8; drivers.push({type:'warn',text:'Subjective readiness is low.'});}
     }
@@ -13133,9 +12976,6 @@ window.vertexImportHKWorkout = async function(idx) {
       action:readinessAction(score),
       drivers,
       latest,
-      recoveryScore: Number.isFinite(externalRecovery) ? externalRecovery : null,
-      trainingReadiness: score,
-      source:{preference:vertexReadinessSourcePreference(),recovery:recoverySource,label:vertexRecoverySourceLabel(recoverySource)},
       metrics:{sleep,hrv,rhr,spo2,resp,hrvBase,rhrBase,signalsPresent},
       workouts:{thisWeek:thisWeek.length,daysSince}
     };
@@ -13156,30 +12996,16 @@ window.vertexImportHKWorkout = async function(idx) {
     }catch(e){}
     try{ return buildReadinessScore(); }catch(e){}
     return {
-      score:0,
-      label:'Not enough data',
-      action:'Add recovery data or connect a wearable source before using readiness for training decisions.',
-      drivers:[{type:'warn',text:'No readiness source is available yet. Add Apple Health/Oura-derived recovery data or a manual check-in.'}],
-      source:{preference:vertexReadinessSourcePreference(),recovery:'none',label:'No recovery source'},
-      recoveryScore:null,
-      trainingReadiness:null,
+      score:72,
+      label:'Moderate',
+      action:'Train, but avoid unnecessary max-effort work.',
+      drivers:[{type:'warn',text:'Sleep unavailable — connect your health data for a stronger score.'}],
       metrics:{},
       workouts:{}
     };
   }
 
-  window.VertexReadiness = { build: buildReadinessScore, cached: getCachedReadinessScore, sourcePreference: vertexReadinessSourcePreference, detectSource: vertexDetectRecoverySource };
-  window.VertexRecoverySource = {
-    get: vertexReadinessSourcePreference,
-    set: function(source){
-      const allowed=['auto','oura','apple_health','manual','vertex'];
-      const val=String(source||'auto').toLowerCase();
-      if(!allowed.includes(val)) return false;
-      try{localStorage.setItem('vertex_recovery_source',val); localStorage.removeItem('vertex_readiness_cache');}catch(e){}
-      try{ if(typeof renderHomeDashboard==='function') renderHomeDashboard(); }catch(e){}
-      return true;
-    }
-  };
+  window.VertexReadiness = { build: buildReadinessScore, cached: getCachedReadinessScore };
 
   // v13.60.67 Weight projection: merge health_logs/bodyWeight + checkin_logs/weight by date.
   let vertexWeightProjectionRefreshInFlight = false;
@@ -14012,27 +13838,23 @@ body.app-page-workout .sidebar #tpl-grid .seg-btn.chosen{
 </div>
 
 <script>
-/* v20260526-s: mark builder filter groups as user-picked only after an intentional tap.
-   This lets internal defaults exist without painting Manual/Strength/Home/Gym as user-selected on load. */
+/* v20260526-t: defensive guard for builder selection groups.
+   Groups are visually quiet until the user intentionally interacts with them. */
 (function(){
-  function markPicked(btn){
+  function markGroupPicked(el){
     try{
-      var group = btn.closest('#program-seg,#training-seg,.sidebar .segment');
+      var btn = el && el.closest ? el.closest('button[data-env],button[data-program],button[data-training]') : null;
+      if(!btn) return;
+      var group = btn.closest('#program-seg,#training-seg,.segment');
       if(group) group.classList.add('user-picked');
     }catch(e){}
   }
-  document.addEventListener('pointerdown', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-program],button[data-training],button[data-env]') : null;
-    if(btn) markPicked(btn);
-  }, true);
+  document.addEventListener('pointerdown', function(e){ markGroupPicked(e.target); }, true);
   document.addEventListener('keydown', function(e){
-    if(e.key !== 'Enter' && e.key !== ' ') return;
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-program],button[data-training],button[data-env]') : null;
-    if(btn) markPicked(btn);
+    if(e.key === 'Enter' || e.key === ' ') markGroupPicked(e.target);
   }, true);
 })();
 </script>
-
 </body>
 </html>
 

@@ -3254,10 +3254,10 @@ window.vertexFinishBootstrap=function(){
 <div id="vertex-offline-banner">⚠ Offline — changes saved locally and will sync when reconnected</div>
 <div id="app">
   <aside class="sidebar">
-    <div class="label">Category</div><div class="segment"><button class="seg-btn" data-env="gym">🏋️ Gym</button><button class="seg-btn on" data-env="home">🏠 Home</button></div><div id="equipmentPanel" class="equip-panel"></div>
-    <div class="label">Program <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Structured Plans</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="program-seg"><button class="seg-btn on" data-program="Manual">Manual</button><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div></div>
+    <div class="label">Category</div><div class="segment"><button class="seg-btn" data-env="gym">🏋️ Gym</button><button class="seg-btn" data-env="home">🏠 Home</button></div><div id="equipmentPanel" class="equip-panel"></div>
+    <div class="label">Program <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Structured Plans</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="program-seg"><button class="seg-btn" data-program="Manual">Manual</button><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div></div>
     <div class="label">Workout Templates <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Quick Start</span></div><div class="pill-fade-wrap"><div id="tpl-grid" class="segment pill-scroll"><button class="seg-btn" data-load-tpl="push">💪 Push Day</button><button class="seg-btn" data-load-tpl="pull">🔄 Pull Day</button><button class="seg-btn" data-load-tpl="legs">🦵 Legs Day</button><button class="seg-btn" data-load-tpl="kenpo">🥋 Kenpo X</button><button class="seg-btn" data-load-tpl="plyo">⚡ Plyometrics X</button><button class="seg-btn" data-load-tpl="yogaX">🧘 Yoga X</button><button class="seg-btn" data-load-tpl="stretch">🌀 Full Body Stretch</button><button class="seg-btn" data-load-tpl="coreMobility">🎯 Core + Mobility</button></div></div>
-    <div class="label">Training Type <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Choose Your Style</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn on" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery">♧ Recovery</button><button class="seg-btn" data-training="Stretching">🧍 Stretching</button></div></div>
+    <div class="label">Training Type <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Choose Your Style</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery">♧ Recovery</button><button class="seg-btn" data-training="Stretching">🧍 Stretching</button></div></div>
     <div class="label">Muscle Group <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Target Area</span></div><div class="pill-fade-wrap"><div id="muscles" class="muscles"></div></div>
     <input id="search" class="search" placeholder="Search exercises..." />
     <button id="btn-add-library" class="btn acc" style="width:100%;margin:0 0 8px">+ Add Exercise to Library</button>
@@ -10952,14 +10952,11 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
 <script>
 /* ============================================================
    v13.61 WELCOME MODAL CONTROLLER — interactive onboarding
-   Screen 1: Brand  Screen 2: Goal  Screen 3: Setup (env+training)
+   Screen 1: Brand  Screen 2: Capabilities  Screen 3: Motivation
    ============================================================ */
 (function(){
   const TOTAL_STEPS = 3;
   let currentStep = 1;
-  let selectedGoal = null;
-  let selectedEnv = 'gym';
-  let selectedTraining = 'Strength';
 
   const overlay = document.getElementById('welcome-overlay');
   const nextBtn = document.getElementById('welcome-next');
@@ -10974,28 +10971,6 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
     try { localStorage.setItem(flagKey(userId), '1'); } catch(e){}
   }
 
-  // Goal button wiring
-  overlay.addEventListener('click', function(e){
-    const gb = e.target.closest('[data-goal]');
-    if(gb){
-      selectedGoal = gb.getAttribute('data-goal');
-      overlay.querySelectorAll('[data-goal]').forEach(b => b.classList.toggle('selected', b === gb));
-      nextBtn.disabled = false;
-      return;
-    }
-    const eb = e.target.closest('[data-wenv]');
-    if(eb){
-      selectedEnv = eb.getAttribute('data-wenv');
-      overlay.querySelectorAll('[data-wenv]').forEach(b => b.classList.toggle('active', b === eb));
-      return;
-    }
-    const tb = e.target.closest('[data-wtraining]');
-    if(tb){
-      selectedTraining = tb.getAttribute('data-wtraining');
-      overlay.querySelectorAll('[data-wtraining]').forEach(b => b.classList.toggle('active', b === tb));
-      return;
-    }
-  });
 
   function setStep(n){
     currentStep = n;
@@ -11009,35 +10984,18 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
     });
     nextBtn.textContent = (n === TOTAL_STEPS) ? 'Get Started →' : 'Next →';
     skipBtn.style.visibility = (n === TOTAL_STEPS) ? 'hidden' : 'visible';
-    // Step 2: require goal selection to proceed
-    nextBtn.disabled = (n === 2 && !selectedGoal);
+    nextBtn.disabled = false;
   }
 
   function applySelections(){
+    // v20260526-p: onboarding is orientation only.
+    // Do not preselect workout builder filters from the welcome flow.
     try {
-      if(selectedGoal){
-        const goals = JSON.parse(localStorage.getItem('vertex_goals')||'{}');
-        goals.primary = selectedGoal;
-        localStorage.setItem('vertex_goals', JSON.stringify(goals));
-      }
-      if(typeof state !== 'undefined'){
-        state.env = selectedEnv;
-        state.training = selectedTraining;
-        state.muscle = 'All';
-        state.page = 'workout';
-      }
       if(typeof renderAll === 'function') renderAll();
-      const envLabel = selectedEnv === 'gym' ? 'Gym' : 'Home';
-      setTimeout(() => {
-        if(typeof toast === 'function') toast('Set up for ' + envLabel + ' · ' + selectedTraining + ' 💪');
-      }, 400);
-    } catch(e){ console.warn('Onboarding apply failed:', e); }
+    } catch(e){ console.warn('Onboarding close render skipped:', e); }
   }
 
   function open(){
-    selectedGoal = null;
-    selectedEnv = 'gym';
-    selectedTraining = 'Strength';
     setStep(1);
     document.body.classList.add('welcome-active');
     requestAnimationFrame(() => overlay.classList.add('on'));
@@ -11232,7 +11190,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-o';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-p';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -13798,45 +13756,43 @@ body:not(.authenticated) #vertex-back-top {
 
 
 /* ============================================================
-   v20260526-o AUTH BOOT REPAIR + UNIFIED READINESS SOURCE
-   - OAuth duplicate hydration can no longer leave bootstrap stuck.
-   - Workout right coach uses VertexReadiness as the canonical source.
-   - Initial coach panel no longer shows hardcoded READY · 60.
-   ============================================================ */
-
-/* ============================================================
-   v20260526-n WORKOUT QUIET STATE + READINESS SOURCE CLEANUP
-   Workout sidebar filters are configuration inputs, so keep them quiet.
-   Progress/Wellness page tabs keep their selected focus because they navigate content.
+   v20260526-p DEFAULT-STATE INITIALIZATION + ONBOARDING RESET
+   - Workout builder controls stay visually quiet on initial defaults.
+   - Only user-chosen builder filters receive selected emphasis.
+   - Onboarding returns to premium orientation, not setup/configuration.
    ============================================================ */
 body.app-page-workout .sidebar .segment .seg-btn,
+body.app-page-workout .sidebar .segment .seg-btn.on,
 body.app-page-workout .sidebar .segment.pill-scroll .seg-btn,
+body.app-page-workout .sidebar .segment.pill-scroll .seg-btn.on,
 body.app-page-workout .sidebar #tpl-grid .seg-btn,
-body.app-page-workout .sidebar .muscles .chip{
+body.app-page-workout .sidebar #tpl-grid .seg-btn.on,
+body.app-page-workout .sidebar .muscles .chip,
+body.app-page-workout .sidebar .muscles .chip.on{
   background:var(--panel2)!important;
-  border-color:transparent!important;
+  border-color:rgba(255,255,255,.06)!important;
+  color:var(--muted)!important;
   box-shadow:none!important;
 }
-body.app-page-workout .sidebar .segment .seg-btn.on,
-body.app-page-workout .sidebar .segment .seg-btn.chosen,
+body.app-page-workout .sidebar .segment.user-picked .seg-btn.chosen,
+body.app-page-workout .sidebar .pill-fade-wrap.user-picked .seg-btn.chosen,
+body.app-page-workout .sidebar #tpl-grid .seg-btn.chosen,
+body.app-page-workout .sidebar .muscles .chip.chosen,
 body.app-page-workout .sidebar .segment .seg-btn.active,
 body.app-page-workout .sidebar .segment .seg-btn[aria-selected="true"],
-body.app-page-workout .sidebar .segment.pill-scroll .seg-btn.on,
-body.app-page-workout .sidebar .segment.pill-scroll .seg-btn.chosen,
 body.app-page-workout .sidebar .segment.pill-scroll .seg-btn.active,
 body.app-page-workout .sidebar .segment.pill-scroll .seg-btn[aria-selected="true"],
-body.app-page-workout .sidebar #tpl-grid .seg-btn.on,
-body.app-page-workout .sidebar #tpl-grid .seg-btn.chosen,
-body.app-page-workout .sidebar #tpl-grid .seg-btn.active,
-body.app-page-workout .sidebar #tpl-grid .seg-btn[aria-selected="true"],
-body.app-page-workout .sidebar .muscles .chip.on,
-body.app-page-workout .sidebar .muscles .chip.chosen,
 body.app-page-workout .sidebar .muscles .chip.active,
 body.app-page-workout .sidebar .muscles .chip[aria-selected="true"]{
   background:rgba(232,255,71,.035)!important;
-  border-color:transparent!important;
+  border-color:rgba(232,255,71,.65)!important;
   color:var(--acc)!important;
   box-shadow:none!important;
+}
+body.app-page-workout .sidebar #tpl-grid .seg-btn.chosen{
+  background:rgba(232,255,71,.035)!important;
+  border-color:rgba(232,255,71,.65)!important;
+  color:var(--acc)!important;
 }
 .nav button:focus{outline:none}
 .nav button:focus-visible{outline:1px solid rgba(232,255,71,.45);outline-offset:-2px}

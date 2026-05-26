@@ -1,6 +1,6 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260526-o: cache bump to bust old app shells. */
-const CACHE_NAME = 'v20260526-p';
+   v20260526-q: builder quiet defaults + readiness resolve. */
+const CACHE_NAME = 'v20260526-q';
 const APP_SHELL = [
   './',
   './index.html',
@@ -28,7 +28,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Never intercept external APIs/CDNs/auth providers.
   if (
     url.hostname.includes('supabase') ||
     url.hostname.includes('anthropic') ||
@@ -40,7 +39,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navigation requests: network first, fallback to cached shell.
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
@@ -54,7 +52,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets: cache first, then network.
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );

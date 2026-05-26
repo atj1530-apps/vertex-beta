@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: data integrity pass; service worker/cache unchanged -->
+<!-- v20260526-ac: hybrid source routing engine; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -15159,6 +15159,287 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(integrityUpdatePanels, 150); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac hybrid source routing engine */
+(function(){
+  function hasValue(v){
+    return v !== undefined && v !== null && v !== '' && Number.isFinite(Number(v));
+  }
+
+  function safeNumber(v){
+    return hasValue(v) ? Number(v) : null;
+  }
+
+  function getStoredNumber(keys){
+    try{
+      var stores = [
+        window.vertexHealthState,
+        window.healthState,
+        window.APP_STATE,
+        window.appState,
+        window.state,
+        window.VertexState,
+        window.vertexState
+      ];
+
+      for(var s=0;s<stores.length;s++){
+        var obj = stores[s];
+        if(!obj || typeof obj !== 'object') continue;
+        for(var i=0;i<keys.length;i++){
+          var k = keys[i];
+          if(hasValue(obj[k])) return Number(obj[k]);
+        }
+      }
+
+      for(var j=0;j<keys.length;j++){
+        var raw = localStorage.getItem(keys[j]);
+        if(hasValue(raw)) return Number(raw);
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function sourceAvailable(sourceName){
+    try{
+      var text = ((document.body && document.body.textContent) || '').toLowerCase();
+      var s = String(sourceName || '').toLowerCase();
+
+      if(s === 'oura'){
+        return text.indexOf('oura') >= 0 ||
+          localStorage.getItem('vertex_oura_connected') === '1' ||
+          localStorage.getItem('oura_connected') === '1';
+      }
+
+      if(s === 'apple'){
+        return text.indexOf('apple health') >= 0 ||
+          localStorage.getItem('vertex_apple_health_connected') === '1' ||
+          localStorage.getItem('apple_health_connected') === '1';
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function pickSignal(metric, candidates){
+    var ranked = candidates
+      .filter(function(c){ return c && hasValue(c.value); })
+      .sort(function(a,b){
+        if(b.weight !== a.weight) return b.weight - a.weight;
+        return (b.freshness || 0) - (a.freshness || 0);
+      });
+
+    if(!ranked.length){
+      return {metric:metric, value:null, source:null, confidence:'Low', available:false};
+    }
+
+    var best = ranked[0];
+    var confidence = best.weight >= 90 ? 'High' : best.weight >= 65 ? 'Medium' : 'Low';
+
+    return {
+      metric:metric,
+      value:Number(best.value),
+      source:best.source,
+      confidence:confidence,
+      available:true
+    };
+  }
+
+  function buildHybridSignals(){
+    var ouraConnected = sourceAvailable('oura');
+    var appleConnected = sourceAvailable('apple');
+
+    var sleep = pickSignal('sleep', [
+      {source:'Oura', value:getStoredNumber(['ouraSleepScore','oura_sleep_score','ouraSleep','oura_sleep']), weight:ouraConnected ? 95 : 75},
+      {source:'Apple Health', value:getStoredNumber(['appleSleepScore','apple_sleep_score','sleepScore','sleep_score','lastSleepScore']), weight:appleConnected ? 72 : 55},
+      {source:'Manual', value:getStoredNumber(['manualSleepScore','manual_sleep_score','sleepQuality']), weight:45}
+    ]);
+
+    var hrv = pickSignal('hrv', [
+      {source:'Oura', value:getStoredNumber(['ouraHrv','oura_hrv','ouraRmssd','oura_rmssd']), weight:ouraConnected ? 95 : 75},
+      {source:'Apple Health', value:getStoredNumber(['appleHrv','apple_hrv','hrv','HRV','rmssd','lastHrv']), weight:appleConnected ? 75 : 60},
+      {source:'Manual', value:getStoredNumber(['manualHrv']), weight:35}
+    ]);
+
+    var rhr = pickSignal('resting_hr', [
+      {source:'Oura', value:getStoredNumber(['ouraRhr','oura_rhr','ouraRestingHeartRate']), weight:ouraConnected ? 88 : 70},
+      {source:'Apple Health', value:getStoredNumber(['appleRhr','apple_rhr','restingHeartRate','resting_heart_rate','rhr','lastRhr']), weight:appleConnected ? 82 : 65}
+    ]);
+
+    var workouts = pickSignal('workouts', [
+      {source:'Apple Health', value:getStoredNumber(['appleWorkoutCount7d','apple_workouts_7d','workouts7d']), weight:appleConnected ? 95 : 70},
+      {source:'Vertex Logs', value:getStoredNumber(['vertexWorkoutCount7d','workoutCount7d','weeklyWorkoutCount']), weight:80}
+    ]);
+
+    var readiness = null;
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var intel = window.VertexRecoveryInsights.build();
+        if(intel && hasValue(intel.recovery)){
+          readiness = {
+            metric:'readiness',
+            value:Math.round(Number(intel.recovery)),
+            source:intel.source || 'Vertex',
+            confidence:intel.source === 'Hybrid' ? 'High' : 'Medium',
+            available:true
+          };
+        }
+      }
+    }catch(e){}
+
+    if(!readiness){
+      readiness = {metric:'readiness', value:null, source:null, confidence:'Low', available:false};
+    }
+
+    var sources = {};
+    [sleep, hrv, rhr, workouts, readiness].forEach(function(sig){
+      if(sig && sig.source) sources[sig.source] = true;
+    });
+
+    var sourceCount = Object.keys(sources).length;
+    var hybridActive = sourceCount > 1 || (readiness.source && readiness.source !== 'Apple Health' && readiness.source !== 'Oura');
+
+    return {
+      active: hybridActive,
+      source: hybridActive ? 'Hybrid' : (readiness.source || sleep.source || hrv.source || rhr.source || workouts.source || null),
+      confidence: hybridActive ? 'High' : (readiness.confidence || 'Medium'),
+      signals:{
+        sleep:sleep,
+        hrv:hrv,
+        resting_hr:rhr,
+        workouts:workouts,
+        readiness:readiness
+      },
+      routing:{
+        sleep:sleep.source || 'Pending',
+        hrv:hrv.source || 'Pending',
+        resting_hr:rhr.source || 'Pending',
+        workouts:workouts.source || 'Vertex Logs',
+        recovery:'Vertex synthesis'
+      }
+    };
+  }
+
+  function statusFromScore(score){
+    score = Number(score);
+    if(score >= 90) return 'PEAK';
+    if(score >= 80) return 'HIGH';
+    if(score >= 65) return 'MODERATE';
+    if(score >= 50) return 'LOW';
+    return 'RECOVER';
+  }
+
+  function recommendation(score){
+    score = Number(score);
+    if(score >= 90) return {label:'Peak window', risk:'Low', action:'Push intensity if warmups feel strong.'};
+    if(score >= 80) return {label:'Push with confidence', risk:'Low', action:'Progress load or volume carefully.'};
+    if(score >= 65) return {label:'Push with control', risk:'Low–Moderate', action:'Add load or reps only where form is stable.'};
+    if(score >= 50) return {label:'Maintain', risk:'Moderate', action:'Keep planned work, avoid max-effort sets.'};
+    return {label:'Recover', risk:'High', action:'Reduce intensity and prioritize recovery.'};
+  }
+
+  function syncHybridReadinessCard(){
+    try{
+      var title = document.getElementById('rightCoachTitle');
+      var copy = document.getElementById('rightCoachCopy');
+      if(!title || !copy) return false;
+      if(!window.VertexRecoveryInsights || typeof window.VertexRecoveryInsights.build !== 'function') return false;
+
+      var intel = window.VertexRecoveryInsights.build();
+      var score = intel && hasValue(intel.recovery) ? Math.round(Number(intel.recovery)) : null;
+
+      if(score === null){
+        title.textContent = 'READINESS';
+        copy.textContent = 'Not enough recovery data yet';
+        return true;
+      }
+
+      var hybrid = buildHybridSignals();
+      var source = hybrid.source || (intel && intel.source) || 'Vertex';
+      var conf = hybrid.confidence || 'Medium';
+      var rec = recommendation(score);
+      var status = statusFromScore(score);
+
+      title.textContent = 'READINESS · ' + status + ' ' + score;
+      copy.innerHTML =
+        '<div style="color:var(--muted);line-height:1.55">' +
+          '<div>Source: ' + source + '</div>' +
+          '<div>Confidence: ' + conf + '</div>' +
+          '<div>Recovery synthesis active</div>' +
+          '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">' +
+            '<div><b style="color:var(--text)">Recommended:</b> ' + rec.label + '</div>' +
+            '<div><b style="color:var(--text)">Fatigue risk:</b> ' + rec.risk + '</div>' +
+            '<div style="margin-top:8px;color:var(--text);font-size:12px;line-height:1.45">' + rec.action + '</div>' +
+          '</div>' +
+          '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:12px">' +
+            '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:7px"><span>Sleep</span><b style="color:var(--text)">' + hybrid.routing.sleep + '</b></div>' +
+            '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:7px"><span>HRV</span><b style="color:var(--text)">' + hybrid.routing.hrv + '</b></div>' +
+            '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:7px"><span>Workouts</span><b style="color:var(--text)">' + hybrid.routing.workouts + '</b></div>' +
+            '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:7px"><span>Recovery</span><b style="color:var(--green)">' + hybrid.routing.recovery + '</b></div>' +
+          '</div>' +
+        '</div>';
+      return true;
+    }catch(e){
+      console.error('Hybrid source routing card sync failed', e);
+      return false;
+    }
+  }
+
+  function addHybridDiagnosticsPanel(){
+    try{
+      var progressHolder = document.getElementById('vertexProgressIntelligenceHolder');
+      if(!progressHolder) return;
+
+      var panel = document.getElementById('vertexHybridRoutingPanel');
+      if(!panel){
+        panel = document.createElement('div');
+        panel.id = 'vertexHybridRoutingPanel';
+        panel.style.cssText =
+          'margin-bottom:0;min-height:132px;padding:16px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)';
+        panel.innerHTML =
+          '<div style="font-size:11px;letter-spacing:.35em;color:var(--muted);margin-bottom:12px">HYBRID ROUTING</div>' +
+          '<div class="vertex-panel-body" style="color:var(--muted);font-size:13px;line-height:1.5"></div>';
+        progressHolder.appendChild(panel);
+      }
+
+      var hybrid = buildHybridSignals();
+      var body = panel.querySelector('.vertex-panel-body');
+      if(body){
+        body.innerHTML =
+          '<div style="font-size:18px;color:var(--green);font-weight:700">' + (hybrid.active ? 'Active' : 'Single source') + '</div>' +
+          '<div style="margin-top:10px">Sleep: <b style="color:var(--text)">' + hybrid.routing.sleep + '</b></div>' +
+          '<div>HRV: <b style="color:var(--text)">' + hybrid.routing.hrv + '</b></div>' +
+          '<div>Workouts: <b style="color:var(--text)">' + hybrid.routing.workouts + '</b></div>' +
+          '<div>Recovery: <b style="color:var(--text)">Vertex synthesis</b></div>';
+      }
+    }catch(e){
+      console.error('Hybrid diagnostics panel failed', e);
+    }
+  }
+
+  window.VertexHybridSourceRouter = {
+    build: buildHybridSignals,
+    sync: syncHybridReadinessCard
+  };
+
+  function schedule(){
+    setTimeout(syncHybridReadinessCard, 250);
+    setTimeout(syncHybridReadinessCard, 900);
+    setTimeout(syncHybridReadinessCard, 1800);
+    setTimeout(function(){
+      syncHybridReadinessCard();
+      addHybridDiagnosticsPanel();
+    }, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){
+    setTimeout(syncHybridReadinessCard, 150);
+    setTimeout(addHybridDiagnosticsPanel, 250);
+  }, true);
 })();
 </script>
 

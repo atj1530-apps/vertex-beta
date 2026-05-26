@@ -3384,6 +3384,64 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
   .vertex-sparkline-card svg{max-width:78px!important;}
 }
 
+
+
+/* ============================================================
+   v20260526-d1 PHASE A2 — chart shell consolidation only
+   No SVG generation changes. No route/auth/sync/planner changes.
+   ============================================================ */
+.progress-card,
+.wc-card,
+.wc-section,
+.wc-dash-card,
+.wc-trend-card,
+.vertex-sparkline-card{
+  contain:layout paint;
+}
+.progress-card canvas,
+.wc-card canvas,
+.wc-section canvas,
+.wc-dash-card canvas,
+.wc-trend-card canvas{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+}
+#progressSparklines,
+.vertex-sparkline-row,
+.wc-trend-grid{
+  width:100%;
+  max-width:100%;
+}
+#progressSparklines > div,
+.vertex-sparkline-card{
+  min-height:84px!important;
+}
+.wc-chart-wrap,
+.wc-chart-wrap2{
+  position:relative!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+@media(max-width:900px){
+  .wc-chart-wrap{height:170px!important;min-height:170px!important;}
+  .wc-chart-wrap2{height:160px!important;min-height:160px!important;}
+  #progressVolumeChart,
+  #progressMuscleChart,
+  #progressExerciseChart,
+  #progressSparklines{
+    min-height:120px!important;
+  }
+  .progress-card,
+  .wc-card,
+  .wc-section,
+  .wc-dash-card,
+  .wc-trend-card{
+    overflow:hidden!important;
+  }
+}
+
 </style>
 
 <style id="vertex-v20260526-aa-intelligence-layer">
@@ -8680,6 +8738,53 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
+
+<script>
+/* v20260526-d1 PHASE A2 — chart refresh scheduler.
+   Calls existing render functions after visibility/tab/resize changes.
+   Does not modify SVG generation, routing, auth, sync, planner, or recovery logic. */
+(function(){
+  if(window.__vertexPhaseA2ChartScheduler) return;
+  window.__vertexPhaseA2ChartScheduler=true;
+  var timer=null;
+  function safeCall(fn){ try{ if(typeof window[fn]==='function') window[fn](); }catch(e){} }
+  function resizeCharts(){
+    try{
+      if(window.Chart && Chart.instances){
+        Object.keys(Chart.instances).forEach(function(k){
+          var ch=Chart.instances[k];
+          if(ch && typeof ch.resize==='function') ch.resize();
+        });
+      }
+    }catch(e){}
+  }
+  function refreshCharts(){
+    resizeCharts();
+    safeCall('renderHomeSparklines');
+    safeCall('renderProgressVolumeCharts');
+    safeCall('renderProgressSparklines');
+    safeCall('wcRenderTrends');
+    setTimeout(resizeCharts,80);
+    setTimeout(resizeCharts,220);
+  }
+  function schedule(){
+    clearTimeout(timer);
+    timer=setTimeout(function(){
+      requestAnimationFrame(refreshCharts);
+    },90);
+  }
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) schedule(); },{passive:true});
+  window.addEventListener('resize',schedule,{passive:true});
+  window.addEventListener('orientationchange',function(){ setTimeout(schedule,180); },{passive:true});
+  document.addEventListener('click',function(e){
+    var t=e.target && e.target.closest ? e.target.closest('[data-nav],[data-ptab],.progress-tab,.seg-btn,.wc-tab,.tab-btn,.tab-row button') : null;
+    if(t) setTimeout(schedule,140);
+  },true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(schedule,250);});
+  else setTimeout(schedule,250);
+})();
+</script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }

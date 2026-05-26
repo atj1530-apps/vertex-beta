@@ -3281,6 +3281,241 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 @media(max-width:520px){.vertex-rec-grid{grid-template-columns:1fr}.vertex-rec-card b{font-size:28px}}
 </style>
 
+
+
+<style id="vertex-phase-a-ui-consolidation-20260526">
+/* ============================================================
+   v20260526-ag PHASE A — UI CONSOLIDATION PASS
+   Visual consolidation only: Wellness, chart shells, mobile density,
+   and right-rail polish. No auth/sync/routing/planner/recovery logic.
+   ============================================================ */
+:root{
+  --vertex-card-pad:14px;
+  --vertex-card-pad-mobile:12px;
+  --vertex-card-radius:10px;
+  --vertex-pill-h:34px;
+}
+
+/* Unified card shell across Progress / Wellness / right rail */
+.progress-card,
+.wc-dash-card,
+.wc-trend-card,
+.vertex-rec-card,
+.vertex-wellness-recovery-center,
+.page-tile,
+.saved-item,
+.stat-box,
+.coach-card,
+.health-input,
+.roadmap-card{
+  border-color:rgba(255,255,255,.075)!important;
+  border-radius:var(--vertex-card-radius)!important;
+  box-shadow:none!important;
+}
+.progress-card,
+.wc-dash-card,
+.wc-trend-card,
+.coach-card{
+  padding:var(--vertex-card-pad)!important;
+}
+.progress-card > .label,
+.wc-dash-card-label,
+.wc-trend-card-label{
+  margin-bottom:8px!important;
+  letter-spacing:1.6px!important;
+}
+
+/* Unified compact pill system: Progress + Wellness tabs + segmented controls */
+.progress-tabs,
+.wellness-tabs,
+#wellnessPage .progress-tabs,
+.segment.pill-scroll,
+.muscles,
+.templates{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  gap:8px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  padding:2px 2px 8px!important;
+  margin:8px 0 14px!important;
+}
+.progress-tabs::-webkit-scrollbar,
+.wellness-tabs::-webkit-scrollbar,
+.segment.pill-scroll::-webkit-scrollbar,
+.muscles::-webkit-scrollbar,
+.templates::-webkit-scrollbar{display:none!important}
+.progress-tab,
+.wellness-tabs button,
+.segment.pill-scroll .seg-btn,
+.muscles .chip,
+.templates .tpl-pill{
+  flex:0 0 auto!important;
+  min-height:var(--vertex-pill-h)!important;
+  border-radius:var(--r-pill)!important;
+  padding:7px 14px!important;
+  background:var(--panel2)!important;
+  border:1px solid var(--line2)!important;
+  color:var(--muted)!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  letter-spacing:.45px!important;
+  white-space:nowrap!important;
+  line-height:1.15!important;
+  box-shadow:none!important;
+}
+.progress-tab.on,
+.progress-tab.active,
+.progress-tab[aria-selected="true"],
+.wellness-tabs button.on,
+.wellness-tabs button.active,
+.wellness-tabs button[aria-selected="true"],
+.segment.pill-scroll .seg-btn.on,
+.segment.pill-scroll .seg-btn.chosen,
+.segment.pill-scroll .seg-btn.active,
+.muscles .chip.on,
+.templates .tpl-pill.on{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+}
+
+/* Chart shell standardization: stable sizing without changing chart logic */
+#progressSparklines,
+.vertex-sparkline-row,
+.wc-dash-grid,
+.progress-layout{
+  width:100%!important;
+  max-width:100%!important;
+}
+#progressSparklines{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+  min-height:96px!important;
+  align-items:stretch!important;
+}
+#progressSparklines > div,
+.vertex-chart-shell{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+#progressSparklines > div > div:last-child{
+  position:relative!important;
+  height:64px!important;
+  min-height:64px!important;
+}
+#progressSparklines canvas,
+.wc-chart-wrap canvas,
+.wc-chart-wrap2 canvas,
+.progress-card canvas{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+}
+.wc-chart-wrap{height:180px!important;min-height:180px!important;position:relative!important;overflow:hidden!important}
+.wc-chart-wrap2{height:160px!important;min-height:160px!important;position:relative!important;overflow:hidden!important}
+.vertex-sparkline-row{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin:10px 0 14px!important;
+}
+.vertex-sparkline-card{
+  min-width:0!important;
+  max-width:none!important;
+  border-radius:var(--vertex-card-radius)!important;
+  border-color:rgba(255,255,255,.075)!important;
+  padding:10px!important;
+  overflow:hidden!important;
+}
+.vertex-sparkline-card svg{
+  display:block!important;
+  width:88px!important;
+  height:30px!important;
+  min-width:88px!important;
+  min-height:30px!important;
+  overflow:visible!important;
+}
+
+/* Wellness density and manual-entry treatment */
+#wellnessPage .progress-head{
+  align-items:center!important;
+  margin-bottom:8px!important;
+}
+#wellnessPage .page-title{margin-bottom:0!important}
+#wellnessPage #appleHealthWorkoutCard,
+#wellnessPage #apple-health-non-native-notice,
+#wellnessPage #healthManualEntryAcc,
+#wellnessPage .progress-card{
+  margin-top:12px!important;
+}
+#healthManualEntryAcc:not(.open) .acc-body{display:none!important}
+#healthManualEntryAcc .acc-head{
+  min-height:40px!important;
+  padding:10px 12px!important;
+}
+#healthManualEntryAcc .acc-title{font-size:13px!important}
+#healthManualEntryAcc .acc-hint{font-size:9px!important}
+.health-form{gap:8px!important}
+.health-input{padding:10px!important}
+.health-input input,
+.health-input select{padding:9px!important;margin-top:6px!important}
+.vertex-wellness-recovery-center{margin:10px 0 12px!important;padding:12px!important}
+.vertex-rec-grid{gap:8px!important;margin:8px 0!important}
+.vertex-rec-card{padding:10px!important}
+
+/* Saved/right rail visual cleanup only */
+.right > section{margin:12px!important}
+.right .panel,
+.right section,
+.right .saved-item,
+.right .stat-box,
+.right .coach-card{
+  border-radius:var(--vertex-card-radius)!important;
+}
+.saved-item{padding:10px 11px!important;margin-top:8px!important}
+.stat-grid{gap:8px!important}
+.coach-list{gap:8px!important}
+
+@media(max-width:900px){
+  :root{--vertex-card-pad:var(--vertex-card-pad-mobile)}
+  .page-panel{padding:14px!important;margin-bottom:10px!important}
+  .page-title{font-size:38px!important;line-height:.95!important}
+  .page-copy{font-size:13px!important;line-height:1.45!important;margin:4px 0 0!important}
+  .progress-head{display:block!important;margin-bottom:10px!important}
+  .progress-summary{gap:8px!important;margin:12px 0!important}
+  .progress-kpi{padding:11px!important;border-radius:var(--vertex-card-radius)!important}
+  .progress-kpi b{font-size:32px!important}
+  .progress-layout{gap:10px!important}
+  .progress-card,.wc-dash-card,.wc-trend-card,.coach-card{padding:12px!important;min-height:0!important}
+  .progress-tabs,#wellnessPage .progress-tabs,.wellness-tabs{margin:8px -2px 12px!important;padding:2px 2px 9px!important}
+  .progress-tab,.wellness-tabs button{min-height:32px!important;padding:7px 13px!important;font-size:11px!important}
+  #progressSparklines{grid-template-columns:1fr!important;gap:10px!important;min-height:238px!important}
+  #progressSparklines > div{min-height:70px!important}
+  #progressSparklines > div > div:last-child{height:62px!important;min-height:62px!important}
+  .vertex-sparkline-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .vertex-sparkline-card svg{width:76px!important;min-width:76px!important;height:28px!important;min-height:28px!important}
+  .wc-chart-wrap{height:185px!important;min-height:185px!important}
+  .wc-chart-wrap2{height:165px!important;min-height:165px!important}
+  #wellnessPage .progress-head > div:last-child{margin-top:8px!important}
+  #wellnessPage .btn.small{min-height:34px!important;padding:7px 11px!important}
+  .health-form{grid-template-columns:1fr!important}
+  .health-input.wide,.health-form .wide{grid-column:1!important}
+  .right::before{padding:11px 12px!important;font-size:10px!important;letter-spacing:1.5px!important;border-radius:0!important}
+  .right.open > section{display:block!important;margin:10px 12px!important}
+  body.app-page-home .right > section{margin:10px 12px!important}
+}
+@media(max-width:430px){
+  .vertex-sparkline-card{padding:9px!important}
+  .vertex-sparkline-card svg{width:70px!important;min-width:70px!important}
+  .progress-summary{grid-template-columns:1fr 1fr!important}
+  .stat-grid{grid-template-columns:1fr 1fr!important}
+}
+</style>
+
 </head>
 <body class="auth-resolving">
 
@@ -8548,6 +8783,81 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
+
+
+<script id="vertex-phase-a-ui-consolidation-20260526">
+/* v20260526-ag Phase A: visual consolidation helpers only. */
+(function(){
+  if(window.__vertexPhaseAUiConsolidation)return;
+  window.__vertexPhaseAUiConsolidation=true;
+
+  function forEachChart(cb){
+    try{
+      if(!window.Chart)return;
+      var items=[];
+      if(Chart.instances){
+        if(typeof Chart.instances.forEach==='function') Chart.instances.forEach(function(ch){items.push(ch);});
+        else Object.keys(Chart.instances).forEach(function(k){if(Chart.instances[k])items.push(Chart.instances[k]);});
+      }
+      items.forEach(function(ch){try{cb(ch);}catch(e){}});
+    }catch(e){}
+  }
+
+  function resizeVisibleCharts(){
+    forEachChart(function(ch){
+      var canvas=ch && ch.canvas;
+      if(!canvas || !canvas.isConnected)return;
+      var box=canvas.parentElement;
+      if(!box)return;
+      var rect=box.getBoundingClientRect();
+      if(rect.width>0 && rect.height>0){
+        try{ch.resize(); ch.update('none');}catch(e){}
+      }
+    });
+  }
+
+  function normalizeUi(){
+    try{
+      document.querySelectorAll('#wellnessPage .progress-tabs,.progress-tabs').forEach(function(el){
+        el.setAttribute('role','tablist');
+      });
+      document.querySelectorAll('.progress-tab,[data-wtab],[data-ptab]').forEach(function(btn){
+        btn.setAttribute('role','tab');
+        btn.setAttribute('aria-selected', btn.classList.contains('on') ? 'true' : 'false');
+      });
+      document.querySelectorAll('.wc-chart-wrap,.wc-chart-wrap2,#progressSparklines > div').forEach(function(el){
+        el.classList.add('vertex-chart-shell');
+      });
+      var acc=document.getElementById('healthManualEntryAcc');
+      if(acc && !acc.classList.contains('open')){
+        var hint=acc.querySelector('.acc-hint');
+        if(hint)hint.textContent='▶ EXPAND';
+      }
+    }catch(e){}
+  }
+
+  function run(){
+    normalizeUi();
+    requestAnimationFrame(function(){
+      resizeVisibleCharts();
+      setTimeout(resizeVisibleCharts,120);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(run,180);});
+  document.addEventListener('click',function(e){
+    if(e.target && e.target.closest && e.target.closest('[data-wtab],[data-ptab],.nav button,.right::before,.acc-head')){
+      setTimeout(run,80);
+      setTimeout(run,240);
+    }else{
+      setTimeout(normalizeUi,120);
+    }
+  },true);
+  window.addEventListener('resize',function(){setTimeout(run,80);},{passive:true});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(run,120);});
+})();
+</script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }

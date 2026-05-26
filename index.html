@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: safe wellness warning cleanup; service worker/cache unchanged -->
+<!-- v20260526-ac: safe home metric consolidation; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -17453,6 +17453,131 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(safeWellnessWarningCleanup, 150); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac safe home metric consolidation */
+(function(){
+  function activeTab(){
+    try{
+      var on = document.querySelector('.nav button.on');
+      return on ? String(on.textContent || '').trim().toLowerCase() : '';
+    }catch(e){ return ''; }
+  }
+
+  function cardText(el){
+    return String((el && el.textContent) || '').replace(/\s+/g,' ').trim();
+  }
+
+  function findSmallMetricCards(){
+    return Array.from(document.querySelectorAll('div,section,article')).filter(function(el){
+      var t = cardText(el);
+      if(t.length > 120) return false;
+      var style = window.getComputedStyle ? window.getComputedStyle(el) : null;
+      var hasBox = !style || style.borderStyle !== 'none' || /card|stat|metric/i.test(String(el.className || ''));
+      return hasBox && /\b(SLEEP|HRV|Sleep|Hrv|hrv)\b/.test(t);
+    });
+  }
+
+  function getAvgFromDuplicate(type){
+    var cards = findSmallMetricCards();
+    for(var i=0;i<cards.length;i++){
+      var t = cardText(cards[i]);
+      if(type === 'sleep' && /\bSLEEP\b/i.test(t) && /7D\s*Avg/i.test(t)){
+        var sm = t.match(/7D\s*Avg\s*(\d+(?:\.\d+)?)\s*h/i);
+        if(sm) return sm[1] + 'h';
+      }
+      if(type === 'hrv' && /\bHRV\b/i.test(t) && /7D\s*Avg/i.test(t)){
+        var hm = t.match(/7D\s*Avg\s*(\d+(?:\.\d+)?)\s*ms/i);
+        if(hm) return Math.round(Number(hm[1])) + ' ms';
+      }
+    }
+
+    try{
+      if(type === 'sleep'){
+        var sleep = JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary') || 'null');
+        if(sleep && Number(sleep.avg7Minutes) > 0){
+          return (Math.round((Number(sleep.avg7Minutes) / 60) * 10) / 10) + 'h';
+        }
+      }
+      if(type === 'hrv'){
+        var hrv = JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary') || 'null');
+        if(hrv && Number(hrv.avg7) > 0){
+          return Math.round(Number(hrv.avg7)) + ' ms';
+        }
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function findPrimaryCard(type){
+    var cards = findSmallMetricCards();
+    for(var i=0;i<cards.length;i++){
+      var t = cardText(cards[i]);
+      if(/7D\s*Avg/i.test(t)) continue;
+      if(type === 'sleep' && /\bSLEEP\b/i.test(t) && /\d+(?:\.\d+)?\s*h/i.test(t)) return cards[i];
+      if(type === 'hrv' && /\bHRV\b/i.test(t) && /\d+(?:\.\d+)?\s*ms/i.test(t)) return cards[i];
+    }
+    return null;
+  }
+
+  function hideDuplicateAvgCards(type){
+    findSmallMetricCards().forEach(function(card){
+      var t = cardText(card);
+      var match = false;
+      if(type === 'sleep') match = /\bSLEEP\b/i.test(t) && /7D\s*Avg/i.test(t);
+      if(type === 'hrv') match = /\bHRV\b/i.test(t) && /7D\s*Avg/i.test(t);
+      if(match){
+        card.style.display = 'none';
+        card.setAttribute('data-vertex-hidden-duplicate', type);
+      }
+    });
+  }
+
+  function addAvg(primary, avgText){
+    if(!primary || !avgText) return;
+    var existing = primary.querySelector('.vertex-safe-inline-avg');
+    if(existing){
+      existing.textContent = '7D Avg · ' + avgText;
+      return;
+    }
+    var line = document.createElement('div');
+    line.className = 'vertex-safe-inline-avg';
+    line.style.cssText = 'margin-top:4px;font-family:DM Mono,monospace;font-size:11px;color:var(--acc);letter-spacing:.04em';
+    line.textContent = '7D Avg · ' + avgText;
+    primary.appendChild(line);
+  }
+
+  function consolidateHomeMetrics(){
+    try{
+      if(activeTab() !== 'home') return;
+
+      var sleepAvg = getAvgFromDuplicate('sleep');
+      var hrvAvg = getAvgFromDuplicate('hrv');
+
+      addAvg(findPrimaryCard('sleep'), sleepAvg);
+      addAvg(findPrimaryCard('hrv'), hrvAvg);
+
+      hideDuplicateAvgCards('sleep');
+      hideDuplicateAvgCards('hrv');
+    }catch(e){
+      console.error('Safe Home metric consolidation failed', e);
+    }
+  }
+
+  window.vertexSafeHomeMetricConsolidation = consolidateHomeMetrics;
+
+  function schedule(){
+    setTimeout(consolidateHomeMetrics, 200);
+    setTimeout(consolidateHomeMetrics, 700);
+    setTimeout(consolidateHomeMetrics, 1400);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(consolidateHomeMetrics, 180); }, true);
 })();
 </script>
 

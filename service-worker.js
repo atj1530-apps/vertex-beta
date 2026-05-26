@@ -2,7 +2,7 @@
    Bump CACHE_NAME on every deploy to bust old caches.
    Network-first for HTML so new deploys are always visible immediately. */
 
-const CACHE_NAME = 'v20260526-c';
+const CACHE_NAME = 'v20260526-d';
 const APP_SHELL = [
   './',
   './index.html',

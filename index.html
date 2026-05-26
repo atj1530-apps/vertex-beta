@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: hybrid source routing engine; service worker/cache unchanged -->
+<!-- v20260526-ac: apple health routing bridge; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -15440,6 +15440,117 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     setTimeout(syncHybridReadinessCard, 150);
     setTimeout(addHybridDiagnosticsPanel, 250);
   }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac apple health routing bridge */
+(function(){
+  function bodyText(){
+    return document.body && document.body.textContent ? document.body.textContent : '';
+  }
+
+  function hasWellnessMetric(label){
+    try{
+      var text = bodyText().replace(/\s+/g,' ').toLowerCase();
+      label = String(label || '').toLowerCase();
+
+      if(label === 'sleep'){
+        return /sleep\s+\d+(\.\d+)?\s*h/i.test(text) ||
+               /\d+(\.\d+)?\s*h\s+sleep/i.test(text);
+      }
+
+      if(label === 'hrv'){
+        return /hrv\s+\d+(\.\d+)?\s*ms/i.test(text) ||
+               /\d+(\.\d+)?\s*ms\s+hrv/i.test(text);
+      }
+
+      if(label === 'rhr'){
+        return /resting\s+hr\s+\d+(\.\d+)?\s*bpm/i.test(text) ||
+               /\d+(\.\d+)?\s*bpm\s+resting\s+hr/i.test(text);
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function enhanceHybridRoutingPanel(){
+    try{
+      var panel = document.getElementById('vertexHybridRoutingPanel');
+      if(!panel) return false;
+
+      var body = panel.querySelector('.vertex-panel-body');
+      if(!body) return false;
+
+      var sleepApple = hasWellnessMetric('sleep');
+      var hrvApple = hasWellnessMetric('hrv');
+      var rhrApple = hasWellnessMetric('rhr');
+
+      var active = sleepApple || hrvApple || rhrApple;
+      var title = active ? 'Apple + Vertex' : 'Single source';
+
+      body.innerHTML =
+        '<div style="font-size:18px;color:var(--green);font-weight:700">' + title + '</div>' +
+        '<div style="margin-top:10px">Sleep: <b style="color:var(--text)">' + (sleepApple ? 'Apple Health' : 'Pending') + '</b></div>' +
+        '<div>HRV: <b style="color:var(--text)">' + (hrvApple ? 'Apple Health' : 'Pending') + '</b></div>' +
+        '<div>Resting HR: <b style="color:var(--text)">' + (rhrApple ? 'Apple Health' : 'Pending') + '</b></div>' +
+        '<div>Workouts: <b style="color:var(--text)">Vertex Logs</b></div>' +
+        '<div>Recovery: <b style="color:var(--text)">Vertex synthesis</b></div>';
+
+      return true;
+    }catch(e){
+      console.error('Apple Health routing bridge failed', e);
+      return false;
+    }
+  }
+
+  function enhanceReadinessCardSource(){
+    try{
+      var title = document.getElementById('rightCoachTitle');
+      var copy = document.getElementById('rightCoachCopy');
+      if(!title || !copy) return false;
+
+      var text = copy.innerHTML || '';
+      var sleepApple = hasWellnessMetric('sleep');
+      var hrvApple = hasWellnessMetric('hrv');
+      var rhrApple = hasWellnessMetric('rhr');
+
+      if((sleepApple || hrvApple || rhrApple) && /Source:\s*Apple Health/i.test(text)){
+        copy.innerHTML = text.replace(/Source:\s*Apple Health/i, 'Source: Apple Health + Vertex');
+      }
+
+      if((sleepApple || hrvApple) && /Sleep<\/span><b[^>]*>Pending/i.test(text)){
+        copy.innerHTML = copy.innerHTML.replace(/(Sleep<\/span><b[^>]*>)Pending/i, '$1Apple Health');
+      }
+
+      if(hrvApple && /HRV<\/span><b[^>]*>Pending/i.test(text)){
+        copy.innerHTML = copy.innerHTML.replace(/(HRV<\/span><b[^>]*>)Pending/i, '$1Apple Health');
+      }
+
+      return true;
+    }catch(e){
+      console.error('Readiness source bridge failed', e);
+      return false;
+    }
+  }
+
+  function run(){
+    enhanceHybridRoutingPanel();
+    enhanceReadinessCardSource();
+  }
+
+  window.vertexAppleHealthRoutingBridge = run;
+
+  function schedule(){
+    setTimeout(run, 200);
+    setTimeout(run, 800);
+    setTimeout(run, 1600);
+    setTimeout(run, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(run, 180); }, true);
 })();
 </script>
 

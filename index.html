@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: readiness side-card direct ID repair; service worker/cache unchanged -->
+<!-- v20260526-ac: readiness side-card final-safe repair; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -8460,65 +8460,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
-
-<script>
-/* v20260526-ac direct readiness side-card sync */
-(function(){
-  function vertexReadinessStatus(score){
-    score = Number(score);
-    if(score >= 80) return 'HIGH';
-    if(score >= 65) return 'MODERATE';
-    if(score >= 50) return 'LOW';
-    return 'RECOVER';
-  }
-
-  function vertexSyncRightReadinessCard(){
-    try{
-      var title = document.getElementById('rightCoachTitle');
-      var copy = document.getElementById('rightCoachCopy');
-      if(!title || !copy) return false;
-      if(!window.VertexRecoveryInsights || typeof window.VertexRecoveryInsights.build !== 'function') return false;
-
-      var intel = window.VertexRecoveryInsights.build();
-      var score = intel && Number.isFinite(Number(intel.recovery)) ? Math.round(Number(intel.recovery)) : null;
-
-      if(score !== null){
-        title.textContent = 'READINESS · ' + vertexReadinessStatus(score) + ' ' + score;
-        copy.textContent = 'Source: ' + ((intel && intel.source) ? intel.source : 'Hybrid');
-      }else{
-        title.textContent = 'READINESS';
-        copy.textContent = 'Not enough recovery data yet';
-      }
-      return true;
-    }catch(e){
-      console.error('Direct readiness side-card sync failed', e);
-      return false;
-    }
-  }
-
-  window.vertexSyncRightReadinessCard = vertexSyncRightReadinessCard;
-
-  function schedule(){
-    setTimeout(vertexSyncRightReadinessCard, 100);
-    setTimeout(vertexSyncRightReadinessCard, 400);
-    setTimeout(vertexSyncRightReadinessCard, 1000);
-    setTimeout(vertexSyncRightReadinessCard, 2000);
-    setTimeout(vertexSyncRightReadinessCard, 4000);
-  }
-
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  document.addEventListener('click', function(){ setTimeout(vertexSyncRightReadinessCard, 150); }, true);
-
-  var tries = 0;
-  var timer = setInterval(function(){
-    tries++;
-    var ok = vertexSyncRightReadinessCard();
-    if(ok || tries >= 40) clearInterval(timer);
-  }, 500);
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -14321,6 +14262,57 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   box-shadow:none!important;
 }
 </style>
+
+<script>
+/* v20260526-ac final-safe readiness side-card sync */
+(function(){
+  function statusFromReadiness(score){
+    score = Number(score);
+    if(score >= 80) return 'HIGH';
+    if(score >= 65) return 'MODERATE';
+    if(score >= 50) return 'LOW';
+    return 'RECOVER';
+  }
+
+  function syncReadinessCard(){
+    try{
+      var title = document.getElementById('rightCoachTitle');
+      var copy = document.getElementById('rightCoachCopy');
+      if(!title || !copy) return false;
+      if(!window.VertexRecoveryInsights || typeof window.VertexRecoveryInsights.build !== 'function') return false;
+
+      var intel = window.VertexRecoveryInsights.build();
+      var score = intel && Number.isFinite(Number(intel.recovery)) ? Math.round(Number(intel.recovery)) : null;
+
+      if(score !== null){
+        title.textContent = 'READINESS · ' + statusFromReadiness(score) + ' ' + score;
+        copy.textContent = 'Source: ' + ((intel && intel.source) ? intel.source : 'Hybrid');
+      }else{
+        title.textContent = 'READINESS';
+        copy.textContent = 'Not enough recovery data yet';
+      }
+      return true;
+    }catch(e){
+      console.error('Readiness side-card sync failed', e);
+      return false;
+    }
+  }
+
+  window.vertexSyncRightReadinessCard = syncReadinessCard;
+
+  function scheduleSync(){
+    setTimeout(syncReadinessCard, 250);
+    setTimeout(syncReadinessCard, 750);
+    setTimeout(syncReadinessCard, 1500);
+    setTimeout(syncReadinessCard, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', scheduleSync);
+  window.addEventListener('load', scheduleSync);
+  document.addEventListener('click', function(){ setTimeout(syncReadinessCard, 150); }, true);
+})();
+</script>
+
 </body>
 </html>
 

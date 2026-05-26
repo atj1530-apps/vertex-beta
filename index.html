@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: workout persistence intelligence layer; service worker/cache unchanged -->
+<!-- v20260526-ac: adaptive training intelligence foundation; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -16767,6 +16767,298 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     capture:captureVisibleWorkoutData,
     summary:buildWorkoutPersistenceSummary,
     render:renderPersistencePanel
+  };
+
+  function schedule(){
+    setTimeout(run, 250);
+    setTimeout(run, 900);
+    setTimeout(run, 1800);
+    setTimeout(run, 3500);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(run, 250); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac adaptive training intelligence foundation */
+(function(){
+  function safeJson(key, fallback){
+    try{
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+
+  function getReadiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var intel = window.VertexRecoveryInsights.build() || {};
+        if(Number.isFinite(Number(intel.recovery))){
+          return {
+            score:Math.round(Number(intel.recovery)),
+            source:intel.source || 'Vertex'
+          };
+        }
+      }
+    }catch(e){}
+    return {score:null,source:null};
+  }
+
+  function workoutMemory(){
+    try{
+      if(window.VertexWorkoutPersistence && typeof window.VertexWorkoutPersistence.summary === 'function'){
+        return window.VertexWorkoutPersistence.summary();
+      }
+    }catch(e){}
+    return {exercises:0,totalSets:0,totalSessions:0};
+  }
+
+  function parseProgressText(regex, fallback){
+    try{
+      var t = document.body && document.body.textContent ? document.body.textContent : '';
+      var m = t.match(regex);
+      if(m) return Number(m[1]);
+    }catch(e){}
+    return fallback;
+  }
+
+  function stravaConnected(){
+    try{
+      var keys = ['vertex_strava_connected','vertex_strava_token','vertex_strava_access_token','strava_access_token','stravaToken'];
+      for(var i=0;i<keys.length;i++){
+        var v = localStorage.getItem(keys[i]) || sessionStorage.getItem(keys[i]);
+        if(v && v !== 'false' && v !== 'null' && v !== 'undefined') return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function getStravaActivities(){
+    var candidates = [
+      'vertexStravaActivities',
+      'vertex_strava_activities',
+      'stravaActivities',
+      'vertexCardioActivities'
+    ];
+
+    for(var i=0;i<candidates.length;i++){
+      var arr = safeJson(candidates[i], null);
+      if(Array.isArray(arr)) return arr;
+    }
+
+    return [];
+  }
+
+  function buildCardioStrain(){
+    var activities = getStravaActivities();
+    var connected = stravaConnected();
+    var totalMinutes = 0;
+    var distance = 0;
+    var elevation = 0;
+    var sessions = 0;
+
+    activities.slice(0,20).forEach(function(a){
+      var minutes = Number(a.minutes || a.durationMin || a.moving_time/60 || a.elapsed_time/60 || 0);
+      var dist = Number(a.distanceMiles || a.miles || (a.distance ? a.distance / 1609.34 : 0));
+      var elev = Number(a.elevationGain || a.total_elevation_gain || 0);
+      if(minutes > 0){
+        totalMinutes += minutes;
+        distance += dist;
+        elevation += elev;
+        sessions += 1;
+      }
+    });
+
+    var score = Math.round(Math.min(100, (sessions * 10) + (totalMinutes * 0.35) + (distance * 1.5) + (elevation * 0.01)));
+    var label = !connected && !sessions ? 'Ready for Strava' :
+                score >= 75 ? 'High cardio load' :
+                score >= 45 ? 'Moderate cardio load' :
+                score > 0 ? 'Low cardio load' :
+                'No cardio load';
+
+    return {
+      connected:connected,
+      sessions:sessions,
+      minutes:Math.round(totalMinutes),
+      distance:Math.round(distance * 10) / 10,
+      elevation:Math.round(elevation),
+      score:score,
+      label:label
+    };
+  }
+
+  function buildAdaptiveCoach(){
+    var readiness = getReadiness();
+    var memory = workoutMemory();
+    var cardio = buildCardioStrain();
+    var weeklyWorkouts = parseProgressText(/(\d+)\s+workouts?\s+logged\s+this\s+week/i, null);
+    if(weeklyWorkouts === null) weeklyWorkouts = parseProgressText(/You logged\s+(\d+)\s+workouts?\s+this week/i, 0);
+
+    var score = readiness.score;
+    var recommendation = 'Build baseline';
+    var action = 'Log workouts and connect cardio sources to strengthen adaptive coaching.';
+    var adjustment = 'Maintain';
+
+    if(score !== null){
+      if(score >= 80 && cardio.score < 45){
+        recommendation = 'Progression window';
+        action = 'Recovery supports progression. Add load, reps, or one additional accessory block if warmups feel strong.';
+        adjustment = 'Increase';
+      }else if(score >= 65 && cardio.score < 75){
+        recommendation = 'Push with control';
+        action = 'Train hard but keep progression selective. Favor clean reps over max-effort work.';
+        adjustment = 'Controlled increase';
+      }else if(score >= 65 && cardio.score >= 75){
+        recommendation = 'Cardio load caution';
+        action = 'Recovery is acceptable, but endurance load is high. Keep strength volume moderate.';
+        adjustment = 'Maintain';
+      }else if(score >= 50){
+        recommendation = 'Maintain';
+        action = 'Keep the plan, but avoid intensity spikes. Let performance warmups decide final load.';
+        adjustment = 'Hold';
+      }else{
+        recommendation = 'Recovery priority';
+        action = 'Reduce volume and prioritize sleep, hydration, and low-stress movement.';
+        adjustment = 'Reduce';
+      }
+    }
+
+    if(weeklyWorkouts >= 4 && score !== null && score < 70){
+      recommendation = 'Fatigue watch';
+      action = 'Workout frequency is rising while readiness is moderate. Watch bar speed and soreness.';
+      adjustment = 'Reduce volume';
+    }
+
+    return {
+      recommendation:recommendation,
+      action:action,
+      adjustment:adjustment,
+      readiness:score,
+      cardio:cardio,
+      workouts:weeklyWorkouts,
+      exercises:memory.exercises || 0,
+      sets:memory.totalSets || 0
+    };
+  }
+
+  function ensurePanel(id,title){
+    var holder = document.getElementById('vertexProgressIntelligenceHolder');
+    if(!holder) return null;
+
+    var panel = document.getElementById(id);
+    if(panel) return panel;
+
+    panel = document.createElement('div');
+    panel.id = id;
+    panel.style.cssText = 'margin-bottom:0;min-height:132px;padding:16px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)';
+    panel.innerHTML =
+      '<div style="font-size:11px;letter-spacing:.35em;color:var(--muted);margin-bottom:12px">'+title+'</div>' +
+      '<div class="vertex-panel-body" style="color:var(--muted);font-size:13px;line-height:1.5"></div>';
+    holder.appendChild(panel);
+    return panel;
+  }
+
+  function renderAdaptivePanels(){
+    try{
+      var cardio = buildCardioStrain();
+      var coach = buildAdaptiveCoach();
+      var memory = workoutMemory();
+
+      var cardioPanel = ensurePanel('vertexCardioStrainPanel','CARDIO STRAIN');
+      var coachPanel = ensurePanel('vertexAdaptiveCoachPanel','ADAPTIVE COACH');
+      var trendPanel = ensurePanel('vertexLongTrendPanel','LONGITUDINAL TREND');
+
+      if(cardioPanel){
+        var cb = cardioPanel.querySelector('.vertex-panel-body');
+        cb.innerHTML =
+          '<div style="font-size:18px;color:'+(cardio.connected || cardio.sessions ? 'var(--green)' : 'var(--muted)')+';font-weight:700">'+cardio.label+'</div>' +
+          '<div style="margin-top:10px">Strava: <b style="color:var(--text)">'+(cardio.connected ? 'Connected' : 'Not connected')+'</b></div>' +
+          '<div>Cardio sessions: <b style="color:var(--text)">'+cardio.sessions+'</b></div>' +
+          '<div>Cardio strain score: <b style="color:var(--acc)">'+cardio.score+'</b></div>';
+      }
+
+      if(coachPanel){
+        var ab = coachPanel.querySelector('.vertex-panel-body');
+        ab.innerHTML =
+          '<div style="font-size:18px;color:var(--green);font-weight:700">'+coach.recommendation+'</div>' +
+          '<div style="margin-top:10px">Adjustment: <b style="color:var(--text)">'+coach.adjustment+'</b></div>' +
+          '<div style="margin-top:6px">'+coach.action+'</div>';
+      }
+
+      if(trendPanel){
+        var tb = trendPanel.querySelector('.vertex-panel-body');
+        var readiness = getReadiness();
+        var readinessText = readiness.score !== null ? readiness.score : 'Pending';
+        tb.innerHTML =
+          '<div style="font-size:18px;color:var(--green);font-weight:700">Baseline building</div>' +
+          '<div style="margin-top:10px">30-day readiness: <b style="color:var(--text)">'+readinessText+'</b></div>' +
+          '<div>Workout memory: <b style="color:var(--text)">'+(memory.exercises || 0)+' movements</b></div>' +
+          '<div>Trend depth: <b style="color:var(--text)">Early</b></div>';
+      }
+    }catch(e){
+      console.error('Adaptive training intelligence render failed', e);
+    }
+  }
+
+  function updateWorkoutCoachNarrative(){
+    try{
+      var copy = document.getElementById('rightCoachCopy');
+      if(!copy) return false;
+
+      var coach = buildAdaptiveCoach();
+      var html = copy.innerHTML || '';
+
+      if(html.indexOf('Adaptive coaching:') >= 0) return true;
+
+      html +=
+        '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:12px;line-height:1.45">' +
+          '<div><b style="color:var(--text)">Adaptive coaching:</b> '+coach.recommendation+'</div>' +
+          '<div>'+coach.action+'</div>' +
+        '</div>';
+
+      copy.innerHTML = html;
+      return true;
+    }catch(e){
+      console.error('Adaptive workout coach narrative failed', e);
+      return false;
+    }
+  }
+
+  function markSettingsStravaReady(){
+    try{
+      var modal = Array.from(document.querySelectorAll('div,section')).find(function(el){
+        var t = String(el.textContent || '');
+        return t.indexOf('HEALTH & INTEGRATIONS') >= 0 && t.indexOf('Strava') >= 0;
+      });
+      if(!modal) return;
+
+      var rows = Array.from(modal.querySelectorAll('div')).filter(function(el){
+        return /^Strava$/i.test(String(el.textContent || '').trim());
+      });
+
+      rows.forEach(function(row){
+        var parent = row.closest('.vertex-settings-int-row') || row.parentElement;
+        if(parent && !stravaConnected()){
+          parent.setAttribute('title','Connect Strava to power outdoor run and cycling strain.');
+        }
+      });
+    }catch(e){}
+  }
+
+  function run(){
+    renderAdaptivePanels();
+    updateWorkoutCoachNarrative();
+    markSettingsStravaReady();
+  }
+
+  window.VertexAdaptiveTrainingIntelligence = {
+    cardio:buildCardioStrain,
+    coach:buildAdaptiveCoach,
+    render:renderAdaptivePanels
   };
 
   function schedule(){

@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ad: home metric row single Sleep HRV with inline 7D avg; service worker/cache unchanged -->
+<!-- v20260526-ae: recovery intelligence engine v2; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -13089,6 +13089,61 @@ window.vertexImportHKWorkout = async function(idx) {
     }
     return null;
   }
+
+  // v20260526-ae Recovery Intelligence Engine helpers: pure calculations only; no DOM rewrites.
+  function vertexMetricSeries(rows, keys, limit){
+    return (rows||[]).slice(0, limit||14).map(r=>getMetric(r, keys)).filter(v=>v!==null && Number.isFinite(v));
+  }
+  function vertexPctDelta(current, base){
+    if(current===null || base===null || !Number.isFinite(current) || !Number.isFinite(base) || base===0) return null;
+    return ((current-base)/base)*100;
+  }
+  function vertexSleepDebt(last7){
+    const vals=vertexMetricSeries(last7, ['sleepHours','sleep_hours'], 7);
+    if(!vals.length) return null;
+    const target=7.5;
+    return Math.round(vals.reduce((sum,v)=>sum+Math.max(0,target-v),0)*10)/10;
+  }
+  function vertexTrendDirection(vals, lowerIsBetter){
+    if(!vals || vals.length<3) return 'flat';
+    const a=vals[0], b=vals[1], c=vals[2];
+    if(![a,b,c].every(Number.isFinite)) return 'flat';
+    if(lowerIsBetter){
+      if(a<b && b<c) return 'improving';
+      if(a>b && b>c) return 'declining';
+    }else{
+      if(a>b && b>c) return 'improving';
+      if(a<b && b<c) return 'declining';
+    }
+    return 'flat';
+  }
+  function vertexRecentTrainingLoad(logs, days){
+    const today=new Date(); today.setHours(0,0,0,0);
+    const windowDays=days||7;
+    const recent=(logs||[]).filter(l=>{
+      const d=new Date(l.completed_at||l.created_at||l.date);
+      return Number.isFinite(d.getTime()) && (today-d)/86400000 <= windowDays;
+    });
+    const minutes=recent.reduce((sum,l)=>{
+      const raw=l.duration_minutes ?? l.durationMinutes ?? l.estimatedMinutes ?? l.minutes;
+      const n=Number(raw);
+      if(Number.isFinite(n) && n>0) return sum+n;
+      try{
+        const sets=(l.exercises||[]).reduce((a,e)=>a+(e.sets||[]).length,0);
+        return sum + Math.max(20, sets*2.5);
+      }catch(e){ return sum+35; }
+    },0);
+    const strengthSets=recent.reduce((sum,l)=>{
+      try{return sum+(l.exercises||[]).reduce((a,e)=>a+(e.sets||[]).length,0);}catch(e){return sum;}
+    },0);
+    return {count:recent.length,minutes:Math.round(minutes),sets:strengthSets,rows:recent};
+  }
+  function vertexRecoveryMode(score, strain){
+    if(score<50 || strain>=75) return 'Recover';
+    if(score<72 || strain>=55) return 'Maintain';
+    return 'Push';
+  }
+
   function readinessLabel(score){
     if(score>=90) return 'Elite';
     if(score>=75) return 'Ready';
@@ -13118,48 +13173,61 @@ window.vertexImportHKWorkout = async function(idx) {
     let signalsPresent=0;
 
     const sleep=getMetric(latest,['sleepHours','sleep_hours']);
+    const sleepVals7=vertexMetricSeries(last7,['sleepHours','sleep_hours'],7);
+    const sleepVals14=vertexMetricSeries(last14,['sleepHours','sleep_hours'],14);
+    const sleep7avg=avg(sleepVals7);
+    const sleep14avg=avg(sleepVals14);
+    const sleepDebt=vertexSleepDebt(last7);
     if(sleep!==null){
       signalsPresent++;
-      const sleep14avg=avg(last14.map(r=>getMetric(r,['sleepHours','sleep_hours'])).filter(v=>v!==null));
-      if(sleep>=7.5){ score+=8; drivers.push({type:'good',text:`Sleep is strong at ${sleep.toFixed(1)}h.`});}
+      if(sleep>=7.5){ score+=9; drivers.push({type:'good',text:`Sleep is strong at ${sleep.toFixed(1)}h.`});}
       else if(sleep>=6.5){ score+=2; drivers.push({type:'good',text:`Sleep is acceptable at ${sleep.toFixed(1)}h.`});}
-      else if(sleep>=5.5){ score-=8; drivers.push({type:'warn',text:`Sleep is light at ${sleep.toFixed(1)}h.`});}
-      else { score-=16; drivers.push({type:'bad',text:`Sleep is low at ${sleep.toFixed(1)}h.`});}
+      else if(sleep>=5.5){ score-=10; drivers.push({type:'warn',text:`Sleep is light at ${sleep.toFixed(1)}h.`});}
+      else { score-=18; drivers.push({type:'bad',text:`Sleep is low at ${sleep.toFixed(1)}h.`});}
       if(sleep14avg!==null && sleep<sleep14avg-0.5) drivers.push({type:'warn',text:`Sleep is below your 14-day average of ${sleep14avg.toFixed(1)}h.`});
+      if(sleepDebt!==null && sleepDebt>=5){ score-=8; drivers.push({type:'warn',text:`Sleep debt is elevated at ${sleepDebt.toFixed(1)} hours over 7 days.`});}
+      else if(sleepDebt!==null && sleepDebt<=1.5 && sleepVals7.length>=3){ score+=3; drivers.push({type:'good',text:'Sleep debt is well controlled.'});}
     } else {
       drivers.push({type:'warn',text:'Sleep unavailable — connect your health data for a stronger score.'});
     }
 
     const hrv=getMetric(latest,['hrv']);
-    const hrvVals=last7.map(r=>getMetric(r,['hrv'])).filter(v=>v!==null);
-    const hrv14vals=last14.map(r=>getMetric(r,['hrv'])).filter(v=>v!==null);
+    const hrvVals=vertexMetricSeries(last7,['hrv'],7);
+    const hrv14vals=vertexMetricSeries(last14,['hrv'],14);
     const hrvBase=avg(hrv14vals.length>=5?hrv14vals:hrvVals);
+    const hrvDelta=vertexPctDelta(hrv,hrvBase);
+    const hrvTrend=vertexTrendDirection(hrvVals,false);
     if(hrv!==null){
       signalsPresent++;
       if(hrvBase!==null && hrvVals.length>=3){
-        const delta=((hrv-hrvBase)/hrvBase)*100;
-        if(delta>=8){ score+=8; drivers.push({type:'good',text:`HRV is ${Math.round(delta)}% above your baseline.`});}
-        else if(delta<=-15){ score-=14; drivers.push({type:'bad',text:`HRV is ${Math.abs(Math.round(delta))}% below your baseline.`});}
-        else if(delta<=-8){ score-=7; drivers.push({type:'warn',text:'HRV is modestly below baseline.'});}
+        if(hrvDelta>=8){ score+=9; drivers.push({type:'good',text:`HRV is ${Math.round(hrvDelta)}% above your baseline.`});}
+        else if(hrvDelta<=-15){ score-=16; drivers.push({type:'bad',text:`HRV is ${Math.abs(Math.round(hrvDelta))}% below your baseline.`});}
+        else if(hrvDelta<=-8){ score-=8; drivers.push({type:'warn',text:'HRV is modestly below baseline.'});}
         else drivers.push({type:'good',text:'HRV is near your personal baseline.'});
-        if(hrvVals.length>=3 && hrvVals[0]<hrvVals[1] && hrvVals[1]<hrvVals[2]){
-          score-=8; drivers.push({type:'warn',text:'HRV has declined for three straight readings.'});
+        if(hrvTrend==='declining'){
+          score-=9; drivers.push({type:'warn',text:'HRV has declined for three straight readings.'});
+        }else if(hrvTrend==='improving'){
+          score+=3; drivers.push({type:'good',text:'HRV trend is improving.'});
         }
       } else if(hrv>=45){score+=3; drivers.push({type:'good',text:`HRV is ${Math.round(hrv)} ms.`});}
       else if(hrv<25){score-=6; drivers.push({type:'warn',text:`HRV is low at ${Math.round(hrv)} ms.`});}
     }
 
     const rhr=getMetric(latest,['restingHr','resting_hr']);
-    const rhr14vals=last14.map(r=>getMetric(r,['restingHr','resting_hr'])).filter(v=>v!==null);
-    const rhrBase=avg(rhr14vals.length>=5?rhr14vals:last7.map(r=>getMetric(r,['restingHr','resting_hr'])).filter(v=>v!==null));
+    const rhrVals7=vertexMetricSeries(last7,['restingHr','resting_hr'],7);
+    const rhr14vals=vertexMetricSeries(last14,['restingHr','resting_hr'],14);
+    const rhrBase=avg(rhr14vals.length>=5?rhr14vals:rhrVals7);
+    const rhrTrend=vertexTrendDirection(rhrVals7,true);
     if(rhr!==null){
       signalsPresent++;
       if(rhrBase!==null && rhrBase>0){
         const delta=rhr-rhrBase;
         if(delta<=-3){score+=5; drivers.push({type:'good',text:`Resting HR is ${Math.abs(Math.round(delta))} bpm below baseline.`});}
-        else if(delta>=7){score-=12; drivers.push({type:'bad',text:`Resting HR is ${Math.round(delta)} bpm above baseline.`});}
-        else if(delta>=4){score-=6; drivers.push({type:'warn',text:'Resting HR is elevated vs baseline.'});}
+        else if(delta>=7){score-=14; drivers.push({type:'bad',text:`Resting HR is ${Math.round(delta)} bpm above baseline.`});}
+        else if(delta>=4){score-=7; drivers.push({type:'warn',text:'Resting HR is elevated vs baseline.'});}
         else drivers.push({type:'good',text:'Resting HR is stable.'});
+        if(rhrTrend==='declining'){ score-=5; drivers.push({type:'warn',text:'Resting HR trend is rising.'});}
+        if(rhrTrend==='improving'){ score+=2; drivers.push({type:'good',text:'Resting HR trend is improving.'});}
       }
     }
 
@@ -13187,6 +13255,10 @@ window.vertexImportHKWorkout = async function(idx) {
         if(energy>=4) score+=4;
         else if(energy<=2) score-=6;
       }
+      const soreness=Number(latestCheckin.soreness);
+      if(Number.isFinite(soreness) && soreness>=4){ score-=7; drivers.push({type:'warn',text:'Soreness is elevated from latest check-in.'});}
+      const stress=Number(latestCheckin.stress);
+      if(Number.isFinite(stress) && stress>=4){ score-=5; drivers.push({type:'warn',text:'Stress is elevated from latest check-in.'});}
       if(String(latestCheckin.gi||'').toLowerCase().includes('severe')){
         score-=8; drivers.push({type:'bad',text:'Severe GI flag from latest check-in.'});
       }
@@ -13199,20 +13271,34 @@ window.vertexImportHKWorkout = async function(idx) {
     });
     const lastWorkout=logs[0];
     const daysSince=lastWorkout?daysBetween(lastWorkout.completed_at||lastWorkout.created_at||lastWorkout.date):null;
+    const load7=vertexRecentTrainingLoad(logs,7);
+    const load14=vertexRecentTrainingLoad(logs,14);
+    const avg7Minutes=load14.minutes ? load14.minutes/2 : load7.minutes;
+    let strainScore=Math.min(100, Math.round((load7.count*18) + (load7.minutes/7) + (load7.sets*0.7)));
+    if(avg7Minutes && load7.minutes > avg7Minutes*1.35){ strainScore=Math.min(100,strainScore+12); drivers.push({type:'warn',text:'Acute training load is above your two-week run rate.'});}
     if(thisWeek.length>=3){score+=4; drivers.push({type:'good',text:`Training consistency is on track (${thisWeek.length} sessions in 7 days).`});}
     else if(daysSince!==null&&daysSince>=4){score-=5; drivers.push({type:'warn',text:`${daysSince} days since last workout — rebuild momentum.`});}
+    if(strainScore>=75){ score-=12; drivers.push({type:'warn',text:'Training strain is high; recovery capacity is being taxed.'});}
+    else if(strainScore>=55){ score-=6; drivers.push({type:'warn',text:'Training strain is moderate-high.'});}
+    else if(strainScore>0 && score>=70){ score+=2; drivers.push({type:'good',text:'Training strain is manageable against current recovery.'});}
 
     score=Math.max(0,Math.min(100,Math.round(score)));
+    const mode=vertexRecoveryMode(score,strainScore);
+    const recoveryTrend=(hrvTrend==='improving'||rhrTrend==='improving')?'Improving':(hrvTrend==='declining'||rhrTrend==='declining'||(sleepDebt!==null&&sleepDebt>=5))?'Declining':'Stable';
+    const recommendation = mode==='Recover' ? 'Recover: reduce intensity, prioritize sleep, hydration, mobility, and low-zone movement.' :
+      mode==='Maintain' ? 'Maintain: train with controlled volume and avoid unnecessary max-effort work.' :
+      'Push: recovery supports planned training; progress one priority lift or quality set if warm-up feels strong.';
     if(!drivers.length) drivers.push({type:'warn',text:'Not enough data yet. Sync Apple Health and log workouts to improve coaching.'});
 
     const readinessData={
       score,
       label:readinessLabel(score),
-      action:readinessAction(score),
+      action:recommendation,
       drivers,
       latest,
-      metrics:{sleep,hrv,rhr,spo2,resp,hrvBase,rhrBase,signalsPresent},
-      workouts:{thisWeek:thisWeek.length,daysSince}
+      metrics:{sleep,hrv,rhr,spo2,resp,hrvBase,rhrBase,hrvDelta,sleep7avg,sleep14avg,sleepDebt,recoveryTrend,signalsPresent},
+      workouts:{thisWeek:thisWeek.length,daysSince,strainScore,load7,load14},
+      engine:{version:'recovery-intelligence-v2',mode,recoveryTrend,recommendation,strainScore,sleepDebt,hrvBaseline:hrvBase,rhrBaseline:rhrBase}
     };
     try{localStorage.setItem('vertex_readiness_cache',JSON.stringify(readinessData));}catch(e){}
     return readinessData;

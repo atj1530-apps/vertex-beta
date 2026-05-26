@@ -14559,6 +14559,107 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   border-color:rgba(255,255,255,.06)!important;
   box-shadow:none!important;
 }
+
+
+/* ============================================================
+   v20260526-ag PHASE A2 SAFE CONTINUATION — CSS ONLY
+   Scope: chart shells, Wellness tab density, mobile right-rail polish.
+   Guardrails: no JS changes, no SVG/template changes, no route/auth/sync/planner changes.
+   ============================================================ */
+.progress-card, .wc-card, .wc-section, .coach-card{
+  border-color:var(--border-subtle)!important;
+  border-radius:var(--r)!important;
+}
+.progress-card canvas, .wc-chart-wrap canvas, .wc-chart-wrap2 canvas{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+}
+.wc-chart-wrap{
+  min-height:170px!important;
+  height:170px!important;
+}
+.wc-chart-wrap2{
+  min-height:148px!important;
+  height:148px!important;
+}
+#progressSparklines{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+  align-items:stretch!important;
+}
+#progressSparklines > div{
+  min-width:0!important;
+  min-height:86px!important;
+  border-radius:var(--r)!important;
+}
+.vertex-sparkline-row{
+  align-items:stretch!important;
+}
+.vertex-sparkline-card{
+  min-width:0!important;
+  border-radius:var(--r)!important;
+}
+.vertex-sparkline-card svg{
+  display:block!important;
+  flex:0 0 auto!important;
+  overflow:visible!important;
+}
+.wc-tab-row, .wellness-tabs, .protocol-tabs, .sub-tabs, .tab-row, .progress-tabs{
+  gap:8px!important;
+}
+.wc-tab-row button, .wellness-tabs button, .protocol-tabs button, .sub-tabs button, .tab-row button, .progress-tab{
+  border-radius:var(--r-pill)!important;
+  min-height:32px!important;
+  padding:7px 13px!important;
+  line-height:1.1!important;
+}
+@media(max-width:900px){
+  .page-panel{
+    margin-bottom:10px!important;
+  }
+  .progress-layout, .coach-grid, .wc-trend-grid{
+    gap:10px!important;
+  }
+  .progress-card, .coach-card, .wc-card, .wc-section{
+    padding:12px!important;
+  }
+  #progressSparklines{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  .vertex-sparkline-row{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .wc-chart-wrap{
+    min-height:160px!important;
+    height:160px!important;
+  }
+  .wc-chart-wrap2{
+    min-height:138px!important;
+    height:138px!important;
+  }
+  body:not(.app-page-home) .right::before{
+    border-radius:0!important;
+  }
+  .right.open > section, body.app-page-home .right > section{
+    margin:10px 12px!important;
+  }
+}
+@media(max-width:430px){
+  .vertex-sparkline-row{
+    grid-template-columns:1fr 1fr!important;
+  }
+  .vertex-sparkline-card{
+    padding:8px 9px!important;
+  }
+  .wc-tab-row button, .wellness-tabs button, .protocol-tabs button, .sub-tabs button, .tab-row button, .progress-tab{
+    padding:7px 11px!important;
+    font-size:11px!important;
+  }
+}
 </style>
 
 <script>

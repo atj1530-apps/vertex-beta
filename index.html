@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: progress intelligence panels; service worker/cache unchanged -->
+<!-- v20260526-ac: progress panels scoped to Progress tab; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -14847,6 +14847,62 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac progress panel scope repair */
+(function(){
+  function currentTabName(){
+    try{
+      var on = document.querySelector('.nav button.on');
+      return on ? String(on.textContent || '').trim().toLowerCase() : '';
+    }catch(e){
+      return '';
+    }
+  }
+
+  function setProgressPanelVisibility(){
+    try{
+      var isProgress = currentTabName() === 'progress' || document.body.classList.contains('app-page-progress');
+      var ids = [
+        'vertexRecoveryTrendPanel',
+        'vertexStrainPanel',
+        'vertexConsistencyPanel',
+        'vertexTolerancePanel'
+      ];
+
+      ids.forEach(function(id){
+        var el = document.getElementById(id);
+        if(el){
+          el.style.display = isProgress ? '' : 'none';
+        }
+      });
+    }catch(e){
+      console.error('Progress panel scope repair failed', e);
+    }
+  }
+
+  function scheduleScope(){
+    setTimeout(setProgressPanelVisibility, 50);
+    setTimeout(setProgressPanelVisibility, 250);
+    setTimeout(setProgressPanelVisibility, 800);
+  }
+
+  document.addEventListener('DOMContentLoaded', scheduleScope);
+  window.addEventListener('load', scheduleScope);
+  document.addEventListener('click', function(){ setTimeout(setProgressPanelVisibility, 100); }, true);
+
+  try{
+    var observer = new MutationObserver(function(){ setProgressPanelVisibility(); });
+    observer.observe(document.body || document.documentElement, {
+      childList:true,
+      subtree:true,
+      attributes:true,
+      attributeFilter:['class']
+    });
+  }catch(e){}
 })();
 </script>
 

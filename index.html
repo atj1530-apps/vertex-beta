@@ -2892,7 +2892,7 @@ button[id*="add" i][id*="exercise" i],
 
 
 /* ============================================================
-   v20260526-b MOBILE PLANNER SCROLL
+   v20260526-k MOBILE PLANNER SCROLL
    Mobile only: weekly Planner becomes a horizontal snap carousel.
    Desktop keeps the existing 7-day grid.
    ============================================================ */
@@ -2924,6 +2924,69 @@ button[id*="add" i][id*="exercise" i],
     scroll-snap-stop:always!important;
     min-height:145px!important;
   }
+}
+
+
+
+/* ============================================================
+   v20260526-k MOBILE PLANNER PEEK + WORKOUT CARD CONSISTENCY
+   Adds a subtle mobile-only right-edge scroll hint and partial
+   next-card peek for the Home Planner carousel. Desktop unchanged.
+   Tightens mobile planner workout cards for consistent height rhythm.
+   ============================================================ */
+@media(max-width:900px){
+  body.app-page-home #plannerAcc .acc-body{
+    position:relative!important;
+    overflow:hidden!important;
+    padding-right:0!important;
+  }
+  body.app-page-home #plannerAcc .acc-body::after{
+    content:"";
+    position:absolute;
+    top:14px;
+    right:0;
+    bottom:14px;
+    width:34px;
+    pointer-events:none;
+    z-index:2;
+    background:linear-gradient(90deg,rgba(17,17,17,0),var(--panel) 78%);
+  }
+  body.app-page-home #planner.planner-grid,
+  #planner.planner-grid{
+    gap:10px!important;
+    margin:0 -14px 0 0!important;
+    padding:0 36px 12px 0!important;
+    scroll-padding-left:0!important;
+    scroll-padding-right:36px!important;
+  }
+  body.app-page-home #planner.planner-grid .day-card,
+  #planner.planner-grid .day-card{
+    flex:0 0 min(78vw,320px)!important;
+    width:min(78vw,320px)!important;
+    min-width:min(78vw,320px)!important;
+    min-height:148px!important;
+    max-height:168px!important;
+    padding:10px!important;
+    overflow:hidden!important;
+  }
+  body.app-page-home #planner.planner-grid .day-preview,
+  #planner.planner-grid .day-preview{
+    -webkit-line-clamp:2!important;
+    min-height:32px!important;
+  }
+  body.app-page-home #planner.planner-grid .day-actions,
+  #planner.planner-grid .day-actions{
+    gap:5px!important;
+  }
+  body.app-page-home #planner.planner-grid .day-actions .btn,
+  #planner.planner-grid .day-actions .btn{
+    padding:7px 6px!important;
+    font-size:10.5px!important;
+    min-height:32px!important;
+  }
+}
+@media(min-width:901px){
+  body.app-page-home #plannerAcc .acc-body::after{display:none!important;}
 }
 
 </style>
@@ -11011,7 +11074,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-b';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-k';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: readiness driver refinement; service worker/cache unchanged -->
+<!-- v20260526-ac: recovery insights engine; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -14573,6 +14573,169 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(syncReadinessDriverCard, 150); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac recovery insights engine */
+(function(){
+  function readinessStatus(score){
+    score = Number(score);
+    if(score >= 90) return 'PEAK';
+    if(score >= 80) return 'HIGH';
+    if(score >= 65) return 'MODERATE';
+    if(score >= 50) return 'LOW';
+    return 'RECOVER';
+  }
+
+  function recommendation(score){
+    score = Number(score);
+    if(score >= 90) return {label:'Peak window', risk:'Low', action:'Push intensity if warmups feel strong.'};
+    if(score >= 80) return {label:'Push with confidence', risk:'Low', action:'Progress load or volume carefully.'};
+    if(score >= 65) return {label:'Push with control', risk:'Low–Moderate', action:'Add load or reps only where form is stable.'};
+    if(score >= 50) return {label:'Maintain', risk:'Moderate', action:'Keep planned work, avoid max-effort sets.'};
+    return {label:'Recover', risk:'High', action:'Reduce intensity and prioritize recovery.'};
+  }
+
+  function confidence(intel){
+    var source = String((intel && intel.source) || '').toLowerCase();
+    if(source.indexOf('hybrid') >= 0 || source.indexOf('oura') >= 0) return 'High';
+    if(source.indexOf('apple') >= 0) return 'Medium';
+    if(source.indexOf('manual') >= 0) return 'Low';
+    return 'Low';
+  }
+
+  function trend(intel){
+    try{
+      if(intel && intel.trend && intel.trend.label) return intel.trend.label;
+      if(intel && intel.trend && Number.isFinite(Number(intel.trend.delta))){
+        var d = Number(intel.trend.delta);
+        if(d > 1) return 'Improving';
+        if(d < -1) return 'Declining';
+      }
+    }catch(e){}
+    return 'Stable';
+  }
+
+  function narrative(score, source, trendLabel){
+    var rec = recommendation(score);
+    var base = '';
+    if(score >= 80){
+      base = 'Recovery is favorable today. ' + source + ' signals support higher training output.';
+    }else if(score >= 65){
+      base = 'Recovery is favorable enough to train hard, but progression should stay controlled.';
+    }else if(score >= 50){
+      base = 'Recovery is mixed today. Maintain the plan, but avoid unnecessary intensity spikes.';
+    }else{
+      base = 'Recovery is limited today. The best move is to reduce load and protect consistency.';
+    }
+
+    if(String(trendLabel).toLowerCase().indexOf('improv') >= 0){
+      base += ' Trend is improving, which supports cautious progression.';
+    }else if(String(trendLabel).toLowerCase().indexOf('declin') >= 0){
+      base += ' Trend is declining, so treat warmups as the final readiness check.';
+    }else{
+      base += ' Trend is stable, so use form and warmup speed to guide final intensity.';
+    }
+    return base;
+  }
+
+  function driverRows(intel, score){
+    var source = String((intel && intel.source) || '').toLowerCase();
+    var rows = [];
+
+    if(source.indexOf('apple') >= 0){
+      rows = [
+        ['Apple Health recovery signal', '+6'],
+        ['Training readiness aligned', '+4'],
+        ['Current strain manageable', '+2']
+      ];
+    }else if(source.indexOf('oura') >= 0){
+      rows = [
+        ['Oura recovery signal', '+8'],
+        ['Sleep / HRV available', '+6'],
+        ['Training readiness aligned', '+3']
+      ];
+    }else{
+      rows = [
+        ['Recovery score available', '+4'],
+        ['Training guidance aligned', '+2']
+      ];
+    }
+
+    if(score < 65){
+      rows.push(['Intensity caution', '-3']);
+    }
+
+    return rows.slice(0,4).map(function(r){
+      var color = String(r[1]).charAt(0) === '-' ? 'var(--orange)' : 'var(--green)';
+      return '<div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:7px;align-items:center">' +
+        '<span style="color:var(--muted)">' + r[0] + '</span>' +
+        '<b style="color:' + color + '">' + r[1] + '</b>' +
+      '</div>';
+    }).join('');
+  }
+
+  function syncRecoveryInsights(){
+    try{
+      var title = document.getElementById('rightCoachTitle');
+      var copy = document.getElementById('rightCoachCopy');
+      if(!title || !copy) return false;
+      if(!window.VertexRecoveryInsights || typeof window.VertexRecoveryInsights.build !== 'function') return false;
+
+      var intel = window.VertexRecoveryInsights.build();
+      var score = intel && Number.isFinite(Number(intel.recovery)) ? Math.round(Number(intel.recovery)) : null;
+
+      if(score === null){
+        title.textContent = 'READINESS';
+        copy.textContent = 'Not enough recovery data yet';
+        return true;
+      }
+
+      var source = (intel && intel.source) ? intel.source : 'Hybrid';
+      var status = readinessStatus(score);
+      var trendLabel = trend(intel);
+      var conf = confidence(intel);
+      var rec = recommendation(score);
+
+      title.textContent = 'READINESS · ' + status + ' ' + score;
+      copy.innerHTML =
+        '<div style="color:var(--muted);line-height:1.55">' +
+          '<div>Source: ' + source + '</div>' +
+          '<div>Confidence: ' + conf + '</div>' +
+          '<div>Trend: ' + trendLabel + '</div>' +
+          '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">' +
+            '<div><b style="color:var(--text)">Recommended:</b> ' + rec.label + '</div>' +
+            '<div><b style="color:var(--text)">Fatigue risk:</b> ' + rec.risk + '</div>' +
+            '<div style="margin-top:8px;color:var(--text);font-size:12px;line-height:1.45">' + rec.action + '</div>' +
+          '</div>' +
+          '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:12px">' +
+            driverRows(intel, score) +
+          '</div>' +
+          '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:12px;line-height:1.45">' +
+            narrative(score, source, trendLabel) +
+          '</div>' +
+        '</div>';
+      return true;
+    }catch(e){
+      console.error('Recovery insights engine failed', e);
+      return false;
+    }
+  }
+
+  window.vertexSyncRightReadinessCard = syncRecoveryInsights;
+
+  function schedule(){
+    setTimeout(syncRecoveryInsights, 250);
+    setTimeout(syncRecoveryInsights, 800);
+    setTimeout(syncRecoveryInsights, 1600);
+    setTimeout(syncRecoveryInsights, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(syncRecoveryInsights, 150); }, true);
 })();
 </script>
 

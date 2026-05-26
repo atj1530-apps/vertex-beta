@@ -3193,6 +3193,71 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 @media(max-width:520px){.vertex-rec-grid{grid-template-columns:1fr}.vertex-rec-card b{font-size:28px}}
 </style>
 
+<script>
+/* v20260526-ad readiness resolver repair */
+window.vertexResolveReadiness=function(input){
+  try{
+    if(!input || typeof input!=='object'){
+      return {
+        available:false,
+        loading:false,
+        reason:'Not enough recovery data yet',
+        source:null
+      };
+    }
+
+    const score = Number(input.score);
+    const status = input.status || null;
+    const source = input.source || 'Hybrid';
+
+    if(Number.isFinite(score) && score > 0){
+      return {
+        available:true,
+        loading:false,
+        score:Math.max(1, Math.min(100, Math.round(score))),
+        status:status || (
+          score >= 80 ? 'HIGH' :
+          score >= 65 ? 'MODERATE' :
+          'LOW'
+        ),
+        source
+      };
+    }
+
+    return {
+      available:false,
+      loading:false,
+      reason:'Not enough recovery data yet',
+      source
+    };
+  }catch(e){
+    console.error('Readiness resolver failed',e);
+    return {
+      available:false,
+      loading:false,
+      reason:'Not enough recovery data yet',
+      source:null
+    };
+  }
+};
+
+window.vertexRenderReadinessState=function(readiness){
+  const r = window.vertexResolveReadiness(readiness);
+
+  if(r.loading){
+    return 'Loading unified recovery guidance...';
+  }
+
+  if(!r.available){
+    return 'Not enough recovery data yet';
+  }
+
+  return `${r.status} · ${r.score}`;
+};
+
+/* remove legacy readiness fallback */
+window.VERTEX_DISABLE_LEGACY_READINESS_FALLBACK = true;
+</script>
 </head>
 <body class="auth-resolving">
 
@@ -6016,7 +6081,7 @@ function performanceSummary(rows=progressRows()){
 let restTimerId=null;
 let restRemaining=60;
 function openRestTimer(secs=60){
-  restRemaining=Number(secs)||60;
+  restRemaining=Number(secs);
   const el=document.getElementById('restTimerCount');
   if(el) el.textContent=restRemaining;
   document.getElementById('restTimerOverlay').classList.add('on');
@@ -9585,7 +9650,7 @@ document.addEventListener('click', function(e){
   if(!t) return;
   e.stopPropagation();
   if(t.id==='fwmNextBtn'){ fwmAdvance(); return; }
-  if(t.id==='fwmRestBtn'){ openRestTimer(state.restTimerDefault||60); return; }
+  if(t.id==='fwmRestBtn'){ openRestTimer(state.restTimerDefault); return; }
   if(t.id==='fwmBackBtn'){ closeFocusedWorkoutMode(); return; }
   if(t.id==='fwmExitBtn'){ fwmConfirmExit(); return; }
   const fwmSet=t.getAttribute('data-fwm-set');
@@ -9662,7 +9727,7 @@ function fwmCompleteSet(j){
     ex.sets[j].weight=sets[j].weight;
   }
   fwmRender();
-  if(sets[j].done) openRestTimer(state.restTimerDefault||60);
+  if(sets[j].done) openRestTimer(state.restTimerDefault);
 }
 
 function fwmAdvance(){
@@ -10633,7 +10698,7 @@ document.addEventListener('click',async e=>{
  const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return}
  // ── FOCUSED WORKOUT MODE ──
  if(t.id==='fwmNextBtn'){fwmAdvance(); return}
- if(t.id==='fwmRestBtn'){openRestTimer(state.restTimerDefault||60); return}
+ if(t.id==='fwmRestBtn'){openRestTimer(state.restTimerDefault); return}
  if(t.id==='fwmBackBtn'){closeFocusedWorkoutMode(); return}
  const fwmSet=t.getAttribute('data-fwm-set'); if(fwmSet!==null){fwmCompleteSet(Number(fwmSet)); return}
 

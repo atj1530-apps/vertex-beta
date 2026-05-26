@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: healthkit summary routing repair; service worker/cache unchanged -->
+<!-- v20260526-ac: progress hybrid routing hard sync; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -15811,6 +15811,130 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(run, 150); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac progress hybrid routing hard sync */
+(function(){
+  function recoveryIntel(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        return window.VertexRecoveryInsights.build() || {};
+      }
+    }catch(e){}
+    return {};
+  }
+
+  function appleHealthActive(){
+    try{
+      var intel = recoveryIntel();
+      var src = String(intel.source || '').toLowerCase();
+      if(src.indexOf('apple') >= 0) return true;
+
+      var score = Number(intel.recovery);
+      if(Number.isFinite(score) && score > 0 && src !== 'manual') return true;
+
+      var txt = document.body && document.body.textContent ? document.body.textContent.toLowerCase() : '';
+      if(txt.indexOf('source: apple health') >= 0) return true;
+      if(txt.indexOf('apple health + vertex') >= 0) return true;
+      if(txt.indexOf('recovery source: apple health') >= 0) return true;
+    }catch(e){}
+    return false;
+  }
+
+  function sleepActive(){
+    try{
+      var raw = localStorage.getItem('vertexAppleHealthSleepSummary');
+      if(raw){
+        var s = JSON.parse(raw);
+        if(s && (Number(s.latestMinutes) > 0 || Number(s.avg7Minutes) > 0)) return true;
+      }
+    }catch(e){}
+    return appleHealthActive();
+  }
+
+  function hrvActive(){
+    try{
+      var raw = localStorage.getItem('vertexAppleHealthHRVSummary');
+      if(raw){
+        var h = JSON.parse(raw);
+        if(h && (Number(h.latest) > 0 || Number(h.avg7) > 0)) return true;
+      }
+    }catch(e){}
+    return appleHealthActive();
+  }
+
+  function renderPanel(panel){
+    try{
+      if(!panel) return false;
+      var body = panel.querySelector('.vertex-panel-body');
+      if(!body) return false;
+
+      var apple = appleHealthActive();
+      var sleep = sleepActive();
+      var hrv = hrvActive();
+
+      body.innerHTML =
+        '<div style="font-size:18px;color:var(--green);font-weight:700">' + (apple ? 'Apple + Vertex' : 'Single source') + '</div>' +
+        '<div style="margin-top:10px">Sleep: <b style="color:var(--text)">' + (sleep ? 'Apple Health' : 'Pending') + '</b></div>' +
+        '<div>HRV: <b style="color:var(--text)">' + (hrv ? 'Apple Health' : 'Pending') + '</b></div>' +
+        '<div>Resting HR: <b style="color:var(--text)">' + (apple ? 'Apple Health' : 'Pending') + '</b></div>' +
+        '<div>Workouts: <b style="color:var(--text)">Vertex Logs</b></div>' +
+        '<div>Recovery: <b style="color:var(--text)">Vertex synthesis</b></div>';
+
+      panel.setAttribute('data-vertex-hard-synced','true');
+      return true;
+    }catch(e){
+      console.error('Progress hybrid routing hard render failed', e);
+      return false;
+    }
+  }
+
+  function findHybridPanel(){
+    var byId = document.getElementById('vertexHybridRoutingPanel');
+    if(byId) return byId;
+
+    var nodes = Array.from(document.querySelectorAll('div,section'));
+    return nodes.find(function(el){
+      var t = String(el.textContent || '').replace(/\s+/g,' ').trim();
+      return t.indexOf('HYBRID ROUTING') >= 0 && t.indexOf('Sleep:') >= 0 && t.indexOf('HRV:') >= 0;
+    }) || null;
+  }
+
+  function sync(){
+    var panel = findHybridPanel();
+    if(panel) renderPanel(panel);
+  }
+
+  window.vertexHardSyncProgressHybridRouting = sync;
+
+  function schedule(){
+    setTimeout(sync, 50);
+    setTimeout(sync, 200);
+    setTimeout(sync, 600);
+    setTimeout(sync, 1200);
+    setTimeout(sync, 2500);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(sync, 100); }, true);
+
+  var count = 0;
+  var timer = setInterval(function(){
+    count++;
+    sync();
+    if(count > 60) clearInterval(timer);
+  }, 500);
+
+  try{
+    var obs = new MutationObserver(function(){
+      setTimeout(sync, 50);
+    });
+    obs.observe(document.body || document.documentElement, { childList:true, subtree:true, characterData:true });
+  }catch(e){}
 })();
 </script>
 

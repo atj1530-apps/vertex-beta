@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-l: Planner fixed open + mobile pill border cleanup -->
+<!-- v20260526-m: Interaction hierarchy normalization -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -3041,6 +3041,108 @@ button[id*="add" i][id*="exercise" i],
   .muscles .chip[aria-selected="true"]{
     border-color:var(--acc)!important;
   }
+}
+
+
+/* ============================================================
+   v20260526-m INTERACTION HIERARCHY NORMALIZATION
+   Canonical model: Workout Templates quiet-by-default styling.
+   Available = quiet. Selected = yellow text/border only. Primary CTA = solid yellow.
+   ============================================================ */
+:root{
+  --pill-quiet-border:transparent;
+  --pill-selected-border:rgba(232,255,71,.72);
+  --pill-selected-bg:rgba(232,255,71,.035);
+}
+
+/* Workout/category/program/training/muscle + progress/wellness tabs: quiet unless selected. */
+.segment .seg-btn:not(.on):not(.chosen):not(.active):not([aria-selected="true"]),
+.segment.pill-scroll .seg-btn:not(.on):not(.chosen):not(.active):not([aria-selected="true"]),
+#tpl-grid .seg-btn:not(.on):not(.chosen):not(.active):not([aria-selected="true"]),
+.muscles .chip:not(.on):not(.chosen):not(.active):not([aria-selected="true"]),
+.progress-tabs .progress-tab:not(.on):not(.chosen):not(.active):not([aria-selected="true"]),
+button[data-wtab]:not(.on):not(.chosen):not(.active):not([aria-selected="true"]),
+button[data-ptab]:not(.on):not(.chosen):not(.active):not([aria-selected="true"]){
+  background:var(--panel2)!important;
+  border-color:var(--pill-quiet-border)!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
+}
+
+.segment .seg-btn.on,
+.segment .seg-btn.chosen,
+.segment .seg-btn.active,
+.segment .seg-btn[aria-selected="true"],
+.segment.pill-scroll .seg-btn.on,
+.segment.pill-scroll .seg-btn.chosen,
+.segment.pill-scroll .seg-btn.active,
+.segment.pill-scroll .seg-btn[aria-selected="true"],
+#tpl-grid .seg-btn.on,
+#tpl-grid .seg-btn.chosen,
+#tpl-grid .seg-btn.active,
+#tpl-grid .seg-btn[aria-selected="true"],
+.muscles .chip.on,
+.muscles .chip.chosen,
+.muscles .chip.active,
+.muscles .chip[aria-selected="true"],
+.progress-tabs .progress-tab.on,
+.progress-tabs .progress-tab.chosen,
+.progress-tabs .progress-tab.active,
+.progress-tabs .progress-tab[aria-selected="true"],
+button[data-wtab].on,
+button[data-wtab].chosen,
+button[data-wtab].active,
+button[data-wtab][aria-selected="true"],
+button[data-ptab].on,
+button[data-ptab].chosen,
+button[data-ptab].active,
+button[data-ptab][aria-selected="true"]{
+  background:var(--pill-selected-bg)!important;
+  border-color:var(--pill-selected-border)!important;
+  color:var(--acc)!important;
+  box-shadow:none!important;
+}
+
+/* Explicitly prevent selected filter/tab pills from becoming solid yellow. */
+.segment .seg-btn.on,
+.segment .seg-btn.chosen,
+.segment .seg-btn.active,
+#tpl-grid .seg-btn.on,
+#tpl-grid .seg-btn.chosen,
+#tpl-grid .seg-btn.active,
+.muscles .chip.on,
+.muscles .chip.chosen,
+.muscles .chip.active,
+.progress-tabs .progress-tab.on,
+.progress-tabs .progress-tab.chosen,
+.progress-tabs .progress-tab.active{
+  background:var(--pill-selected-bg)!important;
+  color:var(--acc)!important;
+}
+
+/* Header Log Workout is not a primary CTA until explicitly armed/ready. */
+#btn-log.btn.acc:not(.armed){
+  background:var(--panel2)!important;
+  border-color:transparent!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
+}
+#btn-log.btn.acc.armed{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+  box-shadow:none!important;
+}
+
+/* Preserve true primary CTA language: solid yellow only for intentional action buttons. */
+#btn-add-library,
+#btn-manual-entry,
+#ai-generate-today,
+button[data-ai-generate="today"],
+.btn.primary-cta{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
 }
 
 </style>

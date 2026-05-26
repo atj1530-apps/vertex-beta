@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-w: builder selected-state finalization -->
+<!-- v20260526-u: builder quiet-state hardening + stable cache -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -6385,7 +6385,7 @@ async function programStartTodayWorkout(){
   openFocusedWorkoutMode(state.current);
 }
 function renderControls(){
-  /* v20260526-w: Functional defaults stay in state, but the Workout builder
+  /* v20260526-x: Functional defaults stay in state, but the Workout builder
      controls only get visual focus after the user intentionally chooses a value.
      This matches the Workout Templates model and stops default Home/Manual/Strength
      from looking pre-selected on first render. */
@@ -8352,7 +8352,7 @@ function protoSelectDate(dateStr){
 
 <style>
 /* ============================================================
-   v20260526-w WORKOUT BUILDER QUIET-STATE ROOT FIX
+   v20260526-x WORKOUT BUILDER QUIET-STATE ROOT FIX
    Workout builder filter defaults remain functional for filtering,
    but category/program/training controls do not visually read as focused.
    This is deliberately scoped to Workout sidebar only. Templates and CTAs
@@ -8393,7 +8393,7 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 
 <style>
 /* ============================================================
-   v20260526-w BUILDER QUIET ROOT FIX
+   v20260526-x BUILDER QUIET ROOT FIX
    Root cause fixed: body.app-page-workout was not being applied, so prior
    workout-scoped quiet rules never activated. This layer also keeps active
    styling only after user interaction on the same control group.
@@ -8415,98 +8415,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
-
-<style>
-/* ============================================================
-   v20260526-w BUILDER SELECTED-STATE FINALIZATION
-   Defaults stay quiet. After the user taps a Workout builder group,
-   selected Program / Training / Category use the same yellow-outline
-   language as Home/Gym.
-   ============================================================ */
-body.app-page-workout .sidebar .segment.user-picked button[data-env].on,
-body.app-page-workout .sidebar .segment.user-picked button[data-env].chosen,
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program].on,
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program].chosen,
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training].on,
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training].chosen{
-  background:var(--panel2)!important;
-  color:var(--acc)!important;
-  border-color:var(--acc)!important;
-  box-shadow:inset 0 0 0 1px rgba(232,255,71,.22)!important;
-}
-body.app-page-workout .sidebar .segment.user-picked button[data-env]:not(.on),
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program]:not(.on),
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training]:not(.on){
-  background:var(--panel2)!important;
-  color:var(--muted)!important;
-  border-color:rgba(255,255,255,.06)!important;
-  box-shadow:none!important;
-}
-</style>
-<script>
-/* v20260526-w: Persist Workout builder user-picked groups across renderAll().
-   The previous fix made default controls quiet, but Program/Training could lose
-   the .user-picked marker after render and therefore never show selected outline. */
-(function(){
-  if(window.__vertexBuilderSelectedStateWired) return;
-  window.__vertexBuilderSelectedStateWired = true;
-  var picked = window.__vertexBuilderPicked || (window.__vertexBuilderPicked = {
-    env:false, program:false, training:false,
-    envValue:null, programValue:null, trainingValue:null
-  });
-
-  function markGroup(btn){
-    if(!btn) return;
-    var group = btn.closest('.segment');
-    if(group) group.classList.add('user-picked');
-    var wrap = btn.closest('.pill-fade-wrap');
-    if(wrap) wrap.classList.add('user-picked');
-  }
-
-  function setGroup(kind, value){
-    picked[kind] = true;
-    picked[kind + 'Value'] = value;
-  }
-
-  function syncGroup(selector, attr, kind){
-    var value = picked[kind + 'Value'];
-    var groupPicked = !!picked[kind];
-    var buttons = Array.prototype.slice.call(document.querySelectorAll(selector));
-    if(!buttons.length) return;
-    buttons.forEach(function(btn){
-      var active = groupPicked && value != null && String(btn.getAttribute(attr)) === String(value);
-      btn.classList.toggle('on', active);
-      btn.classList.toggle('chosen', active);
-      if(groupPicked) markGroup(btn);
-    });
-  }
-
-  function sync(){
-    if(!document.body || !document.body.classList.contains('app-page-workout')) return;
-    syncGroup('button[data-env]', 'data-env', 'env');
-    syncGroup('#program-seg button[data-program]', 'data-program', 'program');
-    syncGroup('#training-seg button[data-training]', 'data-training', 'training');
-  }
-
-  document.addEventListener('click', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-env],button[data-program],button[data-training]') : null;
-    if(!btn) return;
-    if(btn.hasAttribute('data-env')) setGroup('env', btn.getAttribute('data-env'));
-    if(btn.hasAttribute('data-program')) setGroup('program', btn.getAttribute('data-program'));
-    if(btn.hasAttribute('data-training')) setGroup('training', btn.getAttribute('data-training'));
-    markGroup(btn);
-    setTimeout(sync, 0);
-    setTimeout(sync, 80);
-    setTimeout(sync, 220);
-  }, true);
-
-  var mo = new MutationObserver(function(){ sync(); });
-  try{ mo.observe(document.body || document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['class']}); }catch(e){}
-  setTimeout(sync, 0);
-  setInterval(sync, 700);
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -10072,7 +9980,7 @@ ${recentLogs.length ? `<table>
 
 <style>
 /* ============================================================
-   v20260526-w WORKOUT BUILDER QUIET-STATE ROOT FIX
+   v20260526-x WORKOUT BUILDER QUIET-STATE ROOT FIX
    Workout builder filter defaults remain functional for filtering,
    but category/program/training controls do not visually read as focused.
    This is deliberately scoped to Workout sidebar only. Templates and CTAs
@@ -10110,98 +10018,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-<style>
-/* ============================================================
-   v20260526-w BUILDER SELECTED-STATE FINALIZATION
-   Defaults stay quiet. After the user taps a Workout builder group,
-   selected Program / Training / Category use the same yellow-outline
-   language as Home/Gym.
-   ============================================================ */
-body.app-page-workout .sidebar .segment.user-picked button[data-env].on,
-body.app-page-workout .sidebar .segment.user-picked button[data-env].chosen,
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program].on,
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program].chosen,
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training].on,
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training].chosen{
-  background:var(--panel2)!important;
-  color:var(--acc)!important;
-  border-color:var(--acc)!important;
-  box-shadow:inset 0 0 0 1px rgba(232,255,71,.22)!important;
-}
-body.app-page-workout .sidebar .segment.user-picked button[data-env]:not(.on),
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program]:not(.on),
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training]:not(.on){
-  background:var(--panel2)!important;
-  color:var(--muted)!important;
-  border-color:rgba(255,255,255,.06)!important;
-  box-shadow:none!important;
-}
-</style>
-<script>
-/* v20260526-w: Persist Workout builder user-picked groups across renderAll().
-   The previous fix made default controls quiet, but Program/Training could lose
-   the .user-picked marker after render and therefore never show selected outline. */
-(function(){
-  if(window.__vertexBuilderSelectedStateWired) return;
-  window.__vertexBuilderSelectedStateWired = true;
-  var picked = window.__vertexBuilderPicked || (window.__vertexBuilderPicked = {
-    env:false, program:false, training:false,
-    envValue:null, programValue:null, trainingValue:null
-  });
-
-  function markGroup(btn){
-    if(!btn) return;
-    var group = btn.closest('.segment');
-    if(group) group.classList.add('user-picked');
-    var wrap = btn.closest('.pill-fade-wrap');
-    if(wrap) wrap.classList.add('user-picked');
-  }
-
-  function setGroup(kind, value){
-    picked[kind] = true;
-    picked[kind + 'Value'] = value;
-  }
-
-  function syncGroup(selector, attr, kind){
-    var value = picked[kind + 'Value'];
-    var groupPicked = !!picked[kind];
-    var buttons = Array.prototype.slice.call(document.querySelectorAll(selector));
-    if(!buttons.length) return;
-    buttons.forEach(function(btn){
-      var active = groupPicked && value != null && String(btn.getAttribute(attr)) === String(value);
-      btn.classList.toggle('on', active);
-      btn.classList.toggle('chosen', active);
-      if(groupPicked) markGroup(btn);
-    });
-  }
-
-  function sync(){
-    if(!document.body || !document.body.classList.contains('app-page-workout')) return;
-    syncGroup('button[data-env]', 'data-env', 'env');
-    syncGroup('#program-seg button[data-program]', 'data-program', 'program');
-    syncGroup('#training-seg button[data-training]', 'data-training', 'training');
-  }
-
-  document.addEventListener('click', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-env],button[data-program],button[data-training]') : null;
-    if(!btn) return;
-    if(btn.hasAttribute('data-env')) setGroup('env', btn.getAttribute('data-env'));
-    if(btn.hasAttribute('data-program')) setGroup('program', btn.getAttribute('data-program'));
-    if(btn.hasAttribute('data-training')) setGroup('training', btn.getAttribute('data-training'));
-    markGroup(btn);
-    setTimeout(sync, 0);
-    setTimeout(sync, 80);
-    setTimeout(sync, 220);
-  }, true);
-
-  var mo = new MutationObserver(function(){ sync(); });
-  try{ mo.observe(document.body || document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['class']}); }catch(e){}
-  setTimeout(sync, 0);
-  setInterval(sync, 700);
-})();
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -10429,7 +10245,7 @@ window.renderSymmetry = renderSymmetry;
     w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
-   v20260526-w WORKOUT BUILDER QUIET-STATE ROOT FIX
+   v20260526-x WORKOUT BUILDER QUIET-STATE ROOT FIX
    Workout builder filter defaults remain functional for filtering,
    but category/program/training controls do not visually read as focused.
    This is deliberately scoped to Workout sidebar only. Templates and CTAs
@@ -10467,98 +10283,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-<style>
-/* ============================================================
-   v20260526-w BUILDER SELECTED-STATE FINALIZATION
-   Defaults stay quiet. After the user taps a Workout builder group,
-   selected Program / Training / Category use the same yellow-outline
-   language as Home/Gym.
-   ============================================================ */
-body.app-page-workout .sidebar .segment.user-picked button[data-env].on,
-body.app-page-workout .sidebar .segment.user-picked button[data-env].chosen,
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program].on,
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program].chosen,
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training].on,
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training].chosen{
-  background:var(--panel2)!important;
-  color:var(--acc)!important;
-  border-color:var(--acc)!important;
-  box-shadow:inset 0 0 0 1px rgba(232,255,71,.22)!important;
-}
-body.app-page-workout .sidebar .segment.user-picked button[data-env]:not(.on),
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program]:not(.on),
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training]:not(.on){
-  background:var(--panel2)!important;
-  color:var(--muted)!important;
-  border-color:rgba(255,255,255,.06)!important;
-  box-shadow:none!important;
-}
-</style>
-<script>
-/* v20260526-w: Persist Workout builder user-picked groups across renderAll().
-   The previous fix made default controls quiet, but Program/Training could lose
-   the .user-picked marker after render and therefore never show selected outline. */
-(function(){
-  if(window.__vertexBuilderSelectedStateWired) return;
-  window.__vertexBuilderSelectedStateWired = true;
-  var picked = window.__vertexBuilderPicked || (window.__vertexBuilderPicked = {
-    env:false, program:false, training:false,
-    envValue:null, programValue:null, trainingValue:null
-  });
-
-  function markGroup(btn){
-    if(!btn) return;
-    var group = btn.closest('.segment');
-    if(group) group.classList.add('user-picked');
-    var wrap = btn.closest('.pill-fade-wrap');
-    if(wrap) wrap.classList.add('user-picked');
-  }
-
-  function setGroup(kind, value){
-    picked[kind] = true;
-    picked[kind + 'Value'] = value;
-  }
-
-  function syncGroup(selector, attr, kind){
-    var value = picked[kind + 'Value'];
-    var groupPicked = !!picked[kind];
-    var buttons = Array.prototype.slice.call(document.querySelectorAll(selector));
-    if(!buttons.length) return;
-    buttons.forEach(function(btn){
-      var active = groupPicked && value != null && String(btn.getAttribute(attr)) === String(value);
-      btn.classList.toggle('on', active);
-      btn.classList.toggle('chosen', active);
-      if(groupPicked) markGroup(btn);
-    });
-  }
-
-  function sync(){
-    if(!document.body || !document.body.classList.contains('app-page-workout')) return;
-    syncGroup('button[data-env]', 'data-env', 'env');
-    syncGroup('#program-seg button[data-program]', 'data-program', 'program');
-    syncGroup('#training-seg button[data-training]', 'data-training', 'training');
-  }
-
-  document.addEventListener('click', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-env],button[data-program],button[data-training]') : null;
-    if(!btn) return;
-    if(btn.hasAttribute('data-env')) setGroup('env', btn.getAttribute('data-env'));
-    if(btn.hasAttribute('data-program')) setGroup('program', btn.getAttribute('data-program'));
-    if(btn.hasAttribute('data-training')) setGroup('training', btn.getAttribute('data-training'));
-    markGroup(btn);
-    setTimeout(sync, 0);
-    setTimeout(sync, 80);
-    setTimeout(sync, 220);
-  }, true);
-
-  var mo = new MutationObserver(function(){ sync(); });
-  try{ mo.observe(document.body || document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['class']}); }catch(e){}
-  setTimeout(sync, 0);
-  setInterval(sync, 700);
-})();
-</script>
-
 </body></html>`);
     w.document.close();
   };
@@ -10749,7 +10473,7 @@ function vertexShowSyncDiag(){
   w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
-   v20260526-w WORKOUT BUILDER QUIET-STATE ROOT FIX
+   v20260526-x WORKOUT BUILDER QUIET-STATE ROOT FIX
    Workout builder filter defaults remain functional for filtering,
    but category/program/training controls do not visually read as focused.
    This is deliberately scoped to Workout sidebar only. Templates and CTAs
@@ -10787,98 +10511,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-<style>
-/* ============================================================
-   v20260526-w BUILDER SELECTED-STATE FINALIZATION
-   Defaults stay quiet. After the user taps a Workout builder group,
-   selected Program / Training / Category use the same yellow-outline
-   language as Home/Gym.
-   ============================================================ */
-body.app-page-workout .sidebar .segment.user-picked button[data-env].on,
-body.app-page-workout .sidebar .segment.user-picked button[data-env].chosen,
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program].on,
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program].chosen,
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training].on,
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training].chosen{
-  background:var(--panel2)!important;
-  color:var(--acc)!important;
-  border-color:var(--acc)!important;
-  box-shadow:inset 0 0 0 1px rgba(232,255,71,.22)!important;
-}
-body.app-page-workout .sidebar .segment.user-picked button[data-env]:not(.on),
-body.app-page-workout .sidebar #program-seg.user-picked button[data-program]:not(.on),
-body.app-page-workout .sidebar #training-seg.user-picked button[data-training]:not(.on){
-  background:var(--panel2)!important;
-  color:var(--muted)!important;
-  border-color:rgba(255,255,255,.06)!important;
-  box-shadow:none!important;
-}
-</style>
-<script>
-/* v20260526-w: Persist Workout builder user-picked groups across renderAll().
-   The previous fix made default controls quiet, but Program/Training could lose
-   the .user-picked marker after render and therefore never show selected outline. */
-(function(){
-  if(window.__vertexBuilderSelectedStateWired) return;
-  window.__vertexBuilderSelectedStateWired = true;
-  var picked = window.__vertexBuilderPicked || (window.__vertexBuilderPicked = {
-    env:false, program:false, training:false,
-    envValue:null, programValue:null, trainingValue:null
-  });
-
-  function markGroup(btn){
-    if(!btn) return;
-    var group = btn.closest('.segment');
-    if(group) group.classList.add('user-picked');
-    var wrap = btn.closest('.pill-fade-wrap');
-    if(wrap) wrap.classList.add('user-picked');
-  }
-
-  function setGroup(kind, value){
-    picked[kind] = true;
-    picked[kind + 'Value'] = value;
-  }
-
-  function syncGroup(selector, attr, kind){
-    var value = picked[kind + 'Value'];
-    var groupPicked = !!picked[kind];
-    var buttons = Array.prototype.slice.call(document.querySelectorAll(selector));
-    if(!buttons.length) return;
-    buttons.forEach(function(btn){
-      var active = groupPicked && value != null && String(btn.getAttribute(attr)) === String(value);
-      btn.classList.toggle('on', active);
-      btn.classList.toggle('chosen', active);
-      if(groupPicked) markGroup(btn);
-    });
-  }
-
-  function sync(){
-    if(!document.body || !document.body.classList.contains('app-page-workout')) return;
-    syncGroup('button[data-env]', 'data-env', 'env');
-    syncGroup('#program-seg button[data-program]', 'data-program', 'program');
-    syncGroup('#training-seg button[data-training]', 'data-training', 'training');
-  }
-
-  document.addEventListener('click', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('button[data-env],button[data-program],button[data-training]') : null;
-    if(!btn) return;
-    if(btn.hasAttribute('data-env')) setGroup('env', btn.getAttribute('data-env'));
-    if(btn.hasAttribute('data-program')) setGroup('program', btn.getAttribute('data-program'));
-    if(btn.hasAttribute('data-training')) setGroup('training', btn.getAttribute('data-training'));
-    markGroup(btn);
-    setTimeout(sync, 0);
-    setTimeout(sync, 80);
-    setTimeout(sync, 220);
-  }, true);
-
-  var mo = new MutationObserver(function(){ sync(); });
-  try{ mo.observe(document.body || document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['class']}); }catch(e){}
-  setTimeout(sync, 0);
-  setInterval(sync, 700);
-})();
-</script>
-
 </body></html>`);
   w.document.close();
 }
@@ -11775,7 +11407,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-w';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-x';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -14424,7 +14056,7 @@ body.app-page-workout .sidebar #tpl-grid .seg-btn.chosen{
 
 <style>
 /* ============================================================
-   v20260526-w WORKOUT BUILDER QUIET-STATE ROOT FIX
+   v20260526-x WORKOUT BUILDER QUIET-STATE ROOT FIX
    Workout builder filter defaults remain functional for filtering,
    but category/program/training controls do not visually read as focused.
    This is deliberately scoped to Workout sidebar only. Templates and CTAs
@@ -14462,6 +14094,78 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+
+<style id="vertex-v20260526-x-builder-selected-final">
+/* v20260526-x — safe final selected-state layer.
+   Based on the stable v build. Quiet by default; after user taps Program/Training/Category,
+   only that chosen button receives the same yellow outline behavior as Home/Gym. */
+body.app-page-workout .sidebar #program-seg.user-picked button[data-program].chosen,
+body.app-page-workout .sidebar #training-seg.user-picked button[data-training].chosen,
+body.app-page-workout .sidebar .segment.user-picked button[data-env].chosen{
+  background:rgba(232,255,71,.035)!important;
+  color:var(--acc)!important;
+  border-color:rgba(232,255,71,.70)!important;
+  box-shadow:none!important;
+}
+body.app-page-workout .sidebar #program-seg.user-picked button[data-program]:not(.chosen),
+body.app-page-workout .sidebar #training-seg.user-picked button[data-training]:not(.chosen),
+body.app-page-workout .sidebar .segment.user-picked button[data-env]:not(.chosen){
+  background:var(--panel2)!important;
+  color:var(--muted)!important;
+  border-color:rgba(255,255,255,.06)!important;
+  box-shadow:none!important;
+}
+</style>
+<script id="vertex-v20260526-x-builder-selected-final">
+(function(){
+  var picked = { env:false, program:false, training:false };
+  function getState(){ try{ if(typeof state !== 'undefined') return state; }catch(e){} return null; }
+  function setPickedFromButton(btn){
+    try{
+      if(!btn || !btn.matches) return;
+      if(btn.matches('button[data-env]')) picked.env = true;
+      if(btn.matches('button[data-program]')) picked.program = true;
+      if(btn.matches('button[data-training]')) picked.training = true;
+    }catch(e){}
+  }
+  function apply(){
+    try{
+      if(!document.body || !document.body.classList.contains('app-page-workout')) return;
+      var st = getState() || {};
+      var groups = [
+        {key:'env', selector:'.sidebar .segment button[data-env]', attr:'data-env', val:st.env},
+        {key:'program', selector:'.sidebar #program-seg button[data-program]', attr:'data-program', val:st.program},
+        {key:'training', selector:'.sidebar #training-seg button[data-training]', attr:'data-training', val:st.training}
+      ];
+      groups.forEach(function(g){
+        var buttons = Array.prototype.slice.call(document.querySelectorAll(g.selector));
+        buttons.forEach(function(btn){
+          var group = btn.closest('#program-seg,#training-seg,.segment');
+          if(picked[g.key] && group) group.classList.add('user-picked');
+          var on = !!(picked[g.key] && g.val != null && btn.getAttribute(g.attr) === String(g.val));
+          btn.classList.toggle('on', on);
+          btn.classList.toggle('chosen', on);
+        });
+      });
+    }catch(e){ console.warn('[Vertex] builder selected-state finalize skipped', e); }
+  }
+  document.addEventListener('click', function(e){
+    var btn = e.target && e.target.closest ? e.target.closest('button[data-env],button[data-program],button[data-training]') : null;
+    if(!btn) return;
+    setPickedFromButton(btn);
+    setTimeout(apply, 0);
+    setTimeout(apply, 80);
+  }, true);
+  try{
+    if(typeof renderControls === 'function'){
+      var oldRenderControls = renderControls;
+      renderControls = function(){ var r = oldRenderControls.apply(this, arguments); apply(); return r; };
+    }
+  }catch(e){}
+  setTimeout(apply, 250);
+})();
+</script>
 </body>
 </html>
 

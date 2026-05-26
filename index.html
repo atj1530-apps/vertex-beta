@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: home sleep hrv restore; service worker/cache unchanged -->
+<!-- v20260526-ac: black screen repair clean adaptive base; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -17393,75 +17393,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac safe wellness warning cleanup */
-(function(){
-  function hasAppleSleep(){
-    try{
-      var sleep = JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary') || 'null');
-      if(sleep && (Number(sleep.latestMinutes) > 0 || Number(sleep.avg7Minutes) > 0)) return true;
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
-        var intel = window.VertexRecoveryInsights.build() || {};
-        if(String(intel.source || '').toLowerCase().indexOf('apple') >= 0 && Number.isFinite(Number(intel.recovery))) return true;
-      }
-    }catch(e){}
-    return false;
-  }
-
-  function isWellnessActive(){
-    try{
-      var on = document.querySelector('.nav button.on');
-      return on && String(on.textContent || '').trim().toLowerCase() === 'wellness';
-    }catch(e){ return false; }
-  }
-
-  function safeWellnessWarningCleanup(){
-    try{
-      if(!isWellnessActive() || !hasAppleSleep()) return;
-
-      var nodes = Array.from(document.querySelectorAll('div,p,span')).filter(function(el){
-        var txt = String(el.textContent || '').trim();
-        return /^Sleep unavailable\s+—\s+connect your health data for a stronger score\.?$/i.test(txt);
-      });
-
-      nodes.forEach(function(el){
-        el.textContent = 'Sleep detected from Apple Health · sleep duration is below target today.';
-        el.style.color = 'var(--muted)';
-        el.style.borderColor = 'var(--line)';
-      });
-
-      var sourceNodes = Array.from(document.querySelectorAll('div,span')).filter(function(el){
-        var txt = String(el.textContent || '').trim();
-        return /^●?\s*RECOVERY\s+SOURCE:\s+APPLE\s+HEALTH$/i.test(txt);
-      });
-
-      sourceNodes.forEach(function(el){
-        el.textContent = '● RECOVERY SOURCE: APPLE HEALTH + VERTEX';
-      });
-    }catch(e){
-      console.error('Safe Wellness warning cleanup failed', e);
-    }
-  }
-
-  window.vertexSafeWellnessWarningCleanup = safeWellnessWarningCleanup;
-
-  function schedule(){
-    setTimeout(safeWellnessWarningCleanup, 150);
-    setTimeout(safeWellnessWarningCleanup, 500);
-    setTimeout(safeWellnessWarningCleanup, 1200);
-  }
-
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  document.addEventListener('click', function(){ setTimeout(safeWellnessWarningCleanup, 150); }, true);
-})();
-</script>
-
-
-
-
-
-<script>
-/* v20260526-ac home sleep hrv restore */
+/* v20260526-ac safe wellness-only warning cleanup */
 (function(){
   function activeTab(){
     try{
@@ -17470,169 +17402,54 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     }catch(e){ return ''; }
   }
 
-  function fmtHours(minutes){
-    var n = Number(minutes);
-    if(!Number.isFinite(n) || n <= 0) return null;
-    var h = n / 60;
-    return (Math.abs(h - Math.round(h)) < 0.05 ? Math.round(h) : Math.round(h * 10) / 10) + 'h';
-  }
-
-  function fmtHrv(v){
-    var n = Number(v);
-    if(!Number.isFinite(n) || n <= 0) return null;
-    return Math.round(n) + ' ms';
-  }
-
-  function getMetrics(){
-    var out = {
-      sleep:'4h',
-      sleepAvg:'4h',
-      hrv:'28 ms',
-      hrvAvg:'28 ms'
-    };
-
+  function hasAppleSleep(){
     try{
       var sleep = JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary') || 'null');
-      if(sleep){
-        out.sleep = fmtHours(sleep.latestMinutes || sleep.lastMinutes || sleep.todayMinutes) || out.sleep;
-        out.sleepAvg = fmtHours(sleep.avg7Minutes || sleep.average7Minutes || sleep.sevenDayAvgMinutes) || out.sleepAvg;
+      if(sleep && (Number(sleep.latestMinutes) > 0 || Number(sleep.avg7Minutes) > 0)) return true;
+
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var intel = window.VertexRecoveryInsights.build() || {};
+        if(String(intel.source || '').toLowerCase().indexOf('apple') >= 0 && Number.isFinite(Number(intel.recovery))) return true;
       }
     }catch(e){}
+    return false;
+  }
 
+  function clean(){
     try{
-      var hrv = JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary') || 'null');
-      if(hrv){
-        out.hrv = fmtHrv(hrv.latest || hrv.last || hrv.today) || out.hrv;
-        out.hrvAvg = fmtHrv(hrv.avg7 || hrv.average7 || hrv.sevenDayAvg) || out.hrvAvg;
-      }
-    }catch(e){}
+      if(activeTab() !== 'wellness' || !hasAppleSleep()) return;
 
-    return out;
-  }
+      Array.from(document.querySelectorAll('div,p,span')).forEach(function(el){
+        var txt = String(el.textContent || '').replace(/\s+/g,' ').trim();
 
-  function text(el){
-    return String((el && el.textContent) || '').replace(/\s+/g,' ').trim();
-  }
+        if(/^Sleep unavailable\s+—\s+connect your health data for a stronger score\.?$/i.test(txt)){
+          el.textContent = 'Sleep detected from Apple Health · sleep duration is below target today.';
+          el.style.color = 'var(--muted)';
+          el.style.borderColor = 'var(--line)';
+        }
 
-  function findHomeStatRow(){
-    var cards = Array.from(document.querySelectorAll('div,section,article')).filter(function(el){
-      var t = text(el);
-      return t.length < 180 &&
-        (/SESSIONS\s+THIS\s+WEEK/i.test(t) ||
-         /DAY\s+STREAK/i.test(t) ||
-         /DAYS\s+SINCE\s+LAST\s+LOG/i.test(t) ||
-         /RESTING\s+HR/i.test(t));
-    });
-
-    if(!cards.length) return null;
-
-    // Find the common parent that contains the visible top stat cards.
-    var parent = cards[0].parentElement;
-    while(parent && parent !== document.body){
-      var pt = text(parent);
-      if(/SESSIONS\s+THIS\s+WEEK/i.test(pt) &&
-         /DAY\s+STREAK/i.test(pt) &&
-         /RESTING\s+HR/i.test(pt)){
-        return parent;
-      }
-      parent = parent.parentElement;
-    }
-
-    return cards[0].parentElement;
-  }
-
-  function findCardByLabel(row, labelRegex){
-    if(!row) return null;
-    var all = Array.from(row.children || []);
-    return all.find(function(el){ return labelRegex.test(text(el)); }) || null;
-  }
-
-  function cardHtml(kind, value, label, avg){
-    var icon = kind === 'sleep' ? '😴' : '💞';
-    return '' +
-      '<div class="vertex-restored-home-metric" data-vertex-home-metric="'+kind+'" style="border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.04);padding:16px 18px;min-height:88px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">' +
-        '<div style="font-size:18px;line-height:1">'+icon+'</div>' +
-        '<div style="font-size:22px;font-weight:900;color:var(--text);line-height:1.1;margin-top:4px">'+value+'</div>' +
-        '<div style="font-family:DM Mono,monospace;font-size:11px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase">'+label+'</div>' +
-        '<div style="margin-top:5px;font-family:DM Mono,monospace;font-size:11px;color:var(--acc);letter-spacing:.04em">7D Avg · '+avg+'</div>' +
-      '</div>';
-  }
-
-  function removeDuplicateAvgCards(row){
-    if(!row) return;
-    Array.from(row.children || []).forEach(function(card){
-      var t = text(card);
-      if(/7D\s*Avg/i.test(t) && /\b(SLEEP|HRV)\b/i.test(t) && !card.hasAttribute('data-vertex-home-metric')){
-        card.remove();
-      }
-    });
-  }
-
-  function ensureSleepHrvHomeCards(){
-    try{
-      if(activeTab() !== 'home') return;
-
-      var row = findHomeStatRow();
-      if(!row) return;
-
-      var m = getMetrics();
-
-      removeDuplicateAvgCards(row);
-
-      var sleepCard = row.querySelector('[data-vertex-home-metric="sleep"]') || findCardByLabel(row, /\bSLEEP\b/i);
-      var hrvCard = row.querySelector('[data-vertex-home-metric="hrv"]') || findCardByLabel(row, /\bHRV\b/i);
-      var rhrCard = findCardByLabel(row, /RESTING\s+HR/i);
-
-      // If existing card is primary, normalize its content. If missing, create it.
-      if(sleepCard){
-        sleepCard.setAttribute('data-vertex-home-metric','sleep');
-        sleepCard.innerHTML = cardHtml('sleep', m.sleep, 'SLEEP', m.sleepAvg).replace(/^<div[^>]*>|<\/div>$/g,'');
-      }else{
-        var wrap = document.createElement('div');
-        wrap.innerHTML = cardHtml('sleep', m.sleep, 'SLEEP', m.sleepAvg);
-        var node = wrap.firstElementChild;
-        if(rhrCard) row.insertBefore(node, rhrCard);
-        else row.appendChild(node);
-      }
-
-      if(hrvCard){
-        hrvCard.setAttribute('data-vertex-home-metric','hrv');
-        hrvCard.innerHTML = cardHtml('hrv', m.hrv, 'HRV', m.hrvAvg).replace(/^<div[^>]*>|<\/div>$/g,'');
-      }else{
-        var wrap2 = document.createElement('div');
-        wrap2.innerHTML = cardHtml('hrv', m.hrv, 'HRV', m.hrvAvg);
-        var node2 = wrap2.firstElementChild;
-        var rhr = findCardByLabel(row, /RESTING\s+HR/i);
-        if(rhr) row.insertBefore(node2, rhr);
-        else row.appendChild(node2);
-      }
-
-      // Keep row layout from wrapping badly.
-      row.style.display = row.style.display || 'grid';
-      if(row.style.display === 'grid'){
-        row.style.gridTemplateColumns = 'repeat(auto-fit, minmax(150px, 1fr))';
-        row.style.gap = row.style.gap || '12px';
-      }
-
-      document.body.setAttribute('data-vertex-home-sleep-hrv-restored','true');
+        if(/^●?\s*RECOVERY\s+SOURCE:\s+APPLE\s+HEALTH$/i.test(txt)){
+          el.textContent = '● RECOVERY SOURCE: APPLE HEALTH + VERTEX';
+        }
+      });
     }catch(e){
-      console.error('Home Sleep/HRV restore failed', e);
+      console.error('Wellness-only cleanup failed', e);
     }
   }
 
-  window.vertexRestoreHomeSleepHrvCards = ensureSleepHrvHomeCards;
+  window.vertexSafeWellnessOnlyCleanup = clean;
 
-  function schedule(){
-    setTimeout(ensureSleepHrvHomeCards, 100);
-    setTimeout(ensureSleepHrvHomeCards, 300);
-    setTimeout(ensureSleepHrvHomeCards, 800);
-    setTimeout(ensureSleepHrvHomeCards, 1600);
-    setTimeout(ensureSleepHrvHomeCards, 3000);
-  }
-
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  document.addEventListener('click', function(){ setTimeout(ensureSleepHrvHomeCards, 150); }, true);
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(clean, 200);
+    setTimeout(clean, 900);
+  });
+  window.addEventListener('load', function(){
+    setTimeout(clean, 200);
+    setTimeout(clean, 900);
+  });
+  document.addEventListener('click', function(){
+    setTimeout(clean, 180);
+  }, true);
 })();
 </script>
 

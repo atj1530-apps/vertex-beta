@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: training strain engine; service worker/cache unchanged -->
+<!-- v20260526-ac: workout persistence intelligence layer; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -16504,6 +16504,281 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(run, 150); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac workout persistence intelligence layer */
+(function(){
+  function safeJson(key, fallback){
+    try{
+      var raw = localStorage.getItem(key);
+      if(!raw) return fallback;
+      return JSON.parse(raw);
+    }catch(e){
+      return fallback;
+    }
+  }
+
+  function saveJson(key, value){
+    try{
+      localStorage.setItem(key, JSON.stringify(value));
+    }catch(e){}
+  }
+
+  function nowIso(){
+    return new Date().toISOString();
+  }
+
+  function text(){
+    return document.body && document.body.textContent ? document.body.textContent : '';
+  }
+
+  function getReadiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var intel = window.VertexRecoveryInsights.build() || {};
+        if(Number.isFinite(Number(intel.recovery))) return Math.round(Number(intel.recovery));
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function parseRecentExercisesFromDom(){
+    var results = [];
+    try{
+      var cards = Array.from(document.querySelectorAll('div,button,li')).filter(function(el){
+        var t = String(el.textContent || '').replace(/\s+/g,' ').trim();
+        return t && /\b(reps|sets|lb|kg)\b/i.test(t) && !/READINESS|SETTINGS|SOURCE/i.test(t);
+      });
+
+      cards.slice(0,20).forEach(function(el){
+        var t = String(el.textContent || '').replace(/\s+/g,' ').trim();
+
+        var name = '';
+        var lines = String(el.textContent || '').split('\n').map(function(x){ return x.trim(); }).filter(Boolean);
+        if(lines.length) name = lines[0];
+        if(!name || name.length > 70) {
+          var mName = t.match(/^([A-Za-z][A-Za-z\s\-()]+?)\s+(Chest|Back|Legs|Shoulders|Arms|Core|Full Body|Dumbbells|Barbell)/i);
+          name = mName ? mName[1].trim() : '';
+        }
+
+        var lb = null, reps = null, sets = null;
+        var m1 = t.match(/(\d+(?:\.\d+)?)\s*lb/i);
+        if(m1) lb = Number(m1[1]);
+        var m2 = t.match(/(\d+)\s*reps?/i);
+        if(m2) reps = Number(m2[1]);
+        var m3 = t.match(/(\d+)\s*sets?/i);
+        if(m3) sets = Number(m3[1]);
+
+        var muscle = null;
+        var mm = t.match(/\b(Chest|Back|Legs|Shoulders|Arms|Core|Full Body)\b/i);
+        if(mm) muscle = mm[1];
+
+        if(name && (lb !== null || reps !== null || sets !== null)){
+          results.push({
+            name:name,
+            muscle:muscle,
+            weight:lb,
+            reps:reps,
+            sets:sets || 1,
+            source:'dom',
+            capturedAt:nowIso()
+          });
+        }
+      });
+    }catch(e){}
+    return results;
+  }
+
+  function normalizeExerciseName(name){
+    return String(name || '').trim().replace(/\s+/g,' ');
+  }
+
+  function upsertExerciseHistory(entry){
+    if(!entry || !entry.name) return false;
+
+    var history = safeJson('vertexWorkoutExerciseHistory', {});
+    var name = normalizeExerciseName(entry.name);
+    if(!name) return false;
+
+    if(!history[name]){
+      history[name] = {
+        name:name,
+        muscle:entry.muscle || null,
+        sessions:0,
+        sets:0,
+        bestWeight:null,
+        bestReps:null,
+        estimatedVolume:0,
+        lastPerformed:null,
+        entries:[]
+      };
+    }
+
+    var h = history[name];
+    var sets = Number(entry.sets || 1);
+    var reps = Number(entry.reps || 0);
+    var weight = Number(entry.weight || 0);
+    var volume = sets * reps * weight;
+
+    var duplicate = h.entries && h.entries.some(function(e){
+      return e.capturedAt === entry.capturedAt || (
+        e.name === name &&
+        e.weight === entry.weight &&
+        e.reps === entry.reps &&
+        Math.abs(new Date(e.capturedAt || 0).getTime() - new Date(entry.capturedAt || 0).getTime()) < 5000
+      );
+    });
+
+    if(duplicate) return false;
+
+    h.sessions += 1;
+    h.sets += sets;
+    h.bestWeight = h.bestWeight === null ? weight : Math.max(h.bestWeight, weight);
+    h.bestReps = h.bestReps === null ? reps : Math.max(h.bestReps, reps);
+    h.estimatedVolume += Number.isFinite(volume) ? volume : 0;
+    h.lastPerformed = entry.capturedAt;
+    h.muscle = h.muscle || entry.muscle || null;
+    h.entries = h.entries || [];
+    h.entries.unshift({
+      name:name,
+      muscle:entry.muscle || h.muscle,
+      weight:entry.weight,
+      reps:entry.reps,
+      sets:sets,
+      volume:volume,
+      capturedAt:entry.capturedAt,
+      readiness:getReadiness()
+    });
+    h.entries = h.entries.slice(0,50);
+
+    history[name] = h;
+    saveJson('vertexWorkoutExerciseHistory', history);
+    return true;
+  }
+
+  function captureVisibleWorkoutData(){
+    var entries = parseRecentExercisesFromDom();
+    var changed = false;
+    entries.forEach(function(e){
+      if(upsertExerciseHistory(e)) changed = true;
+    });
+    if(changed){
+      localStorage.setItem('vertexWorkoutHistoryLastSync', nowIso());
+    }
+    return changed;
+  }
+
+  function buildWorkoutPersistenceSummary(){
+    var history = safeJson('vertexWorkoutExerciseHistory', {});
+    var names = Object.keys(history);
+    var totalSets = names.reduce(function(sum,n){ return sum + Number(history[n].sets || 0); }, 0);
+    var totalSessions = names.reduce(function(sum,n){ return sum + Number(history[n].sessions || 0); }, 0);
+
+    var top = names.map(function(n){ return history[n]; })
+      .sort(function(a,b){ return Number(b.sets || 0) - Number(a.sets || 0); })[0] || null;
+
+    var bestVolume = names.map(function(n){ return history[n]; })
+      .sort(function(a,b){ return Number(b.estimatedVolume || 0) - Number(a.estimatedVolume || 0); })[0] || null;
+
+    return {
+      exercises:names.length,
+      totalSets:totalSets,
+      totalSessions:totalSessions,
+      topExercise:top,
+      bestVolume:bestVolume,
+      lastSync:localStorage.getItem('vertexWorkoutHistoryLastSync')
+    };
+  }
+
+  function ensurePersistencePanel(){
+    var holder = document.getElementById('vertexProgressIntelligenceHolder');
+    if(!holder) return null;
+
+    var panel = document.getElementById('vertexWorkoutPersistencePanel');
+    if(panel) return panel;
+
+    panel = document.createElement('div');
+    panel.id = 'vertexWorkoutPersistencePanel';
+    panel.style.cssText = 'margin-bottom:0;min-height:132px;padding:16px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)';
+    panel.innerHTML =
+      '<div style="font-size:11px;letter-spacing:.35em;color:var(--muted);margin-bottom:12px">WORKOUT MEMORY</div>' +
+      '<div class="vertex-panel-body" style="color:var(--muted);font-size:13px;line-height:1.5"></div>';
+
+    holder.appendChild(panel);
+    return panel;
+  }
+
+  function renderPersistencePanel(){
+    try{
+      var panel = ensurePersistencePanel();
+      if(!panel) return;
+
+      var body = panel.querySelector('.vertex-panel-body');
+      if(!body) return;
+
+      var s = buildWorkoutPersistenceSummary();
+
+      if(!s.exercises){
+        body.innerHTML =
+          '<div style="font-size:18px;color:var(--muted);font-weight:700">Memory baseline pending</div>' +
+          '<div style="margin-top:10px">Log workouts to build exercise history.</div>' +
+          '<div>Progression tracking starts after repeated movements.</div>';
+        return;
+      }
+
+      body.innerHTML =
+        '<div style="font-size:18px;color:var(--green);font-weight:700">' + s.exercises + ' exercises tracked</div>' +
+        '<div style="margin-top:10px">Stored sets: <b style="color:var(--text)">' + s.totalSets + '</b></div>' +
+        '<div>Top movement: <b style="color:var(--text)">' + (s.topExercise ? s.topExercise.name : 'Pending') + '</b></div>' +
+        '<div>Volume leader: <b style="color:var(--text)">' + (s.bestVolume ? s.bestVolume.name : 'Pending') + '</b></div>';
+    }catch(e){
+      console.error('Workout persistence panel render failed', e);
+    }
+  }
+
+  function improveWorkoutPageMemoryHint(){
+    try{
+      var empty = Array.from(document.querySelectorAll('div')).find(function(el){
+        return /No exercises added yet/i.test(String(el.textContent || ''));
+      });
+      if(!empty || document.getElementById('vertexWorkoutMemoryHint')) return;
+
+      var s = buildWorkoutPersistenceSummary();
+      if(!s.exercises) return;
+
+      var hint = document.createElement('div');
+      hint.id = 'vertexWorkoutMemoryHint';
+      hint.style.cssText = 'margin-top:12px;color:var(--muted);font-size:13px;text-align:center';
+      hint.innerHTML = 'Workout memory active · ' + s.exercises + ' movements tracked';
+      empty.appendChild(hint);
+    }catch(e){}
+  }
+
+  function run(){
+    captureVisibleWorkoutData();
+    renderPersistencePanel();
+    improveWorkoutPageMemoryHint();
+  }
+
+  window.VertexWorkoutPersistence = {
+    capture:captureVisibleWorkoutData,
+    summary:buildWorkoutPersistenceSummary,
+    render:renderPersistencePanel
+  };
+
+  function schedule(){
+    setTimeout(run, 250);
+    setTimeout(run, 900);
+    setTimeout(run, 1800);
+    setTimeout(run, 3500);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(run, 250); }, true);
 })();
 </script>
 

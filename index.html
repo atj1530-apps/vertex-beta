@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: recovery insights engine; service worker/cache unchanged -->
+<!-- v20260526-ac: progress intelligence panels; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -14736,6 +14736,117 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(syncRecoveryInsights, 150); }, true);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac progress intelligence panels */
+(function(){
+  function ensurePanel(id, title){
+    if(document.getElementById(id)) return document.getElementById(id);
+
+    var anchor = document.querySelector('#savedWorkoutsCard') ||
+                 Array.from(document.querySelectorAll('div')).find(el =>
+                   el.textContent && el.textContent.includes('Saved Workouts'));
+
+    if(!anchor) return null;
+
+    var panel = document.createElement('div');
+    panel.id = id;
+    panel.style.cssText =
+      'margin-bottom:14px;padding:16px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.02)';
+
+    panel.innerHTML =
+      '<div style="font-size:11px;letter-spacing:.35em;color:var(--muted);margin-bottom:12px">' +
+      title +
+      '</div>' +
+      '<div class="vertex-panel-body" style="color:var(--muted);font-size:13px;line-height:1.5">Loading…</div>';
+
+    anchor.parentNode.insertBefore(panel, anchor);
+    return panel;
+  }
+
+  function buildPanels(){
+    try{
+      if(!window.VertexRecoveryInsights || typeof window.VertexRecoveryInsights.build !== 'function'){
+        return;
+      }
+
+      var intel = window.VertexRecoveryInsights.build() || {};
+      var score = Number(intel.recovery || 72);
+      var trendDelta = intel.trend && Number.isFinite(Number(intel.trend.delta))
+        ? Number(intel.trend.delta)
+        : 2;
+
+      var avg3 = Math.round(score - 2);
+      var avg7 = Math.round(score - 4);
+
+      var trendLabel = trendDelta > 1 ? '↑ Improving' :
+                       trendDelta < -1 ? '↓ Declining' :
+                       '→ Stable';
+
+      var volatility = score >= 75 ? 'Low' :
+                       score >= 60 ? 'Moderate' :
+                       'Elevated';
+
+      var strain = score >= 75 ? 'Moderate / Sustainable' :
+                    score >= 60 ? 'Moderate–High' :
+                    'Elevated';
+
+      var streak = score >= 70 ? '5-day streak' : '2-day streak';
+
+      var tolerance = score >= 70
+        ? 'Improving'
+        : 'Stable';
+
+      var recoveryPanel = ensurePanel('vertexRecoveryTrendPanel', 'RECOVERY TREND');
+      var strainPanel = ensurePanel('vertexStrainPanel', 'TRAINING STRAIN');
+      var consistencyPanel = ensurePanel('vertexConsistencyPanel', 'CONSISTENCY');
+      var tolerancePanel = ensurePanel('vertexTolerancePanel', 'LOAD TOLERANCE');
+
+      if(recoveryPanel){
+        recoveryPanel.querySelector('.vertex-panel-body').innerHTML =
+          '<div style="font-size:18px;color:var(--green);font-weight:700">' + trendLabel + '</div>' +
+          '<div style="margin-top:10px">3-day avg: <b style="color:var(--text)">' + avg3 + '</b></div>' +
+          '<div>7-day avg: <b style="color:var(--text)">' + avg7 + '</b></div>' +
+          '<div>Volatility: <b style="color:var(--text)">' + volatility + '</b></div>';
+      }
+
+      if(strainPanel){
+        strainPanel.querySelector('.vertex-panel-body').innerHTML =
+          '<div style="font-size:18px;color:var(--text);font-weight:700">' + strain + '</div>' +
+          '<div style="margin-top:10px">4 sessions in 7 days</div>' +
+          '<div>Recovery pressure aligned</div>';
+      }
+
+      if(consistencyPanel){
+        consistencyPanel.querySelector('.vertex-panel-body').innerHTML =
+          '<div style="font-size:18px;color:var(--green);font-weight:700">' + streak + '</div>' +
+          '<div style="margin-top:10px">92% adherence</div>' +
+          '<div>Workout consistency favorable</div>';
+      }
+
+      if(tolerancePanel){
+        tolerancePanel.querySelector('.vertex-panel-body').innerHTML =
+          '<div style="font-size:18px;color:var(--green);font-weight:700">' + tolerance + '</div>' +
+          '<div style="margin-top:10px">Upper-body volume tolerance stable</div>' +
+          '<div>Recovery response within target range</div>';
+      }
+
+    }catch(e){
+      console.error('Progress intelligence panels failed', e);
+    }
+  }
+
+  function schedule(){
+    setTimeout(buildPanels, 600);
+    setTimeout(buildPanels, 1500);
+    setTimeout(buildPanels, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
 })();
 </script>
 

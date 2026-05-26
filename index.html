@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: readiness score generation repair; service worker/cache unchanged -->
+<!-- v20260526-ac: rollback-safe baseline; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -8460,181 +8460,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
-
-<script>
-/* v20260526-ac readiness score generation repair */
-(function(){
-  function clampVertexReadinessScore(n){
-    n = Number(n);
-    if(!Number.isFinite(n)) return null;
-    return Math.max(1, Math.min(100, Math.round(n)));
-  }
-
-  function getVertexNumber(keys){
-    try{
-      var stores = [window.vertexHealthState, window.healthState, window.APP_STATE, window.appState, window.state, window.VertexState, window.vertexState];
-      for(var s=0;s<stores.length;s++){
-        var obj = stores[s];
-        if(!obj || typeof obj !== 'object') continue;
-        for(var i=0;i<keys.length;i++){
-          var k = keys[i];
-          if(obj[k] !== undefined && obj[k] !== null && obj[k] !== ''){
-            var n = Number(obj[k]);
-            if(Number.isFinite(n)) return n;
-          }
-        }
-      }
-
-      for(var j=0;j<keys.length;j++){
-        var raw = localStorage.getItem(keys[j]);
-        if(raw !== null && raw !== ''){
-          var n2 = Number(raw);
-          if(Number.isFinite(n2)) return n2;
-        }
-      }
-    }catch(e){}
-    return null;
-  }
-
-  function deriveVertexReadinessFromSignals(){
-    var components = [];
-    var sourceParts = [];
-
-    var sleep = getVertexNumber(['sleepScore','sleep_score','ouraSleepScore','appleSleepScore','lastSleepScore']);
-    var hrv = getVertexNumber(['hrv','HRV','rmssd','lastHrv','ouraHrv','appleHrv']);
-    var rhr = getVertexNumber(['restingHeartRate','resting_heart_rate','rhr','lastRhr','appleRhr','ouraRhr']);
-    var energy = getVertexNumber(['energy','energyLevel','manualEnergy']);
-    var soreness = getVertexNumber(['soreness','manualSoreness','muscleSoreness']);
-    var stress = getVertexNumber(['stress','manualStress']);
-    var fatigue = getVertexNumber(['fatigue','manualFatigue']);
-
-    if(sleep !== null){
-      components.push({v:clampVertexReadinessScore(sleep), w:0.35});
-      sourceParts.push('Sleep');
-    }
-
-    if(hrv !== null){
-      var hrvScore = hrv >= 80 ? 90 : hrv >= 60 ? 80 : hrv >= 45 ? 70 : hrv >= 30 ? 58 : 45;
-      components.push({v:hrvScore, w:0.20});
-      sourceParts.push('HRV');
-    }
-
-    if(rhr !== null){
-      var rhrScore = rhr <= 55 ? 88 : rhr <= 65 ? 78 : rhr <= 75 ? 65 : 52;
-      components.push({v:rhrScore, w:0.12});
-      sourceParts.push('RHR');
-    }
-
-    if(energy !== null){
-      var energyScore = energy <= 10 ? energy * 10 : energy;
-      components.push({v:clampVertexReadinessScore(energyScore), w:0.15});
-      sourceParts.push('Manual');
-    }
-
-    if(soreness !== null){
-      var sorenessScore = soreness <= 10 ? 100 - (soreness * 8) : 100 - soreness;
-      components.push({v:clampVertexReadinessScore(sorenessScore), w:0.08});
-      sourceParts.push('Manual');
-    }
-
-    if(stress !== null){
-      var stressScore = stress <= 10 ? 100 - (stress * 8) : 100 - stress;
-      components.push({v:clampVertexReadinessScore(stressScore), w:0.05});
-      sourceParts.push('Manual');
-    }
-
-    if(fatigue !== null){
-      var fatigueScore = fatigue <= 10 ? 100 - (fatigue * 8) : 100 - fatigue;
-      components.push({v:clampVertexReadinessScore(fatigueScore), w:0.05});
-      sourceParts.push('Manual');
-    }
-
-    if(!components.length){
-      var bodyText = (document.body && document.body.textContent ? document.body.textContent : '').toLowerCase();
-      if(bodyText.indexOf('recovery signal is favorable') >= 0 || bodyText.indexOf('push intensity today') >= 0){
-        return {score:72, source:'Hybrid'};
-      }
-      return {score:null, source:null};
-    }
-
-    var weighted = 0;
-    var weight = 0;
-    components.forEach(function(c){
-      if(c.v !== null){
-        weighted += c.v * c.w;
-        weight += c.w;
-      }
-    });
-
-    var score = weight ? clampVertexReadinessScore(weighted / weight) : null;
-    var unique = [];
-    sourceParts.forEach(function(s){
-      if(unique.indexOf(s) < 0) unique.push(s);
-    });
-
-    var source = unique.length > 1 ? 'Hybrid' : (unique[0] || 'Manual');
-    return {score:score, source:source};
-  }
-
-  function installVertexReadinessScoringRepair(){
-    if(!window.VertexRecoveryInsights || typeof window.VertexRecoveryInsights.build !== 'function') return false;
-    if(window.VertexRecoveryInsights.__vertexReadinessScoreRepairInstalled) return true;
-
-    var originalBuild = window.VertexRecoveryInsights.build.bind(window.VertexRecoveryInsights);
-
-    window.VertexRecoveryInsights.build = function(){
-      var out = originalBuild() || {};
-      var existing = clampVertexReadinessScore(out.recovery);
-      if(existing !== null){
-        out.recovery = existing;
-        if(!out.source || out.source === 'Not connected') out.source = 'Hybrid';
-        return out;
-      }
-
-      var derived = deriveVertexReadinessFromSignals();
-      if(derived.score !== null){
-        out.recovery = derived.score;
-        out.source = derived.source || 'Hybrid';
-      }else{
-        out.recovery = null;
-        out.source = out.source || null;
-      }
-
-      return out;
-    };
-
-    window.VertexRecoveryInsights.__vertexReadinessScoreRepairInstalled = true;
-    return true;
-  }
-
-  function refreshVertexReadinessPanel(){
-    try{
-      installVertexReadinessScoringRepair();
-      if(typeof window.renderRight === 'function') window.renderRight();
-    }catch(e){
-      console.error('Vertex readiness scoring refresh failed', e);
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    setTimeout(refreshVertexReadinessPanel, 250);
-    setTimeout(refreshVertexReadinessPanel, 900);
-    setTimeout(refreshVertexReadinessPanel, 1800);
-  });
-  window.addEventListener('load', function(){
-    setTimeout(refreshVertexReadinessPanel, 450);
-  });
-
-  var installTimer = setInterval(function(){
-    if(installVertexReadinessScoringRepair()){
-      clearInterval(installTimer);
-      refreshVertexReadinessPanel();
-    }
-  }, 250);
-  setTimeout(function(){ clearInterval(installTimer); }, 5000);
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -9717,7 +9542,7 @@ function renderPhaseWorkout(w){
   const moveCount=phases.reduce((a,x)=>a+(x.moves?.length||0),0);
   return `<div class="flow-card"><div class="flow-grid"><div><div class="label">${escapeHtml(w.displayType||'Recovery / Mobility Day')} · volume excluded</div><h2>${escapeHtml(w.name)}</h2><p style="color:var(--muted)">${escapeHtml(p.name)} · ${modeHelp(p.mode)}</p><div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn acc" data-start-current="1">▶ Start Session</button><button class="btn" data-phase-prev="1" ${idx===0?'disabled':''}>Prev</button><button class="btn acc" data-phase-next="1" ${idx>=phases.length-1?'disabled':''}>Next Phase</button><button class="btn red" data-clear-current="1">Clear Workout</button></div></div><div class="flow-stats"><div class="flow-stat"><b>${w.duration||0}</b><span class="label">min</span></div><div class="flow-stat"><b>${idx+1}/${phases.length}</b><span class="label">phase</span></div><div class="flow-stat"><b>${moveCount}</b><span class="label">moves</span></div></div></div></div><div class="flow-list">${(p.moves||[]).map((m,i)=>`<div class="flow-move"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(m.name)}${m.side?` <span class="badge green">${escapeHtml(m.side)}</span>`:''}</strong><span class="time">${escapeHtml(moveTimeText(m))}</span></div>`).join('')}</div>`
 }
-function renderRight(){const s=stats(state.current); document.getElementById('stats').innerHTML=`<div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.ex:s.type}</div><div class="stat-lbl">${state.current.type==='strength'?'Exercises':'Type'}</div></div><div class="stat-box"><div class="stat-val">${s.est}</div><div class="stat-lbl">Est. Min</div></div><div class="stat-box"><div class="stat-val">${state.current.excludeFromVolume?0:(state.current.type==='strength'?s.sets:s.blocks)}</div><div class="stat-lbl">${state.current.excludeFromVolume?'Volume':'Blocks / Sets'}</div></div><div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.reps:s.moves}</div><div class="stat-lbl">${state.current.type==='strength'?'Total Reps':'Moves'}</div></div>`; const mv=muscleVolume(); const max=Math.max(1,...Object.values(mv)); document.getElementById('muscleVol').innerHTML=Object.keys(mv).length?Object.entries(mv).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${m}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<p style="color:var(--dim);text-align:center">Add exercises to see breakdown</p>'; const title=document.getElementById('rightCoachTitle'), copy=document.getElementById('rightCoachCopy'); if(title&&copy){try{ const intel=(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.build==='function')?window.VertexRecoveryInsights.build():null; const score=(intel&&Number.isFinite(Number(intel.recovery)))?Math.round(Number(intel.recovery)):null; const source=(intel&&intel.source&&intel.source!=='Not connected')?intel.source:(score!=null?'Hybrid':null); const status=(score==null)?null:(score>=80?'HIGH':(score>=65?'MODERATE':(score>=50?'LOW':'RECOVER'))); if(score!=null){ title.textContent='READINESS · '+status+' '+score; copy.textContent='Source: '+(source||'Hybrid'); }else{ title.textContent='READINESS'; copy.textContent='Not enough recovery data yet'; } }catch(e){ title.textContent='READINESS'; copy.textContent='Not enough recovery data yet'; }} renderSavedWorkouts();}
+function renderRight(){const s=stats(state.current); document.getElementById('stats').innerHTML=`<div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.ex:s.type}</div><div class="stat-lbl">${state.current.type==='strength'?'Exercises':'Type'}</div></div><div class="stat-box"><div class="stat-val">${s.est}</div><div class="stat-lbl">Est. Min</div></div><div class="stat-box"><div class="stat-val">${state.current.excludeFromVolume?0:(state.current.type==='strength'?s.sets:s.blocks)}</div><div class="stat-lbl">${state.current.excludeFromVolume?'Volume':'Blocks / Sets'}</div></div><div class="stat-box"><div class="stat-val">${state.current.type==='strength'?s.reps:s.moves}</div><div class="stat-lbl">${state.current.type==='strength'?'Total Reps':'Moves'}</div></div>`; const mv=muscleVolume(); const max=Math.max(1,...Object.values(mv)); document.getElementById('muscleVol').innerHTML=Object.keys(mv).length?Object.entries(mv).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${m}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<p style="color:var(--dim);text-align:center">Add exercises to see breakdown</p>'; const title=document.getElementById('rightCoachTitle'), copy=document.getElementById('rightCoachCopy'); if(title&&copy){try{ const intel=(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.build==='function')?window.VertexRecoveryInsights.build():null; title.textContent=intel?`RECOVERY · ${intel.recovery}`:'RECOVERY · —'; copy.innerHTML=(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.html==='function')?window.VertexRecoveryInsights.html(true):'Log recovery data to unlock coaching insights.'; }catch(e){ title.textContent='RECOVERY · —'; copy.textContent='Log recovery data to unlock coaching insights.'; }} renderSavedWorkouts();}
 function summary(w){const s=stats(w); return w.type==='strength'?`${s.ex} exercises planned`:(w.type==='mobility_strength_hybrid'?`${w.displayType||'Recovery / Mobility Day'} · ${s.blocks} phases · volume 0`:`${s.type} · ${s.est} min · ${s.moves} moves`)}
 function preview(w){return w.type==='strength'?(w.exercises||[]).map(e=>e.name).join(', '):(w.type==='mobility_strength_hybrid'?(w.phases||[]).map(p=>p.name).join(', '):(w.moves||[]).slice(0,5).map(m=>m.name).join(', '))}
 function openAssign(w){state.pendingTemplate=clone(w); const sel=document.getElementById('assignDay'); if(sel) sel.value=todayKey; document.getElementById('assignModal').classList.add('on')}

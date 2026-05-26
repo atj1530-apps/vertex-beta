@@ -2889,6 +2889,43 @@ button[id*="add" i][id*="exercise" i],
   }
 }
 
+
+
+/* ============================================================
+   v20260526-b MOBILE PLANNER SCROLL
+   Mobile only: weekly Planner becomes a horizontal snap carousel.
+   Desktop keeps the existing 7-day grid.
+   ============================================================ */
+@media(max-width:900px){
+  body.app-page-home #planner.planner-grid,
+  #planner.planner-grid{
+    display:flex!important;
+    flex-direction:row!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x mandatory!important;
+    scrollbar-width:none!important;
+    margin:0 -12px 0!important;
+    padding:0 12px 12px!important;
+    grid-template-columns:none!important;
+  }
+  body.app-page-home #planner.planner-grid::-webkit-scrollbar,
+  #planner.planner-grid::-webkit-scrollbar{
+    display:none!important;
+  }
+  body.app-page-home #planner.planner-grid .day-card,
+  #planner.planner-grid .day-card{
+    flex:0 0 min(82vw,340px)!important;
+    width:min(82vw,340px)!important;
+    min-width:min(82vw,340px)!important;
+    scroll-snap-align:start!important;
+    scroll-snap-stop:always!important;
+    min-height:145px!important;
+  }
+}
+
 </style>
 </head>
 <body class="auth-resolving">
@@ -10974,7 +11011,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-i';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-b';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

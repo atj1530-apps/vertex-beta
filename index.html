@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: settings integration layout anchor repair; service worker/cache unchanged -->
+<!-- v20260526-ac: training strain engine; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -16289,6 +16289,221 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
+})();
+</script>
+
+
+<script>
+/* v20260526-ac training strain engine */
+(function(){
+  function text(){
+    return document.body && document.body.textContent ? document.body.textContent : '';
+  }
+
+  function numberFromMatch(regex, fallback){
+    try{
+      var m = text().match(regex);
+      if(m) return Number(m[1]);
+    }catch(e){}
+    return fallback;
+  }
+
+  function getReadiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var intel = window.VertexRecoveryInsights.build() || {};
+        if(Number.isFinite(Number(intel.recovery))) return Math.round(Number(intel.recovery));
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function getWorkoutCount(){
+    var weekly = numberFromMatch(/You logged\s+(\d+)\s+workouts?\s+this week/i, null);
+    if(weekly !== null) return weekly;
+
+    try{
+      var keys = ['vertexWorkoutCount7d','workoutCount7d','weeklyWorkoutCount'];
+      for(var i=0;i<keys.length;i++){
+        var v = localStorage.getItem(keys[i]);
+        if(v !== null && v !== '' && Number.isFinite(Number(v))) return Number(v);
+      }
+    }catch(e){}
+    return 0;
+  }
+
+  function getLastWorkoutDays(){
+    return numberFromMatch(/Last workout was\s+(\d+)\s+days?\s+ago/i, null);
+  }
+
+  function getMostLoggedExercise(){
+    try{
+      var m = text().match(/([A-Za-z\s]+) is your most logged exercise \((\d+) sets\)/i);
+      if(m) return {name:m[1].trim(), sets:Number(m[2])};
+    }catch(e){}
+    return null;
+  }
+
+  function buildTrainingStrain(){
+    var readiness = getReadiness();
+    var workouts = getWorkoutCount();
+    var lastDays = getLastWorkoutDays();
+    var exercise = getMostLoggedExercise();
+
+    var strainScore = 0;
+    strainScore += Math.min(50, workouts * 12);
+    if(exercise && Number.isFinite(exercise.sets)) strainScore += Math.min(25, exercise.sets * 2);
+    if(lastDays !== null && lastDays <= 1) strainScore += 15;
+    if(lastDays !== null && lastDays >= 4) strainScore -= 10;
+    if(readiness !== null && readiness < 60) strainScore += 10;
+    if(readiness !== null && readiness >= 75) strainScore -= 5;
+
+    strainScore = Math.max(0, Math.min(100, Math.round(strainScore)));
+
+    var label = strainScore >= 75 ? 'High' :
+                strainScore >= 50 ? 'Moderate–High' :
+                strainScore >= 25 ? 'Moderate' :
+                strainScore > 0 ? 'Low' :
+                'No current training strain';
+
+    var recommendation = 'Log workouts to calculate strain.';
+    if(strainScore >= 75) recommendation = 'Reduce volume or keep intensity controlled.';
+    else if(strainScore >= 50) recommendation = 'Train, but avoid unnecessary max-effort work.';
+    else if(strainScore >= 25) recommendation = 'Sustainable workload. Progress gradually.';
+    else if(strainScore > 0) recommendation = 'Low strain. Room to build workload.';
+
+    return {
+      score: strainScore,
+      label: label,
+      workouts: workouts,
+      lastDays: lastDays,
+      exercise: exercise,
+      readiness: readiness,
+      recommendation: recommendation
+    };
+  }
+
+  function buildLoadTolerance(strain){
+    var readiness = strain.readiness;
+    if(strain.workouts === 0){
+      return {
+        label:'Baseline pending',
+        copy:'Load tolerance needs real logged sessions.',
+        detail:'Recovery data is available; training response will improve after logs.'
+      };
+    }
+
+    if(readiness !== null && readiness >= 70 && strain.score <= 50){
+      return {
+        label:'Improving',
+        copy:'Recovery is handling current workload.',
+        detail:'Progress load gradually where form remains stable.'
+      };
+    }
+
+    if(readiness !== null && readiness < 60 && strain.score >= 50){
+      return {
+        label:'Strained',
+        copy:'Workload may be outpacing recovery.',
+        detail:'Reduce volume or increase recovery emphasis.'
+      };
+    }
+
+    return {
+      label:'Stable',
+      copy:'Current load appears manageable.',
+      detail:'Continue tracking volume and recovery response.'
+    };
+  }
+
+  function updateProgressPanels(){
+    try{
+      var strain = buildTrainingStrain();
+      var tolerance = buildLoadTolerance(strain);
+
+      var strainPanel = document.getElementById('vertexStrainPanel');
+      var tolerancePanel = document.getElementById('vertexTolerancePanel');
+
+      if(strainPanel){
+        var sbody = strainPanel.querySelector('.vertex-panel-body');
+        if(sbody){
+          if(strain.workouts === 0){
+            sbody.innerHTML =
+              '<div style="font-size:18px;color:var(--muted);font-weight:700">No current training strain</div>' +
+              '<div style="margin-top:10px">0 workouts logged this week</div>' +
+              '<div>Strain will calculate after logged sessions.</div>';
+          }else{
+            sbody.innerHTML =
+              '<div style="font-size:18px;color:var(--text);font-weight:700">' + strain.label + '</div>' +
+              '<div style="margin-top:10px">Strain score: <b style="color:var(--acc)">' + strain.score + '</b></div>' +
+              '<div>' + strain.workouts + ' workouts logged this week</div>' +
+              '<div style="margin-top:6px;color:var(--muted)">' + strain.recommendation + '</div>';
+          }
+        }
+      }
+
+      if(tolerancePanel){
+        var tbody = tolerancePanel.querySelector('.vertex-panel-body');
+        if(tbody){
+          tbody.innerHTML =
+            '<div style="font-size:18px;color:' + (tolerance.label === 'Strained' ? 'var(--orange)' : 'var(--green)') + ';font-weight:700">' + tolerance.label + '</div>' +
+            '<div style="margin-top:10px">' + tolerance.copy + '</div>' +
+            '<div>' + tolerance.detail + '</div>';
+        }
+      }
+    }catch(e){
+      console.error('Training strain progress update failed', e);
+    }
+  }
+
+  function updateWorkoutReadinessNarrative(){
+    try{
+      var copy = document.getElementById('rightCoachCopy');
+      if(!copy) return false;
+
+      var strain = buildTrainingStrain();
+      if(strain.workouts === 0) return false;
+
+      var html = copy.innerHTML || '';
+      if(html.indexOf('Training strain:') >= 0) return true;
+
+      html +=
+        '<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:12px;line-height:1.45">' +
+          '<div><b style="color:var(--text)">Training strain:</b> ' + strain.label + '</div>' +
+          '<div>' + strain.recommendation + '</div>' +
+        '</div>';
+
+      copy.innerHTML = html;
+      return true;
+    }catch(e){
+      console.error('Training strain readiness narrative failed', e);
+      return false;
+    }
+  }
+
+  window.VertexTrainingStrainEngine = {
+    build: buildTrainingStrain,
+    sync: function(){
+      updateProgressPanels();
+      updateWorkoutReadinessNarrative();
+    }
+  };
+
+  function run(){
+    updateProgressPanels();
+    updateWorkoutReadinessNarrative();
+  }
+
+  function schedule(){
+    setTimeout(run, 200);
+    setTimeout(run, 800);
+    setTimeout(run, 1600);
+    setTimeout(run, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  document.addEventListener('click', function(){ setTimeout(run, 150); }, true);
 })();
 </script>
 

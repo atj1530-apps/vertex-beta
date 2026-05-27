@@ -3850,6 +3850,30 @@ body.app-page-progress #progressPage #progressTabContent{order:5!important;}
 }
 </style>
 
+
+<style id="vertex-phase1d-cleanup-css">
+/* Phase 1D: Progress hierarchy cleanup + active planner dots + explainable score affordances. No SVG/chart/service-worker/auth changes. */
+body.app-page-progress #progressPage.progress-page{display:flex!important;flex-direction:column!important;}
+body.app-page-progress #progressPage .progress-head{order:1!important;}
+body.app-page-progress #progressPage #progressSummary{order:2!important;}
+body.app-page-progress #progressPage .progress-tabs{order:3!important;margin:12px 0 14px!important;display:flex!important;gap:10px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;flex-wrap:nowrap!important;}
+body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
+body.app-page-progress #progressPage .progress-tabs .progress-tab{flex:0 0 auto!important;border-radius:999px!important;padding:10px 16px!important;}
+body.app-page-progress #progressPage #vertexB2ProgressDeck{order:4!important;}
+body.app-page-progress #progressPage #progressTabContent{order:5!important;}
+/* Disable old static pseudo dots; use real active dots injected by script. */
+body.app-page-home #plannerAcc::after,
+body.app-page-home #plannerAcc.planner-panel::after{display:none!important;content:none!important;}
+.vertex-planner-dots{display:none;justify-content:center;align-items:center;gap:7px;margin:8px auto 0;padding-bottom:2px;}
+.vertex-planner-dot{width:6px;height:6px;border-radius:999px;background:rgba(232,255,71,.32);transition:width .18s ease,background .18s ease,opacity .18s ease;opacity:.85;}
+.vertex-planner-dot.on{width:18px;background:var(--acc);opacity:1;}
+@media(max-width:900px){body.app-page-home .vertex-planner-dots{display:flex!important;}}
+.vertex-score-info{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:1px solid rgba(232,255,71,.42);border-radius:999px;color:var(--acc);font-family:'DM Mono',monospace;font-size:10px;font-weight:800;line-height:1;margin-left:6px;vertical-align:middle;background:rgba(232,255,71,.045);cursor:help;}
+.vertex-b2-card .label{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;}
+.vertex-b2-card .vertex-score-info{flex:0 0 auto;margin-left:auto;}
+.vertex-rec-card span{display:inline-flex;align-items:center;gap:4px;}
+.vertex-rec-card .vertex-score-info{width:14px;height:14px;font-size:9px;margin-left:3px;}
+</style>
 </head>
 <body class="auth-resolving">
 
@@ -3972,7 +3996,7 @@ window.vertexFinishBootstrap=function(){
   <main class="main">
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
     <div id="home-dashboard" style="display:none"></div>
-<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck" aria-label="Progress intelligence cards"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
+<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck" aria-label="Progress intelligence cards"></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace"></span>
@@ -6874,7 +6898,23 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
   }
   function card(title,value,lines,wide){
     const s=sev(value+' '+(lines||[]).join(' '));
-    return `<section class="vertex-b2-card vertex-b2-${s}${wide?' vertex-b2-wide':''}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
+    const infoMap={
+      'Workout Memory':'Tracks how many exercises and sets Vertex has stored from your workout logs. This improves movement history and progression guidance.',
+      'Cardio Strain':'Estimates endurance load from connected cardio activity when available, currently using recent Strava activity duration as a directional signal.',
+      'Adaptive Coach':'Uses readiness/recovery plus recent workout behavior to choose whether to progress, maintain, or prioritize recovery.',
+      'Longitudinal Trend':'Summarizes whether your recent recovery and training pattern is building, stable, or constrained.',
+      'Training Strain':'Combines weekly workout frequency, recovery readiness, and current volume signals to estimate today’s training stress.',
+      'Consistency':'Compares this week’s logged sessions against the prior week to show whether your training rhythm is improving, stable, or slipping.',
+      'Hybrid Routing':'Shows which signal sources are driving coaching: wearable recovery data when available plus Vertex workout logs.',
+      'Readiness':'Recovery/readiness score from the current Vertex recovery synthesis when connected data is available.',
+      'Progression Engine':'Looks for repeated movements and stored performance history to suggest when progression is appropriate.',
+      'Performance Decision':'Blends readiness and workload context into a practical recommendation for today’s training choice.',
+      'Weekly Intelligence':'Summarizes current week training frequency, muscle volume emphasis, and last-workout timing.',
+      'Recovery Trend':'Shows whether recovery is stable, improving, or constrained based on the latest readiness signal.',
+      'Load Tolerance':'Estimates whether current training load appears manageable or should be reduced based on recovery context.'
+    };
+    const info=infoMap[String(title)]||'Vertex synthesized metric based on available workout and wellness inputs.';
+    return `<section class="vertex-b2-card vertex-b2-${s}${wide?' vertex-b2-wide':''}"><div class="label"><span>${esc(title)}</span><span class="vertex-score-info" title="${esc(info)}" aria-label="${esc(title)} explanation">i</span></div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
   }
   const row1=[
     card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Top movement: ${topMove.name} (${topMove.sets||0} sets)`:'Top movement pending']),
@@ -9181,6 +9221,55 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
+
+<script id="vertex-phase1d-planner-dots-js">
+(function(){
+  function ready(fn){ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fn,{once:true}); else fn(); }
+  function setupPlannerDots(){
+    var planner=document.getElementById('planner');
+    if(!planner || planner.__vertexDotsReady) return;
+    var body=planner.closest('.acc-body') || planner.parentElement;
+    if(!body) return;
+    var dots=document.createElement('div');
+    dots.className='vertex-planner-dots';
+    dots.setAttribute('aria-hidden','true');
+    var parent=planner.parentElement;
+    if(parent && parent.parentElement){ parent.parentElement.insertBefore(dots, parent.nextSibling); }
+    else { body.appendChild(dots); }
+    function cards(){ return Array.prototype.slice.call(planner.querySelectorAll('.day-card')); }
+    function renderDots(){
+      var count=cards().length || 7;
+      if(dots.children.length!==count){ dots.innerHTML=Array.from({length:count},function(_,i){return '<span class="vertex-planner-dot" data-i="'+i+'"></span>';}).join(''); }
+      updateDots();
+    }
+    function updateDots(){
+      var c=cards();
+      if(!c.length) return;
+      var best=0, bestDist=Infinity;
+      var left=planner.getBoundingClientRect().left;
+      c.forEach(function(card,i){
+        var dist=Math.abs(card.getBoundingClientRect().left-left);
+        if(dist<bestDist){ bestDist=dist; best=i; }
+      });
+      Array.prototype.forEach.call(dots.children,function(dot,i){ dot.classList.toggle('on',i===best); });
+    }
+    planner.addEventListener('scroll',function(){ window.requestAnimationFrame(updateDots); },{passive:true});
+    dots.addEventListener('click',function(e){
+      var d=e.target.closest && e.target.closest('.vertex-planner-dot');
+      if(!d) return;
+      var idx=Number(d.getAttribute('data-i')||0);
+      var c=cards()[idx];
+      if(c) planner.scrollTo({left:c.offsetLeft,behavior:'smooth'});
+    });
+    try{ new MutationObserver(renderDots).observe(planner,{childList:true,subtree:false}); }catch(e){}
+    planner.__vertexDotsReady=true;
+    renderDots();
+    setTimeout(renderDots,300);
+    setTimeout(updateDots,900);
+  }
+  ready(function(){ setupPlannerDots(); setTimeout(setupPlannerDots,800); setTimeout(setupPlannerDots,2000); });
+})();
+</script>
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -13797,7 +13886,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.61.12-phase1-no-sparks';
+  const VERSION='v13.61.13-phase1d-cleanup';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -14158,7 +14247,7 @@ window.vertexImportHKWorkout = async function(idx) {
     const x=vertexBuildRecoveryInsights();
     const esc=(typeof escapeHtml==='function')?escapeHtml:(v)=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const driverHtml=(x.drivers||[]).slice(0, compact?2:3).map(d=>`<div class="vertex-rec-driver ${esc(d.type||'warn')}">${esc(d.text||d)}</div>`).join('');
-    return `<div class="vertex-rec-grid"><div class="vertex-rec-card"><b>${x.recovery}</b><span>Recovery Readiness</span><div class="vertex-rec-trend">${esc(x.trend.label)}${x.trend.delta?` · ${x.trend.delta>0?'+':''}${x.trend.delta}`:''}</div></div><div class="vertex-rec-card"><b>${x.training}</b><span>Training Capacity</span><div class="vertex-rec-trend">${esc(x.label)}</div></div></div><div class="vertex-rec-reco"><b>Daily Recommendation</b><span>${esc(x.recommendation)}</span></div><div class="vertex-rec-source">Recovery Source: ${esc(x.source)}</div><div class="vertex-rec-drivers">${driverHtml}</div>`;
+    return `<div class="vertex-rec-grid"><div class="vertex-rec-card"><b>${x.recovery}</b><span>Recovery Readiness <span class="vertex-score-info" title="Recovery Readiness is Vertex's current recovery synthesis from connected wearable/manual wellness inputs when available. It is directional, not a clinical score." aria-label="Recovery Readiness explanation">i</span></span><div class="vertex-rec-trend">${esc(x.trend.label)}${x.trend.delta?` · ${x.trend.delta>0?'+':''}${x.trend.delta}`:''}</div></div><div class="vertex-rec-card"><b>${x.training}</b><span>Training Capacity <span class="vertex-score-info" title="Training Capacity starts with Recovery Readiness, then adjusts for recent training load, days since last workout, soreness, and energy when available. It is a directional coaching score." aria-label="Training Capacity explanation">i</span></span><div class="vertex-rec-trend">${esc(x.label)}</div></div></div><div class="vertex-rec-reco"><b>Daily Recommendation</b><span>${esc(x.recommendation)}</span></div><div class="vertex-rec-source">Recovery Source: ${esc(x.source)}</div><div class="vertex-rec-drivers">${driverHtml}</div>`;
   }
   window.VertexRecoveryInsights = { build: vertexBuildRecoveryInsights, html: vertexRecoveryInsightsHtml };
 

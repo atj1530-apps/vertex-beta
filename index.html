@@ -11395,10 +11395,9 @@ function renderSegmentTrends(){
         </div>
         <div style="font-size:10px;color:var(--muted);margin-top:2px">${vals.length} scans · ${fmtDate(first.date)} → ${fmtDate(last.date)}</div>
       </div>
-      <svg width="${W}" height="${H}" style="flex-shrink:0;overflow:visible">
-        <polyline points="${points}" fill="none" stroke="${seg.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
-        ${vals.map((v,i)=>{ const x=pad+(i/(vals.length-1))*(W-pad*2); const y=H-pad-((v.val-minVal)/range)*(H-pad*2); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${seg.color}" opacity="0.9"/>`; }).join('')}
-      </svg>
+      <div style="flex-shrink:0;min-width:72px;text-align:right;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:${deltaColor};text-transform:uppercase">
+        ${parseFloat(delta)>=0?'UP':'DOWN'}
+      </div>
     </div>`;
   }).join('');
 }

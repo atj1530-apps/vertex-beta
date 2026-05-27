@@ -3677,6 +3677,46 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 }
 </style>
 
+
+<style id="vertex-phase1-progress-cards-no-sparks-css">
+/* Phase 1: remove Progress spark charts and stabilize Progress cards. No SVG/chart render mutations. */
+#progressPage #progressSparklines{display:none!important;}
+#progressPage .vertex-sparks-paused{display:none!important;}
+#progressPage #vertexRecoveryTrendPanel,
+#progressPage #vertexStrainPanel,
+#progressPage #vertexConsistencyPanel,
+#progressPage #vertexTolerancePanel,
+#progressPage #vertexHybridRoutingPanel,
+#progressPage #vertexCardioStrainPanel,
+#progressPage #vertexAdaptiveCoachPanel,
+#progressPage #vertexLongTrendPanel,
+#progressPage #vertexProgressionPanel,
+#progressPage #vertexPerformanceDecisionPanel,
+#progressPage #vertexWorkoutPersistencePanel{display:none!important;}
+#vertexB2ProgressDeck{margin:14px 0 18px;}
+.vertex-b2-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px;}
+.vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin-top:2px;}
+.vertex-b2-card{border:1px solid var(--line);background:var(--panel2);border-radius:18px;padding:16px;min-height:132px;box-sizing:border-box;overflow:hidden;}
+.vertex-b2-card .label{margin-bottom:12px;}
+.vertex-b2-value{font-size:18px;font-weight:800;color:var(--green);line-height:1.15;margin-bottom:10px;}
+.vertex-b2-line{color:var(--muted);font-size:13px;line-height:1.45;margin-top:3px;}
+.vertex-b2-good .vertex-b2-value{color:var(--green)!important;}
+.vertex-b2-moderate .vertex-b2-value{color:var(--acc)!important;}
+.vertex-b2-watch .vertex-b2-value{color:var(--orange)!important;}
+.vertex-b2-high .vertex-b2-value{color:var(--red)!important;}
+body:not(.app-page-progress) #vertexB2ProgressDeck{display:none!important;}
+@media(max-width:900px){
+  #vertexB2ProgressDeck{margin:12px 0 16px;}
+  #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 10px!important;margin:0 -14px 14px!important;scrollbar-width:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{flex:0 0 82%!important;min-width:82%!important;max-width:82%!important;scroll-snap-align:start!important;min-height:178px!important;margin:0!important;}
+  #vertexB2ProgressDeck .vertex-b2-full-stack{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;}
+  #vertexB2ProgressDeck .vertex-b2-full-stack .vertex-b2-card{min-height:unset!important;width:100%!important;}
+}
+@media(min-width:901px){
+  #vertexB2ProgressDeck .vertex-b2-row{grid-template-columns:repeat(4,minmax(0,1fr));}
+}
+</style>
 </head>
 <body class="auth-resolving">
 
@@ -3799,7 +3839,7 @@ window.vertexFinishBootstrap=function(){
   <main class="main">
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
     <div id="home-dashboard" style="display:none"></div>
-<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div id="vertexB2ProgressCarousels" class="vertex-b2-progress-carousels" aria-label="Progress quick scan carousel rows"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
+<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck" aria-label="Progress intelligence cards"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace"></span>
@@ -6643,6 +6683,88 @@ function renderProgressHistoryTab(showAll){
   el.innerHTML=display.length?display.map(rowHtml).join('')+(hasOlder?`<div style="padding:12px 0;text-align:center"><button onclick="renderProgressHistoryTab(true)" class="btn small" style="font-size:12px">Show older (${all.length-display.length} more)</button></div>`:'<div style="padding:8px 0;text-align:center;font-size:12px;color:var(--muted)">All history shown</div>'):`<div class="empty-cta"><div class="empty-cta-icon">🏋️</div><div class="empty-cta-title">No workouts logged yet</div><div class="empty-cta-desc">Build a workout and tap Log Workout to start tracking your progress.</div><button class="btn acc" onclick="if(typeof setPage==='function')setPage('workout')">Build a Workout →</button></div>`;
 }
 
+
+function renderVertexB2ProgressDeck(rows,sum,perf){
+  const deck=document.getElementById('vertexB2ProgressDeck');
+  if(!deck) return;
+  rows=Array.isArray(rows)?rows:[];
+  sum=sum||{};
+  perf=Array.isArray(perf)?perf:[];
+  function esc(v){return (typeof escapeHtml==='function')?escapeHtml(String(v ?? '')):String(v ?? '').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+  function readReadiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
+        const intel=window.VertexRecoveryInsights.build()||{};
+        const n=Number(intel.recovery);
+        if(Number.isFinite(n)) return Math.round(n);
+      }
+    }catch(e){}
+    return null;
+  }
+  const readiness=readReadiness();
+  const sessions=Number(sum.thisWeek && sum.thisWeek.length || 0);
+  const prev=Number(sum.prevWeek && sum.prevWeek.length || 0);
+  const totalSets=Number(sum.totalSets||0);
+  const daysSince=Number.isFinite(Number(sum.daysSince))?Number(sum.daysSince):null;
+  const topMove=perf[0]||null;
+  const muscleTotals={};
+  try{
+    rows.filter(r=>new Date(r.completed_at)>=weekStart()).forEach(r=>Object.entries(r.metrics?.muscles||{}).forEach(([m,v])=>{muscleTotals[m]=(muscleTotals[m]||0)+(v.sets||0)}));
+  }catch(e){}
+  const topMuscle=Object.entries(muscleTotals).sort((a,b)=>b[1]-a[1])[0]||null;
+  function cardioData(){
+    let connected=false, arr=[];
+    try{ connected=!!localStorage.getItem('vertex_strava_token'); }catch(e){}
+    try{ arr=JSON.parse(localStorage.getItem('vertex_strava_activities')||'[]')||[]; }catch(e){ arr=[]; }
+    let score=0;
+    if(Array.isArray(arr) && arr.length){ score=Math.min(100, arr.slice(0,7).reduce((a,x)=>a+Math.round(Number(x.moving_time||x.elapsed_time||0)/300),0)); }
+    const label=score>=75?'High endurance load':score>=45?'Moderate endurance load':score>0?'Low endurance load':(connected?'No cardio load':'Ready for Strava');
+    return {connected,score,label,sessions:Array.isArray(arr)?arr.length:0};
+  }
+  const cardio=cardioData();
+  const consistencyLabel=sessions>prev?'Improving':sessions<prev?'Needs attention':'Stable';
+  const trainingStrain = readiness!==null ? (readiness>=75?'Moderate / Sustainable':readiness>=60?'Moderate–High':'Elevated') : (sessions>=4?'Moderate–High':sessions>=2?'Moderate':'Baseline');
+  const adaptive = readiness!==null ? (readiness>=80?'Progression opportunity':readiness>=65?'Push with control':readiness>=50?'Maintain':'Recovery priority') : 'Build baseline';
+  const longTrend = readiness!==null ? (readiness>=70?'Baseline building':readiness>=55?'Watch recovery':'Recovery constrained') : 'Baseline pending';
+  const hybrid = readiness!==null ? 'Apple Health + Vertex' : 'Vertex logs';
+  const progression = topMove ? 'Progression ready' : 'Progression baseline pending';
+  const performance = readiness!==null ? (readiness>=65?'Accumulated load watch':'Recovery-first decision') : 'Build baseline';
+  const recoveryTrend = readiness!==null ? (readiness>=70?'→ Stable':readiness>=55?'↘ Watch':'↓ Constrained') : 'Pending';
+  const loadTolerance = readiness!==null && readiness<60 ? 'Reduce' : 'Stable';
+  function sev(text){
+    text=String(text||'').toLowerCase();
+    if(/reduce|elevated|high|constrained|recovery-first|needs attention/.test(text)) return 'high';
+    if(/watch|moderate.high|moderate–high|caution/.test(text)) return 'watch';
+    if(/stable|moderate|baseline|build|ready for strava/.test(text)) return 'moderate';
+    if(/ready|push|opportunity|good|sustainable|improving/.test(text)) return 'good';
+    return 'moderate';
+  }
+  function card(title,value,lines,wide){
+    const s=sev(value+' '+(lines||[]).join(' '));
+    return `<section class="vertex-b2-card vertex-b2-${s}${wide?' vertex-b2-wide':''}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
+  }
+  const row1=[
+    card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Top movement: ${topMove.name} (${topMove.sets||0} sets)`:'Top movement pending']),
+    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`]),
+    card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean reps.']),
+    card('Longitudinal Trend', longTrend, [readiness!==null?`Current readiness: ${readiness}`:'Recovery baseline pending', sessions?`${sessions} sessions this week`:'No sessions this week'])
+  ];
+  const row2=[
+    card('Training Strain', trainingStrain, [`${sessions} sessions this week`, topMuscle?`${topMuscle[0]} leads volume at ${topMuscle[1]} sets`:'Volume baseline pending']),
+    card('Consistency', consistencyLabel, [`This week: ${sessions} sessions`, `Previous week: ${prev} sessions`]),
+    card('Hybrid Routing', hybrid, ['Sleep / HRV / RHR from health data when available', 'Workout signal from Vertex logs']),
+    card('Readiness', readiness!==null?String(readiness):'Pending', [readiness!==null?'Recovery synthesis active':'More recovery data needed'])
+  ];
+  const full=[
+    card('Progression Engine', progression, [topMove?`Repeat ${topMove.name}; add a rep or small load only if form is stable.`:'Log repeated movements to unlock progression guidance.'], true),
+    card('Performance Decision', performance, [readiness!==null&&readiness>=65?'Keep progression conservative until recovery improves.':'Use today to reinforce movement quality and consistency.'], true),
+    card('Weekly Intelligence', sessions?`You logged ${sessions} workout${sessions===1?'':'s'} this week.`:'No workout logged this week', [topMuscle?`${topMuscle[0]} has the highest set volume this week at ${topMuscle[1]} sets.`:'Muscle volume will populate after logs.', daysSince===null?'Last workout pending':daysSince===0?'You logged a workout today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`], true),
+    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', 'Basis: recovery synthesis'], true),
+    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Continue tracking volume and recovery response.'], true)
+  ];
+  deck.innerHTML=`<div class="vertex-b2-row vertex-b2-row-one">${row1.join('')}</div><div class="vertex-b2-row vertex-b2-row-two">${row2.join('')}</div><div class="vertex-b2-full-stack">${full.join('')}</div>`;
+}
+
 function renderProgressPage(){
   const page=document.getElementById('progressPage'); if(!page) return;
   const rows=progressRows(); const sum=progressSummary(rows); const perf=performanceSummary(rows);
@@ -6669,42 +6791,24 @@ function renderProgressPage(){
     const workoutRows=rows.length?rows.slice(0,14).map(r=>`<div class="history-row"><div class="history-date">${new Date(r.completed_at).toLocaleDateString()}<br>${new Date(r.completed_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</div><div><div class="history-name">${escapeHtml(r.workout_name||'Workout')}</div><div class="history-meta">${escapeHtml(String(r.workout_type||'strength').toUpperCase())} · ${r.metrics?.moves||0} moves · ${r.metrics?.est_minutes||0} min est.</div></div><div class="mono">${r.metrics?.sets||0} sets</div><div class="mono">${r.metrics?.load_volume?Math.round(r.metrics.load_volume):'—'} vol</div></div>`).join(''):'<div class="empty-note">Workout history is empty.</div>';
     history.innerHTML=(topExercises?`<div style="margin-bottom:12px"><div class="label">Top Exercises</div>${topExercises}</div>`:'')+`<div class="label">Recent Logs</div>`+workoutRows;
   }
+  renderVertexB2ProgressDeck(rows,sum,perf);
   renderProgressSparklines(rows);
 }
 
 const _sparkCharts={};
 function renderProgressSparklines(rows){
-  if(typeof Chart==='undefined') return;
-  const weeks=[];
-  for(let i=7;i>=0;i--){
-    const s=weekStart(); s.setDate(s.getDate()-(i*7));
-    const e2=new Date(s); e2.setDate(e2.getDate()+7);
-    const wRows=rows.filter(r=>{const d=new Date(r.completed_at);return d>=s&&d<e2&&r.workout_type!=='hk_dismissed';});
-    const vol=wRows.reduce((a,r)=>a+(r.metrics?.load_volume||0),0);
-    const sessions=wRows.length;
-    const dur=wRows.length?wRows.reduce((a,r)=>a+(r.metrics?.est_minutes||0),0)/wRows.length:0;
-    weeks.push({label:s.toLocaleDateString([],{month:'short',day:'numeric'}),vol:Math.round(vol),sessions,dur:Math.round(dur)});
-  }
-  const labels=weeks.map(w=>w.label);
-  const SPARK_OPTS={
-    responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{enabled:false}},
-    scales:{x:{display:false},y:{display:false}},
-    elements:{point:{radius:0},line:{borderWidth:2,tension:0.4}}
-  };
-  function makeSparkline(id,data,color){
-    const canvas=document.getElementById(id); if(!canvas) return;
-    if(_sparkCharts[id]){_sparkCharts[id].destroy();}
-    _sparkCharts[id]=new Chart(canvas.getContext('2d'),{
-      type:'line',
-      data:{labels,datasets:[{data,borderColor:color,backgroundColor:color.replace(')',',0.1)').replace('rgb','rgba'),fill:true}]},
-      options:SPARK_OPTS
-    });
-  }
-  makeSparkline('spark-volume',weeks.map(w=>w.vol),'rgb(232,255,71)');
-  makeSparkline('spark-sessions',weeks.map(w=>w.sessions),'rgb(72,255,138)');
-  makeSparkline('spark-duration',weeks.map(w=>w.dur),'rgb(75,189,255)');
+  /* Phase 1: spark charts intentionally paused while Progress card architecture is stabilized. */
+  try{
+    const wrap=document.getElementById('progressSparklines');
+    if(wrap){
+      wrap.innerHTML='<div class="vertex-sparks-paused"><div class="label">Trends</div><div style="color:var(--muted);font-size:13px;line-height:1.45">Spark charts are temporarily paused while the Progress card layout is stabilized.</div></div>';
+    }
+    if(window._sparkCharts){
+      Object.keys(window._sparkCharts).forEach(k=>{try{window._sparkCharts[k].destroy();}catch(e){}});
+    }
+  }catch(e){}
 }
+
 
 function vertexSetAuthResolving(){
   document.body.classList.add('auth-resolving');
@@ -8944,156 +9048,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
-
-
-<style>
-/* v20260527-b2-finetune-stable: Home planner carousel + Progress safe carousel mount. CSS only for planner; no SVG/chart/auth/SW changes. */
-#vertexB2ProgressCarousels{display:none;}
-#vertexB2ProgressCarousels .vertex-b2-row-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.6px;text-transform:uppercase;color:var(--muted);margin:0 0 8px 2px;}
-#vertexB2ProgressCarousels .vertex-b2-progress-row{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 4px 10px;margin:0 -4px 14px;}
-#vertexB2ProgressCarousels .vertex-b2-progress-row::-webkit-scrollbar{display:none;}
-#vertexB2ProgressCarousels .vertex-b2-progress-card{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:14px;box-sizing:border-box;scroll-snap-align:start;min-height:154px;display:flex;flex-direction:column;justify-content:space-between;}
-#vertexB2ProgressCarousels .vertex-b2-card-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:var(--muted);}
-#vertexB2ProgressCarousels .vertex-b2-card-value{font-size:24px;line-height:1.1;font-weight:900;color:var(--green);margin:12px 0 8px;}
-#vertexB2ProgressCarousels .vertex-b2-card-value.acc{color:var(--acc);}
-#vertexB2ProgressCarousels .vertex-b2-card-value.orange{color:var(--orange);}
-#vertexB2ProgressCarousels .vertex-b2-card-value.red{color:var(--red);}
-#vertexB2ProgressCarousels .vertex-b2-card-meta{color:var(--muted);font-size:13px;line-height:1.45;}
-#vertexB2ProgressCarousels .vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin:4px 0 18px;}
-#vertexB2ProgressCarousels .vertex-b2-full-card{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:16px;min-height:128px;}
-#vertexB2ProgressCarousels .vertex-b2-full-card .vertex-b2-card-value{font-size:20px;}
-#vertexB2ProgressCarousels .vertex-b2-dots{display:flex;justify-content:center;gap:6px;margin:-5px 0 12px;}
-#vertexB2ProgressCarousels .vertex-b2-dots span{width:7px;height:7px;border-radius:50%;background:var(--line2);display:block;}
-#vertexB2ProgressCarousels .vertex-b2-dots span:first-child{background:var(--acc);}
-@media(max-width:900px){
-  body.app-page-progress #vertexB2ProgressCarousels,
-  #progressPage[style*="block"] #vertexB2ProgressCarousels{display:block!important;margin:14px 0 10px!important;}
-  #vertexB2ProgressCarousels .vertex-b2-progress-card{flex:0 0 82%;min-width:82%;max-width:82%;}
-  body.app-page-home #plannerAcc .acc-body{overflow:hidden!important;}
-  body.app-page-home #planner.planner-grid{display:flex!important;grid-template-columns:none!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important;padding:4px 14px 12px!important;margin:0 -14px!important;}
-  body.app-page-home #planner.planner-grid::-webkit-scrollbar{display:none!important;}
-  body.app-page-home #planner.planner-grid .day-card{flex:0 0 calc(100vw - 56px)!important;min-width:calc(100vw - 56px)!important;max-width:calc(100vw - 56px)!important;scroll-snap-align:center!important;min-height:150px!important;}
-  body.app-page-home #plannerAcc .acc-body::after{content:'';display:block;width:100%;height:8px;background:radial-gradient(circle at 50% 50%, var(--acc) 0 4px, transparent 5px), radial-gradient(circle at calc(50% + 14px) 50%, var(--line2) 0 4px, transparent 5px);background-repeat:no-repeat;margin-top:-2px;pointer-events:none;}
-}
-@media(min-width:901px){
-  #vertexB2ProgressCarousels{display:none!important;}
-}
-</style>
-<script>
-/* v20260527-b2-finetune-stable: creates isolated Progress carousel cards only inside #progressPage. No SVG/chart/auth/SW/state mutation. */
-(function(){
-  function txt(v,fallback){ v=(v===undefined||v===null)?'':String(v); return v.trim() || fallback || '—'; }
-  function num(v,fallback){ var n=Number(v); return Number.isFinite(n)?n:fallback; }
-  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-  function activeNav(){ var on=document.querySelector('.nav button.on'); return on?String(on.textContent||'').trim().toLowerCase():''; }
-  function isProgress(){ var p=document.getElementById('progressPage'); return (p && p.style.display !== 'none') || activeNav()==='progress' || document.body.classList.contains('app-page-progress'); }
-  function recoveryIntel(){
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        return window.VertexRecoveryInsights.build() || {};
-      }
-    }catch(e){}
-    return {};
-  }
-  function healthValue(label){
-    try{
-      var cards=Array.from(document.querySelectorAll('#wellnessPage .wc-kpi-card, #wellnessPage .progress-card, #wellnessPage div'));
-      label=String(label).toLowerCase();
-      for(var i=0;i<cards.length;i++){
-        var t=String(cards[i].textContent||'').replace(/\s+/g,' ').trim();
-        if(t.toLowerCase().indexOf(label)>=0){
-          var m=t.match(/([0-9]+(?:\.[0-9]+)?\s*(?:h|ms|bpm|\/min|lb)?)/i);
-          if(m) return m[1].replace(/\s+/g,'');
-        }
-      }
-    }catch(e){}
-    return '—';
-  }
-  function parseProgress(regex,fallback){
-    try{
-      var root=document.getElementById('progressPage') || document.body;
-      var t=String(root.textContent||'');
-      var m=t.match(regex);
-      return m?m[1]:fallback;
-    }catch(e){ return fallback; }
-  }
-  function sevClass(label){
-    label=String(label||'').toLowerCase();
-    if(/recover|high|overreach|elevated|declin|caution|watch/.test(label)) return 'orange';
-    if(/low|stable|ready|good|push|improv|balanced|sustainable/.test(label)) return '';
-    if(/moderate/.test(label)) return 'acc';
-    return 'acc';
-  }
-  function card(c){
-    var cls='vertex-b2-card-value '+(c.cls||'');
-    return '<article class="vertex-b2-progress-card" data-b2-card="'+esc(c.key||c.label)+'">'+
-      '<div><div class="vertex-b2-card-label">'+esc(c.label)+'</div><div class="'+cls+'">'+esc(c.value)+'</div></div>'+
-      '<div class="vertex-b2-card-meta">'+esc(c.meta||'')+'</div>'+
-    '</article>';
-  }
-  function full(c){
-    var cls='vertex-b2-card-value '+(c.cls||'');
-    return '<article class="vertex-b2-full-card" data-b2-full="'+esc(c.key||c.label)+'">'+
-      '<div class="vertex-b2-card-label">'+esc(c.label)+'</div><div class="'+cls+'">'+esc(c.value)+'</div><div class="vertex-b2-card-meta">'+esc(c.meta||'')+'</div>'+
-    '</article>';
-  }
-  function render(){
-    try{
-      var mount=document.getElementById('vertexB2ProgressCarousels');
-      var page=document.getElementById('progressPage');
-      if(!mount || !page) return;
-      if(!isProgress()){ mount.style.display='none'; return; }
-      var intel=recoveryIntel();
-      var score=Math.round(num(intel.recovery, parseProgress(/(\d+)\s+Moderate Recovery/i, 72)));
-      var source=txt(intel.source,'Vertex synthesis');
-      var trend=(intel.trend && (intel.trend.label || intel.trend.direction)) ? txt(intel.trend.label || intel.trend.direction,'Stable') : 'Stable';
-      var status=score>=80?'High readiness':score>=65?'Moderate recovery':score>=50?'Maintain':'Recovery focus';
-      var sessions=parseProgress(/You logged\s+(\d+)\s+workouts?\s+this week/i, parseProgress(/(\d+)\s+sessions?/i,'0'));
-      var topMovement=parseProgress(/Top movement:\s*([^\.]+)\./i,'Top movement pending');
-      var volumeLeader=parseProgress(/Volume leader:\s*([^\.]+)\./i,'Volume leader pending');
-      var row1=[
-        {key:'readiness',label:'Readiness',value:String(score),meta:status+' · '+source,cls:sevClass(status)},
-        {key:'sleep',label:'Sleep',value:healthValue('sleep'),meta:'Apple Health / manual trend',cls:'acc'},
-        {key:'hrv',label:'HRV',value:healthValue('hrv'),meta:'Recovery nervous-system signal',cls:sevClass(healthValue('hrv'))},
-        {key:'resting',label:'Resting HR',value:healthValue('resting hr'),meta:'Cardiac recovery marker',cls:'acc'}
-      ];
-      var strain=score>=75?'Sustainable':score>=60?'Moderate-high':'Elevated';
-      var row2=[
-        {key:'cardio',label:'Cardio Strain',value:'Ready for Strava',meta:'Endurance load remains isolated from strength charts',cls:'acc'},
-        {key:'strain',label:'Training Strain',value:strain,meta:'Use warm-up quality to decide progression',cls:sevClass(strain)},
-        {key:'coach',label:'Adaptive Coach',value:score>=65?'Push with control':'Maintain',meta:'Recommendation follows recovery and recent load',cls:sevClass(score>=65?'Push':'Maintain')},
-        {key:'longitudinal',label:'Longitudinal Trend',value:trend,meta:'30-day readiness / training direction',cls:sevClass(trend)},
-        {key:'consistency',label:'Consistency',value:sessions+' sessions',meta:'Current week training rhythm',cls:''},
-        {key:'routing',label:'Hybrid Routing',value:'Apple + Vertex',meta:'Health inputs and workout logs synthesized',cls:''}
-      ];
-      var fullStack=[
-        {key:'progression',label:'Progression Engine',value:topMovement.indexOf('pending')>=0?'Baseline building':'Progression ready',meta:topMovement,cls:''},
-        {key:'decision',label:'Performance Decision',value:score>=65?'Controlled increase':'Hold baseline',meta:volumeLeader,cls:score>=65?'':'orange'},
-        {key:'weekly',label:'Weekly Intelligence',value:'Training context',meta:'Sessions, muscle volume, and recovery are summarized below in analytics.',cls:'acc'},
-        {key:'recoverytrend',label:'Recovery Trend',value:trend,meta:'Readiness score: '+score+' · basis: '+source,cls:sevClass(trend)},
-        {key:'tolerance',label:'Load Tolerance',value:score>=65?'Stable':'Watch',meta:'Current load appears manageable when recovery holds.',cls:score>=65?'':'orange'}
-      ];
-      mount.innerHTML =
-        '<div class="vertex-b2-row-label">Core Readiness KPIs</div>'+
-        '<div class="vertex-b2-progress-row" aria-label="Core readiness carousel">'+row1.map(card).join('')+'</div><div class="vertex-b2-dots"><span></span><span></span><span></span></div>'+
-        '<div class="vertex-b2-row-label">Training / Load KPIs</div>'+
-        '<div class="vertex-b2-progress-row" aria-label="Training load carousel">'+row2.map(card).join('')+'</div><div class="vertex-b2-dots"><span></span><span></span><span></span></div>'+
-        '<div class="vertex-b2-full-stack">'+fullStack.map(full).join('')+'</div>';
-      mount.style.display='block';
-      // Keep legacy injected experiment panels out of Home and out of the analytics tab container.
-      ['vertexRecoveryTrendPanel','vertexStrainPanel','vertexConsistencyPanel','vertexTolerancePanel','vertexCardioPanel','vertexProgressionPanel','vertexPerformancePanel'].forEach(function(id){
-        var el=document.getElementById(id); if(el) el.style.display='none';
-      });
-    }catch(e){ console.error('B2 stable progress carousel render failed', e); }
-  }
-  function schedule(){ setTimeout(render,80); setTimeout(render,450); setTimeout(render,1200); }
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(render,150); });
-  document.addEventListener('click', function(){ setTimeout(render,160); }, true);
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -10710,156 +10664,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-<style>
-/* v20260527-b2-finetune-stable: Home planner carousel + Progress safe carousel mount. CSS only for planner; no SVG/chart/auth/SW changes. */
-#vertexB2ProgressCarousels{display:none;}
-#vertexB2ProgressCarousels .vertex-b2-row-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.6px;text-transform:uppercase;color:var(--muted);margin:0 0 8px 2px;}
-#vertexB2ProgressCarousels .vertex-b2-progress-row{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 4px 10px;margin:0 -4px 14px;}
-#vertexB2ProgressCarousels .vertex-b2-progress-row::-webkit-scrollbar{display:none;}
-#vertexB2ProgressCarousels .vertex-b2-progress-card{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:14px;box-sizing:border-box;scroll-snap-align:start;min-height:154px;display:flex;flex-direction:column;justify-content:space-between;}
-#vertexB2ProgressCarousels .vertex-b2-card-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:var(--muted);}
-#vertexB2ProgressCarousels .vertex-b2-card-value{font-size:24px;line-height:1.1;font-weight:900;color:var(--green);margin:12px 0 8px;}
-#vertexB2ProgressCarousels .vertex-b2-card-value.acc{color:var(--acc);}
-#vertexB2ProgressCarousels .vertex-b2-card-value.orange{color:var(--orange);}
-#vertexB2ProgressCarousels .vertex-b2-card-value.red{color:var(--red);}
-#vertexB2ProgressCarousels .vertex-b2-card-meta{color:var(--muted);font-size:13px;line-height:1.45;}
-#vertexB2ProgressCarousels .vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin:4px 0 18px;}
-#vertexB2ProgressCarousels .vertex-b2-full-card{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:16px;min-height:128px;}
-#vertexB2ProgressCarousels .vertex-b2-full-card .vertex-b2-card-value{font-size:20px;}
-#vertexB2ProgressCarousels .vertex-b2-dots{display:flex;justify-content:center;gap:6px;margin:-5px 0 12px;}
-#vertexB2ProgressCarousels .vertex-b2-dots span{width:7px;height:7px;border-radius:50%;background:var(--line2);display:block;}
-#vertexB2ProgressCarousels .vertex-b2-dots span:first-child{background:var(--acc);}
-@media(max-width:900px){
-  body.app-page-progress #vertexB2ProgressCarousels,
-  #progressPage[style*="block"] #vertexB2ProgressCarousels{display:block!important;margin:14px 0 10px!important;}
-  #vertexB2ProgressCarousels .vertex-b2-progress-card{flex:0 0 82%;min-width:82%;max-width:82%;}
-  body.app-page-home #plannerAcc .acc-body{overflow:hidden!important;}
-  body.app-page-home #planner.planner-grid{display:flex!important;grid-template-columns:none!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important;padding:4px 14px 12px!important;margin:0 -14px!important;}
-  body.app-page-home #planner.planner-grid::-webkit-scrollbar{display:none!important;}
-  body.app-page-home #planner.planner-grid .day-card{flex:0 0 calc(100vw - 56px)!important;min-width:calc(100vw - 56px)!important;max-width:calc(100vw - 56px)!important;scroll-snap-align:center!important;min-height:150px!important;}
-  body.app-page-home #plannerAcc .acc-body::after{content:'';display:block;width:100%;height:8px;background:radial-gradient(circle at 50% 50%, var(--acc) 0 4px, transparent 5px), radial-gradient(circle at calc(50% + 14px) 50%, var(--line2) 0 4px, transparent 5px);background-repeat:no-repeat;margin-top:-2px;pointer-events:none;}
-}
-@media(min-width:901px){
-  #vertexB2ProgressCarousels{display:none!important;}
-}
-</style>
-<script>
-/* v20260527-b2-finetune-stable: creates isolated Progress carousel cards only inside #progressPage. No SVG/chart/auth/SW/state mutation. */
-(function(){
-  function txt(v,fallback){ v=(v===undefined||v===null)?'':String(v); return v.trim() || fallback || '—'; }
-  function num(v,fallback){ var n=Number(v); return Number.isFinite(n)?n:fallback; }
-  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-  function activeNav(){ var on=document.querySelector('.nav button.on'); return on?String(on.textContent||'').trim().toLowerCase():''; }
-  function isProgress(){ var p=document.getElementById('progressPage'); return (p && p.style.display !== 'none') || activeNav()==='progress' || document.body.classList.contains('app-page-progress'); }
-  function recoveryIntel(){
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        return window.VertexRecoveryInsights.build() || {};
-      }
-    }catch(e){}
-    return {};
-  }
-  function healthValue(label){
-    try{
-      var cards=Array.from(document.querySelectorAll('#wellnessPage .wc-kpi-card, #wellnessPage .progress-card, #wellnessPage div'));
-      label=String(label).toLowerCase();
-      for(var i=0;i<cards.length;i++){
-        var t=String(cards[i].textContent||'').replace(/\s+/g,' ').trim();
-        if(t.toLowerCase().indexOf(label)>=0){
-          var m=t.match(/([0-9]+(?:\.[0-9]+)?\s*(?:h|ms|bpm|\/min|lb)?)/i);
-          if(m) return m[1].replace(/\s+/g,'');
-        }
-      }
-    }catch(e){}
-    return '—';
-  }
-  function parseProgress(regex,fallback){
-    try{
-      var root=document.getElementById('progressPage') || document.body;
-      var t=String(root.textContent||'');
-      var m=t.match(regex);
-      return m?m[1]:fallback;
-    }catch(e){ return fallback; }
-  }
-  function sevClass(label){
-    label=String(label||'').toLowerCase();
-    if(/recover|high|overreach|elevated|declin|caution|watch/.test(label)) return 'orange';
-    if(/low|stable|ready|good|push|improv|balanced|sustainable/.test(label)) return '';
-    if(/moderate/.test(label)) return 'acc';
-    return 'acc';
-  }
-  function card(c){
-    var cls='vertex-b2-card-value '+(c.cls||'');
-    return '<article class="vertex-b2-progress-card" data-b2-card="'+esc(c.key||c.label)+'">'+
-      '<div><div class="vertex-b2-card-label">'+esc(c.label)+'</div><div class="'+cls+'">'+esc(c.value)+'</div></div>'+
-      '<div class="vertex-b2-card-meta">'+esc(c.meta||'')+'</div>'+
-    '</article>';
-  }
-  function full(c){
-    var cls='vertex-b2-card-value '+(c.cls||'');
-    return '<article class="vertex-b2-full-card" data-b2-full="'+esc(c.key||c.label)+'">'+
-      '<div class="vertex-b2-card-label">'+esc(c.label)+'</div><div class="'+cls+'">'+esc(c.value)+'</div><div class="vertex-b2-card-meta">'+esc(c.meta||'')+'</div>'+
-    '</article>';
-  }
-  function render(){
-    try{
-      var mount=document.getElementById('vertexB2ProgressCarousels');
-      var page=document.getElementById('progressPage');
-      if(!mount || !page) return;
-      if(!isProgress()){ mount.style.display='none'; return; }
-      var intel=recoveryIntel();
-      var score=Math.round(num(intel.recovery, parseProgress(/(\d+)\s+Moderate Recovery/i, 72)));
-      var source=txt(intel.source,'Vertex synthesis');
-      var trend=(intel.trend && (intel.trend.label || intel.trend.direction)) ? txt(intel.trend.label || intel.trend.direction,'Stable') : 'Stable';
-      var status=score>=80?'High readiness':score>=65?'Moderate recovery':score>=50?'Maintain':'Recovery focus';
-      var sessions=parseProgress(/You logged\s+(\d+)\s+workouts?\s+this week/i, parseProgress(/(\d+)\s+sessions?/i,'0'));
-      var topMovement=parseProgress(/Top movement:\s*([^\.]+)\./i,'Top movement pending');
-      var volumeLeader=parseProgress(/Volume leader:\s*([^\.]+)\./i,'Volume leader pending');
-      var row1=[
-        {key:'readiness',label:'Readiness',value:String(score),meta:status+' · '+source,cls:sevClass(status)},
-        {key:'sleep',label:'Sleep',value:healthValue('sleep'),meta:'Apple Health / manual trend',cls:'acc'},
-        {key:'hrv',label:'HRV',value:healthValue('hrv'),meta:'Recovery nervous-system signal',cls:sevClass(healthValue('hrv'))},
-        {key:'resting',label:'Resting HR',value:healthValue('resting hr'),meta:'Cardiac recovery marker',cls:'acc'}
-      ];
-      var strain=score>=75?'Sustainable':score>=60?'Moderate-high':'Elevated';
-      var row2=[
-        {key:'cardio',label:'Cardio Strain',value:'Ready for Strava',meta:'Endurance load remains isolated from strength charts',cls:'acc'},
-        {key:'strain',label:'Training Strain',value:strain,meta:'Use warm-up quality to decide progression',cls:sevClass(strain)},
-        {key:'coach',label:'Adaptive Coach',value:score>=65?'Push with control':'Maintain',meta:'Recommendation follows recovery and recent load',cls:sevClass(score>=65?'Push':'Maintain')},
-        {key:'longitudinal',label:'Longitudinal Trend',value:trend,meta:'30-day readiness / training direction',cls:sevClass(trend)},
-        {key:'consistency',label:'Consistency',value:sessions+' sessions',meta:'Current week training rhythm',cls:''},
-        {key:'routing',label:'Hybrid Routing',value:'Apple + Vertex',meta:'Health inputs and workout logs synthesized',cls:''}
-      ];
-      var fullStack=[
-        {key:'progression',label:'Progression Engine',value:topMovement.indexOf('pending')>=0?'Baseline building':'Progression ready',meta:topMovement,cls:''},
-        {key:'decision',label:'Performance Decision',value:score>=65?'Controlled increase':'Hold baseline',meta:volumeLeader,cls:score>=65?'':'orange'},
-        {key:'weekly',label:'Weekly Intelligence',value:'Training context',meta:'Sessions, muscle volume, and recovery are summarized below in analytics.',cls:'acc'},
-        {key:'recoverytrend',label:'Recovery Trend',value:trend,meta:'Readiness score: '+score+' · basis: '+source,cls:sevClass(trend)},
-        {key:'tolerance',label:'Load Tolerance',value:score>=65?'Stable':'Watch',meta:'Current load appears manageable when recovery holds.',cls:score>=65?'':'orange'}
-      ];
-      mount.innerHTML =
-        '<div class="vertex-b2-row-label">Core Readiness KPIs</div>'+
-        '<div class="vertex-b2-progress-row" aria-label="Core readiness carousel">'+row1.map(card).join('')+'</div><div class="vertex-b2-dots"><span></span><span></span><span></span></div>'+
-        '<div class="vertex-b2-row-label">Training / Load KPIs</div>'+
-        '<div class="vertex-b2-progress-row" aria-label="Training load carousel">'+row2.map(card).join('')+'</div><div class="vertex-b2-dots"><span></span><span></span><span></span></div>'+
-        '<div class="vertex-b2-full-stack">'+fullStack.map(full).join('')+'</div>';
-      mount.style.display='block';
-      // Keep legacy injected experiment panels out of Home and out of the analytics tab container.
-      ['vertexRecoveryTrendPanel','vertexStrainPanel','vertexConsistencyPanel','vertexTolerancePanel','vertexCardioPanel','vertexProgressionPanel','vertexPerformancePanel'].forEach(function(id){
-        var el=document.getElementById(id); if(el) el.style.display='none';
-      });
-    }catch(e){ console.error('B2 stable progress carousel render failed', e); }
-  }
-  function schedule(){ setTimeout(render,80); setTimeout(render,450); setTimeout(render,1200); }
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(render,150); });
-  document.addEventListener('click', function(){ setTimeout(render,160); }, true);
-})();
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -11125,156 +10929,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-<style>
-/* v20260527-b2-finetune-stable: Home planner carousel + Progress safe carousel mount. CSS only for planner; no SVG/chart/auth/SW changes. */
-#vertexB2ProgressCarousels{display:none;}
-#vertexB2ProgressCarousels .vertex-b2-row-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.6px;text-transform:uppercase;color:var(--muted);margin:0 0 8px 2px;}
-#vertexB2ProgressCarousels .vertex-b2-progress-row{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 4px 10px;margin:0 -4px 14px;}
-#vertexB2ProgressCarousels .vertex-b2-progress-row::-webkit-scrollbar{display:none;}
-#vertexB2ProgressCarousels .vertex-b2-progress-card{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:14px;box-sizing:border-box;scroll-snap-align:start;min-height:154px;display:flex;flex-direction:column;justify-content:space-between;}
-#vertexB2ProgressCarousels .vertex-b2-card-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:var(--muted);}
-#vertexB2ProgressCarousels .vertex-b2-card-value{font-size:24px;line-height:1.1;font-weight:900;color:var(--green);margin:12px 0 8px;}
-#vertexB2ProgressCarousels .vertex-b2-card-value.acc{color:var(--acc);}
-#vertexB2ProgressCarousels .vertex-b2-card-value.orange{color:var(--orange);}
-#vertexB2ProgressCarousels .vertex-b2-card-value.red{color:var(--red);}
-#vertexB2ProgressCarousels .vertex-b2-card-meta{color:var(--muted);font-size:13px;line-height:1.45;}
-#vertexB2ProgressCarousels .vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin:4px 0 18px;}
-#vertexB2ProgressCarousels .vertex-b2-full-card{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:16px;min-height:128px;}
-#vertexB2ProgressCarousels .vertex-b2-full-card .vertex-b2-card-value{font-size:20px;}
-#vertexB2ProgressCarousels .vertex-b2-dots{display:flex;justify-content:center;gap:6px;margin:-5px 0 12px;}
-#vertexB2ProgressCarousels .vertex-b2-dots span{width:7px;height:7px;border-radius:50%;background:var(--line2);display:block;}
-#vertexB2ProgressCarousels .vertex-b2-dots span:first-child{background:var(--acc);}
-@media(max-width:900px){
-  body.app-page-progress #vertexB2ProgressCarousels,
-  #progressPage[style*="block"] #vertexB2ProgressCarousels{display:block!important;margin:14px 0 10px!important;}
-  #vertexB2ProgressCarousels .vertex-b2-progress-card{flex:0 0 82%;min-width:82%;max-width:82%;}
-  body.app-page-home #plannerAcc .acc-body{overflow:hidden!important;}
-  body.app-page-home #planner.planner-grid{display:flex!important;grid-template-columns:none!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important;padding:4px 14px 12px!important;margin:0 -14px!important;}
-  body.app-page-home #planner.planner-grid::-webkit-scrollbar{display:none!important;}
-  body.app-page-home #planner.planner-grid .day-card{flex:0 0 calc(100vw - 56px)!important;min-width:calc(100vw - 56px)!important;max-width:calc(100vw - 56px)!important;scroll-snap-align:center!important;min-height:150px!important;}
-  body.app-page-home #plannerAcc .acc-body::after{content:'';display:block;width:100%;height:8px;background:radial-gradient(circle at 50% 50%, var(--acc) 0 4px, transparent 5px), radial-gradient(circle at calc(50% + 14px) 50%, var(--line2) 0 4px, transparent 5px);background-repeat:no-repeat;margin-top:-2px;pointer-events:none;}
-}
-@media(min-width:901px){
-  #vertexB2ProgressCarousels{display:none!important;}
-}
-</style>
-<script>
-/* v20260527-b2-finetune-stable: creates isolated Progress carousel cards only inside #progressPage. No SVG/chart/auth/SW/state mutation. */
-(function(){
-  function txt(v,fallback){ v=(v===undefined||v===null)?'':String(v); return v.trim() || fallback || '—'; }
-  function num(v,fallback){ var n=Number(v); return Number.isFinite(n)?n:fallback; }
-  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-  function activeNav(){ var on=document.querySelector('.nav button.on'); return on?String(on.textContent||'').trim().toLowerCase():''; }
-  function isProgress(){ var p=document.getElementById('progressPage'); return (p && p.style.display !== 'none') || activeNav()==='progress' || document.body.classList.contains('app-page-progress'); }
-  function recoveryIntel(){
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        return window.VertexRecoveryInsights.build() || {};
-      }
-    }catch(e){}
-    return {};
-  }
-  function healthValue(label){
-    try{
-      var cards=Array.from(document.querySelectorAll('#wellnessPage .wc-kpi-card, #wellnessPage .progress-card, #wellnessPage div'));
-      label=String(label).toLowerCase();
-      for(var i=0;i<cards.length;i++){
-        var t=String(cards[i].textContent||'').replace(/\s+/g,' ').trim();
-        if(t.toLowerCase().indexOf(label)>=0){
-          var m=t.match(/([0-9]+(?:\.[0-9]+)?\s*(?:h|ms|bpm|\/min|lb)?)/i);
-          if(m) return m[1].replace(/\s+/g,'');
-        }
-      }
-    }catch(e){}
-    return '—';
-  }
-  function parseProgress(regex,fallback){
-    try{
-      var root=document.getElementById('progressPage') || document.body;
-      var t=String(root.textContent||'');
-      var m=t.match(regex);
-      return m?m[1]:fallback;
-    }catch(e){ return fallback; }
-  }
-  function sevClass(label){
-    label=String(label||'').toLowerCase();
-    if(/recover|high|overreach|elevated|declin|caution|watch/.test(label)) return 'orange';
-    if(/low|stable|ready|good|push|improv|balanced|sustainable/.test(label)) return '';
-    if(/moderate/.test(label)) return 'acc';
-    return 'acc';
-  }
-  function card(c){
-    var cls='vertex-b2-card-value '+(c.cls||'');
-    return '<article class="vertex-b2-progress-card" data-b2-card="'+esc(c.key||c.label)+'">'+
-      '<div><div class="vertex-b2-card-label">'+esc(c.label)+'</div><div class="'+cls+'">'+esc(c.value)+'</div></div>'+
-      '<div class="vertex-b2-card-meta">'+esc(c.meta||'')+'</div>'+
-    '</article>';
-  }
-  function full(c){
-    var cls='vertex-b2-card-value '+(c.cls||'');
-    return '<article class="vertex-b2-full-card" data-b2-full="'+esc(c.key||c.label)+'">'+
-      '<div class="vertex-b2-card-label">'+esc(c.label)+'</div><div class="'+cls+'">'+esc(c.value)+'</div><div class="vertex-b2-card-meta">'+esc(c.meta||'')+'</div>'+
-    '</article>';
-  }
-  function render(){
-    try{
-      var mount=document.getElementById('vertexB2ProgressCarousels');
-      var page=document.getElementById('progressPage');
-      if(!mount || !page) return;
-      if(!isProgress()){ mount.style.display='none'; return; }
-      var intel=recoveryIntel();
-      var score=Math.round(num(intel.recovery, parseProgress(/(\d+)\s+Moderate Recovery/i, 72)));
-      var source=txt(intel.source,'Vertex synthesis');
-      var trend=(intel.trend && (intel.trend.label || intel.trend.direction)) ? txt(intel.trend.label || intel.trend.direction,'Stable') : 'Stable';
-      var status=score>=80?'High readiness':score>=65?'Moderate recovery':score>=50?'Maintain':'Recovery focus';
-      var sessions=parseProgress(/You logged\s+(\d+)\s+workouts?\s+this week/i, parseProgress(/(\d+)\s+sessions?/i,'0'));
-      var topMovement=parseProgress(/Top movement:\s*([^\.]+)\./i,'Top movement pending');
-      var volumeLeader=parseProgress(/Volume leader:\s*([^\.]+)\./i,'Volume leader pending');
-      var row1=[
-        {key:'readiness',label:'Readiness',value:String(score),meta:status+' · '+source,cls:sevClass(status)},
-        {key:'sleep',label:'Sleep',value:healthValue('sleep'),meta:'Apple Health / manual trend',cls:'acc'},
-        {key:'hrv',label:'HRV',value:healthValue('hrv'),meta:'Recovery nervous-system signal',cls:sevClass(healthValue('hrv'))},
-        {key:'resting',label:'Resting HR',value:healthValue('resting hr'),meta:'Cardiac recovery marker',cls:'acc'}
-      ];
-      var strain=score>=75?'Sustainable':score>=60?'Moderate-high':'Elevated';
-      var row2=[
-        {key:'cardio',label:'Cardio Strain',value:'Ready for Strava',meta:'Endurance load remains isolated from strength charts',cls:'acc'},
-        {key:'strain',label:'Training Strain',value:strain,meta:'Use warm-up quality to decide progression',cls:sevClass(strain)},
-        {key:'coach',label:'Adaptive Coach',value:score>=65?'Push with control':'Maintain',meta:'Recommendation follows recovery and recent load',cls:sevClass(score>=65?'Push':'Maintain')},
-        {key:'longitudinal',label:'Longitudinal Trend',value:trend,meta:'30-day readiness / training direction',cls:sevClass(trend)},
-        {key:'consistency',label:'Consistency',value:sessions+' sessions',meta:'Current week training rhythm',cls:''},
-        {key:'routing',label:'Hybrid Routing',value:'Apple + Vertex',meta:'Health inputs and workout logs synthesized',cls:''}
-      ];
-      var fullStack=[
-        {key:'progression',label:'Progression Engine',value:topMovement.indexOf('pending')>=0?'Baseline building':'Progression ready',meta:topMovement,cls:''},
-        {key:'decision',label:'Performance Decision',value:score>=65?'Controlled increase':'Hold baseline',meta:volumeLeader,cls:score>=65?'':'orange'},
-        {key:'weekly',label:'Weekly Intelligence',value:'Training context',meta:'Sessions, muscle volume, and recovery are summarized below in analytics.',cls:'acc'},
-        {key:'recoverytrend',label:'Recovery Trend',value:trend,meta:'Readiness score: '+score+' · basis: '+source,cls:sevClass(trend)},
-        {key:'tolerance',label:'Load Tolerance',value:score>=65?'Stable':'Watch',meta:'Current load appears manageable when recovery holds.',cls:score>=65?'':'orange'}
-      ];
-      mount.innerHTML =
-        '<div class="vertex-b2-row-label">Core Readiness KPIs</div>'+
-        '<div class="vertex-b2-progress-row" aria-label="Core readiness carousel">'+row1.map(card).join('')+'</div><div class="vertex-b2-dots"><span></span><span></span><span></span></div>'+
-        '<div class="vertex-b2-row-label">Training / Load KPIs</div>'+
-        '<div class="vertex-b2-progress-row" aria-label="Training load carousel">'+row2.map(card).join('')+'</div><div class="vertex-b2-dots"><span></span><span></span><span></span></div>'+
-        '<div class="vertex-b2-full-stack">'+fullStack.map(full).join('')+'</div>';
-      mount.style.display='block';
-      // Keep legacy injected experiment panels out of Home and out of the analytics tab container.
-      ['vertexRecoveryTrendPanel','vertexStrainPanel','vertexConsistencyPanel','vertexTolerancePanel','vertexCardioPanel','vertexProgressionPanel','vertexPerformancePanel'].forEach(function(id){
-        var el=document.getElementById(id); if(el) el.style.display='none';
-      });
-    }catch(e){ console.error('B2 stable progress carousel render failed', e); }
-  }
-  function schedule(){ setTimeout(render,80); setTimeout(render,450); setTimeout(render,1200); }
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(render,150); });
-  document.addEventListener('click', function(){ setTimeout(render,160); }, true);
-})();
-</script>
-
 </body></html>`);
     w.document.close();
   };
@@ -11503,156 +11157,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-<style>
-/* v20260527-b2-finetune-stable: Home planner carousel + Progress safe carousel mount. CSS only for planner; no SVG/chart/auth/SW changes. */
-#vertexB2ProgressCarousels{display:none;}
-#vertexB2ProgressCarousels .vertex-b2-row-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.6px;text-transform:uppercase;color:var(--muted);margin:0 0 8px 2px;}
-#vertexB2ProgressCarousels .vertex-b2-progress-row{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 4px 10px;margin:0 -4px 14px;}
-#vertexB2ProgressCarousels .vertex-b2-progress-row::-webkit-scrollbar{display:none;}
-#vertexB2ProgressCarousels .vertex-b2-progress-card{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:14px;box-sizing:border-box;scroll-snap-align:start;min-height:154px;display:flex;flex-direction:column;justify-content:space-between;}
-#vertexB2ProgressCarousels .vertex-b2-card-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:var(--muted);}
-#vertexB2ProgressCarousels .vertex-b2-card-value{font-size:24px;line-height:1.1;font-weight:900;color:var(--green);margin:12px 0 8px;}
-#vertexB2ProgressCarousels .vertex-b2-card-value.acc{color:var(--acc);}
-#vertexB2ProgressCarousels .vertex-b2-card-value.orange{color:var(--orange);}
-#vertexB2ProgressCarousels .vertex-b2-card-value.red{color:var(--red);}
-#vertexB2ProgressCarousels .vertex-b2-card-meta{color:var(--muted);font-size:13px;line-height:1.45;}
-#vertexB2ProgressCarousels .vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin:4px 0 18px;}
-#vertexB2ProgressCarousels .vertex-b2-full-card{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:16px;min-height:128px;}
-#vertexB2ProgressCarousels .vertex-b2-full-card .vertex-b2-card-value{font-size:20px;}
-#vertexB2ProgressCarousels .vertex-b2-dots{display:flex;justify-content:center;gap:6px;margin:-5px 0 12px;}
-#vertexB2ProgressCarousels .vertex-b2-dots span{width:7px;height:7px;border-radius:50%;background:var(--line2);display:block;}
-#vertexB2ProgressCarousels .vertex-b2-dots span:first-child{background:var(--acc);}
-@media(max-width:900px){
-  body.app-page-progress #vertexB2ProgressCarousels,
-  #progressPage[style*="block"] #vertexB2ProgressCarousels{display:block!important;margin:14px 0 10px!important;}
-  #vertexB2ProgressCarousels .vertex-b2-progress-card{flex:0 0 82%;min-width:82%;max-width:82%;}
-  body.app-page-home #plannerAcc .acc-body{overflow:hidden!important;}
-  body.app-page-home #planner.planner-grid{display:flex!important;grid-template-columns:none!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important;padding:4px 14px 12px!important;margin:0 -14px!important;}
-  body.app-page-home #planner.planner-grid::-webkit-scrollbar{display:none!important;}
-  body.app-page-home #planner.planner-grid .day-card{flex:0 0 calc(100vw - 56px)!important;min-width:calc(100vw - 56px)!important;max-width:calc(100vw - 56px)!important;scroll-snap-align:center!important;min-height:150px!important;}
-  body.app-page-home #plannerAcc .acc-body::after{content:'';display:block;width:100%;height:8px;background:radial-gradient(circle at 50% 50%, var(--acc) 0 4px, transparent 5px), radial-gradient(circle at calc(50% + 14px) 50%, var(--line2) 0 4px, transparent 5px);background-repeat:no-repeat;margin-top:-2px;pointer-events:none;}
-}
-@media(min-width:901px){
-  #vertexB2ProgressCarousels{display:none!important;}
-}
-</style>
-<script>
-/* v20260527-b2-finetune-stable: creates isolated Progress carousel cards only inside #progressPage. No SVG/chart/auth/SW/state mutation. */
-(function(){
-  function txt(v,fallback){ v=(v===undefined||v===null)?'':String(v); return v.trim() || fallback || '—'; }
-  function num(v,fallback){ var n=Number(v); return Number.isFinite(n)?n:fallback; }
-  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-  function activeNav(){ var on=document.querySelector('.nav button.on'); return on?String(on.textContent||'').trim().toLowerCase():''; }
-  function isProgress(){ var p=document.getElementById('progressPage'); return (p && p.style.display !== 'none') || activeNav()==='progress' || document.body.classList.contains('app-page-progress'); }
-  function recoveryIntel(){
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        return window.VertexRecoveryInsights.build() || {};
-      }
-    }catch(e){}
-    return {};
-  }
-  function healthValue(label){
-    try{
-      var cards=Array.from(document.querySelectorAll('#wellnessPage .wc-kpi-card, #wellnessPage .progress-card, #wellnessPage div'));
-      label=String(label).toLowerCase();
-      for(var i=0;i<cards.length;i++){
-        var t=String(cards[i].textContent||'').replace(/\s+/g,' ').trim();
-        if(t.toLowerCase().indexOf(label)>=0){
-          var m=t.match(/([0-9]+(?:\.[0-9]+)?\s*(?:h|ms|bpm|\/min|lb)?)/i);
-          if(m) return m[1].replace(/\s+/g,'');
-        }
-      }
-    }catch(e){}
-    return '—';
-  }
-  function parseProgress(regex,fallback){
-    try{
-      var root=document.getElementById('progressPage') || document.body;
-      var t=String(root.textContent||'');
-      var m=t.match(regex);
-      return m?m[1]:fallback;
-    }catch(e){ return fallback; }
-  }
-  function sevClass(label){
-    label=String(label||'').toLowerCase();
-    if(/recover|high|overreach|elevated|declin|caution|watch/.test(label)) return 'orange';
-    if(/low|stable|ready|good|push|improv|balanced|sustainable/.test(label)) return '';
-    if(/moderate/.test(label)) return 'acc';
-    return 'acc';
-  }
-  function card(c){
-    var cls='vertex-b2-card-value '+(c.cls||'');
-    return '<article class="vertex-b2-progress-card" data-b2-card="'+esc(c.key||c.label)+'">'+
-      '<div><div class="vertex-b2-card-label">'+esc(c.label)+'</div><div class="'+cls+'">'+esc(c.value)+'</div></div>'+
-      '<div class="vertex-b2-card-meta">'+esc(c.meta||'')+'</div>'+
-    '</article>';
-  }
-  function full(c){
-    var cls='vertex-b2-card-value '+(c.cls||'');
-    return '<article class="vertex-b2-full-card" data-b2-full="'+esc(c.key||c.label)+'">'+
-      '<div class="vertex-b2-card-label">'+esc(c.label)+'</div><div class="'+cls+'">'+esc(c.value)+'</div><div class="vertex-b2-card-meta">'+esc(c.meta||'')+'</div>'+
-    '</article>';
-  }
-  function render(){
-    try{
-      var mount=document.getElementById('vertexB2ProgressCarousels');
-      var page=document.getElementById('progressPage');
-      if(!mount || !page) return;
-      if(!isProgress()){ mount.style.display='none'; return; }
-      var intel=recoveryIntel();
-      var score=Math.round(num(intel.recovery, parseProgress(/(\d+)\s+Moderate Recovery/i, 72)));
-      var source=txt(intel.source,'Vertex synthesis');
-      var trend=(intel.trend && (intel.trend.label || intel.trend.direction)) ? txt(intel.trend.label || intel.trend.direction,'Stable') : 'Stable';
-      var status=score>=80?'High readiness':score>=65?'Moderate recovery':score>=50?'Maintain':'Recovery focus';
-      var sessions=parseProgress(/You logged\s+(\d+)\s+workouts?\s+this week/i, parseProgress(/(\d+)\s+sessions?/i,'0'));
-      var topMovement=parseProgress(/Top movement:\s*([^\.]+)\./i,'Top movement pending');
-      var volumeLeader=parseProgress(/Volume leader:\s*([^\.]+)\./i,'Volume leader pending');
-      var row1=[
-        {key:'readiness',label:'Readiness',value:String(score),meta:status+' · '+source,cls:sevClass(status)},
-        {key:'sleep',label:'Sleep',value:healthValue('sleep'),meta:'Apple Health / manual trend',cls:'acc'},
-        {key:'hrv',label:'HRV',value:healthValue('hrv'),meta:'Recovery nervous-system signal',cls:sevClass(healthValue('hrv'))},
-        {key:'resting',label:'Resting HR',value:healthValue('resting hr'),meta:'Cardiac recovery marker',cls:'acc'}
-      ];
-      var strain=score>=75?'Sustainable':score>=60?'Moderate-high':'Elevated';
-      var row2=[
-        {key:'cardio',label:'Cardio Strain',value:'Ready for Strava',meta:'Endurance load remains isolated from strength charts',cls:'acc'},
-        {key:'strain',label:'Training Strain',value:strain,meta:'Use warm-up quality to decide progression',cls:sevClass(strain)},
-        {key:'coach',label:'Adaptive Coach',value:score>=65?'Push with control':'Maintain',meta:'Recommendation follows recovery and recent load',cls:sevClass(score>=65?'Push':'Maintain')},
-        {key:'longitudinal',label:'Longitudinal Trend',value:trend,meta:'30-day readiness / training direction',cls:sevClass(trend)},
-        {key:'consistency',label:'Consistency',value:sessions+' sessions',meta:'Current week training rhythm',cls:''},
-        {key:'routing',label:'Hybrid Routing',value:'Apple + Vertex',meta:'Health inputs and workout logs synthesized',cls:''}
-      ];
-      var fullStack=[
-        {key:'progression',label:'Progression Engine',value:topMovement.indexOf('pending')>=0?'Baseline building':'Progression ready',meta:topMovement,cls:''},
-        {key:'decision',label:'Performance Decision',value:score>=65?'Controlled increase':'Hold baseline',meta:volumeLeader,cls:score>=65?'':'orange'},
-        {key:'weekly',label:'Weekly Intelligence',value:'Training context',meta:'Sessions, muscle volume, and recovery are summarized below in analytics.',cls:'acc'},
-        {key:'recoverytrend',label:'Recovery Trend',value:trend,meta:'Readiness score: '+score+' · basis: '+source,cls:sevClass(trend)},
-        {key:'tolerance',label:'Load Tolerance',value:score>=65?'Stable':'Watch',meta:'Current load appears manageable when recovery holds.',cls:score>=65?'':'orange'}
-      ];
-      mount.innerHTML =
-        '<div class="vertex-b2-row-label">Core Readiness KPIs</div>'+
-        '<div class="vertex-b2-progress-row" aria-label="Core readiness carousel">'+row1.map(card).join('')+'</div><div class="vertex-b2-dots"><span></span><span></span><span></span></div>'+
-        '<div class="vertex-b2-row-label">Training / Load KPIs</div>'+
-        '<div class="vertex-b2-progress-row" aria-label="Training load carousel">'+row2.map(card).join('')+'</div><div class="vertex-b2-dots"><span></span><span></span><span></span></div>'+
-        '<div class="vertex-b2-full-stack">'+fullStack.map(full).join('')+'</div>';
-      mount.style.display='block';
-      // Keep legacy injected experiment panels out of Home and out of the analytics tab container.
-      ['vertexRecoveryTrendPanel','vertexStrainPanel','vertexConsistencyPanel','vertexTolerancePanel','vertexCardioPanel','vertexProgressionPanel','vertexPerformancePanel'].forEach(function(id){
-        var el=document.getElementById(id); if(el) el.style.display='none';
-      });
-    }catch(e){ console.error('B2 stable progress carousel render failed', e); }
-  }
-  function schedule(){ setTimeout(render,80); setTimeout(render,450); setTimeout(render,1200); }
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(render,150); });
-  document.addEventListener('click', function(){ setTimeout(render,160); }, true);
-})();
-</script>
-
 </body></html>`);
   w.document.close();
 }
@@ -14160,7 +13664,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.61.12';
+  const VERSION='v13.61.12-phase1-no-sparks';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -19037,156 +18541,6 @@ body:not(.app-page-progress) #vertexWorkoutPersistencePanel{display:none!importa
   }catch(e){}
 })();
 </script>
-
-
-<style>
-/* v20260527-b2-finetune-stable: Home planner carousel + Progress safe carousel mount. CSS only for planner; no SVG/chart/auth/SW changes. */
-#vertexB2ProgressCarousels{display:none;}
-#vertexB2ProgressCarousels .vertex-b2-row-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.6px;text-transform:uppercase;color:var(--muted);margin:0 0 8px 2px;}
-#vertexB2ProgressCarousels .vertex-b2-progress-row{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 4px 10px;margin:0 -4px 14px;}
-#vertexB2ProgressCarousels .vertex-b2-progress-row::-webkit-scrollbar{display:none;}
-#vertexB2ProgressCarousels .vertex-b2-progress-card{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:14px;box-sizing:border-box;scroll-snap-align:start;min-height:154px;display:flex;flex-direction:column;justify-content:space-between;}
-#vertexB2ProgressCarousels .vertex-b2-card-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:var(--muted);}
-#vertexB2ProgressCarousels .vertex-b2-card-value{font-size:24px;line-height:1.1;font-weight:900;color:var(--green);margin:12px 0 8px;}
-#vertexB2ProgressCarousels .vertex-b2-card-value.acc{color:var(--acc);}
-#vertexB2ProgressCarousels .vertex-b2-card-value.orange{color:var(--orange);}
-#vertexB2ProgressCarousels .vertex-b2-card-value.red{color:var(--red);}
-#vertexB2ProgressCarousels .vertex-b2-card-meta{color:var(--muted);font-size:13px;line-height:1.45;}
-#vertexB2ProgressCarousels .vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin:4px 0 18px;}
-#vertexB2ProgressCarousels .vertex-b2-full-card{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:16px;min-height:128px;}
-#vertexB2ProgressCarousels .vertex-b2-full-card .vertex-b2-card-value{font-size:20px;}
-#vertexB2ProgressCarousels .vertex-b2-dots{display:flex;justify-content:center;gap:6px;margin:-5px 0 12px;}
-#vertexB2ProgressCarousels .vertex-b2-dots span{width:7px;height:7px;border-radius:50%;background:var(--line2);display:block;}
-#vertexB2ProgressCarousels .vertex-b2-dots span:first-child{background:var(--acc);}
-@media(max-width:900px){
-  body.app-page-progress #vertexB2ProgressCarousels,
-  #progressPage[style*="block"] #vertexB2ProgressCarousels{display:block!important;margin:14px 0 10px!important;}
-  #vertexB2ProgressCarousels .vertex-b2-progress-card{flex:0 0 82%;min-width:82%;max-width:82%;}
-  body.app-page-home #plannerAcc .acc-body{overflow:hidden!important;}
-  body.app-page-home #planner.planner-grid{display:flex!important;grid-template-columns:none!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important;padding:4px 14px 12px!important;margin:0 -14px!important;}
-  body.app-page-home #planner.planner-grid::-webkit-scrollbar{display:none!important;}
-  body.app-page-home #planner.planner-grid .day-card{flex:0 0 calc(100vw - 56px)!important;min-width:calc(100vw - 56px)!important;max-width:calc(100vw - 56px)!important;scroll-snap-align:center!important;min-height:150px!important;}
-  body.app-page-home #plannerAcc .acc-body::after{content:'';display:block;width:100%;height:8px;background:radial-gradient(circle at 50% 50%, var(--acc) 0 4px, transparent 5px), radial-gradient(circle at calc(50% + 14px) 50%, var(--line2) 0 4px, transparent 5px);background-repeat:no-repeat;margin-top:-2px;pointer-events:none;}
-}
-@media(min-width:901px){
-  #vertexB2ProgressCarousels{display:none!important;}
-}
-</style>
-<script>
-/* v20260527-b2-finetune-stable: creates isolated Progress carousel cards only inside #progressPage. No SVG/chart/auth/SW/state mutation. */
-(function(){
-  function txt(v,fallback){ v=(v===undefined||v===null)?'':String(v); return v.trim() || fallback || '—'; }
-  function num(v,fallback){ var n=Number(v); return Number.isFinite(n)?n:fallback; }
-  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-  function activeNav(){ var on=document.querySelector('.nav button.on'); return on?String(on.textContent||'').trim().toLowerCase():''; }
-  function isProgress(){ var p=document.getElementById('progressPage'); return (p && p.style.display !== 'none') || activeNav()==='progress' || document.body.classList.contains('app-page-progress'); }
-  function recoveryIntel(){
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        return window.VertexRecoveryInsights.build() || {};
-      }
-    }catch(e){}
-    return {};
-  }
-  function healthValue(label){
-    try{
-      var cards=Array.from(document.querySelectorAll('#wellnessPage .wc-kpi-card, #wellnessPage .progress-card, #wellnessPage div'));
-      label=String(label).toLowerCase();
-      for(var i=0;i<cards.length;i++){
-        var t=String(cards[i].textContent||'').replace(/\s+/g,' ').trim();
-        if(t.toLowerCase().indexOf(label)>=0){
-          var m=t.match(/([0-9]+(?:\.[0-9]+)?\s*(?:h|ms|bpm|\/min|lb)?)/i);
-          if(m) return m[1].replace(/\s+/g,'');
-        }
-      }
-    }catch(e){}
-    return '—';
-  }
-  function parseProgress(regex,fallback){
-    try{
-      var root=document.getElementById('progressPage') || document.body;
-      var t=String(root.textContent||'');
-      var m=t.match(regex);
-      return m?m[1]:fallback;
-    }catch(e){ return fallback; }
-  }
-  function sevClass(label){
-    label=String(label||'').toLowerCase();
-    if(/recover|high|overreach|elevated|declin|caution|watch/.test(label)) return 'orange';
-    if(/low|stable|ready|good|push|improv|balanced|sustainable/.test(label)) return '';
-    if(/moderate/.test(label)) return 'acc';
-    return 'acc';
-  }
-  function card(c){
-    var cls='vertex-b2-card-value '+(c.cls||'');
-    return '<article class="vertex-b2-progress-card" data-b2-card="'+esc(c.key||c.label)+'">'+
-      '<div><div class="vertex-b2-card-label">'+esc(c.label)+'</div><div class="'+cls+'">'+esc(c.value)+'</div></div>'+
-      '<div class="vertex-b2-card-meta">'+esc(c.meta||'')+'</div>'+
-    '</article>';
-  }
-  function full(c){
-    var cls='vertex-b2-card-value '+(c.cls||'');
-    return '<article class="vertex-b2-full-card" data-b2-full="'+esc(c.key||c.label)+'">'+
-      '<div class="vertex-b2-card-label">'+esc(c.label)+'</div><div class="'+cls+'">'+esc(c.value)+'</div><div class="vertex-b2-card-meta">'+esc(c.meta||'')+'</div>'+
-    '</article>';
-  }
-  function render(){
-    try{
-      var mount=document.getElementById('vertexB2ProgressCarousels');
-      var page=document.getElementById('progressPage');
-      if(!mount || !page) return;
-      if(!isProgress()){ mount.style.display='none'; return; }
-      var intel=recoveryIntel();
-      var score=Math.round(num(intel.recovery, parseProgress(/(\d+)\s+Moderate Recovery/i, 72)));
-      var source=txt(intel.source,'Vertex synthesis');
-      var trend=(intel.trend && (intel.trend.label || intel.trend.direction)) ? txt(intel.trend.label || intel.trend.direction,'Stable') : 'Stable';
-      var status=score>=80?'High readiness':score>=65?'Moderate recovery':score>=50?'Maintain':'Recovery focus';
-      var sessions=parseProgress(/You logged\s+(\d+)\s+workouts?\s+this week/i, parseProgress(/(\d+)\s+sessions?/i,'0'));
-      var topMovement=parseProgress(/Top movement:\s*([^\.]+)\./i,'Top movement pending');
-      var volumeLeader=parseProgress(/Volume leader:\s*([^\.]+)\./i,'Volume leader pending');
-      var row1=[
-        {key:'readiness',label:'Readiness',value:String(score),meta:status+' · '+source,cls:sevClass(status)},
-        {key:'sleep',label:'Sleep',value:healthValue('sleep'),meta:'Apple Health / manual trend',cls:'acc'},
-        {key:'hrv',label:'HRV',value:healthValue('hrv'),meta:'Recovery nervous-system signal',cls:sevClass(healthValue('hrv'))},
-        {key:'resting',label:'Resting HR',value:healthValue('resting hr'),meta:'Cardiac recovery marker',cls:'acc'}
-      ];
-      var strain=score>=75?'Sustainable':score>=60?'Moderate-high':'Elevated';
-      var row2=[
-        {key:'cardio',label:'Cardio Strain',value:'Ready for Strava',meta:'Endurance load remains isolated from strength charts',cls:'acc'},
-        {key:'strain',label:'Training Strain',value:strain,meta:'Use warm-up quality to decide progression',cls:sevClass(strain)},
-        {key:'coach',label:'Adaptive Coach',value:score>=65?'Push with control':'Maintain',meta:'Recommendation follows recovery and recent load',cls:sevClass(score>=65?'Push':'Maintain')},
-        {key:'longitudinal',label:'Longitudinal Trend',value:trend,meta:'30-day readiness / training direction',cls:sevClass(trend)},
-        {key:'consistency',label:'Consistency',value:sessions+' sessions',meta:'Current week training rhythm',cls:''},
-        {key:'routing',label:'Hybrid Routing',value:'Apple + Vertex',meta:'Health inputs and workout logs synthesized',cls:''}
-      ];
-      var fullStack=[
-        {key:'progression',label:'Progression Engine',value:topMovement.indexOf('pending')>=0?'Baseline building':'Progression ready',meta:topMovement,cls:''},
-        {key:'decision',label:'Performance Decision',value:score>=65?'Controlled increase':'Hold baseline',meta:volumeLeader,cls:score>=65?'':'orange'},
-        {key:'weekly',label:'Weekly Intelligence',value:'Training context',meta:'Sessions, muscle volume, and recovery are summarized below in analytics.',cls:'acc'},
-        {key:'recoverytrend',label:'Recovery Trend',value:trend,meta:'Readiness score: '+score+' · basis: '+source,cls:sevClass(trend)},
-        {key:'tolerance',label:'Load Tolerance',value:score>=65?'Stable':'Watch',meta:'Current load appears manageable when recovery holds.',cls:score>=65?'':'orange'}
-      ];
-      mount.innerHTML =
-        '<div class="vertex-b2-row-label">Core Readiness KPIs</div>'+
-        '<div class="vertex-b2-progress-row" aria-label="Core readiness carousel">'+row1.map(card).join('')+'</div><div class="vertex-b2-dots"><span></span><span></span><span></span></div>'+
-        '<div class="vertex-b2-row-label">Training / Load KPIs</div>'+
-        '<div class="vertex-b2-progress-row" aria-label="Training load carousel">'+row2.map(card).join('')+'</div><div class="vertex-b2-dots"><span></span><span></span><span></span></div>'+
-        '<div class="vertex-b2-full-stack">'+fullStack.map(full).join('')+'</div>';
-      mount.style.display='block';
-      // Keep legacy injected experiment panels out of Home and out of the analytics tab container.
-      ['vertexRecoveryTrendPanel','vertexStrainPanel','vertexConsistencyPanel','vertexTolerancePanel','vertexCardioPanel','vertexProgressionPanel','vertexPerformancePanel'].forEach(function(id){
-        var el=document.getElementById(id); if(el) el.style.display='none';
-      });
-    }catch(e){ console.error('B2 stable progress carousel render failed', e); }
-  }
-  function schedule(){ setTimeout(render,80); setTimeout(render,450); setTimeout(render,1200); }
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(render,150); });
-  document.addEventListener('click', function(){ setTimeout(render,160); }, true);
-})();
-</script>
-
 </body>
 </html>
 

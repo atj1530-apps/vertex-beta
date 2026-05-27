@@ -9251,6 +9251,102 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
+
+
+<style id="vertex-phase2b1-layout-card-fix-css">
+/* Phase 2B.1 layout recovery: keep every Progress intelligence card inside category rails on desktop and mobile. */
+#vertexProgressIntelligenceHolder.vertex-category-rails-ready{display:block!important;grid-template-columns:none!important;gap:0!important;}
+#vertexProgressIntelligenceHolder.vertex-category-rails-ready > .progress-card,
+#vertexProgressIntelligenceHolder.vertex-category-rails-ready > .coach-card{
+  width:auto!important;max-width:none!important;grid-column:auto!important;margin:0!important;
+}
+#vertexProgressIntelligenceHolder .vertex-progress-category-rail > .progress-card,
+#vertexProgressIntelligenceHolder .vertex-progress-category-rail > .coach-card,
+#vertexProgressIntelligenceHolder .vertex-progress-category-rail > div{
+  width:auto!important;max-width:none!important;grid-column:auto!important;margin:0!important;min-height:132px!important;
+}
+@media(min-width:901px){
+  #vertexProgressIntelligenceHolder .vertex-progress-category-rail{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;align-items:stretch!important;}
+  #vertexProgressIntelligenceHolder .vertex-progress-category-rail > div{display:block!important;}
+}
+@media(max-width:900px){
+  #vertexProgressIntelligenceHolder .vertex-progress-category-rail{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;scroll-snap-type:x mandatory!important;}
+  #vertexProgressIntelligenceHolder .vertex-progress-category-rail > div{flex:0 0 min(82vw,390px)!important;width:min(82vw,390px)!important;max-width:min(82vw,390px)!important;scroll-snap-align:start!important;}
+}
+</style>
+<script id="vertex-phase2b1-rail-placement-fix">
+(function(){
+  'use strict';
+  if(window.__vertexPhase2B1RailPlacementFix) return;
+  window.__vertexPhase2B1RailPlacementFix=true;
+
+  var RECOVERY_IDS=['vertexRecoveryTrendPanel','vertexTolerancePanel','vertexStrainPanel','vertexCardioStrainPanel'];
+  var TRAINING_IDS=['vertexWorkoutPersistencePanel','vertexAdaptiveCoachPanel','vertexLongTrendPanel','vertexProgressionPanel','vertexPerformanceDecisionPanel','vertexHybridRoutingPanel','vertexConsistencyPanel','vertexImbalanceDetectionPanel'];
+
+  function isProgress(){
+    try{return document.body && document.body.classList && document.body.classList.contains('app-page-progress');}catch(e){return false;}
+  }
+  function holder(){return document.getElementById('vertexProgressIntelligenceHolder');}
+  function ensureSection(h,key,title){
+    var sec=document.getElementById('vertexProgressCategory_'+key);
+    if(!sec){
+      sec=document.createElement('section');
+      sec.id='vertexProgressCategory_'+key;
+      sec.className='vertex-progress-category';
+      sec.setAttribute('data-progress-category',key);
+      sec.innerHTML='<div class="vertex-progress-category-title">'+title+'</div><div class="vertex-progress-category-rail" id="vertexProgressRail_'+key+'"></div>';
+      h.appendChild(sec);
+    }
+    var rail=document.getElementById('vertexProgressRail_'+key) || sec.querySelector('.vertex-progress-category-rail');
+    return {section:sec,rail:rail};
+  }
+  function move(ids,rail){
+    var count=0;
+    ids.forEach(function(id){
+      var card=document.getElementById(id);
+      if(!card) return;
+      card.style.display=isProgress()?'':'none';
+      card.style.width=''; card.style.maxWidth=''; card.style.margin='0'; card.style.marginBottom='0'; card.style.gridColumn='auto';
+      rail.appendChild(card);
+      count++;
+    });
+    return count;
+  }
+  function run(){
+    try{
+      var h=holder(); if(!h) return false;
+      h.classList.add('vertex-category-rails-ready');
+      h.style.display=isProgress()?'block':'none';
+      h.style.gridTemplateColumns='none'; h.style.gap='0';
+      if(window.VertexPhase2B1ImbalanceDetection && typeof window.VertexPhase2B1ImbalanceDetection.render==='function'){
+        try{window.VertexPhase2B1ImbalanceDetection.render();}catch(e){}
+      }
+      var r=ensureSection(h,'recovery','RECOVERY / READINESS');
+      var t=ensureSection(h,'training','TRAINING INTELLIGENCE');
+      r.section.style.display=move(RECOVERY_IDS,r.rail)?'':'none';
+      t.section.style.display=move(TRAINING_IDS,t.rail)?'':'none';
+      if(r.section.parentNode===h && t.section.parentNode===h && r.section.nextSibling!==t.section){h.insertBefore(t.section,r.section.nextSibling);}
+      return true;
+    }catch(e){console.warn('[Vertex Phase 2B.1] rail placement fix failed',e);return false;}
+  }
+  var old=window.VertexProgressCategoryRails && window.VertexProgressCategoryRails.sync;
+  if(typeof old==='function' && !old.__vertexPhase2B1PlacementFixed){
+    var wrapped=function(){var out=old.apply(this,arguments); setTimeout(run,30); setTimeout(run,160); return out;};
+    wrapped.__vertexPhase2B1PlacementFixed=true;
+    window.VertexProgressCategoryRails.sync=wrapped;
+  }
+  window.VertexProgressCategoryRails=window.VertexProgressCategoryRails||{};
+  window.VertexProgressCategoryRails.sync=run;
+  [40,120,300,700,1300,2400,4200].forEach(function(ms){setTimeout(run,ms);});
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(run,60);setTimeout(run,500);});
+  window.addEventListener('load',function(){setTimeout(run,120);setTimeout(run,900);});
+  document.addEventListener('click',function(e){
+    if(e.target && e.target.closest && e.target.closest('.vertex-i')) return;
+    setTimeout(run,180);
+  },true);
+  try{var mo=new MutationObserver(function(){clearTimeout(window.__vertexPhase2B1PlacementTimer);window.__vertexPhase2B1PlacementTimer=setTimeout(run,90);});document.addEventListener('DOMContentLoaded',function(){if(document.body)mo.observe(document.body,{childList:true,subtree:true});});}catch(e){}
+})();
+</script>
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }

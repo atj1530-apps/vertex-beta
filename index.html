@@ -6723,8 +6723,16 @@ function calcOneRM(){
 
 // --- PROGRESS TAB NAVIGATION ---
 function setProgressTab(tab){
-  document.querySelectorAll('.progress-tab').forEach(b=>b.classList.toggle('on',b.getAttribute('data-ptab')===tab));
+  document.querySelectorAll('.progress-tab').forEach(b=>{
+    if(b.hasAttribute('data-ptab')) b.classList.toggle('on',b.getAttribute('data-ptab')===tab);
+  });
   ['overview','volume','exercises','history'].forEach(t=>{const el=document.getElementById('ptab-'+t);if(el) el.style.display=t===tab?'block':'none';});
+  const isOverview = tab==='overview';
+  document.body.classList.toggle('vertex-progress-overview', isOverview);
+  const summary=document.getElementById('progressSummary');
+  const deck=document.getElementById('vertexB2ProgressDeck');
+  if(summary) summary.style.display=isOverview?'grid':'none';
+  if(deck) deck.style.display=isOverview?'':'none';
   if(tab==='volume') renderProgressVolumeCharts();
   if(tab==='exercises') renderProgressExercises();
   if(tab==='history') renderProgressHistoryTab();
@@ -6926,6 +6934,8 @@ function renderProgressPage(){
     history.innerHTML=(topExercises?`<div style="margin-bottom:12px"><div class="label">Top Exercises</div>${topExercises}</div>`:'')+`<div class="label">Recent Logs</div>`+workoutRows;
   }
   renderVertexB2ProgressDeck(rows,sum,perf);
+  const activeProgressTab=document.querySelector('#progressPage .progress-tab.on[data-ptab]')?.getAttribute('data-ptab') || 'overview';
+  setProgressTab(activeProgressTab);
 }
 
 // Phase 1F: Progress Spark renderer removed. Compatibility no-op retained for older saved calls.
@@ -18485,6 +18495,91 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 
+
+
+<style id="vertex-phase1f-followup-css">
+/* Phase 1F follow-up: Progress sub-tabs sit directly under the Progress header. B2 dashboard cards only appear on Overview. */
+body.app-page-progress #progressPage.progress-page{display:flex!important;flex-direction:column!important;}
+body.app-page-progress #progressPage .progress-head{order:1!important;}
+body.app-page-progress #progressPage .progress-tabs{order:2!important;margin:12px 0 16px!important;display:flex!important;gap:10px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;flex-wrap:nowrap!important;}
+body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
+body.app-page-progress #progressPage .progress-tabs .progress-tab{flex:0 0 auto!important;border-radius:999px!important;padding:10px 16px!important;}
+body.app-page-progress #progressPage #progressSummary{order:3!important;}
+body.app-page-progress #progressPage #vertexB2ProgressDeck{order:4!important;}
+body.app-page-progress #progressPage #progressTabContent{order:5!important;}
+body.app-page-progress:not(.vertex-progress-overview) #progressPage #progressSummary,
+body.app-page-progress:not(.vertex-progress-overview) #progressPage #vertexB2ProgressDeck{display:none!important;}
+@media(max-width:900px){
+  body.app-page-home #plannerAcc::after{display:none!important;content:none!important;}
+  .planner-day-dots{display:flex;justify-content:center;gap:12px;margin:0 auto 2px;padding:4px 0 0;pointer-events:auto;}
+  .planner-day-dot{width:10px;height:10px;border-radius:50%;background:rgba(232,255,71,.38);border:0;padding:0;display:block;transition:background .18s ease,transform .18s ease,opacity .18s ease;opacity:.72;}
+  .planner-day-dot.active{background:var(--acc);transform:scale(1.18);opacity:1;}
+}
+@media(min-width:901px){.planner-day-dots{display:none!important;}}
+</style>
+<script id="vertex-phase1f-followup-js">
+(function(){
+  function plannerScroller(){
+    var planner=document.getElementById('planner');
+    if(!planner || !planner.children || planner.children.length<2) return null;
+    return planner;
+  }
+  function ensurePlannerDots(){
+    var planner=plannerScroller();
+    if(!planner) return;
+    var acc=document.getElementById('plannerAcc');
+    if(!acc) return;
+    var count=planner.children.length;
+    var dots=document.getElementById('plannerDayDots');
+    if(!dots){
+      dots=document.createElement('div');
+      dots.id='plannerDayDots';
+      dots.className='planner-day-dots';
+      acc.appendChild(dots);
+    }
+    if(dots.children.length!==count){
+      dots.innerHTML=Array.from({length:count},function(_,i){return '<button type="button" class="planner-day-dot" aria-label="Planner day '+(i+1)+'" data-planner-dot="'+i+'"></button>';}).join('');
+    }
+    function update(){
+      var cards=Array.prototype.slice.call(planner.children);
+      var center=planner.scrollLeft + planner.clientWidth/2;
+      var best=0, bestDist=Infinity;
+      cards.forEach(function(card,i){
+        var c=card.offsetLeft + card.offsetWidth/2;
+        var d=Math.abs(c-center);
+        if(d<bestDist){bestDist=d;best=i;}
+      });
+      Array.prototype.forEach.call(dots.children,function(dot,i){dot.classList.toggle('active',i===best);});
+    }
+    if(!planner.__vertexPlannerDotsBound){
+      planner.__vertexPlannerDotsBound=true;
+      var timer;
+      planner.addEventListener('scroll',function(){ clearTimeout(timer); timer=setTimeout(update,35); },{passive:true});
+      dots.addEventListener('click',function(e){
+        var b=e.target&&e.target.closest&&e.target.closest('[data-planner-dot]');
+        if(!b) return;
+        var i=Number(b.getAttribute('data-planner-dot'))||0;
+        var card=planner.children[i];
+        if(card) planner.scrollTo({left:card.offsetLeft-(planner.clientWidth-card.offsetWidth)/2,behavior:'smooth'});
+        setTimeout(update,60);
+      });
+      window.addEventListener('resize',function(){setTimeout(update,80);},{passive:true});
+    }
+    update();
+  }
+  var oldInit=window.initHomeDayCarousel;
+  window.initHomeDayCarousel=function(){
+    if(typeof oldInit==='function') oldInit.apply(this,arguments);
+    setTimeout(ensurePlannerDots,60);
+  };
+  var oldRenderPlanner=window.renderPlanner;
+  if(typeof oldRenderPlanner==='function'){
+    window.renderPlanner=function(){ var r=oldRenderPlanner.apply(this,arguments); setTimeout(ensurePlannerDots,60); return r; };
+  }
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(ensurePlannerDots,300);});
+  setTimeout(ensurePlannerDots,800);
+})();
+</script>
 </body>
 </html>
 

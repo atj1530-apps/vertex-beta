@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260527-phase2a: score intelligence + actionable coach feed; service worker/cache unchanged -->
+<!-- v20260526-ae: recovery intelligence engine v2; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -3850,126 +3850,6 @@ body.app-page-progress #progressPage #progressTabContent{order:5!important;}
 }
 </style>
 
-
-<style id="vertex-phase1f-mobile-progress-groups-final">
-/* Phase 1F final: keep index(210) behavior, only group Progress overview cards on mobile. */
-body.app-page-progress #progressPage.progress-page{
-  display:flex!important;
-  flex-direction:column!important;
-}
-body.app-page-progress #progressPage .progress-head{order:1!important;}
-body.app-page-progress #progressPage #progressSummary{order:2!important;}
-body.app-page-progress #progressPage .progress-tabs{
-  order:3!important;
-  margin:12px 0 14px!important;
-  display:flex!important;
-  gap:10px!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  flex-wrap:nowrap!important;
-}
-body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
-body.app-page-progress #progressPage .progress-tabs .progress-tab{
-  flex:0 0 auto!important;
-  border-radius:999px!important;
-  padding:10px 16px!important;
-}
-body.app-page-progress #progressPage #vertexB2ProgressDeck{
-  order:4!important;
-  margin:4px 0 16px!important;
-  width:100%!important;
-}
-body.app-page-progress #progressPage #progressTabContent{order:5!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group{
-  margin:0 0 16px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
-  display:flex!important;
-  justify-content:space-between!important;
-  align-items:flex-end!important;
-  gap:12px!important;
-  margin:2px 0 10px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-title{
-  font-family:'DM Mono',monospace!important;
-  font-size:11px!important;
-  letter-spacing:2px!important;
-  text-transform:uppercase!important;
-  color:var(--acc)!important;
-  font-weight:800!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
-  color:var(--muted)!important;
-  font-size:12px!important;
-  line-height:1.35!important;
-  text-align:right!important;
-  max-width:420px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-row{
-  display:grid!important;
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:12px!important;
-  margin:0!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-card{
-  min-height:150px!important;
-}
-@media(max-width:900px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group{
-    margin:0 0 18px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
-    display:block!important;
-    padding:0 2px!important;
-    margin:4px 0 9px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
-    text-align:left!important;
-    max-width:none!important;
-    font-size:11px!important;
-    margin-top:4px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{
-    display:flex!important;
-    grid-template-columns:none!important;
-    gap:12px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scroll-snap-type:x mandatory!important;
-    padding:0 14px 10px!important;
-    margin:0 -14px!important;
-    scrollbar-width:none!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{
-    flex:0 0 82%!important;
-    min-width:82%!important;
-    max-width:82%!important;
-    scroll-snap-align:center!important;
-    min-height:178px!important;
-    margin:0!important;
-  }
-}
-</style>
-
-
-<style id="vertex-phase2a-score-coach-css">
-/* Phase 2A — score explanations + actionable coach feed; layout-safe overlay only */
-#progressPage .vertex-score-info{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;margin-left:6px;border:1px solid rgba(232,255,71,.45);border-radius:999px;color:var(--acc);font-family:'DM Mono',monospace;font-size:10px;line-height:1;vertical-align:middle;cursor:help;position:relative;background:rgba(232,255,71,.04)}
-#progressPage .vertex-score-info:focus{outline:1px solid var(--acc);outline-offset:2px}
-#progressPage .vertex-score-info:hover::after,#progressPage .vertex-score-info:focus::after{content:attr(data-tip);position:absolute;left:0;top:22px;z-index:20;width:min(260px,calc(100vw - 48px));padding:10px 12px;border:1px solid rgba(232,255,71,.32);border-radius:10px;background:#171717;color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:12px;line-height:1.45;letter-spacing:0;text-transform:none;box-shadow:0 18px 42px rgba(0,0,0,.55);white-space:normal}
-#progressPage .vertex-score-info:hover::before,#progressPage .vertex-score-info:focus::before{content:'';position:absolute;left:6px;top:18px;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:5px solid rgba(232,255,71,.32);z-index:21}
-#progressPage .vertex-coach-feed-title{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-#progressPage .vertex-coach-feed .insight{border-color:rgba(232,255,71,.22);background:rgba(232,255,71,.035)}
-#progressPage .vertex-coach-feed .insight b{display:block;margin-bottom:3px;color:var(--text)}
-#progressPage .vertex-coach-feed .insight span{color:var(--muted);font-size:12px;line-height:1.45}
-@media(max-width:800px){#progressPage .vertex-score-info:hover::after,#progressPage .vertex-score-info:focus::after{left:auto;right:-8px;width:min(250px,calc(100vw - 34px));}}
-</style>
-
 </head>
 <body class="auth-resolving">
 
@@ -4092,7 +3972,7 @@ window.vertexFinishBootstrap=function(){
   <main class="main">
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
     <div id="home-dashboard" style="display:none"></div>
-<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck" aria-label="Progress intelligence cards"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card wide"><div class="label">Coach Feed</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
+<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck" aria-label="Progress intelligence cards"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace"></span>
@@ -6844,8 +6724,6 @@ function calcOneRM(){
 function setProgressTab(tab){
   document.querySelectorAll('.progress-tab').forEach(b=>b.classList.toggle('on',b.getAttribute('data-ptab')===tab));
   ['overview','volume','exercises','history'].forEach(t=>{const el=document.getElementById('ptab-'+t);if(el) el.style.display=t===tab?'block':'none';});
-  const deck=document.getElementById('vertexB2ProgressDeck');
-  if(deck) deck.style.display = tab==='overview' ? 'block' : 'none';
   if(tab==='volume') renderProgressVolumeCharts();
   if(tab==='exercises') renderProgressExercises();
   if(tab==='history') renderProgressHistoryTab();
@@ -6994,21 +6872,9 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
     if(/ready|push|opportunity|good|sustainable|improving/.test(text)) return 'good';
     return 'moderate';
   }
-  const scoreExplain={
-    'Readiness':'Composite recovery signal. Uses available sleep, HRV, resting HR, soreness, stress, energy, and recent training load. Higher means the body is better positioned to handle intensity.',
-    'Load Tolerance':'How well your recent recovery appears to support the training load you are carrying. Reduce means keep volume or intensity conservative until recovery improves.',
-    'Training Strain':'A practical strain estimate based on this week’s training frequency, volume pattern, and recovery context. It is a coaching signal, not a medical metric.',
-    'Adaptive Coach':'Daily recommendation layer. It converts readiness and recent workload into a simple action: push, maintain, or recover.',
-    'Recovery Trend':'Direction of recovery based on the latest readiness signal and recent training context.',
-    'Cardio Strain':'Endurance load signal when Strava/cardio data exists. It helps prevent stacking hard lifting on top of high cardio stress.'
-  };
-  function infoIcon(title){
-    const tip=scoreExplain[title];
-    return tip?`<span class="vertex-score-info" tabindex="0" role="button" aria-label="${esc(title)} explanation" data-tip="${esc(tip)}">i</span>`:'';
-  }
   function card(title,value,lines,wide){
     const s=sev(value+' '+(lines||[]).join(' '));
-    return `<section class="vertex-b2-card vertex-b2-${s}${wide?' vertex-b2-wide':''}"><div class="label">${esc(title)}${infoIcon(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
+    return `<section class="vertex-b2-card vertex-b2-${s}${wide?' vertex-b2-wide':''}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
   }
   const row1=[
     card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Top movement: ${topMove.name} (${topMove.sets||0} sets)`:'Top movement pending']),
@@ -7029,31 +6895,7 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
     card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', 'Basis: recovery synthesis'], true),
     card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Continue tracking volume and recovery response.'], true)
   ];
-  const recoveryCards=[
-    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', 'Basis: recovery synthesis']),
-    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Continue tracking volume and recovery response.']),
-    card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean reps.']),
-    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`])
-  ];
-  const trainingCards=[
-    card('Workout Memory', topMove?'Pattern ready':'Baseline pending', [topMove?`Repeat ${topMove.name}; progress only if form and recovery hold.`:'Log repeated movements to unlock memory.', `${perf.length||0} exercises tracked · ${totalSets||0} stored sets`]),
-    card('Weekly Intelligence', sessions?'Actionable trend':'No workout logged', [sessions?`${sessions} session${sessions===1?'':'s'} this week — use volume tab for raw totals.`:'Build your first weekly signal.', daysSince===null?'Last workout pending':daysSince===0?'You logged today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`]),
-    card('Consistency', consistencyLabel, [deltaText(sum.thisWeek?.length||0, sum.prevWeek?.length||0), sessions>=3?'Keep the rhythm; avoid chasing extra volume.':'Focus on repeatable schedule before intensity.']),
-    card('Longitudinal Trend', longTrend, [readiness!==null?`Current readiness: ${readiness}`:'Recovery baseline pending', sessions?`${sessions} sessions this week`:'No sessions this week'])
-  ];
-  function group(title,sub,cards,cls){
-    return `<section class="vertex-b2-group ${cls||''}"><div class="vertex-b2-group-head"><div class="vertex-b2-group-title">${esc(title)}</div><div class="vertex-b2-group-sub">${esc(sub)}</div></div><div class="vertex-b2-row">${cards.join('')}</div></section>`;
-  }
-  function deltaText(curr,prev){
-    const d=Number(curr||0)-Number(prev||0);
-    if(d>0) return `Consistency is up ${d} session${d===1?'':'s'} versus last week.`;
-    if(d<0) return `Consistency is down ${Math.abs(d)} session${Math.abs(d)===1?'':'s'} versus last week.`;
-    return 'Consistency matches last week.';
-  }
-  deck.innerHTML=[
-    group('Recovery / Readiness','',recoveryCards,'vertex-b2-recovery-group'),
-    group('Training Intelligence','',trainingCards,'vertex-b2-training-group')
-  ].join('');
+  deck.innerHTML=`<div class="vertex-b2-row vertex-b2-row-one">${row1.join('')}</div><div class="vertex-b2-row vertex-b2-row-two">${row2.join('')}</div><div class="vertex-b2-full-stack">${full.join('')}</div>`;
 }
 
 function renderProgressPage(){
@@ -7067,21 +6909,9 @@ function renderProgressPage(){
       const delta=sum.thisWeek.length-sum.prevWeek.length;
       const muscleTotals={}; rows.filter(r=>new Date(r.completed_at)>=weekStart()).forEach(r=>Object.entries(r.metrics?.muscles||{}).forEach(([m,v])=>{muscleTotals[m]=(muscleTotals[m]||0)+(v.sets||0)}));
       const top=Object.entries(muscleTotals).sort((a,b)=>b[1]-a[1])[0];
-      const sortedMuscles=Object.entries(muscleTotals).sort((a,b)=>b[1]-a[1]);
-      const second=sortedMuscles[1]||null;
       const topMove=perf[0];
-      const coach=[];
-      if(delta>0) coach.push({t:'Consistency is improving',d:`You are up ${delta} session${delta===1?'':'s'} versus last week. Keep intensity controlled so the added frequency does not turn into recovery debt.`});
-      else if(delta<0) coach.push({t:'Consistency slipped',d:`You are down ${Math.abs(delta)} session${Math.abs(delta)===1?'':'s'} versus last week. Prioritize the next scheduled session before adding extra volume.`});
-      else coach.push({t:'Consistency is stable',d:'Your weekly rhythm matches last week. The next improvement should come from cleaner execution, not more random work.'});
-      if(top && second && top[1] >= Math.max(8, second[1]*1.45)) coach.push({t:'Volume balance watch',d:`${top[0]} is leading weekly set volume by a wide margin. Use the Volume tab to confirm balance before adding more ${top[0]} work.`});
-      else if(top) coach.push({t:'Volume distribution looks manageable',d:`${top[0]} is the current lead muscle group. If soreness is low, maintain rather than aggressively increasing sets.`});
-      if(topMove) coach.push({t:'Progression opportunity',d:`${topMove.name} has enough history to guide progression. Add load or reps only if recovery is green and form quality stays consistent.`});
-      else coach.push({t:'Build repeatable movement history',d:'Repeat core lifts across sessions so Vertex can separate true progression from one-off workouts.'});
-      if(sum.daysSince===0) coach.push({t:'Today is logged',d:'Let recovery data catch up before using another hard session to chase volume.'});
-      else if(Number(sum.daysSince)>=4) coach.push({t:'Return-to-training note',d:`It has been ${sum.daysSince} days since the last workout. Restart with moderate volume before pushing intensity.`});
-      else if(Number.isFinite(Number(sum.daysSince))) coach.push({t:'Next-session setup',d:`Last workout was ${sum.daysSince} day${sum.daysSince===1?'':'s'} ago. If soreness is low, the next session can be productive without forcing max effort.`});
-      insights.innerHTML=`<div class="vertex-coach-feed">${coach.slice(0,5).map(n=>`<div class="insight"><b>${escapeHtml(n.t)}</b><span>${escapeHtml(n.d)}</span></div>`).join('')}</div>`;
+      const notes=[`You logged ${sum.thisWeek.length} workout${sum.thisWeek.length===1?'':'s'} this week.`, delta>0?`Consistency is up ${delta} session${delta===1?'':'s'} versus last week.`:delta<0?`Consistency is down ${Math.abs(delta)} session${Math.abs(delta)===1?'':'s'} versus last week.`:'Consistency matches last week.', top?`${top[0]} has the highest set volume this week at ${top[1]} sets.`:'No strength volume logged this week.', topMove?`${topMove.name} is your most logged exercise (${topMove.sets} sets).`:'Exercise history will appear after strength logs.', sum.daysSince===0?'You logged a workout today.':`Last workout was ${sum.daysSince} day${sum.daysSince===1?'':'s'} ago.`];
+      insights.innerHTML=notes.map(n=>`<div class="insight">${escapeHtml(n)}</div>`).join('');
     }
   }
   const weeks=document.getElementById('progressWeeks');
@@ -9275,113 +9105,7 @@ function protoSelectDate(dateStr){
         const pdfDateStr = new Date().toLocaleDateString([],{year:'numeric',month:'long',day:'numeric'});
         const html = `<!DOCTYPE html><html><head><title>Vertex Protocol Summary — ${initials||displayName}</title>
           <style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;color:#111}h1{color:#1a1a1a;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#1a1a1a;color:#fff;padding:8px 12px;text-align:left;font-size:12px}td{padding:8px 12px;border-bottom:1px solid #eee;font-size:13px}tr:nth-child(even){background:#f9f9f9}.meta{color:#666;font-size:13px;margin-bottom:24px}.patient{font-size:15px;font-weight:bold;color:#333;margin-bottom:4px}</style>
-          
-<style id="vertex-phase1f-mobile-progress-groups-final">
-/* Phase 1F final: keep index(210) behavior, only group Progress overview cards on mobile. */
-body.app-page-progress #progressPage.progress-page{
-  display:flex!important;
-  flex-direction:column!important;
-}
-body.app-page-progress #progressPage .progress-head{order:1!important;}
-body.app-page-progress #progressPage #progressSummary{order:2!important;}
-body.app-page-progress #progressPage .progress-tabs{
-  order:3!important;
-  margin:12px 0 14px!important;
-  display:flex!important;
-  gap:10px!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  flex-wrap:nowrap!important;
-}
-body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
-body.app-page-progress #progressPage .progress-tabs .progress-tab{
-  flex:0 0 auto!important;
-  border-radius:999px!important;
-  padding:10px 16px!important;
-}
-body.app-page-progress #progressPage #vertexB2ProgressDeck{
-  order:4!important;
-  margin:4px 0 16px!important;
-  width:100%!important;
-}
-body.app-page-progress #progressPage #progressTabContent{order:5!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group{
-  margin:0 0 16px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
-  display:flex!important;
-  justify-content:space-between!important;
-  align-items:flex-end!important;
-  gap:12px!important;
-  margin:2px 0 10px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-title{
-  font-family:'DM Mono',monospace!important;
-  font-size:11px!important;
-  letter-spacing:2px!important;
-  text-transform:uppercase!important;
-  color:var(--acc)!important;
-  font-weight:800!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
-  color:var(--muted)!important;
-  font-size:12px!important;
-  line-height:1.35!important;
-  text-align:right!important;
-  max-width:420px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-row{
-  display:grid!important;
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:12px!important;
-  margin:0!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-card{
-  min-height:150px!important;
-}
-@media(max-width:900px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group{
-    margin:0 0 18px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
-    display:block!important;
-    padding:0 2px!important;
-    margin:4px 0 9px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
-    text-align:left!important;
-    max-width:none!important;
-    font-size:11px!important;
-    margin-top:4px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{
-    display:flex!important;
-    grid-template-columns:none!important;
-    gap:12px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scroll-snap-type:x mandatory!important;
-    padding:0 14px 10px!important;
-    margin:0 -14px!important;
-    scrollbar-width:none!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{
-    flex:0 0 82%!important;
-    min-width:82%!important;
-    max-width:82%!important;
-    scroll-snap-align:center!important;
-    min-height:178px!important;
-    margin:0!important;
-  }
-}
-</style>
-
-</head><body>
+          </head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
           <div class="meta">Generated: ${pdfDateStr} · ${items.length} active compound${items.length===1?'':'s'}</div>
@@ -9457,90 +9181,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
-
-<style id="vertex-phase2a-cleanup-final">
-/* Phase 2A cleanup — preserve new Progress deck, remove legacy duplicate intelligence stack */
-#vertexProgressIntelligenceHolder{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;pointer-events:none!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{display:none!important;}
-#progressPage .vertex-score-info{
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  width:16px!important;height:16px!important;margin-left:6px!important;
-  border:1px solid rgba(232,255,71,.55)!important;border-radius:999px!important;
-  color:var(--acc)!important;background:rgba(232,255,71,.05)!important;
-  font-family:Arial,Helvetica,sans-serif!important;font-size:11px!important;font-weight:700!important;
-  line-height:16px!important;letter-spacing:0!important;text-transform:none!important;
-  text-align:center!important;vertical-align:middle!important;cursor:pointer!important;position:relative!important;
-}
-#progressPage .vertex-score-info:hover,
-#progressPage .vertex-score-info:focus{background:var(--acc)!important;color:#000!important;outline:none!important;}
-#progressPage .vertex-score-info:hover::after,
-#progressPage .vertex-score-info:focus::after{
-  content:attr(data-tip)!important;display:block!important;position:absolute!important;left:0!important;top:24px!important;z-index:9999!important;
-  width:300px!important;max-width:min(300px,calc(100vw - 48px))!important;min-width:240px!important;
-  padding:12px 14px!important;border:1px solid rgba(232,255,71,.38)!important;border-radius:12px!important;
-  background:#171717!important;color:var(--text)!important;box-shadow:0 18px 42px rgba(0,0,0,.65)!important;
-  font-family:'DM Sans',system-ui,sans-serif!important;font-size:12px!important;font-weight:600!important;line-height:1.45!important;
-  letter-spacing:0!important;text-transform:none!important;text-align:left!important;white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;
-}
-#progressPage .vertex-score-info:hover::before,
-#progressPage .vertex-score-info:focus::before{content:''!important;position:absolute!important;left:6px!important;top:19px!important;border-left:5px solid transparent!important;border-right:5px solid transparent!important;border-bottom:5px solid rgba(232,255,71,.38)!important;z-index:10000!important;}
-#progressPage .vertex-coach-feed .insight b{font-size:14px!important;color:var(--text)!important;}
-#progressPage .vertex-coach-feed .insight span{font-size:13px!important;line-height:1.5!important;}
-@media(max-width:900px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;grid-template-columns:none!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 12px!important;margin:0 -14px 18px!important;scrollbar-width:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{flex:0 0 82%!important;min-width:82%!important;max-width:82%!important;scroll-snap-align:start!important;margin:0!important;min-height:178px!important;}
-  #progressPage .vertex-score-info:hover::after,#progressPage .vertex-score-info:focus::after{left:auto!important;right:-6px!important;width:260px!important;max-width:calc(100vw - 32px)!important;min-width:220px!important;}
-}
-@media(min-width:901px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;overflow:visible!important;}
-}
-</style>
-<script id="vertex-phase2a-cleanup-final-js">
-(function(){
-  function hideLegacyProgressHolder(){
-    try{
-      var holder=document.getElementById('vertexProgressIntelligenceHolder');
-      if(holder){
-        holder.style.setProperty('display','none','important');
-        holder.style.setProperty('visibility','hidden','important');
-        holder.style.setProperty('height','0','important');
-        holder.style.setProperty('min-height','0','important');
-        holder.style.setProperty('margin','0','important');
-        holder.style.setProperty('padding','0','important');
-      }
-      var labels=Array.from(document.querySelectorAll('#progressPage .label'));
-      labels.forEach(function(el){ if(String(el.textContent||'').trim().toLowerCase()==='insights') el.textContent='Coach Feed'; });
-    }catch(e){}
-  }
-  function upgradeCoachFeed(){
-    try{
-      var list=document.getElementById('progressInsights');
-      if(!list || !list.children.length) return;
-      if(list.getAttribute('data-vertex-coach-upgraded')==='1') return;
-      var txt=String(list.textContent||'');
-      if(/You logged \d+ workouts this week|highest set volume|most logged exercise/i.test(txt)){
-        var sessions=(txt.match(/logged\s+(\d+)/i)||[])[1]||'';
-        var muscle=(txt.match(/([A-Za-z]+) has the highest set volume/i)||[])[1]||'';
-        var move=(txt.match(/([A-Za-z ]+) is your most logged exercise/i)||[])[1]||'';
-        var cards=[];
-        cards.push(['Progression control', sessions?('Current frequency supports progress. Keep the next increase small so recovery stays ahead of workload.'):('Build two repeatable sessions before chasing volume.')]);
-        if(muscle) cards.push(['Balance check', muscle+' is leading workload. Use the Volume tab before adding more direct '+muscle+' work.']);
-        if(move) cards.push(['Movement signal', move.trim()+' has enough history to guide progression. Add load or reps only when form quality and recovery both hold.']);
-        cards.push(['Recovery decision', 'Use readiness and load tolerance together: green means controlled progression, yellow means maintain, red means reduce intensity.']);
-        list.innerHTML='<div class="vertex-coach-feed">'+cards.slice(0,4).map(function(c){return '<div class="insight"><b>'+c[0]+'</b><span>'+c[1]+'</span></div>';}).join('')+'</div>';
-        list.setAttribute('data-vertex-coach-upgraded','1');
-      }
-    }catch(e){}
-  }
-  function run(){hideLegacyProgressHolder(); upgradeCoachFeed();}
-  document.addEventListener('DOMContentLoaded',function(){setTimeout(run,120);setTimeout(run,700);setTimeout(run,1800);setTimeout(run,3500);});
-  window.addEventListener('load',function(){setTimeout(run,150);setTimeout(run,1200);});
-  document.addEventListener('click',function(){setTimeout(run,150);setTimeout(run,800);},true);
-  try{new MutationObserver(function(){run();}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -11053,112 +10693,6 @@ function generateVertexPDFReport(){
   .footer{margin-top:36px;padding-top:12px;border-top:1px solid #e8e8e8;font-size:11px;color:#aaa;text-align:center}
   @media print{body{padding:20px}h2{break-before:avoid}table{break-inside:auto}tr{break-inside:avoid}}
 </style>
-
-<style id="vertex-phase1f-mobile-progress-groups-final">
-/* Phase 1F final: keep index(210) behavior, only group Progress overview cards on mobile. */
-body.app-page-progress #progressPage.progress-page{
-  display:flex!important;
-  flex-direction:column!important;
-}
-body.app-page-progress #progressPage .progress-head{order:1!important;}
-body.app-page-progress #progressPage #progressSummary{order:2!important;}
-body.app-page-progress #progressPage .progress-tabs{
-  order:3!important;
-  margin:12px 0 14px!important;
-  display:flex!important;
-  gap:10px!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  flex-wrap:nowrap!important;
-}
-body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
-body.app-page-progress #progressPage .progress-tabs .progress-tab{
-  flex:0 0 auto!important;
-  border-radius:999px!important;
-  padding:10px 16px!important;
-}
-body.app-page-progress #progressPage #vertexB2ProgressDeck{
-  order:4!important;
-  margin:4px 0 16px!important;
-  width:100%!important;
-}
-body.app-page-progress #progressPage #progressTabContent{order:5!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group{
-  margin:0 0 16px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
-  display:flex!important;
-  justify-content:space-between!important;
-  align-items:flex-end!important;
-  gap:12px!important;
-  margin:2px 0 10px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-title{
-  font-family:'DM Mono',monospace!important;
-  font-size:11px!important;
-  letter-spacing:2px!important;
-  text-transform:uppercase!important;
-  color:var(--acc)!important;
-  font-weight:800!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
-  color:var(--muted)!important;
-  font-size:12px!important;
-  line-height:1.35!important;
-  text-align:right!important;
-  max-width:420px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-row{
-  display:grid!important;
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:12px!important;
-  margin:0!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-card{
-  min-height:150px!important;
-}
-@media(max-width:900px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group{
-    margin:0 0 18px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
-    display:block!important;
-    padding:0 2px!important;
-    margin:4px 0 9px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
-    text-align:left!important;
-    max-width:none!important;
-    font-size:11px!important;
-    margin-top:4px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{
-    display:flex!important;
-    grid-template-columns:none!important;
-    gap:12px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scroll-snap-type:x mandatory!important;
-    padding:0 14px 10px!important;
-    margin:0 -14px!important;
-    scrollbar-width:none!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{
-    flex:0 0 82%!important;
-    min-width:82%!important;
-    max-width:82%!important;
-    scroll-snap-align:center!important;
-    min-height:178px!important;
-    margin:0!important;
-  }
-}
-</style>
-
 </head><body>
 
 <h1>Vertex</h1>
@@ -11263,90 +10797,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-<style id="vertex-phase2a-cleanup-final">
-/* Phase 2A cleanup — preserve new Progress deck, remove legacy duplicate intelligence stack */
-#vertexProgressIntelligenceHolder{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;pointer-events:none!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{display:none!important;}
-#progressPage .vertex-score-info{
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  width:16px!important;height:16px!important;margin-left:6px!important;
-  border:1px solid rgba(232,255,71,.55)!important;border-radius:999px!important;
-  color:var(--acc)!important;background:rgba(232,255,71,.05)!important;
-  font-family:Arial,Helvetica,sans-serif!important;font-size:11px!important;font-weight:700!important;
-  line-height:16px!important;letter-spacing:0!important;text-transform:none!important;
-  text-align:center!important;vertical-align:middle!important;cursor:pointer!important;position:relative!important;
-}
-#progressPage .vertex-score-info:hover,
-#progressPage .vertex-score-info:focus{background:var(--acc)!important;color:#000!important;outline:none!important;}
-#progressPage .vertex-score-info:hover::after,
-#progressPage .vertex-score-info:focus::after{
-  content:attr(data-tip)!important;display:block!important;position:absolute!important;left:0!important;top:24px!important;z-index:9999!important;
-  width:300px!important;max-width:min(300px,calc(100vw - 48px))!important;min-width:240px!important;
-  padding:12px 14px!important;border:1px solid rgba(232,255,71,.38)!important;border-radius:12px!important;
-  background:#171717!important;color:var(--text)!important;box-shadow:0 18px 42px rgba(0,0,0,.65)!important;
-  font-family:'DM Sans',system-ui,sans-serif!important;font-size:12px!important;font-weight:600!important;line-height:1.45!important;
-  letter-spacing:0!important;text-transform:none!important;text-align:left!important;white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;
-}
-#progressPage .vertex-score-info:hover::before,
-#progressPage .vertex-score-info:focus::before{content:''!important;position:absolute!important;left:6px!important;top:19px!important;border-left:5px solid transparent!important;border-right:5px solid transparent!important;border-bottom:5px solid rgba(232,255,71,.38)!important;z-index:10000!important;}
-#progressPage .vertex-coach-feed .insight b{font-size:14px!important;color:var(--text)!important;}
-#progressPage .vertex-coach-feed .insight span{font-size:13px!important;line-height:1.5!important;}
-@media(max-width:900px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;grid-template-columns:none!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 12px!important;margin:0 -14px 18px!important;scrollbar-width:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{flex:0 0 82%!important;min-width:82%!important;max-width:82%!important;scroll-snap-align:start!important;margin:0!important;min-height:178px!important;}
-  #progressPage .vertex-score-info:hover::after,#progressPage .vertex-score-info:focus::after{left:auto!important;right:-6px!important;width:260px!important;max-width:calc(100vw - 32px)!important;min-width:220px!important;}
-}
-@media(min-width:901px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;overflow:visible!important;}
-}
-</style>
-<script id="vertex-phase2a-cleanup-final-js">
-(function(){
-  function hideLegacyProgressHolder(){
-    try{
-      var holder=document.getElementById('vertexProgressIntelligenceHolder');
-      if(holder){
-        holder.style.setProperty('display','none','important');
-        holder.style.setProperty('visibility','hidden','important');
-        holder.style.setProperty('height','0','important');
-        holder.style.setProperty('min-height','0','important');
-        holder.style.setProperty('margin','0','important');
-        holder.style.setProperty('padding','0','important');
-      }
-      var labels=Array.from(document.querySelectorAll('#progressPage .label'));
-      labels.forEach(function(el){ if(String(el.textContent||'').trim().toLowerCase()==='insights') el.textContent='Coach Feed'; });
-    }catch(e){}
-  }
-  function upgradeCoachFeed(){
-    try{
-      var list=document.getElementById('progressInsights');
-      if(!list || !list.children.length) return;
-      if(list.getAttribute('data-vertex-coach-upgraded')==='1') return;
-      var txt=String(list.textContent||'');
-      if(/You logged \d+ workouts this week|highest set volume|most logged exercise/i.test(txt)){
-        var sessions=(txt.match(/logged\s+(\d+)/i)||[])[1]||'';
-        var muscle=(txt.match(/([A-Za-z]+) has the highest set volume/i)||[])[1]||'';
-        var move=(txt.match(/([A-Za-z ]+) is your most logged exercise/i)||[])[1]||'';
-        var cards=[];
-        cards.push(['Progression control', sessions?('Current frequency supports progress. Keep the next increase small so recovery stays ahead of workload.'):('Build two repeatable sessions before chasing volume.')]);
-        if(muscle) cards.push(['Balance check', muscle+' is leading workload. Use the Volume tab before adding more direct '+muscle+' work.']);
-        if(move) cards.push(['Movement signal', move.trim()+' has enough history to guide progression. Add load or reps only when form quality and recovery both hold.']);
-        cards.push(['Recovery decision', 'Use readiness and load tolerance together: green means controlled progression, yellow means maintain, red means reduce intensity.']);
-        list.innerHTML='<div class="vertex-coach-feed">'+cards.slice(0,4).map(function(c){return '<div class="insight"><b>'+c[0]+'</b><span>'+c[1]+'</span></div>';}).join('')+'</div>';
-        list.setAttribute('data-vertex-coach-upgraded','1');
-      }
-    }catch(e){}
-  }
-  function run(){hideLegacyProgressHolder(); upgradeCoachFeed();}
-  document.addEventListener('DOMContentLoaded',function(){setTimeout(run,120);setTimeout(run,700);setTimeout(run,1800);setTimeout(run,3500);});
-  window.addEventListener('load',function(){setTimeout(run,150);setTimeout(run,1200);});
-  document.addEventListener('click',function(){setTimeout(run,150);setTimeout(run,800);},true);
-  try{new MutationObserver(function(){run();}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
-})();
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -11395,9 +10845,10 @@ function renderSegmentTrends(){
         </div>
         <div style="font-size:10px;color:var(--muted);margin-top:2px">${vals.length} scans · ${fmtDate(first.date)} → ${fmtDate(last.date)}</div>
       </div>
-      <div style="flex-shrink:0;min-width:72px;text-align:right;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:${deltaColor};text-transform:uppercase">
-        ${parseFloat(delta)>=0?'UP':'DOWN'}
-      </div>
+      <svg width="${W}" height="${H}" style="flex-shrink:0;overflow:visible">
+        <polyline points="${points}" fill="none" stroke="${seg.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
+        ${vals.map((v,i)=>{ const x=pad+(i/(vals.length-1))*(W-pad*2); const y=H-pad-((v.val-minVal)/range)*(H-pad*2); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${seg.color}" opacity="0.9"/>`; }).join('')}
+      </svg>
     </div>`;
   }).join('');
 }
@@ -11570,113 +11021,7 @@ window.renderSymmetry = renderSymmetry;
     const w = window.open('','_blank');
     if(!w) return;
     const rows = log.length ? log.map(e=>`<tr><td style="white-space:nowrap;color:#888;font-size:11px">${e.ts?.slice(0,19).replace('T',' ')||'—'}</td><td><span style="font-size:10px;background:${e.type==='error'?'#fee2e2':'#fef9c3'};padding:1px 6px;border-radius:3px;font-weight:700">${e.type}</span></td><td style="font-size:12px">${e.msg||''}</td><td style="font-size:11px;color:#999">${e.src||''}${e.line?':'+e.line:''}</td></tr>`).join('') : '<tr><td colspan="4" style="color:#888;text-align:center;padding:20px">No errors logged.</td></tr>';
-    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style>
-<style id="vertex-phase1f-mobile-progress-groups-final">
-/* Phase 1F final: keep index(210) behavior, only group Progress overview cards on mobile. */
-body.app-page-progress #progressPage.progress-page{
-  display:flex!important;
-  flex-direction:column!important;
-}
-body.app-page-progress #progressPage .progress-head{order:1!important;}
-body.app-page-progress #progressPage #progressSummary{order:2!important;}
-body.app-page-progress #progressPage .progress-tabs{
-  order:3!important;
-  margin:12px 0 14px!important;
-  display:flex!important;
-  gap:10px!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  flex-wrap:nowrap!important;
-}
-body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
-body.app-page-progress #progressPage .progress-tabs .progress-tab{
-  flex:0 0 auto!important;
-  border-radius:999px!important;
-  padding:10px 16px!important;
-}
-body.app-page-progress #progressPage #vertexB2ProgressDeck{
-  order:4!important;
-  margin:4px 0 16px!important;
-  width:100%!important;
-}
-body.app-page-progress #progressPage #progressTabContent{order:5!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group{
-  margin:0 0 16px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
-  display:flex!important;
-  justify-content:space-between!important;
-  align-items:flex-end!important;
-  gap:12px!important;
-  margin:2px 0 10px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-title{
-  font-family:'DM Mono',monospace!important;
-  font-size:11px!important;
-  letter-spacing:2px!important;
-  text-transform:uppercase!important;
-  color:var(--acc)!important;
-  font-weight:800!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
-  color:var(--muted)!important;
-  font-size:12px!important;
-  line-height:1.35!important;
-  text-align:right!important;
-  max-width:420px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-row{
-  display:grid!important;
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:12px!important;
-  margin:0!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-card{
-  min-height:150px!important;
-}
-@media(max-width:900px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group{
-    margin:0 0 18px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
-    display:block!important;
-    padding:0 2px!important;
-    margin:4px 0 9px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
-    text-align:left!important;
-    max-width:none!important;
-    font-size:11px!important;
-    margin-top:4px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{
-    display:flex!important;
-    grid-template-columns:none!important;
-    gap:12px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scroll-snap-type:x mandatory!important;
-    padding:0 14px 10px!important;
-    margin:0 -14px!important;
-    scrollbar-width:none!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{
-    flex:0 0 82%!important;
-    min-width:82%!important;
-    max-width:82%!important;
-    scroll-snap-align:center!important;
-    min-height:178px!important;
-    margin:0!important;
-  }
-}
-</style>
-
-</head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
+    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX
@@ -11717,90 +11062,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-<style id="vertex-phase2a-cleanup-final">
-/* Phase 2A cleanup — preserve new Progress deck, remove legacy duplicate intelligence stack */
-#vertexProgressIntelligenceHolder{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;pointer-events:none!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{display:none!important;}
-#progressPage .vertex-score-info{
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  width:16px!important;height:16px!important;margin-left:6px!important;
-  border:1px solid rgba(232,255,71,.55)!important;border-radius:999px!important;
-  color:var(--acc)!important;background:rgba(232,255,71,.05)!important;
-  font-family:Arial,Helvetica,sans-serif!important;font-size:11px!important;font-weight:700!important;
-  line-height:16px!important;letter-spacing:0!important;text-transform:none!important;
-  text-align:center!important;vertical-align:middle!important;cursor:pointer!important;position:relative!important;
-}
-#progressPage .vertex-score-info:hover,
-#progressPage .vertex-score-info:focus{background:var(--acc)!important;color:#000!important;outline:none!important;}
-#progressPage .vertex-score-info:hover::after,
-#progressPage .vertex-score-info:focus::after{
-  content:attr(data-tip)!important;display:block!important;position:absolute!important;left:0!important;top:24px!important;z-index:9999!important;
-  width:300px!important;max-width:min(300px,calc(100vw - 48px))!important;min-width:240px!important;
-  padding:12px 14px!important;border:1px solid rgba(232,255,71,.38)!important;border-radius:12px!important;
-  background:#171717!important;color:var(--text)!important;box-shadow:0 18px 42px rgba(0,0,0,.65)!important;
-  font-family:'DM Sans',system-ui,sans-serif!important;font-size:12px!important;font-weight:600!important;line-height:1.45!important;
-  letter-spacing:0!important;text-transform:none!important;text-align:left!important;white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;
-}
-#progressPage .vertex-score-info:hover::before,
-#progressPage .vertex-score-info:focus::before{content:''!important;position:absolute!important;left:6px!important;top:19px!important;border-left:5px solid transparent!important;border-right:5px solid transparent!important;border-bottom:5px solid rgba(232,255,71,.38)!important;z-index:10000!important;}
-#progressPage .vertex-coach-feed .insight b{font-size:14px!important;color:var(--text)!important;}
-#progressPage .vertex-coach-feed .insight span{font-size:13px!important;line-height:1.5!important;}
-@media(max-width:900px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;grid-template-columns:none!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 12px!important;margin:0 -14px 18px!important;scrollbar-width:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{flex:0 0 82%!important;min-width:82%!important;max-width:82%!important;scroll-snap-align:start!important;margin:0!important;min-height:178px!important;}
-  #progressPage .vertex-score-info:hover::after,#progressPage .vertex-score-info:focus::after{left:auto!important;right:-6px!important;width:260px!important;max-width:calc(100vw - 32px)!important;min-width:220px!important;}
-}
-@media(min-width:901px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;overflow:visible!important;}
-}
-</style>
-<script id="vertex-phase2a-cleanup-final-js">
-(function(){
-  function hideLegacyProgressHolder(){
-    try{
-      var holder=document.getElementById('vertexProgressIntelligenceHolder');
-      if(holder){
-        holder.style.setProperty('display','none','important');
-        holder.style.setProperty('visibility','hidden','important');
-        holder.style.setProperty('height','0','important');
-        holder.style.setProperty('min-height','0','important');
-        holder.style.setProperty('margin','0','important');
-        holder.style.setProperty('padding','0','important');
-      }
-      var labels=Array.from(document.querySelectorAll('#progressPage .label'));
-      labels.forEach(function(el){ if(String(el.textContent||'').trim().toLowerCase()==='insights') el.textContent='Coach Feed'; });
-    }catch(e){}
-  }
-  function upgradeCoachFeed(){
-    try{
-      var list=document.getElementById('progressInsights');
-      if(!list || !list.children.length) return;
-      if(list.getAttribute('data-vertex-coach-upgraded')==='1') return;
-      var txt=String(list.textContent||'');
-      if(/You logged \d+ workouts this week|highest set volume|most logged exercise/i.test(txt)){
-        var sessions=(txt.match(/logged\s+(\d+)/i)||[])[1]||'';
-        var muscle=(txt.match(/([A-Za-z]+) has the highest set volume/i)||[])[1]||'';
-        var move=(txt.match(/([A-Za-z ]+) is your most logged exercise/i)||[])[1]||'';
-        var cards=[];
-        cards.push(['Progression control', sessions?('Current frequency supports progress. Keep the next increase small so recovery stays ahead of workload.'):('Build two repeatable sessions before chasing volume.')]);
-        if(muscle) cards.push(['Balance check', muscle+' is leading workload. Use the Volume tab before adding more direct '+muscle+' work.']);
-        if(move) cards.push(['Movement signal', move.trim()+' has enough history to guide progression. Add load or reps only when form quality and recovery both hold.']);
-        cards.push(['Recovery decision', 'Use readiness and load tolerance together: green means controlled progression, yellow means maintain, red means reduce intensity.']);
-        list.innerHTML='<div class="vertex-coach-feed">'+cards.slice(0,4).map(function(c){return '<div class="insight"><b>'+c[0]+'</b><span>'+c[1]+'</span></div>';}).join('')+'</div>';
-        list.setAttribute('data-vertex-coach-upgraded','1');
-      }
-    }catch(e){}
-  }
-  function run(){hideLegacyProgressHolder(); upgradeCoachFeed();}
-  document.addEventListener('DOMContentLoaded',function(){setTimeout(run,120);setTimeout(run,700);setTimeout(run,1800);setTimeout(run,3500);});
-  window.addEventListener('load',function(){setTimeout(run,150);setTimeout(run,1200);});
-  document.addEventListener('click',function(){setTimeout(run,150);setTimeout(run,800);},true);
-  try{new MutationObserver(function(){run();}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
-})();
-</script>
-
 </body></html>`);
     w.document.close();
   };
@@ -11868,26 +11129,28 @@ window.renderDailyBrief=renderDailyBrief;
 function renderHomeSparklines(){
   const el=document.getElementById('vertex-sparklines-row');
   if(!el) return;
-  try{
-    // Phase 2A stability: disable mobile spark SVG rendering to prevent stale
-    // template-token SVG errors while Progress sparks remain removed on mobile.
-    const isMobile = window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
-    if(isMobile){ el.innerHTML=''; return; }
-
-    const healthRows=typeof loadHealthEntries==='function'?loadHealthEntries():[];
-    const last7=healthRows.filter(r=>r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000).slice(0,7).reverse();
-    const allW=[];
-    Object.keys(localStorage).filter(k=>k.startsWith('vertex_health_entries')).forEach(k=>{try{JSON.parse(localStorage.getItem(k)||'[]').forEach(r=>{if(r&&r.bodyWeight&&r.date)allW.push(r);});}catch(e){}});
-    const wByDate={};allW.forEach(r=>{if(r.date&&r.bodyWeight)wByDate[r.date]=r.bodyWeight;});
-    const wRows=Object.entries(wByDate).sort((a,b)=>a[0].localeCompare(b[0])).slice(-7);
-    const cards=[
-      {label:'Weight',unit:'lb',color:'var(--acc)',latest:wRows.length?Number(wRows[wRows.length-1][1]).toFixed(1):null},
-      {label:'Sleep',unit:'h',color:'#48d0ff',latest:last7.length&&last7[last7.length-1]?.sleepHours!=null?Number(last7[last7.length-1].sleepHours).toFixed(1):null},
-      {label:'HRV',unit:'ms',color:'#48ff8a',latest:last7.length&&last7[last7.length-1]?.hrv!=null?Math.round(last7[last7.length-1].hrv):null},
-      {label:'Readiness',unit:'',color:'#ffd048',latest:last7.length&&(last7[last7.length-1]?.readiness||last7[last7.length-1]?.readinessScore)!=null?(last7[last7.length-1].readiness||last7[last7.length-1].readinessScore):null}
-    ];
-    el.innerHTML=cards.map(c=>`<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">${c.label}</div><div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px"><div><span class="vertex-sparkline-val" style="color:${c.color}">${c.latest??'—'}</span>${c.unit?`<span style="font-size:9px;color:var(--muted);margin-left:1px">${c.unit}</span>`:''}</div></div></div>`).join('');
-  }catch(e){ el.innerHTML=''; }
+  const healthRows=typeof loadHealthEntries==='function'?loadHealthEntries():[];
+  const last7=healthRows.filter(r=>r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000).slice(0,7).reverse();
+  const allW=[];
+  Object.keys(localStorage).filter(k=>k.startsWith('vertex_health_entries')).forEach(k=>{try{JSON.parse(localStorage.getItem(k)||'[]').forEach(r=>{if(r&&r.bodyWeight&&r.date)allW.push(r);});}catch(e){}});
+  const wByDate={};allW.forEach(r=>{if(r.date&&r.bodyWeight)wByDate[r.date]=r.bodyWeight;});
+  const wRows=Object.entries(wByDate).sort((a,b)=>a[0].localeCompare(b[0])).slice(-7);
+  const sparkSVG=(vals,color)=>{
+    const clean=vals.map(v=>parseFloat(v)).filter(v=>!isNaN(v));
+    if(clean.length<2) return `<svg width="80" height="28"><text x="4" y="18" font-size="9" fill="var(--muted)">—</text></svg>`;
+    const mn=Math.min(...clean),mx=Math.max(...clean),rng=mx-mn||1;
+    const W=80,H=28,pad=3;
+    const pts=clean.map((v,i)=>{const x=pad+(i/(clean.length-1))*(W-pad*2);const y=H-pad-((v-mn)/rng)*(H-pad*2);return `${x.toFixed(1)},${y.toFixed(1)}`;}).join(' ');
+    const last=pts.split(' ').pop().split(',');
+    return `<svg width="${W}" height="${H}" style="overflow:visible"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="${color}"/></svg>`;
+  };
+  const cards=[
+    {label:'Weight',unit:'lb',color:'var(--acc)',vals:wRows.map(r=>r[1]),latest:wRows.length?Number(wRows[wRows.length-1][1]).toFixed(1):null},
+    {label:'Sleep',unit:'h',color:'#48d0ff',vals:last7.map(r=>r.sleepHours),latest:last7.length&&last7[last7.length-1]?.sleepHours!=null?Number(last7[last7.length-1].sleepHours).toFixed(1):null},
+    {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(r=>r.hrv),latest:last7.length&&last7[last7.length-1]?.hrv!=null?Math.round(last7[last7.length-1].hrv):null},
+    {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(r=>r.readiness||r.readinessScore),latest:last7.length&&(last7[last7.length-1]?.readiness||last7[last7.length-1]?.readinessScore)!=null?(last7[last7.length-1].readiness||last7[last7.length-1].readinessScore):null}
+  ];
+  el.innerHTML=cards.map(c=>`<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">${c.label}</div><div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px"><div><span class="vertex-sparkline-val" style="color:${c.color}">${c.latest??'—'}</span>${c.unit?`<span style="font-size:9px;color:var(--muted);margin-left:1px">${c.unit}</span>`:''}</div>${sparkSVG(c.vals,c.color)}</div></div>`).join('');
 }
 window.renderHomeSparklines=renderHomeSparklines;
 
@@ -11986,113 +11249,7 @@ function vertexShowSyncDiag(){
   }).join('');
   const w=window.open('','_blank');
   if(!w) return;
-  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style>
-<style id="vertex-phase1f-mobile-progress-groups-final">
-/* Phase 1F final: keep index(210) behavior, only group Progress overview cards on mobile. */
-body.app-page-progress #progressPage.progress-page{
-  display:flex!important;
-  flex-direction:column!important;
-}
-body.app-page-progress #progressPage .progress-head{order:1!important;}
-body.app-page-progress #progressPage #progressSummary{order:2!important;}
-body.app-page-progress #progressPage .progress-tabs{
-  order:3!important;
-  margin:12px 0 14px!important;
-  display:flex!important;
-  gap:10px!important;
-  overflow-x:auto!important;
-  overflow-y:hidden!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:none!important;
-  flex-wrap:nowrap!important;
-}
-body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
-body.app-page-progress #progressPage .progress-tabs .progress-tab{
-  flex:0 0 auto!important;
-  border-radius:999px!important;
-  padding:10px 16px!important;
-}
-body.app-page-progress #progressPage #vertexB2ProgressDeck{
-  order:4!important;
-  margin:4px 0 16px!important;
-  width:100%!important;
-}
-body.app-page-progress #progressPage #progressTabContent{order:5!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group{
-  margin:0 0 16px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
-  display:flex!important;
-  justify-content:space-between!important;
-  align-items:flex-end!important;
-  gap:12px!important;
-  margin:2px 0 10px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-title{
-  font-family:'DM Mono',monospace!important;
-  font-size:11px!important;
-  letter-spacing:2px!important;
-  text-transform:uppercase!important;
-  color:var(--acc)!important;
-  font-weight:800!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
-  color:var(--muted)!important;
-  font-size:12px!important;
-  line-height:1.35!important;
-  text-align:right!important;
-  max-width:420px!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-row{
-  display:grid!important;
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:12px!important;
-  margin:0!important;
-}
-#progressPage #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-card{
-  min-height:150px!important;
-}
-@media(max-width:900px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group{
-    margin:0 0 18px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
-    display:block!important;
-    padding:0 2px!important;
-    margin:4px 0 9px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
-    text-align:left!important;
-    max-width:none!important;
-    font-size:11px!important;
-    margin-top:4px!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{
-    display:flex!important;
-    grid-template-columns:none!important;
-    gap:12px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scroll-snap-type:x mandatory!important;
-    padding:0 14px 10px!important;
-    margin:0 -14px!important;
-    scrollbar-width:none!important;
-  }
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{
-    flex:0 0 82%!important;
-    min-width:82%!important;
-    max-width:82%!important;
-    scroll-snap-align:center!important;
-    min-height:178px!important;
-    margin:0!important;
-  }
-}
-</style>
-
-</head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
+  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX
@@ -12133,90 +11290,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-<style id="vertex-phase2a-cleanup-final">
-/* Phase 2A cleanup — preserve new Progress deck, remove legacy duplicate intelligence stack */
-#vertexProgressIntelligenceHolder{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;pointer-events:none!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{display:none!important;}
-#progressPage .vertex-score-info{
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  width:16px!important;height:16px!important;margin-left:6px!important;
-  border:1px solid rgba(232,255,71,.55)!important;border-radius:999px!important;
-  color:var(--acc)!important;background:rgba(232,255,71,.05)!important;
-  font-family:Arial,Helvetica,sans-serif!important;font-size:11px!important;font-weight:700!important;
-  line-height:16px!important;letter-spacing:0!important;text-transform:none!important;
-  text-align:center!important;vertical-align:middle!important;cursor:pointer!important;position:relative!important;
-}
-#progressPage .vertex-score-info:hover,
-#progressPage .vertex-score-info:focus{background:var(--acc)!important;color:#000!important;outline:none!important;}
-#progressPage .vertex-score-info:hover::after,
-#progressPage .vertex-score-info:focus::after{
-  content:attr(data-tip)!important;display:block!important;position:absolute!important;left:0!important;top:24px!important;z-index:9999!important;
-  width:300px!important;max-width:min(300px,calc(100vw - 48px))!important;min-width:240px!important;
-  padding:12px 14px!important;border:1px solid rgba(232,255,71,.38)!important;border-radius:12px!important;
-  background:#171717!important;color:var(--text)!important;box-shadow:0 18px 42px rgba(0,0,0,.65)!important;
-  font-family:'DM Sans',system-ui,sans-serif!important;font-size:12px!important;font-weight:600!important;line-height:1.45!important;
-  letter-spacing:0!important;text-transform:none!important;text-align:left!important;white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;
-}
-#progressPage .vertex-score-info:hover::before,
-#progressPage .vertex-score-info:focus::before{content:''!important;position:absolute!important;left:6px!important;top:19px!important;border-left:5px solid transparent!important;border-right:5px solid transparent!important;border-bottom:5px solid rgba(232,255,71,.38)!important;z-index:10000!important;}
-#progressPage .vertex-coach-feed .insight b{font-size:14px!important;color:var(--text)!important;}
-#progressPage .vertex-coach-feed .insight span{font-size:13px!important;line-height:1.5!important;}
-@media(max-width:900px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;grid-template-columns:none!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 12px!important;margin:0 -14px 18px!important;scrollbar-width:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{flex:0 0 82%!important;min-width:82%!important;max-width:82%!important;scroll-snap-align:start!important;margin:0!important;min-height:178px!important;}
-  #progressPage .vertex-score-info:hover::after,#progressPage .vertex-score-info:focus::after{left:auto!important;right:-6px!important;width:260px!important;max-width:calc(100vw - 32px)!important;min-width:220px!important;}
-}
-@media(min-width:901px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;overflow:visible!important;}
-}
-</style>
-<script id="vertex-phase2a-cleanup-final-js">
-(function(){
-  function hideLegacyProgressHolder(){
-    try{
-      var holder=document.getElementById('vertexProgressIntelligenceHolder');
-      if(holder){
-        holder.style.setProperty('display','none','important');
-        holder.style.setProperty('visibility','hidden','important');
-        holder.style.setProperty('height','0','important');
-        holder.style.setProperty('min-height','0','important');
-        holder.style.setProperty('margin','0','important');
-        holder.style.setProperty('padding','0','important');
-      }
-      var labels=Array.from(document.querySelectorAll('#progressPage .label'));
-      labels.forEach(function(el){ if(String(el.textContent||'').trim().toLowerCase()==='insights') el.textContent='Coach Feed'; });
-    }catch(e){}
-  }
-  function upgradeCoachFeed(){
-    try{
-      var list=document.getElementById('progressInsights');
-      if(!list || !list.children.length) return;
-      if(list.getAttribute('data-vertex-coach-upgraded')==='1') return;
-      var txt=String(list.textContent||'');
-      if(/You logged \d+ workouts this week|highest set volume|most logged exercise/i.test(txt)){
-        var sessions=(txt.match(/logged\s+(\d+)/i)||[])[1]||'';
-        var muscle=(txt.match(/([A-Za-z]+) has the highest set volume/i)||[])[1]||'';
-        var move=(txt.match(/([A-Za-z ]+) is your most logged exercise/i)||[])[1]||'';
-        var cards=[];
-        cards.push(['Progression control', sessions?('Current frequency supports progress. Keep the next increase small so recovery stays ahead of workload.'):('Build two repeatable sessions before chasing volume.')]);
-        if(muscle) cards.push(['Balance check', muscle+' is leading workload. Use the Volume tab before adding more direct '+muscle+' work.']);
-        if(move) cards.push(['Movement signal', move.trim()+' has enough history to guide progression. Add load or reps only when form quality and recovery both hold.']);
-        cards.push(['Recovery decision', 'Use readiness and load tolerance together: green means controlled progression, yellow means maintain, red means reduce intensity.']);
-        list.innerHTML='<div class="vertex-coach-feed">'+cards.slice(0,4).map(function(c){return '<div class="insight"><b>'+c[0]+'</b><span>'+c[1]+'</span></div>';}).join('')+'</div>';
-        list.setAttribute('data-vertex-coach-upgraded','1');
-      }
-    }catch(e){}
-  }
-  function run(){hideLegacyProgressHolder(); upgradeCoachFeed();}
-  document.addEventListener('DOMContentLoaded',function(){setTimeout(run,120);setTimeout(run,700);setTimeout(run,1800);setTimeout(run,3500);});
-  window.addEventListener('load',function(){setTimeout(run,150);setTimeout(run,1200);});
-  document.addEventListener('click',function(){setTimeout(run,150);setTimeout(run,800);},true);
-  try{new MutationObserver(function(){run();}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
-})();
-</script>
-
 </body></html>`);
   w.document.close();
 }
@@ -14724,7 +13797,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.61.13-phase2a-spark-stability';
+  const VERSION='v13.61.12-phase1-no-sparks';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -19448,90 +18521,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 
-
-<style id="vertex-phase2a-cleanup-final">
-/* Phase 2A cleanup — preserve new Progress deck, remove legacy duplicate intelligence stack */
-#vertexProgressIntelligenceHolder{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;pointer-events:none!important;}
-#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{display:none!important;}
-#progressPage .vertex-score-info{
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  width:16px!important;height:16px!important;margin-left:6px!important;
-  border:1px solid rgba(232,255,71,.55)!important;border-radius:999px!important;
-  color:var(--acc)!important;background:rgba(232,255,71,.05)!important;
-  font-family:Arial,Helvetica,sans-serif!important;font-size:11px!important;font-weight:700!important;
-  line-height:16px!important;letter-spacing:0!important;text-transform:none!important;
-  text-align:center!important;vertical-align:middle!important;cursor:pointer!important;position:relative!important;
-}
-#progressPage .vertex-score-info:hover,
-#progressPage .vertex-score-info:focus{background:var(--acc)!important;color:#000!important;outline:none!important;}
-#progressPage .vertex-score-info:hover::after,
-#progressPage .vertex-score-info:focus::after{
-  content:attr(data-tip)!important;display:block!important;position:absolute!important;left:0!important;top:24px!important;z-index:9999!important;
-  width:300px!important;max-width:min(300px,calc(100vw - 48px))!important;min-width:240px!important;
-  padding:12px 14px!important;border:1px solid rgba(232,255,71,.38)!important;border-radius:12px!important;
-  background:#171717!important;color:var(--text)!important;box-shadow:0 18px 42px rgba(0,0,0,.65)!important;
-  font-family:'DM Sans',system-ui,sans-serif!important;font-size:12px!important;font-weight:600!important;line-height:1.45!important;
-  letter-spacing:0!important;text-transform:none!important;text-align:left!important;white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;
-}
-#progressPage .vertex-score-info:hover::before,
-#progressPage .vertex-score-info:focus::before{content:''!important;position:absolute!important;left:6px!important;top:19px!important;border-left:5px solid transparent!important;border-right:5px solid transparent!important;border-bottom:5px solid rgba(232,255,71,.38)!important;z-index:10000!important;}
-#progressPage .vertex-coach-feed .insight b{font-size:14px!important;color:var(--text)!important;}
-#progressPage .vertex-coach-feed .insight span{font-size:13px!important;line-height:1.5!important;}
-@media(max-width:900px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;grid-template-columns:none!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 12px!important;margin:0 -14px 18px!important;scrollbar-width:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{flex:0 0 82%!important;min-width:82%!important;max-width:82%!important;scroll-snap-align:start!important;margin:0!important;min-height:178px!important;}
-  #progressPage .vertex-score-info:hover::after,#progressPage .vertex-score-info:focus::after{left:auto!important;right:-6px!important;width:260px!important;max-width:calc(100vw - 32px)!important;min-width:220px!important;}
-}
-@media(min-width:901px){
-  #progressPage #vertexB2ProgressDeck .vertex-b2-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;overflow:visible!important;}
-}
-</style>
-<script id="vertex-phase2a-cleanup-final-js">
-(function(){
-  function hideLegacyProgressHolder(){
-    try{
-      var holder=document.getElementById('vertexProgressIntelligenceHolder');
-      if(holder){
-        holder.style.setProperty('display','none','important');
-        holder.style.setProperty('visibility','hidden','important');
-        holder.style.setProperty('height','0','important');
-        holder.style.setProperty('min-height','0','important');
-        holder.style.setProperty('margin','0','important');
-        holder.style.setProperty('padding','0','important');
-      }
-      var labels=Array.from(document.querySelectorAll('#progressPage .label'));
-      labels.forEach(function(el){ if(String(el.textContent||'').trim().toLowerCase()==='insights') el.textContent='Coach Feed'; });
-    }catch(e){}
-  }
-  function upgradeCoachFeed(){
-    try{
-      var list=document.getElementById('progressInsights');
-      if(!list || !list.children.length) return;
-      if(list.getAttribute('data-vertex-coach-upgraded')==='1') return;
-      var txt=String(list.textContent||'');
-      if(/You logged \d+ workouts this week|highest set volume|most logged exercise/i.test(txt)){
-        var sessions=(txt.match(/logged\s+(\d+)/i)||[])[1]||'';
-        var muscle=(txt.match(/([A-Za-z]+) has the highest set volume/i)||[])[1]||'';
-        var move=(txt.match(/([A-Za-z ]+) is your most logged exercise/i)||[])[1]||'';
-        var cards=[];
-        cards.push(['Progression control', sessions?('Current frequency supports progress. Keep the next increase small so recovery stays ahead of workload.'):('Build two repeatable sessions before chasing volume.')]);
-        if(muscle) cards.push(['Balance check', muscle+' is leading workload. Use the Volume tab before adding more direct '+muscle+' work.']);
-        if(move) cards.push(['Movement signal', move.trim()+' has enough history to guide progression. Add load or reps only when form quality and recovery both hold.']);
-        cards.push(['Recovery decision', 'Use readiness and load tolerance together: green means controlled progression, yellow means maintain, red means reduce intensity.']);
-        list.innerHTML='<div class="vertex-coach-feed">'+cards.slice(0,4).map(function(c){return '<div class="insight"><b>'+c[0]+'</b><span>'+c[1]+'</span></div>';}).join('')+'</div>';
-        list.setAttribute('data-vertex-coach-upgraded','1');
-      }
-    }catch(e){}
-  }
-  function run(){hideLegacyProgressHolder(); upgradeCoachFeed();}
-  document.addEventListener('DOMContentLoaded',function(){setTimeout(run,120);setTimeout(run,700);setTimeout(run,1800);setTimeout(run,3500);});
-  window.addEventListener('load',function(){setTimeout(run,150);setTimeout(run,1200);});
-  document.addEventListener('click',function(){setTimeout(run,150);setTimeout(run,800);},true);
-  try{new MutationObserver(function(){run();}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
-})();
-</script>
-
 </body>
 </html>
 
@@ -19910,3 +18899,190 @@ body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-pan
 @media(min-width:901px){.vertex-planner-dots{display:none!important;}}
 @media(max-width:520px){.vertex-planner-dots{gap:6px}.vertex-planner-dot{width:24px;height:24px;font-size:9px}.vertex-week-compact{gap:6px}.vertex-week-pill{padding:7px 5px;min-height:84px}}
 </style>
+<!-- Vertex Phase 2A stable recovery patch: score info, coach feed, safe sparklines, grouped mobile progress cards -->
+<style id="vertex-phase2a-final-stability-css">
+body.app-page-progress #progressPage.vertex-phase2a-locked{display:flex!important;flex-direction:column!important;}
+body.app-page-progress #progressPage.vertex-phase2a-locked .progress-head{order:1!important;}
+body.app-page-progress #progressPage.vertex-phase2a-locked .progress-tabs{order:2!important;margin:10px 0 14px!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:10px!important;scrollbar-width:none!important;}
+body.app-page-progress #progressPage.vertex-phase2a-locked .progress-tabs::-webkit-scrollbar{display:none!important;}
+body.app-page-progress #progressPage.vertex-phase2a-locked .progress-tabs .progress-tab{flex:0 0 auto!important;border-radius:999px!important;padding:10px 16px!important;}
+body.app-page-progress #progressPage.vertex-phase2a-locked #progressTabContent{order:3!important;}
+body.app-page-progress #progressPage.vertex-phase2a-locked #progressSummary{display:none!important;}
+body.app-page-progress #progressPage.vertex-phase2a-locked #ptab-overview #vertexB2ProgressDeck{display:block!important;margin:0 0 14px!important;}
+body.app-page-progress #progressPage.vertex-phase2a-locked #ptab-volume #vertexB2ProgressDeck,
+body.app-page-progress #progressPage.vertex-phase2a-locked #ptab-exercises #vertexB2ProgressDeck,
+body.app-page-progress #progressPage.vertex-phase2a-locked #ptab-history #vertexB2ProgressDeck{display:none!important;}
+.vertex-b2-section{margin:0 0 20px!important;}
+.vertex-b2-section-head{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin:8px 0 12px;}
+.vertex-b2-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+.vertex-b2-card{position:relative;border:1px solid var(--border-subtle);background:var(--panel2);border-radius:var(--r-lg);padding:18px 18px 20px;min-height:160px;overflow:visible;}
+.vertex-b2-card .label{display:flex;align-items:center;gap:7px;line-height:1.2;}
+.vertex-b2-value{font-size:22px;font-weight:900;color:var(--green);line-height:1.18;margin:18px 0 12px;}
+.vertex-b2-metric{font-size:14px;color:var(--muted);line-height:1.5;margin:4px 0;}
+.vertex-b2-metric b{color:var(--text);}
+.vertex-info-btn{width:18px;height:18px;border-radius:999px;border:1px solid rgba(232,255,71,.58);background:transparent;color:var(--acc);font-family:'DM Mono',monospace;font-size:11px;font-weight:800;line-height:16px;padding:0;text-align:center;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-transform:lowercase;flex:0 0 auto;}
+.vertex-info-tip{position:absolute;left:18px;top:42px;z-index:30;width:min(280px,calc(100vw - 58px));background:#202020;border:1px solid rgba(232,255,71,.38);box-shadow:0 18px 48px rgba(0,0,0,.62);border-radius:12px;padding:14px 15px;color:var(--text);font-size:13px;line-height:1.45;letter-spacing:0;text-transform:none;display:none;white-space:normal;}
+.vertex-b2-card.info-open .vertex-info-tip{display:block;}
+.vertex-coach-feed-card b{display:block;font-size:14px;margin-bottom:5px;color:var(--text);}
+.vertex-coach-feed-card span{display:block;color:var(--muted);font-size:13px;line-height:1.45;}
+.vertex-coach-feed-card.coach-green{border-color:rgba(72,255,138,.32)!important;background:rgba(72,255,138,.045)!important;}
+.vertex-coach-feed-card.coach-warning{border-color:rgba(255,176,71,.38)!important;background:rgba(255,176,71,.045)!important;}
+.vertex-sparkline-card.vertex-sparkline-safe{min-width:0;}
+.vertex-sparkline-safe-mini{height:22px;min-width:68px;border-radius:999px;border:1px solid rgba(232,255,71,.18);background:rgba(232,255,71,.06);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
+@media(max-width:900px){
+  .vertex-b2-row{display:flex!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 12px!important;margin:0 -14px!important;scrollbar-width:none!important;}
+  .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  .vertex-b2-row .vertex-b2-card{flex:0 0 88%!important;min-width:88%!important;max-width:88%!important;scroll-snap-align:start!important;min-height:200px!important;}
+  .vertex-b2-section-head{margin-left:2px;margin-top:10px;}
+  .vertex-info-tip{left:16px;top:44px;width:min(280px,calc(100vw - 64px));}
+}
+@media(max-width:520px){.vertex-b2-row .vertex-b2-card{flex-basis:92%!important;min-width:92%!important;max-width:92%!important;}}
+</style>
+<script id="vertex-phase2a-final-stability-js">
+(function(){
+  'use strict';
+  if(window.__vertexPhase2AFinalStability) return;
+  window.__vertexPhase2AFinalStability=true;
+  function esc(v){
+    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
+    return String(v==null?'':v).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c;});
+  }
+  function rows(){try{return (typeof progressRows==='function'?progressRows():[])||[];}catch(e){return []}}
+  function summary(r){try{return (typeof progressSummary==='function'?progressSummary(r):{})||{};}catch(e){return {}}}
+  function perf(r){try{return (typeof performanceSummary==='function'?performanceSummary(r):[])||[];}catch(e){return []}}
+  function startWeek(){try{return typeof weekStart==='function'?weekStart():new Date();}catch(e){return new Date();}}
+  function readiness(){
+    try{ if(window.VertexRecoveryInsights&&typeof window.VertexRecoveryInsights.build==='function'){var n=Number((window.VertexRecoveryInsights.build()||{}).recovery); if(Number.isFinite(n)) return Math.round(n);} }catch(e){}
+    return null;
+  }
+  function muscleTotals(r){
+    var out={};
+    try{var st=startWeek(); r.filter(function(x){return new Date(x.completed_at)>=st;}).forEach(function(x){var m=(x.metrics&&x.metrics.muscles)||{}; Object.keys(m).forEach(function(k){out[k]=(out[k]||0)+((m[k]&&m[k].sets)||0);});});}catch(e){}
+    return out;
+  }
+  function cardioData(){
+    var connected=false, arr=[];
+    try{connected=!!localStorage.getItem('vertex_strava_token');}catch(e){}
+    try{arr=JSON.parse(localStorage.getItem('vertex_strava_activities')||'[]')||[];}catch(e){arr=[];}
+    var score=0;
+    if(Array.isArray(arr)&&arr.length){score=Math.min(100,arr.slice(0,7).reduce(function(a,x){return a+Math.round(Number(x.moving_time||x.elapsed_time||0)/300);},0));}
+    var label=score>=75?'High endurance load':score>=45?'Moderate endurance load':score>0?'Low endurance load':(connected?'No cardio load':'Ready for Strava');
+    return {connected:connected,score:score,label:label,sessions:Array.isArray(arr)?arr.length:0};
+  }
+  var infoCopy={
+    'Recovery Trend':'Direction of recovery based on readiness, sleep, HRV, and recent training load. Use it to decide whether to push, hold, or back off.',
+    'Load Tolerance':'How well current training volume appears to match recovery. Stable means the workload is manageable; caution means reduce jumps.',
+    'Adaptive Coach':'Today’s training recommendation. It blends readiness, frequency, recent load, and workout history into one decision.',
+    'Cardio Strain':'Endurance load from connected cardio data. It helps separate strength fatigue from conditioning fatigue.',
+    'Workout Memory':'Your accumulated exercise history. It identifies repeat movements and enough history to guide progression.',
+    'Weekly Intelligence':'A coaching readout of the current week, focused on what to adjust next rather than repeating raw totals.',
+    'Consistency':'How your training rhythm compares with recent weeks. It helps decide whether to build, hold, or rebuild momentum.',
+    'Longitudinal Trend':'Longer-term direction across readiness and training behavior. It becomes stronger as you log more weeks.'
+  };
+  function card(title,value,lines,tone){
+    var tip=infoCopy[title]||'How Vertex interprets this signal for training decisions.';
+    return '<section class="vertex-b2-card '+(tone||'')+'"><div class="label">'+esc(title)+' <button class="vertex-info-btn" type="button" aria-label="About '+esc(title)+'">i</button><div class="vertex-info-tip">'+esc(tip)+'</div></div><div class="vertex-b2-value">'+esc(value)+'</div>'+((lines||[]).map(function(x){return '<div class="vertex-b2-metric">'+esc(x)+'</div>';}).join(''))+'</section>';
+  }
+  function buildDeck(r,s,p){
+    var ready=readiness();
+    var sessions=Number((s.thisWeek&&s.thisWeek.length)||0);
+    var prev=Number((s.prevWeek&&s.prevWeek.length)||0);
+    var days=Number.isFinite(Number(s.daysSince))?Number(s.daysSince):null;
+    var totals=muscleTotals(r);
+    var ranked=Object.keys(totals).map(function(k){return [k,totals[k]];}).sort(function(a,b){return b[1]-a[1];});
+    var topMuscle=ranked[0]||null, second=ranked[1]||null;
+    var topMove=p&&p[0];
+    var cardio=cardioData();
+    var recoveryTrend=ready==null?'Pending':(ready>=70?'→ Stable':ready>=55?'↘ Watch':'↓ Constrained');
+    var load=ready!=null&&ready<60?'Caution':'Stable';
+    var adaptive=ready==null?'Build baseline':(ready>=80?'Progression opportunity':ready>=65?'Push with control':ready>=50?'Maintain':'Recovery priority');
+    var consistency=sessions>prev?'Improving':sessions<prev?'Needs attention':'Stable';
+    var longTrend=ready==null?'Baseline pending':(ready>=70?'Baseline building':ready>=55?'Watch recovery':'Recovery constrained');
+    var weekly='Actionable trend';
+    var weeklyLine=sessions?String(sessions)+' sessions this week — use Volume for raw totals.':'Log 2–3 workouts to establish a weekly pattern.';
+    var memoryValue=p.length?String(p.length)+' exercises tracked':'Pattern pending';
+    var memoryLines=[];
+    if(topMove) memoryLines.push('Repeat '+topMove.name+'; progress only if form and recovery hold.');
+    if(topMuscle&&second&&topMuscle[1]>=Math.max(6,second[1]*1.45)) memoryLines.push(topMuscle[0]+' is leading workload; balance before adding direct volume.');
+    if(!memoryLines.length) memoryLines.push('Log repeated movements to unlock stronger progression guidance.');
+    var rowRecovery=[
+      card('Recovery Trend',recoveryTrend,[ready!=null?'Readiness score: '+ready:'Readiness score pending','Basis: recovery synthesis']),
+      card('Load Tolerance',load,[load==='Stable'?'Current load appears manageable.':'Current load suggests caution.','Use small progression steps until trend confirms.']),
+      card('Adaptive Coach',adaptive,[ready!=null?'Readiness score: '+ready:'Readiness pending',ready!=null&&ready>=65?'Train hard, keep progression selective.':'Favor recovery and clean reps.']),
+      card('Cardio Strain',cardio.label,['Strava: '+(cardio.connected?'Connected':'Not connected'),'Cardio strain: '+(cardio.score||0)])
+    ];
+    var rowIntel=[
+      card('Workout Memory',memoryValue,memoryLines),
+      card('Weekly Intelligence',weekly,[weeklyLine,days==null?'Last workout pending':(days===0?'You logged a workout today.':'Last workout was '+days+' day'+(days===1?'':'s')+' ago.')]),
+      card('Consistency',consistency,['This week: '+sessions+' sessions','Previous week: '+prev+' sessions']),
+      card('Longitudinal Trend',longTrend,[ready!=null?'Current readiness: '+ready:'Recovery baseline pending',sessions?String(sessions)+' sessions this week':'No sessions this week'])
+    ];
+    return '<div class="vertex-b2-section"><div class="vertex-b2-section-head">Recovery / Readiness</div><div class="vertex-b2-row vertex-b2-recovery-row">'+rowRecovery.join('')+'</div></div><div class="vertex-b2-section"><div class="vertex-b2-section-head">Training Intelligence</div><div class="vertex-b2-row vertex-b2-intel-row">'+rowIntel.join('')+'</div></div>';
+  }
+  function renderDeck(){
+    var deck=document.getElementById('vertexB2ProgressDeck'); if(!deck) return;
+    var r=rows(), s=summary(r), p=perf(r);
+    deck.innerHTML=buildDeck(r,s,p);
+  }
+  try{ window.renderVertexB2ProgressDeck=function(r,s,p){var deck=document.getElementById('vertexB2ProgressDeck'); if(deck) deck.innerHTML=buildDeck(Array.isArray(r)?r:rows(),s||summary(rows()),Array.isArray(p)?p:perf(rows()));}; }catch(e){}
+  function coachCards(r,s,p){
+    var cards=[]; var sessions=Number((s.thisWeek&&s.thisWeek.length)||0); var prev=Number((s.prevWeek&&s.prevWeek.length)||0); var days=Number.isFinite(Number(s.daysSince))?Number(s.daysSince):null;
+    var totals=muscleTotals(r); var ranked=Object.keys(totals).map(function(k){return [k,totals[k]];}).sort(function(a,b){return b[1]-a[1];}); var top=ranked[0], second=ranked[1]; var topMove=p&&p[0]; var ready=readiness();
+    function add(t,b,tone){cards.push({title:t,body:b,tone:tone||''});}
+    if(!r.length){add('Start the baseline','Log 3–4 workouts before Vertex makes stronger progression, recovery, and volume recommendations.',''); return cards;}
+    if(sessions>prev)add('Protect the ramp-up','Frequency is improving. Keep load jumps conservative until recovery confirms you can absorb the added work.','green');
+    else if(sessions<prev)add('Rebuild rhythm','Training frequency dipped. Prioritize one short, high-quality session before chasing more volume.','warn');
+    else add('Hold the rhythm','Frequency is stable. Improve execution quality or one priority lift rather than every movement.','');
+    if(top&&second&&top[1]>=Math.max(6,second[1]*1.45))add('Balance the dominant pattern',top[0]+' is pulling ahead. Add complementary work or keep the next '+top[0]+' session submaximal.','warn');
+    else if(top)add('Volume balance supports progression','No single muscle group is dramatically outpacing the rest. Progress one priority movement if warm-ups feel strong.','green');
+    if(topMove&&topMove.sets>=8)add('Watch repeat-movement fatigue',topMove.name+' has high repeat exposure. If output stalls, hold load and add reps only with clean form.','');
+    if(ready!=null&&ready<60)add('Recovery limits today’s ceiling','Readiness is below your normal push zone. Keep intensity controlled and bias quality work.','warn');
+    else if(ready!=null&&ready>=70)add('Recovery supports controlled progress','Recovery is stable enough to progress selectively, not aggressively.','green');
+    if(days!=null&&days>=4)add('Restart with control','It has been '+days+' days since your last workout. Re-enter at moderate intensity before testing max effort.','warn');
+    return cards.slice(0,4);
+  }
+  function renderCoachFeed(){
+    var el=document.getElementById('progressInsights'); if(!el) return;
+    var r=rows(), s=summary(r), p=perf(r), list=coachCards(r,s,p);
+    el.innerHTML=list.map(function(c){return '<div class="insight vertex-coach-feed-card '+(c.tone==='warn'?'coach-warning':c.tone==='green'?'coach-green':'')+'"><b>'+esc(c.title)+'</b><span>'+esc(c.body)+'</span></div>';}).join('');
+  }
+  function lockProgress(){
+    var page=document.getElementById('progressPage'); if(!page) return;
+    page.classList.add('vertex-phase2a-locked');
+    var head=page.querySelector('.progress-head'), tabs=page.querySelector('.progress-tabs'), content=document.getElementById('progressTabContent'), deck=document.getElementById('vertexB2ProgressDeck'), overview=document.getElementById('ptab-overview');
+    if(head&&tabs&&head.nextElementSibling!==tabs) head.insertAdjacentElement('afterend',tabs);
+    if(overview&&deck&&deck.parentElement!==overview){ overview.insertBefore(deck,overview.firstChild); }
+    if(tabs&&content&&tabs.nextElementSibling!==content) tabs.insertAdjacentElement('afterend',content);
+    var active=tabs&&tabs.querySelector('.progress-tab.on'); var cur=(active&&active.getAttribute('data-ptab'))||'overview';
+    ['overview','volume','exercises','history'].forEach(function(t){var x=document.getElementById('ptab-'+t); if(x) x.style.display=(t===cur?'block':'none');});
+  }
+  function safeHomeSparklines(){
+    window.renderHomeSparklines=function(){
+      var el=document.getElementById('vertex-sparklines-row'); if(!el) return;
+      var healthRows=[]; try{healthRows=typeof loadHealthEntries==='function'?loadHealthEntries():[];}catch(e){}
+      var latest=healthRows&&healthRows.length?healthRows[healthRows.length-1]:{};
+      var cards=[
+        ['Weight',latest.bodyWeight?Number(latest.bodyWeight).toFixed(1):'—','lb'],
+        ['Sleep',latest.sleepHours?Number(latest.sleepHours).toFixed(1):'—','h'],
+        ['HRV',latest.hrv?Math.round(Number(latest.hrv)):'—','ms'],
+        ['Readiness',(latest.readiness||latest.readinessScore)||'—','']
+      ];
+      el.innerHTML=cards.map(function(c){return '<div class="vertex-sparkline-card vertex-sparkline-safe"><div class="vertex-sparkline-label">'+esc(c[0])+'</div><div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px"><div><span class="vertex-sparkline-val">'+esc(c[1])+'</span>'+(c[2]?'<span style="font-size:9px;color:var(--muted);margin-left:1px">'+esc(c[2])+'</span>':'')+'</div><div class="vertex-sparkline-safe-mini">trend</div></div></div>';}).join('');
+    };
+  }
+  function apply(){ safeHomeSparklines(); lockProgress(); renderDeck(); renderCoachFeed(); }
+  document.addEventListener('click',function(e){
+    var btn=e.target.closest('.vertex-info-btn');
+    if(btn){ e.preventDefault(); e.stopPropagation(); var card=btn.closest('.vertex-b2-card'); document.querySelectorAll('.vertex-b2-card.info-open').forEach(function(c){if(c!==card)c.classList.remove('info-open');}); if(card)card.classList.toggle('info-open'); return; }
+    if(e.target.closest('[data-ptab]')||e.target.closest('[data-nav]')){setTimeout(apply,60);setTimeout(apply,300);}
+    else if(!e.target.closest('.vertex-b2-card')){document.querySelectorAll('.vertex-b2-card.info-open').forEach(function(c){c.classList.remove('info-open');});}
+  },true);
+  var oldProgress=window.renderProgressPage;
+  if(typeof oldProgress==='function'&&!oldProgress.__vertexPhase2AFinalWrapped){
+    window.renderProgressPage=function(){var out=oldProgress.apply(this,arguments); setTimeout(apply,0); setTimeout(apply,250); return out;};
+    window.renderProgressPage.__vertexPhase2AFinalWrapped=true;
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(apply,50);setTimeout(apply,500);setTimeout(apply,1500);});
+  else {setTimeout(apply,50);setTimeout(apply,500);setTimeout(apply,1500);}
+})();
+</script>

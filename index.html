@@ -13025,6 +13025,7 @@ window.vertexImportHKWorkout = async function(idx) {
    No chart/SVG/auth/provider/recovery changes.
    ============================================================ */
 (function(){
+  if(typeof state==='undefined' || !state) return;
   if(state.__vertexB1PlannerStability) return;
   state.__vertexB1PlannerStability=true;
 

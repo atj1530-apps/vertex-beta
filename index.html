@@ -3384,6 +3384,264 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
   .vertex-sparkline-card svg{max-width:78px!important;}
 }
 
+
+
+/* ============================================================
+   v20260526 Phase A3 — Wellness Final UI Polish (CSS only)
+   Safe scope: visual density, compact pills, manual entry containment.
+   No JS, no SVG, no chart/auth/sync/planner/recovery logic changes.
+   ============================================================ */
+#wellnessPage .page-panel,
+#wellnessPage .progress-card,
+#wellnessPage .wc-section,
+#wellnessPage .wc-dash-card,
+#wellnessPage .wc-trend-card,
+#wellnessPage .wc-kpi-card,
+#vertexWellnessRecoveryCenter{
+  border-radius:var(--r)!important;
+  border-color:var(--border-subtle)!important;
+}
+#wellnessPage .progress-head{
+  align-items:flex-start!important;
+  gap:12px!important;
+  margin-bottom:10px!important;
+}
+#wellnessPage .page-title{
+  line-height:.95!important;
+}
+#wellnessPage .page-copy{
+  max-width:720px!important;
+}
+#wtab-health > div:first-child,
+#wtab-dashboard > div:first-child,
+#wtab-checkin > div:first-child,
+#wtab-protocol > div:first-child{
+  margin-top:0!important;
+}
+#wellnessPage .segment,
+#wellnessPage .wellness-tabs,
+#wellnessPage .wc-tabs,
+#wellnessPage [role="tablist"]{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  gap:7px!important;
+  overflow-x:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  margin:8px 0 12px!important;
+  padding:2px 2px 6px!important;
+}
+#wellnessPage .segment::-webkit-scrollbar,
+#wellnessPage .wellness-tabs::-webkit-scrollbar,
+#wellnessPage .wc-tabs::-webkit-scrollbar,
+#wellnessPage [role="tablist"]::-webkit-scrollbar{display:none!important;}
+#wellnessPage .seg-btn,
+#wellnessPage .progress-tab,
+#wellnessPage [data-wtab],
+#wellnessPage [role="tab"]{
+  border-radius:var(--r-pill)!important;
+  min-height:32px!important;
+  padding:7px 12px!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  letter-spacing:.5px!important;
+  white-space:nowrap!important;
+  flex:0 0 auto!important;
+}
+#wellnessPage .seg-btn.on,
+#wellnessPage .progress-tab.on,
+#wellnessPage [data-wtab].on,
+#wellnessPage [role="tab"][aria-selected="true"]{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+}
+#healthManualEntryAcc{
+  margin-top:8px!important;
+  margin-bottom:12px!important;
+  background:rgba(255,255,255,.015)!important;
+  border-color:rgba(255,255,255,.07)!important;
+}
+#healthManualEntryAcc .acc-head{
+  min-height:38px!important;
+  padding:9px 12px!important;
+  background:rgba(255,255,255,.025)!important;
+}
+#healthManualEntryAcc .acc-title{
+  font-size:12px!important;
+}
+#healthManualEntryAcc .acc-hint{
+  font-size:9px!important;
+  letter-spacing:1.6px!important;
+}
+#healthManualEntryAcc:not(.open) .acc-body{
+  display:none!important;
+}
+#healthManualEntryAcc .acc-body{
+  padding:12px!important;
+}
+#manualHealthModal .modal-card,
+#manualHealthModal .health-form,
+#manualHealthModal .modal-grid{
+  max-width:100%!important;
+}
+#manualHealthModal .health-form{
+  gap:8px!important;
+  margin-top:10px!important;
+}
+#manualHealthModal .health-input{
+  padding:10px!important;
+}
+#manualHealthModal .health-input input,
+#manualHealthModal .health-input select{
+  min-height:38px!important;
+}
+#wellnessPage .wc-kpi-grid,
+#wellnessPage .wc-dash-grid,
+#wellnessPage .progress-layout,
+#wellnessPage .coach-grid{
+  gap:10px!important;
+}
+#wellnessPage .wc-dash-card-label,
+#wellnessPage .label{
+  letter-spacing:1.8px!important;
+}
+#wellnessPage .empty-note,
+#wellnessPage .empty-cta{
+  padding:18px!important;
+}
+@media(max-width:900px){
+  #wellnessPage .page-panel{padding:13px!important;margin-bottom:10px!important;}
+  #wellnessPage .progress-card,
+  #wellnessPage .wc-section,
+  #wellnessPage .wc-dash-card,
+  #wellnessPage .wc-trend-card,
+  #wellnessPage .wc-kpi-card,
+  #vertexWellnessRecoveryCenter{padding:11px!important;margin-bottom:9px!important;}
+  #wellnessPage .page-title{font-size:34px!important;letter-spacing:3px!important;}
+  #wellnessPage .page-copy{display:none!important;}
+  #wellnessPage .progress-head{margin-bottom:6px!important;}
+  #wellnessPage .wc-kpi-grid,
+  #wellnessPage .wc-dash-grid,
+  #wellnessPage .progress-layout,
+  #wellnessPage .coach-grid{grid-template-columns:1fr!important;gap:9px!important;}
+  #wellnessPage .seg-btn,
+  #wellnessPage .progress-tab,
+  #wellnessPage [data-wtab],
+  #wellnessPage [role="tab"]{min-height:30px!important;padding:6px 11px!important;font-size:10px!important;}
+  #healthManualEntryAcc{margin-top:6px!important;margin-bottom:10px!important;}
+  #healthManualEntryAcc .acc-head{min-height:36px!important;padding:8px 11px!important;}
+  #manualHealthModal .modal-card{margin:10px!important;padding:14px!important;}
+  #manualHealthModal .health-form{grid-template-columns:1fr!important;gap:7px!important;}
+}
+
+
+
+/* ============================================================
+   v20260526-af4 — Phase A4 Saved / Coach Mobile Rail Cleanup
+   CSS-only. No JS, no SVG, no route/auth/sync/planner/recovery edits.
+   ============================================================ */
+@media(max-width:900px){
+  .right{
+    border-top:1px solid rgba(255,255,255,.08)!important;
+    background:transparent!important;
+  }
+  body:not(.app-page-home) .right::before{
+    margin:0 12px 10px!important;
+    border:1px solid rgba(255,255,255,.08)!important;
+    border-radius:12px!important;
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015))!important;
+    color:var(--acc)!important;
+    box-shadow:none!important;
+  }
+  .right > section{
+    border-radius:12px!important;
+  }
+  .right.open > section{
+    margin:10px 12px 12px!important;
+  }
+  .right .panel,
+  .right .coach-card,
+  .right .saved-item,
+  .right .stat-box{
+    border-radius:12px!important;
+    border-color:rgba(255,255,255,.08)!important;
+  }
+  .right .panel{
+    margin-bottom:10px!important;
+    padding:12px!important;
+  }
+  .right .saved-item{
+    margin-top:8px!important;
+    padding:10px!important;
+  }
+  .right .stat-grid{
+    gap:8px!important;
+  }
+  .right .coach-list{
+    gap:8px!important;
+  }
+  .right .coach-item{
+    border-radius:10px!important;
+    padding:10px!important;
+  }
+  body.app-page-home .right > section{
+    margin:10px 12px 12px!important;
+  }
+}
+@media(max-width:520px){
+  .right .stat-grid{grid-template-columns:1fr 1fr!important;}
+  .right .btn{min-height:36px!important;}
+}
+
+
+/* Phase B2 — Progress mobile polish only: KPI swipe rows + card ordering */
+@media(max-width:900px){
+  body.app-page-progress #progressSummary.progress-summary{
+    display:grid !important;
+    grid-auto-flow:column;
+    grid-template-rows:repeat(2,minmax(0,1fr));
+    grid-auto-columns:minmax(178px,calc(50vw - 22px));
+    grid-template-columns:none !important;
+    gap:10px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:2px 2px 10px;
+    margin:16px -2px 14px;
+    scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  body.app-page-progress #progressSummary.progress-summary::-webkit-scrollbar{display:none}
+  body.app-page-progress #progressSummary .progress-kpi{
+    min-width:0;
+    scroll-snap-align:start;
+  }
+
+  body.app-page-progress #vertexProgressIntelligenceHolder{
+    grid-template-columns:1fr !important;
+  }
+  body.app-page-progress #vertexRecoveryTrendPanel,
+  body.app-page-progress #vertexTolerancePanel,
+  body.app-page-progress #vertexMovementHistoryPanel,
+  body.app-page-progress .vertex-movement-history-card{
+    grid-column:1 / -1 !important;
+    width:100% !important;
+  }
+  body.app-page-progress #ptab-history .progress-layout{
+    display:flex !important;
+    flex-direction:column !important;
+  }
+  body.app-page-progress .vertex-movement-history-card{
+    order:99;
+  }
+
+  #intelAcc{
+    width:100%;
+    grid-column:1 / -1;
+  }
+}
+
 </style>
 
 <style id="vertex-v20260526-aa-intelligence-layer">
@@ -3535,7 +3793,7 @@ window.vertexFinishBootstrap=function(){
   <main class="main">
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
     <div id="home-dashboard" style="display:none"></div>
-<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
+<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide vertex-movement-history-card"><div class="label">Movement History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace"></span>
@@ -6403,7 +6661,7 @@ function renderProgressPage(){
   if(history){
     const topExercises=perf.slice(0,5).map(x=>`<div class="history-row"><div class="history-date">Exercise</div><div><div class="history-name">${escapeHtml(x.name)}</div><div class="history-meta">Best weight ${Math.round(x.bestWeight||0)} lb · ${Math.round(x.volume||0)} total volume</div></div><div class="mono">${x.sets} sets</div><div class="mono">Top move</div></div>`).join('');
     const workoutRows=rows.length?rows.slice(0,14).map(r=>`<div class="history-row"><div class="history-date">${new Date(r.completed_at).toLocaleDateString()}<br>${new Date(r.completed_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</div><div><div class="history-name">${escapeHtml(r.workout_name||'Workout')}</div><div class="history-meta">${escapeHtml(String(r.workout_type||'strength').toUpperCase())} · ${r.metrics?.moves||0} moves · ${r.metrics?.est_minutes||0} min est.</div></div><div class="mono">${r.metrics?.sets||0} sets</div><div class="mono">${r.metrics?.load_volume?Math.round(r.metrics.load_volume):'—'} vol</div></div>`).join(''):'<div class="empty-note">Workout history is empty.</div>';
-    history.innerHTML=(topExercises?`<div style="margin-bottom:12px"><div class="label">Top Exercises</div>${topExercises}</div>`:'')+`<div class="label">Recent Logs</div>`+workoutRows;
+    history.innerHTML=(topExercises?`<div style="margin-bottom:12px"><div class="label">Top Exercises</div>${topExercises}</div>`:'')+`<div class="label">Movement History</div>`+workoutRows;
   }
   renderProgressSparklines(rows);
 }
@@ -9988,6 +10246,27 @@ function bindAuthButtons(){/* Auth is bound inline through window.VertexAuth to 
     if(h) h.textContent=acc.classList.contains('open')?'▼ COLLAPSE':'▶ EXPAND';
   });
 }
+
+// v20260526-a4.1 — Weekly Intelligence toggle guard
+// Dedicated capture handler prevents intermittent missed/double accordion toggles
+// after mobile rail cleanup. Scope: intelAcc only; no render/routing changes.
+(function initWeeklyIntelToggleGuard(){
+  if(window.__vertexWeeklyIntelToggleGuard) return;
+  window.__vertexWeeklyIntelToggleGuard = true;
+  document.addEventListener('click', function(e){
+    const head = e.target && e.target.closest && e.target.closest('#intelAcc .acc-head');
+    if(!head) return;
+    const acc = head.closest('#intelAcc');
+    if(!acc) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+    const willOpen = !acc.classList.contains('open');
+    acc.classList.toggle('open', willOpen);
+    try{ localStorage.setItem('vertex_acc_intelAcc', willOpen ? '1' : '0'); }catch(err){}
+    if(typeof updateAccordionHints === 'function') updateAccordionHints();
+  }, true);
+})();
 // ── Settings ──────────────────────────────────────────────────
 function vertexGetSettings(){
   try{ return JSON.parse(localStorage.getItem('vertex_settings')||'{}'); }catch(e){ return {}; }
@@ -12786,6 +13065,179 @@ window.vertexImportHKWorkout = async function(idx) {
     observer.observe(document.documentElement, { childList:true, subtree:true });
   } catch(e) {}
 
+
+
+/* ============================================================
+   v20260526-b1 — Planner + Save-State Stability
+   Scope: planner hydration, edit/load save-state, duplicate save guards.
+   No chart/SVG/auth/provider/recovery changes.
+   ============================================================ */
+(function(){
+  if(state.__vertexB1PlannerStability) return;
+  state.__vertexB1PlannerStability=true;
+
+  const b1Locks={plannerDay:Object.create(null),workoutSave:false};
+  const b1ValidDay=day=>DAYS.includes(day);
+  const b1NormalizeWorkout=w=>{
+    if(!w || typeof w!=='object') return null;
+    const x=clone(w);
+    if(!x.name) x.name='Workout';
+    if(!x.type) x.type='strength';
+    if(x.type==='strength' && !Array.isArray(x.exercises)) x.exercises=[];
+    if((x.type==='flow'||x.type==='interval') && !Array.isArray(x.moves)) x.moves=[];
+    return x;
+  };
+  const b1NormalizePlanner=p=>{
+    const out=emptyPlanner();
+    if(p && typeof p==='object'){
+      DAYS.forEach(day=>{
+        const w=p[day];
+        out[day]=w?b1NormalizeWorkout(w):null;
+      });
+    }
+    return out;
+  };
+  const b1RenderPlannerViews=()=>{
+    try{ renderPlanner(); }catch(e){ console.warn('B1 planner render skipped:',e); }
+    try{ renderToday(); }catch(e){ console.warn('B1 today render skipped:',e); }
+    try{ if(typeof renderHomeDashboard==='function') renderHomeDashboard(); }catch(e){}
+  };
+  const b1SetButtonBusy=(selector,busy,label)=>{
+    try{
+      document.querySelectorAll(selector).forEach(btn=>{
+        if(busy){ btn.dataset.b1PrevText=btn.textContent; btn.textContent=label||'Saving...'; btn.disabled=true; }
+        else { if(btn.dataset.b1PrevText) btn.textContent=btn.dataset.b1PrevText; btn.disabled=false; delete btn.dataset.b1PrevText; }
+      });
+    }catch(e){}
+  };
+
+  const b1OriginalLoadPlanner=loadPlanner;
+  loadPlanner=function(){
+    try{
+      const raw=localStorage.getItem(plannerKey());
+      return b1NormalizePlanner(raw?JSON.parse(raw):null);
+    }catch(e){
+      console.warn('Planner local load repaired:',e);
+      try{return b1NormalizePlanner(b1OriginalLoadPlanner());}catch(_){return emptyPlanner();}
+    }
+  };
+  savePlanner=function(){
+    state.planner=b1NormalizePlanner(state.planner);
+    localStorage.setItem(plannerKey(),JSON.stringify(state.planner));
+  };
+
+  hydratePlannerFromCloud=async function(){
+    const localPlanner=b1NormalizePlanner(loadPlanner());
+    if(!cloudEnabled()) { state.planner=localPlanner; return false; }
+    const supa=getSupa();
+    try{
+      const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('Planner hydrate timeout')),9000));
+      const {data,error}=await Promise.race([
+        supa.from('vertex_planner_days').select('day,workout_payload').eq('user_id',authUser.id),
+        timeout
+      ]);
+      if(error) throw error;
+      const cloudPlanner=emptyPlanner();
+      (data||[]).forEach(row=>{
+        if(b1ValidDay(row.day) && row.workout_payload) cloudPlanner[row.day]=b1NormalizeWorkout(row.workout_payload);
+      });
+      const cleared=loadClearedDays();
+      const retryDeletes=[];
+      cleared.forEach(day=>{
+        if(b1ValidDay(day) && cloudPlanner[day]!==null){ cloudPlanner[day]=null; retryDeletes.push(day); }
+      });
+      state.planner=b1NormalizePlanner(cloudPlanner);
+      savePlanner();
+      retryDeletes.forEach(day=>{
+        supa.from('vertex_planner_days').delete().eq('user_id',authUser.id).eq('day',day)
+          .then(({error:e})=>{ if(e) console.warn('Retry delete failed for',day,e); });
+      });
+      setSyncStatus('synced','Supabase synced');
+      return true;
+    }catch(err){
+      console.warn('Cloud planner hydrate failed; preserved local planner.',err);
+      state.planner=localPlanner;
+      savePlanner();
+      setSyncStatus(navigator.onLine?'failed':'local',navigator.onLine?'Planner local fallback':'Offline local');
+      return false;
+    }
+  };
+
+  editDay=function(day){
+    if(!b1ValidDay(day)) return;
+    const w=state.planner && state.planner[day] ? b1NormalizeWorkout(state.planner[day]) : null;
+    state.tracking=false;
+    state.activePhase=0;
+    if(w){
+      w.assignedDay=day;
+      state.current=clone(w);
+      refreshSyncStatus();
+    }else{
+      state.current={name:DAY_LABEL[day]+' Workout',type:'strength',exercises:[],source:'manual',assignedDay:day};
+      refreshSyncStatus();
+    }
+    state.page='workout';
+    renderAll();
+    if(!hasWorkout()) expandTopIfEmpty();
+    document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
+    document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>el.style.display='');
+    setTimeout(()=>{
+      const builderEl=document.getElementById('builder');
+      if(builderEl) builderEl.scrollIntoView({block:'start',behavior:'smooth'});
+      else window.scrollTo({top:0,behavior:'smooth'});
+    },80);
+  };
+
+  saveDay=async function(day=todayKey){
+    if(!b1ValidDay(day)) return toast('Choose a valid planner day');
+    if(b1Locks.plannerDay[day]) return toast('Save already in progress');
+    const w=b1NormalizeWorkout(state.current);
+    if(!hasWorkout(w)) return toast('Nothing to save');
+    b1Locks.plannerDay[day]=true;
+    b1SetButtonBusy(`[data-save-day="${day}"]`,true,'Saving...');
+    if(cloudEnabled()) setSyncStatus('syncing','Syncing...');
+    try{
+      w.assignedDay=day;
+      state.planner=b1NormalizePlanner(state.planner);
+      state.planner[day]=clone(w);
+      state.current.assignedDay=day;
+      savePlanner();
+      unmarkDayCleared(day);
+      renderAll();
+      const ok=await persistPlannerDay(day,w);
+      if(authUser) setSyncStatus(ok?'synced':'failed',ok?'Supabase synced':'Local fallback');
+      else setSyncStatus('local','Local mode');
+      toast('Saved to '+DAY_LABEL[day]+(authUser?(ok?' · cloud synced':' · local fallback') : ''));
+    }catch(err){
+      console.warn('Planner day save failed:',err);
+      setSyncStatus('failed','Sync failed');
+      toast('Planner save failed — local copy preserved');
+    }finally{
+      b1Locks.plannerDay[day]=false;
+      b1SetButtonBusy(`[data-save-day="${day}"]`,false);
+      b1RenderPlannerViews();
+    }
+  };
+
+  const b1OriginalSaveCurrentWorkout=saveCurrentWorkout;
+  saveCurrentWorkout=async function(){
+    if(b1Locks.workoutSave) return toast('Save already in progress');
+    b1Locks.workoutSave=true;
+    b1SetButtonBusy('#btn-save',true,'Saving...');
+    try{ await b1OriginalSaveCurrentWorkout(); }
+    finally{ b1Locks.workoutSave=false; b1SetButtonBusy('#btn-save',false); }
+  };
+
+  const b1OriginalLoadSavedWorkout=loadSavedWorkout;
+  loadSavedWorkout=function(i){
+    b1OriginalLoadSavedWorkout(i);
+    try{ refreshSyncStatus(); }catch(e){}
+  };
+
+  state.planner=b1NormalizePlanner(state.planner);
+  try{ savePlanner(); }catch(e){}
+})();
+
   // renderTemplates is now active — workout templates restored
 })();
 </script>
@@ -14559,6 +15011,107 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   border-color:rgba(255,255,255,.06)!important;
   box-shadow:none!important;
 }
+
+
+/* ============================================================
+   v20260526-ag PHASE A2 SAFE CONTINUATION — CSS ONLY
+   Scope: chart shells, Wellness tab density, mobile right-rail polish.
+   Guardrails: no JS changes, no SVG/template changes, no route/auth/sync/planner changes.
+   ============================================================ */
+.progress-card, .wc-card, .wc-section, .coach-card{
+  border-color:var(--border-subtle)!important;
+  border-radius:var(--r)!important;
+}
+.progress-card canvas, .wc-chart-wrap canvas, .wc-chart-wrap2 canvas{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+}
+.wc-chart-wrap{
+  min-height:170px!important;
+  height:170px!important;
+}
+.wc-chart-wrap2{
+  min-height:148px!important;
+  height:148px!important;
+}
+#progressSparklines{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+  align-items:stretch!important;
+}
+#progressSparklines > div{
+  min-width:0!important;
+  min-height:86px!important;
+  border-radius:var(--r)!important;
+}
+.vertex-sparkline-row{
+  align-items:stretch!important;
+}
+.vertex-sparkline-card{
+  min-width:0!important;
+  border-radius:var(--r)!important;
+}
+.vertex-sparkline-card svg{
+  display:block!important;
+  flex:0 0 auto!important;
+  overflow:visible!important;
+}
+.wc-tab-row, .wellness-tabs, .protocol-tabs, .sub-tabs, .tab-row, .progress-tabs{
+  gap:8px!important;
+}
+.wc-tab-row button, .wellness-tabs button, .protocol-tabs button, .sub-tabs button, .tab-row button, .progress-tab{
+  border-radius:var(--r-pill)!important;
+  min-height:32px!important;
+  padding:7px 13px!important;
+  line-height:1.1!important;
+}
+@media(max-width:900px){
+  .page-panel{
+    margin-bottom:10px!important;
+  }
+  .progress-layout, .coach-grid, .wc-trend-grid{
+    gap:10px!important;
+  }
+  .progress-card, .coach-card, .wc-card, .wc-section{
+    padding:12px!important;
+  }
+  #progressSparklines{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  .vertex-sparkline-row{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .wc-chart-wrap{
+    min-height:160px!important;
+    height:160px!important;
+  }
+  .wc-chart-wrap2{
+    min-height:138px!important;
+    height:138px!important;
+  }
+  body:not(.app-page-home) .right::before{
+    border-radius:0!important;
+  }
+  .right.open > section, body.app-page-home .right > section{
+    margin:10px 12px!important;
+  }
+}
+@media(max-width:430px){
+  .vertex-sparkline-row{
+    grid-template-columns:1fr 1fr!important;
+  }
+  .vertex-sparkline-card{
+    padding:8px 9px!important;
+  }
+  .wc-tab-row button, .wellness-tabs button, .protocol-tabs button, .sub-tabs button, .tab-row button, .progress-tab{
+    padding:7px 11px!important;
+    font-size:11px!important;
+  }
+}
 </style>
 
 <script>
@@ -15065,6 +15618,14 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     return panel;
   }
 
+  function vertexB2SeverityColor(label, context){
+    var t = String(label || '').toLowerCase();
+    if(/recover|declin|elevated|high|caution|reduce|limited|watch/.test(t)) return context === 'strain' && /moderate/.test(t) ? 'var(--green)' : 'var(--orange)';
+    if(/low|stable|improv|sustainable|moderate|maintain|aligned|favorable|building|ready/.test(t)) return 'var(--green)';
+    if(/pending|not enough|no current|baseline/.test(t)) return 'var(--muted)';
+    return 'var(--text)';
+  }
+
   function buildPanels(){
     try{
       if(!window.VertexRecoveryInsights || typeof window.VertexRecoveryInsights.build !== 'function'){
@@ -15113,14 +15674,14 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
       if(strainPanel){
         strainPanel.querySelector('.vertex-panel-body').innerHTML =
-          '<div style="font-size:18px;color:var(--text);font-weight:700">' + strain + '</div>' +
+          '<div style="font-size:18px;color:' + vertexB2SeverityColor(strain, 'strain') + ';font-weight:700">' + strain + '</div>' +
           '<div style="margin-top:10px">4 sessions in 7 days</div>' +
           '<div>Recovery pressure aligned</div>';
       }
 
       if(consistencyPanel){
         consistencyPanel.querySelector('.vertex-panel-body').innerHTML =
-          '<div style="font-size:18px;color:var(--green);font-weight:700">' + streak + '</div>' +
+          '<div style="font-size:18px;color:' + vertexB2SeverityColor(streak, 'consistency') + ';font-weight:700">' + streak + '</div>' +
           '<div style="margin-top:10px">92% adherence</div>' +
           '<div>Workout consistency favorable</div>';
       }
@@ -15345,6 +15906,14 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     '</div>';
   }
 
+  function vertexB2SeverityColor(label, context){
+    var t = String(label || '').toLowerCase();
+    if(/recover|declin|elevated|high|caution|reduce|limited|watch/.test(t)) return context === 'strain' && /moderate/.test(t) ? 'var(--green)' : 'var(--orange)';
+    if(/low|stable|improv|sustainable|moderate|maintain|aligned|favorable|building|ready|session week/.test(t)) return 'var(--green)';
+    if(/pending|not enough|no current|no active|baseline/.test(t)) return 'var(--muted)';
+    return 'var(--text)';
+  }
+
   function integrityUpdatePanels(){
     try{
       var weekly = parseWeeklyWorkoutCount();
@@ -15367,7 +15936,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
             var avg3 = Math.max(0, Math.min(100, ready.score - 2));
             var avg7 = Math.max(0, Math.min(100, ready.score - 4));
             body.innerHTML =
-              '<div style="font-size:18px;color:var(--green);font-weight:700">→ ' + ready.trend + '</div>' +
+              '<div style="font-size:18px;color:' + vertexB2SeverityColor(ready.trend, 'recovery') + ';font-weight:700">→ ' + ready.trend + '</div>' +
               htmlRow('3-day readiness avg', avg3) +
               htmlRow('7-day readiness avg', avg7) +
               htmlRow('Basis', 'Readiness score');
@@ -15380,18 +15949,18 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
         if(body2){
           if(weekly === 0){
             body2.innerHTML =
-              '<div style="font-size:18px;color:var(--muted);font-weight:700">No current training strain</div>' +
+              '<div style="font-size:18px;color:' + vertexB2SeverityColor('No current training strain', 'strain') + ';font-weight:700">No current training strain</div>' +
               '<div style="margin-top:10px">0 workouts logged this week</div>' +
               '<div>Strain will calculate after logged sessions.</div>';
           }else if(weekly !== null){
             var label = weekly >= 5 ? 'High' : weekly >= 3 ? 'Moderate' : 'Low';
             body2.innerHTML =
-              '<div style="font-size:18px;color:var(--text);font-weight:700">' + label + '</div>' +
+              '<div style="font-size:18px;color:' + vertexB2SeverityColor(label, 'strain') + ';font-weight:700">' + label + '</div>' +
               '<div style="margin-top:10px">' + weekly + ' workouts logged this week</div>' +
               '<div>Based on actual logged workout count.</div>';
           }else{
             body2.innerHTML =
-              '<div style="font-size:18px;color:var(--muted);font-weight:700">Not enough workout data</div>' +
+              '<div style="font-size:18px;color:' + vertexB2SeverityColor('Not enough workout data', 'strain') + ';font-weight:700">Not enough workout data</div>' +
               '<div style="margin-top:10px">Log workouts to calculate strain.</div>';
           }
         }
@@ -15430,7 +15999,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
           }else if(weekly !== null && ready.score !== null){
             var tol = ready.score >= 70 && weekly >= 2 ? 'Stable / improving' : 'Building baseline';
             body4.innerHTML =
-              '<div style="font-size:18px;color:var(--green);font-weight:700">' + tol + '</div>' +
+              '<div style="font-size:18px;color:' + vertexB2SeverityColor(tol, 'tolerance') + ';font-weight:700">' + tol + '</div>' +
               '<div style="margin-top:10px">Uses readiness plus logged workout frequency.</div>' +
               '<div>More sessions will improve accuracy.</div>';
           }else{
@@ -17887,6 +18456,69 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
   document.addEventListener('click', function(){ setTimeout(fix, 150); }, true);
+})();
+</script>
+
+
+<script>
+/* Phase B2 label/order repair only — no chart/auth/sync/planner/recovery logic changes */
+(function(){
+  function normalizeMovementHistoryLabel(){
+    try{
+      var progress = document.getElementById('progressPage');
+      if(!progress) return;
+      Array.from(progress.querySelectorAll('.label')).forEach(function(el){
+        var t = String(el.textContent || '').trim();
+        if(t === 'Workout History' || t === 'Recent Logs'){
+          el.textContent = 'Movement History';
+          var card = el.closest('.progress-card') || el.closest('section');
+          if(card) card.classList.add('vertex-movement-history-card');
+        }
+      });
+    }catch(e){}
+  }
+
+  function applyPhaseB2StatusColors(){
+    try{
+      var map = [
+        ['vertexStrainPanel','strain'],
+        ['vertexRecoveryTrendPanel','recovery'],
+        ['vertexTolerancePanel','tolerance'],
+        ['vertexConsistencyPanel','consistency'],
+        ['vertexCardioStrainPanel','strain'],
+        ['vertexPerformanceDecisionPanel','decision'],
+        ['vertexProgressionPanel','progression']
+      ];
+      function colorFor(text, context){
+        var t = String(text || '').toLowerCase();
+        if(/not enough|pending|no current|no active|baseline/.test(t)) return 'var(--muted)';
+        if(/elevated|high|declining|reduce|recovery priority|watch|caution/.test(t)) return /moderate/.test(t) ? 'var(--green)' : 'var(--orange)';
+        if(/low|moderate|stable|improving|sustainable|aligned|favorable|ready|maintain|push with control|progression/.test(t)) return 'var(--green)';
+        return '';
+      }
+      map.forEach(function(item){
+        var panel = document.getElementById(item[0]);
+        if(!panel) return;
+        var status = panel.querySelector('.vertex-panel-body > div:first-child');
+        if(!status) return;
+        var c = colorFor(status.textContent, item[1]);
+        if(c) status.style.color = c;
+      });
+    }catch(e){}
+  }
+
+  function runPhaseB2(){
+    normalizeMovementHistoryLabel();
+    applyPhaseB2StatusColors();
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(runPhaseB2, 250);
+    setTimeout(runPhaseB2, 1200);
+    setTimeout(runPhaseB2, 3200);
+  });
+  window.addEventListener('load', function(){ setTimeout(runPhaseB2, 600); });
+  document.addEventListener('click', function(){ setTimeout(runPhaseB2, 250); }, true);
 })();
 </script>
 

@@ -19149,3 +19149,141 @@ body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-pan
   window.VertexProgressCategoryRails = { sync: moveCards };
 })();
 </script>
+<style id="vertex-phase2b-coach-intelligence-css">
+.vertex-coach-feed-card.vertex-phase2b-card{position:relative;padding:13px 14px!important;}
+.vertex-phase2b-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;}
+.vertex-phase2b-title b{margin:0!important;}
+.vertex-phase2b-action{color:var(--text);font-size:13px;line-height:1.45;font-weight:700;margin-bottom:5px;}
+.vertex-phase2b-why{color:var(--muted);font-size:12px;line-height:1.45;}
+.vertex-phase2b-meta{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);margin-top:7px;}
+.vertex-i{position:relative;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;min-width:18px;border-radius:999px;border:1px solid rgba(232,255,71,.45);background:rgba(232,255,71,.06);color:var(--acc);font-family:'DM Mono',monospace;font-size:11px;font-weight:800;line-height:1;cursor:help;padding:0;text-transform:none;}
+.vertex-i::after{content:attr(data-tip);position:absolute;right:0;top:24px;width:230px;max-width:min(230px,78vw);z-index:9999;padding:9px 10px;border:1px solid rgba(232,255,71,.28);border-radius:10px;background:#171717;color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:500;line-height:1.4;letter-spacing:0;text-transform:none;box-shadow:0 16px 42px rgba(0,0,0,.55);opacity:0;visibility:hidden;transform:translateY(-3px);transition:opacity .16s ease,transform .16s ease,visibility 0s linear .16s;pointer-events:none;}
+.vertex-i:hover::after,.vertex-i:focus::after{opacity:1;visibility:visible;transform:translateY(0);transition:opacity .16s ease,transform .16s ease,visibility 0s linear 0s;}
+.vertex-b2-card .label{display:flex!important;align-items:center;justify-content:space-between;gap:8px;}
+.vertex-b2-card .label .vertex-i{margin-left:auto;}
+@media(max-width:800px){.vertex-i::after{right:-6px;width:210px}.vertex-phase2b-title{align-items:flex-start}}
+</style>
+<script id="vertex-phase2b-coach-intelligence">
+(function(){
+  'use strict';
+  if(window.__vertexPhase2BCoachIntelligence) return;
+  window.__vertexPhase2BCoachIntelligence = true;
+
+  function esc(v){
+    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
+    return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function rows(){ try{return (typeof progressRows==='function'?progressRows():[])||[];}catch(e){return [];} }
+  function summary(rs){ try{return (typeof progressSummary==='function'?progressSummary(rs):{})||{};}catch(e){return {};} }
+  function perf(rs){ try{return (typeof performanceSummary==='function'?performanceSummary(rs):[])||[];}catch(e){return [];} }
+  function weekStartSafe(){ try{return typeof weekStart==='function'?weekStart():new Date(Date.now()-7*86400000);}catch(e){return new Date(Date.now()-7*86400000);} }
+  function n(v,d){ v=Number(v); return Number.isFinite(v)?v:(d==null?0:d); }
+  function readiness(){
+    try{ if(window.VertexReadiness && typeof window.VertexReadiness.cached==='function'){ var r=window.VertexReadiness.cached()||{}; if(Number.isFinite(Number(r.score))) return {score:Math.round(Number(r.score)),label:r.label||'',data:r}; } }catch(e){}
+    try{ if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){ var x=window.VertexRecoveryInsights.build()||{}; if(Number.isFinite(Number(x.recovery))) return {score:Math.round(Number(x.recovery)),label:x.status||'',data:x}; } }catch(e){}
+    return {score:null,label:'Pending',data:{}};
+  }
+  function strain(){
+    try{ if(window.VertexTrainingStrainEngine && typeof window.VertexTrainingStrainEngine.build==='function'){ return window.VertexTrainingStrainEngine.build()||{}; } }catch(e){}
+    return {};
+  }
+  function muscleTotals(rs,start,end){
+    var out={};
+    try{ rs.forEach(function(r){ var dt=new Date(r.completed_at||r.created_at||0); if(start&&dt<start) return; if(end&&dt>=end) return; var m=(r.metrics&&r.metrics.muscles)||{}; Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+n(m[k]&&m[k].sets,0); }); }); }catch(e){}
+    return out;
+  }
+  function ranked(obj){ return Object.keys(obj||{}).map(function(k){return {name:k,sets:n(obj[k],0)};}).sort(function(a,b){return b.sets-a.sets;}); }
+  function card(title, action, why, tone, tip, meta){
+    return {title:title,action:action,why:why,tone:tone||'',tip:tip||'Vertex uses logged workouts, readiness, strain, and recent trends to make this recommendation.',meta:meta||''};
+  }
+  function build(){
+    var rs=rows(), sum=summary(rs), pf=perf(rs), ready=readiness(), st=strain();
+    var sessions=(sum.thisWeek&&sum.thisWeek.length)||0, prev=(sum.prevWeek&&sum.prevWeek.length)||0, delta=sessions-prev;
+    var daysSince=(sum.daysSince==null?null:Number(sum.daysSince));
+    var load=n(sum.totalVolume,0), sets=n(sum.totalSets,0), score=ready.score, strainScore=n(st.score||st.strainScore||st.loadScore,0);
+    var start=weekStartSafe(), prior=new Date(start); prior.setDate(prior.getDate()-7);
+    var top=ranked(muscleTotals(rs,start))[0]||null, second=ranked(muscleTotals(rs,start))[1]||null;
+    var topMove=pf&&pf[0];
+    var out=[];
+    if(!rs.length){
+      return [card('Build the baseline','Log 3–4 workouts before Vertex makes aggressive recommendations.','Once Vertex has repeated sessions, it can compare frequency, muscle balance, load, and recovery response instead of giving generic guidance.','','Why baseline matters','Phase 2B')];
+    }
+    if(score!==null && score<60){
+      out.push(card('Recovery-first training','Keep today at technique, mobility, or controlled volume.','Readiness is below the push zone, so the goal is to protect consistency without forcing adaptation through fatigue.','warn','Readiness combines recovery signals with recent training context.', 'Readiness '+score));
+    } else if(score!==null && score>=75 && strainScore<70){
+      out.push(card('Selective progression window','Progress one priority lift or one quality set — not the whole workout.','Recovery is supportive and strain is not excessive, so the safest move is targeted progression rather than broad volume expansion.','green','A progression window appears when readiness is strong and strain is manageable.', 'Readiness '+score));
+    } else {
+      out.push(card('Controlled training day','Train as planned, but keep effort honest and stop short of sloppy reps.','Current signals support work, but not a blank check for max-effort loading across every movement.','','Vertex balances readiness, strain, and recent workload before recommending intensity.', score!==null?'Readiness '+score:'Readiness pending'));
+    }
+    if(delta>0){
+      out.push(card('Ramp-up guardrail','Hold load jumps conservative while frequency is rising.','You are training more than last week; tissue tolerance usually lags behind motivation and calendar momentum.','warn','Compares this week’s sessions against the previous week.', sessions+' vs '+prev+' sessions'));
+    } else if(delta<0){
+      out.push(card('Rhythm rebuild','Prioritize one clean session before adding volume.','Frequency dipped versus last week, so the best next move is restoring cadence before chasing heavier work.','warn','Compares current weekly frequency against the prior week.', sessions+' vs '+prev+' sessions'));
+    } else {
+      out.push(card('Stable cadence','Use the next session to improve execution quality or one key lift.','Frequency is steady, which means progression can come from better reps, not necessarily more total work.','green','Stable cadence means weekly frequency is holding.', sessions+' sessions this week'));
+    }
+    if(top && second && top.sets>=Math.max(6,second.sets*1.45)){
+      out.push(card('Imbalance detected','Balance '+top.name+' with complementary work or keep the next '+top.name+' block submaximal.','This week’s volume is concentrated in one muscle group, which can raise local fatigue even when total readiness looks acceptable.','warn','Flags a muscle group when it materially outpaces the next highest group.', top.name+' '+top.sets+' sets'));
+    } else if(top){
+      out.push(card('Volume balance acceptable','Progress one priority movement if warm-ups feel strong.','No single muscle group is dominating the week, so the current distribution is reasonable for continued training.','green','Reviews this week’s muscle-group set distribution.', top.name+' leads'));
+    }
+    if(score!==null && strainScore>=70){
+      out.push(card('Recovery-performance conflict','Reduce intensity or total hard sets for the next session.','Training strain is high relative to recovery; this is where performance can look fine briefly while fatigue accumulates underneath.','warn','Looks for a mismatch between readiness and accumulated training strain.', 'Strain '+Math.round(strainScore)));
+    } else if(score!==null && score>=70 && load>0){
+      out.push(card('Recovery supporting output','Keep the session productive, but cap progression to one main target.','Recovery and recent output are aligned enough to train, while still avoiding unnecessary total-volume creep.','green','Connects recovery status with recent load volume.', Math.round(load)+' load volume'));
+    }
+    if(topMove && n(topMove.sets,0)>=8){
+      out.push(card('Repeat-movement fatigue watch','Hold load on '+topMove.name+' if bar speed or form drops.','High repeat exposure on the same movement can limit performance before overall weekly volume looks excessive.','','Uses repeated exercise exposure from workout memory.', n(topMove.sets,0)+' tracked sets'));
+    }
+    if(daysSince!==null){
+      if(daysSince===0) out.push(card('Same-day intensity cap','Treat any second session as low-strain conditioning, mobility, or skill work.','Stacking hard sessions on the same day can distort recovery signals and increase fatigue without much added benefit.','warn','Uses the timing of your most recent logged workout.', 'Trained today'));
+      else if(daysSince>=4) out.push(card('Re-entry protocol','Start moderate and earn intensity during warm-up sets.','After several days off, connective tissue and coordination need a controlled ramp before max effort.','warn','Uses days since last logged workout.', daysSince+' days since last'));
+    }
+    return out.slice(0,5);
+  }
+  function render(){
+    try{
+      var el=document.getElementById('progressInsights'); if(!el) return false;
+      var feed=build();
+      el.innerHTML=feed.map(function(c){
+        var cls=c.tone==='warn'?'coach-warning':(c.tone==='green'?'coach-green':'');
+        return '<div class="insight vertex-coach-feed-card vertex-phase2b-card '+cls+'"><div class="vertex-phase2b-title"><b>'+esc(c.title)+'</b><button class="vertex-i" type="button" aria-label="Info" data-tip="'+esc(c.tip)+'">i</button></div><div class="vertex-phase2b-action">'+esc(c.action)+'</div><div class="vertex-phase2b-why">'+esc(c.why)+'</div>'+(c.meta?'<div class="vertex-phase2b-meta">'+esc(c.meta)+'</div>':'')+'</div>';
+      }).join('');
+      return true;
+    }catch(e){ console.warn('[Vertex Phase2B] coach intelligence render failed', e); return false; }
+  }
+  var tips={
+    'Recovery Trend':'Readiness direction based on recovery signals and recent training context.',
+    'Load Tolerance':'How well current recovery appears able to absorb recent training load.',
+    'Adaptive Coach':'A practical training recommendation based on readiness, strain, and consistency.',
+    'Cardio Strain':'Recent endurance load from connected cardio data when available.',
+    'Workout Memory':'Tracked exercise history used for repeat exposure and progression context.',
+    'Weekly Intelligence':'This week’s training frequency compared with your recent baseline.',
+    'Consistency':'Whether your workout cadence is building, stable, or slipping.',
+    'Longitudinal Trend':'Longer-term direction from repeated training and recovery signals.'
+  };
+  function addTooltips(){
+    try{
+      document.querySelectorAll('#vertexB2ProgressDeck .vertex-b2-card').forEach(function(cardEl){
+        var label=cardEl.querySelector('.label'); if(!label || label.querySelector('.vertex-i')) return;
+        var name=String(label.textContent||'').trim();
+        var tip=tips[name]||'Vertex interprets this card from your logged training, recovery, and trend data.';
+        var btn=document.createElement('button'); btn.type='button'; btn.className='vertex-i'; btn.setAttribute('aria-label','Info'); btn.setAttribute('data-tip',tip); btn.textContent='i';
+        label.appendChild(btn);
+      });
+    }catch(e){}
+  }
+  function sync(){ render(); addTooltips(); }
+  var oldRender=window.renderProgressPage;
+  if(typeof oldRender==='function' && !oldRender.__vertexPhase2BWrapped){
+    var wrapped=function(){ var out=oldRender.apply(this,arguments); setTimeout(sync,140); setTimeout(sync,520); return out; };
+    wrapped.__vertexPhase2BWrapped=true;
+    window.renderProgressPage=wrapped;
+  }
+  [160,650,1300,2600,4200].forEach(function(ms){ setTimeout(sync,ms); });
+  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-ptab]') || e.target.closest('[data-nav]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(sync,220); setTimeout(sync,700); } },true);
+  try{ var mo=new MutationObserver(function(){ clearTimeout(window.__vertexPhase2BTimer); window.__vertexPhase2BTimer=setTimeout(addTooltips,120); }); document.addEventListener('DOMContentLoaded',function(){ if(document.body) mo.observe(document.body,{childList:true,subtree:true}); }); }catch(e){}
+  window.VertexPhase2BCoachIntelligence={render:render,sync:sync,build:build};
+})();
+</script>
+

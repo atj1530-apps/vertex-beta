@@ -3594,82 +3594,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
   .right .btn{min-height:36px!important;}
 }
 
-
-
-/* ============================================================
-   v20260526 Phase B2 mobile-only layout patch — CSS only
-   Base: verified Phase B1 index(208). No auth/sync/chart/SVG/render JS touched.
-   ============================================================ */
-@media(max-width:900px){
-  /* Progress top KPI summary: two independent horizontal swipe rows. */
-  #progressSummary.progress-summary{
-    display:grid!important;
-    grid-auto-flow:column!important;
-    grid-template-rows:repeat(2,auto)!important;
-    grid-auto-columns:minmax(168px,74vw)!important;
-    grid-template-columns:none!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    gap:10px!important;
-    margin:12px -14px 14px!important;
-    padding:0 14px 10px!important;
-    scroll-snap-type:x mandatory!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-  }
-  #progressSummary.progress-summary::-webkit-scrollbar{display:none!important;}
-  #progressSummary.progress-summary .progress-kpi{
-    min-width:0!important;
-    width:100%!important;
-    scroll-snap-align:start!important;
-  }
-
-  /* Dynamically injected Progress intelligence cards: two-row mobile swipe rail. */
-  #vertexProgressIntelligenceHolder{
-    display:grid!important;
-    grid-auto-flow:column!important;
-    grid-template-rows:repeat(2,auto)!important;
-    grid-auto-columns:minmax(265px,86vw)!important;
-    grid-template-columns:none!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    gap:12px!important;
-    margin:14px -14px 18px!important;
-    padding:0 14px 12px!important;
-    scroll-snap-type:x mandatory!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-  }
-  #vertexProgressIntelligenceHolder::-webkit-scrollbar{display:none!important;}
-  #vertexProgressIntelligenceHolder > *{
-    width:100%!important;
-    min-width:0!important;
-    max-width:none!important;
-    min-height:156px!important;
-    margin:0!important;
-    scroll-snap-align:start!important;
-  }
-
-  /* Keep primary Progress content full-width below swipe rails. */
-  #progressPage .progress-layout,
-  #progressPage .progress-card.wide{
-    width:100%!important;
-    max-width:100%!important;
-  }
-}
-
-@media(min-width:901px){
-  #progressSummary.progress-summary{
-    display:grid!important;
-    grid-template-columns:repeat(4,1fr)!important;
-    overflow:visible!important;
-  }
-  #vertexProgressIntelligenceHolder{
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    overflow:visible!important;
-  }
-}
 </style>
 
 <style id="vertex-v20260526-aa-intelligence-layer">
@@ -13749,7 +13673,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.61.12-b2-css-safe';
+  const VERSION='v13.61.12';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}

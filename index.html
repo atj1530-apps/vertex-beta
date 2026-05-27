@@ -33,6 +33,7 @@
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
 <!-- v20260526-ac: recovery intelligence engine v2; service worker/cache locked -->
+<!-- Phase 2C.1: spark SVG cleanup; no auth/boot/SW architecture changes -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -9265,220 +9266,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
-
-
-<style id="vertex-phase2c-explainability-css">
-/* v20260527 Phase 2C — Explainability layer only. No rail/auth/boot/SW architecture changes. */
-#progressPage .vertex-2c-why{
-  margin-top:10px;
-  padding-top:9px;
-  border-top:1px solid rgba(255,255,255,.07);
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.45;
-}
-#progressPage .vertex-2c-why b{
-  color:var(--text);
-  font-size:11px;
-  font-family:'DM Mono',monospace;
-  letter-spacing:1.2px;
-  text-transform:uppercase;
-  display:block;
-  margin-bottom:3px;
-}
-#progressPage .vertex-2c-evidence{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:9px;
-}
-#progressPage .vertex-2c-pill{
-  border:1px solid rgba(232,255,71,.22);
-  border-radius:999px;
-  padding:3px 7px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  color:var(--muted);
-  background:rgba(232,255,71,.025);
-}
-#progressPage .vertex-2c-confidence{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid rgba(72,255,138,.25);
-  color:var(--green);
-  border-radius:999px;
-  padding:2px 6px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  margin-left:6px;
-  white-space:nowrap;
-}
-#progressPage .vertex-2c-confidence.medium{border-color:rgba(232,255,71,.3);color:var(--acc);}
-#progressPage .vertex-2c-confidence.low{border-color:rgba(255,176,71,.35);color:var(--orange);}
-.vertex-i.vertex-i-open::after{
-  opacity:1!important;
-  visibility:visible!important;
-  transform:translateY(0)!important;
-  transition:opacity .16s ease,transform .16s ease,visibility 0s linear 0s!important;
-}
-#progressPage .vertex-phase2b-card .vertex-2c-why{
-  margin-top:8px;
-}
-@media(max-width:900px){
-  #progressPage .vertex-2c-evidence{gap:5px;}
-  #progressPage .vertex-2c-pill{font-size:8.5px;padding:3px 6px;}
-}
-</style>
-<script id="vertex-phase2c-explainability-layer">
-(function(){
-  'use strict';
-  if(window.__vertexPhase2CExplainabilityLayer) return;
-  window.__vertexPhase2CExplainabilityLayer=true;
-
-  function esc(v){
-    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
-    return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
-  }
-  function rows(){ try{return (typeof progressRows==='function'?progressRows():[])||[];}catch(e){return [];} }
-  function summary(rs){ try{return (typeof progressSummary==='function'?progressSummary(rs):{})||{};}catch(e){return {};} }
-  function perf(rs){ try{return (typeof performanceSummary==='function'?performanceSummary(rs):[])||[];}catch(e){return [];} }
-  function wk(){ try{return typeof weekStart==='function'?weekStart():new Date(Date.now()-7*86400000);}catch(e){return new Date(Date.now()-7*86400000);} }
-  function readiness(){
-    try{ if(window.VertexReadiness && typeof window.VertexReadiness.cached==='function'){ var r=window.VertexReadiness.cached()||{}; if(Number.isFinite(Number(r.score))) return Math.round(Number(r.score)); } }catch(e){}
-    try{ if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){ var x=window.VertexRecoveryInsights.build()||{}; if(Number.isFinite(Number(x.recovery))) return Math.round(Number(x.recovery)); } }catch(e){}
-    return null;
-  }
-  function muscleRank(rs){
-    var out={}, start=wk();
-    try{rs.forEach(function(r){ var dt=new Date(r.completed_at||r.created_at||0); if(dt<start) return; var m=(r.metrics&&r.metrics.muscles)||{}; Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+Number((m[k]&&m[k].sets)||0); });});}catch(e){}
-    return Object.keys(out).map(function(k){return {name:k,sets:out[k]};}).sort(function(a,b){return b.sets-a.sets;});
-  }
-  function confidenceLabel(rs, key){
-    var count=Array.isArray(rs)?rs.length:0;
-    if(key==='Imbalance Detection') return count>=4?'High':count>=2?'Medium':'Low';
-    if(key==='Longitudinal Trend') return count>=8?'High':count>=4?'Medium':'Low';
-    if(key==='Recovery Trend' || key==='Load Tolerance' || key==='Adaptive Coach') return readiness()!==null?(count>=3?'High':'Medium'):'Low';
-    if(key==='Workout Memory') return count>=5?'High':count>=2?'Medium':'Low';
-    return count>=3?'Medium':'Low';
-  }
-  function explain(title, rs, sum, pf){
-    var r=readiness(), rank=muscleRank(rs), top=rank[0], second=rank[1], sessions=((sum.thisWeek||[]).length||0), prev=((sum.prevWeek||[]).length||0), topMove=pf&&pf[0];
-    var library={
-      'Recovery Trend':{
-        tip:'Shows whether recovery is supporting training or asking for restraint. Built from readiness plus recent workload context.',
-        why:r===null?'Recovery confidence is low until readiness data is available.':'This matters because readiness tells you whether to push, maintain, or reduce training stress today.',
-        pills:[r===null?'Readiness pending':'Readiness '+r, sessions+' sessions']
-      },
-      'Load Tolerance':{
-        tip:'Interprets whether your current workload appears absorbable based on readiness and recent training frequency.',
-        why:'This matters because load tolerance is the difference between productive overload and fatigue accumulation.',
-        pills:[sessions+' this week', prev+' previous']
-      },
-      'Adaptive Coach':{
-        tip:'Converts readiness, strain, and consistency into a practical training action.',
-        why:'This matters because the app should tell you what to do next, not just report numbers.',
-        pills:[r===null?'No score':'Score '+r, sessions?'Active week':'Baseline']
-      },
-      'Cardio Strain':{
-        tip:'Reads connected cardio load when available so strength work is not interpreted in isolation.',
-        why:'This matters because hard cardio can reduce leg freshness, recovery capacity, and next-session output.',
-        pills:['Cardio context','Recovery input']
-      },
-      'Workout Memory':{
-        tip:'Tracks repeated exercises and exposure so Vertex can coach fatigue, progression, and movement history.',
-        why:topMove?'This matters because repeated exposure to '+topMove.name+' can drive progress or fatigue depending on dose.':'This matters because repeated movements are required before meaningful progression coaching is possible.',
-        pills:[topMove?topMove.name:'Movement pending', ((sum.totalSets||0)+' sets')]
-      },
-      'Weekly Intelligence':{
-        tip:'Compares this week against your recent training baseline to separate trend from one-off noise.',
-        why:'This matters because weekly training direction is more useful than a single isolated workout.',
-        pills:[sessions+' current', prev+' prior']
-      },
-      'Imbalance Detection':{
-        tip:'Flags when one muscle group materially outpaces another in the current week.',
-        why:(top&&second)?('This matters because '+top.name+' is being compared against '+second.name+' to catch over-concentration before it becomes fatigue or compensation.'):'This matters once enough muscle-group volume exists for comparison.',
-        pills:[top?(top.name+' '+top.sets):'Top pending', second?(second.name+' '+second.sets):'Second pending']
-      },
-      'Consistency':{
-        tip:'Tracks whether your weekly training cadence is building, stable, or slipping.',
-        why:'This matters because consistency is the base layer; progression works best after cadence is stable.',
-        pills:[sessions+' this week', (sessions-prev>=0?'+':'')+(sessions-prev)+' vs prior']
-      },
-      'Longitudinal Trend':{
-        tip:'Uses repeated history to understand direction over time instead of reacting to one day.',
-        why:'This matters because long-term trend separates real progress from normal daily volatility.',
-        pills:[rs.length+' logs', topMove?'Lift signal':'Need repeats']
-      }
-    };
-    return library[title]||{tip:'Vertex explains this card from your training history, readiness, strain, and trend context.',why:'This matters because the card should point to a clear training decision.',pills:['Training context']};
-  }
-  function enhanceDeck(){
-    var deck=document.getElementById('vertexB2ProgressDeck'); if(!deck) return;
-    var rs=rows(), sum=summary(rs), pf=perf(rs);
-    deck.querySelectorAll('.vertex-b2-card').forEach(function(card){
-      var label=card.querySelector('.label'); if(!label) return;
-      var title=String(label.childNodes[0]&&label.childNodes[0].textContent||label.textContent||'').trim();
-      title=title.replace(/\s*i\s*$/,'').trim();
-      var data=explain(title,rs,sum,pf), conf=confidenceLabel(rs,title);
-      var i=label.querySelector('.vertex-i');
-      if(i) i.setAttribute('data-tip', data.tip);
-      if(!label.querySelector('.vertex-2c-confidence')){
-        var c=document.createElement('span'); c.className='vertex-2c-confidence '+(conf==='High'?'':conf==='Medium'?'medium':'low'); c.textContent=conf+' confidence'; label.appendChild(c);
-      }else{
-        var c2=label.querySelector('.vertex-2c-confidence'); c2.className='vertex-2c-confidence '+(conf==='High'?'':conf==='Medium'?'medium':'low'); c2.textContent=conf+' confidence';
-      }
-      if(!card.querySelector('.vertex-2c-why')){
-        var why=document.createElement('div'); why.className='vertex-2c-why';
-        why.innerHTML='<b>Why this matters</b>'+esc(data.why)+'<div class="vertex-2c-evidence">'+(data.pills||[]).filter(Boolean).slice(0,3).map(function(p){return '<span class="vertex-2c-pill">'+esc(p)+'</span>';}).join('')+'</div>';
-        card.appendChild(why);
-      }
-    });
-  }
-  function enhanceCoachFeed(){
-    var el=document.getElementById('progressInsights'); if(!el) return;
-    el.querySelectorAll('.vertex-phase2b-card').forEach(function(card){
-      if(card.querySelector('.vertex-2c-why')) return;
-      var action=card.querySelector('.vertex-phase2b-action');
-      var whyText=card.querySelector('.vertex-phase2b-why');
-      var title=card.querySelector('.vertex-phase2b-title b');
-      var block=document.createElement('div'); block.className='vertex-2c-why';
-      block.innerHTML='<b>Decision logic</b>'+esc((whyText&&whyText.textContent)||'Vertex links the recommendation to recent training and recovery signals.')+'<div class="vertex-2c-evidence"><span class="vertex-2c-pill">Actionable</span><span class="vertex-2c-pill">Coach logic</span></div>';
-      if(whyText) whyText.style.display='none';
-      (action||card).insertAdjacentElement('afterend', block);
-      var i=card.querySelector('.vertex-i');
-      if(i && title) i.setAttribute('data-tip','Explains why '+String(title.textContent||'this recommendation').toLowerCase()+' is being shown and what decision it supports.');
-    });
-  }
-  function sync(){ enhanceDeck(); enhanceCoachFeed(); }
-  document.addEventListener('click',function(e){
-    var btn=e.target&&e.target.closest?e.target.closest('.vertex-i'):null;
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    document.querySelectorAll('.vertex-i.vertex-i-open').forEach(function(x){ if(x!==btn) x.classList.remove('vertex-i-open'); });
-    btn.classList.toggle('vertex-i-open');
-  },true);
-  document.addEventListener('click',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('.vertex-i')) return;
-    document.querySelectorAll('.vertex-i.vertex-i-open').forEach(function(x){x.classList.remove('vertex-i-open');});
-  },true);
-  [120,360,800,1500,2600].forEach(function(ms){setTimeout(sync,ms);});
-  var old=window.renderProgressPage;
-  if(typeof old==='function' && !old.__vertexPhase2CWrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(sync,120); setTimeout(sync,480); return out; };
-    wrapped.__vertexPhase2CWrapped=true; window.renderProgressPage=wrapped;
-  }
-  try{ var mo=new MutationObserver(function(){ clearTimeout(window.__vertexPhase2CTimer); window.__vertexPhase2CTimer=setTimeout(sync,110); }); document.addEventListener('DOMContentLoaded',function(){ if(document.body) mo.observe(document.body,{childList:true,subtree:true}); }); }catch(e){}
-  window.VertexPhase2CExplainability={sync:sync,enhanceDeck:enhanceDeck,enhanceCoachFeed:enhanceCoachFeed};
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -11095,220 +10882,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-<style id="vertex-phase2c-explainability-css">
-/* v20260527 Phase 2C — Explainability layer only. No rail/auth/boot/SW architecture changes. */
-#progressPage .vertex-2c-why{
-  margin-top:10px;
-  padding-top:9px;
-  border-top:1px solid rgba(255,255,255,.07);
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.45;
-}
-#progressPage .vertex-2c-why b{
-  color:var(--text);
-  font-size:11px;
-  font-family:'DM Mono',monospace;
-  letter-spacing:1.2px;
-  text-transform:uppercase;
-  display:block;
-  margin-bottom:3px;
-}
-#progressPage .vertex-2c-evidence{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:9px;
-}
-#progressPage .vertex-2c-pill{
-  border:1px solid rgba(232,255,71,.22);
-  border-radius:999px;
-  padding:3px 7px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  color:var(--muted);
-  background:rgba(232,255,71,.025);
-}
-#progressPage .vertex-2c-confidence{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid rgba(72,255,138,.25);
-  color:var(--green);
-  border-radius:999px;
-  padding:2px 6px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  margin-left:6px;
-  white-space:nowrap;
-}
-#progressPage .vertex-2c-confidence.medium{border-color:rgba(232,255,71,.3);color:var(--acc);}
-#progressPage .vertex-2c-confidence.low{border-color:rgba(255,176,71,.35);color:var(--orange);}
-.vertex-i.vertex-i-open::after{
-  opacity:1!important;
-  visibility:visible!important;
-  transform:translateY(0)!important;
-  transition:opacity .16s ease,transform .16s ease,visibility 0s linear 0s!important;
-}
-#progressPage .vertex-phase2b-card .vertex-2c-why{
-  margin-top:8px;
-}
-@media(max-width:900px){
-  #progressPage .vertex-2c-evidence{gap:5px;}
-  #progressPage .vertex-2c-pill{font-size:8.5px;padding:3px 6px;}
-}
-</style>
-<script id="vertex-phase2c-explainability-layer">
-(function(){
-  'use strict';
-  if(window.__vertexPhase2CExplainabilityLayer) return;
-  window.__vertexPhase2CExplainabilityLayer=true;
-
-  function esc(v){
-    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
-    return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
-  }
-  function rows(){ try{return (typeof progressRows==='function'?progressRows():[])||[];}catch(e){return [];} }
-  function summary(rs){ try{return (typeof progressSummary==='function'?progressSummary(rs):{})||{};}catch(e){return {};} }
-  function perf(rs){ try{return (typeof performanceSummary==='function'?performanceSummary(rs):[])||[];}catch(e){return [];} }
-  function wk(){ try{return typeof weekStart==='function'?weekStart():new Date(Date.now()-7*86400000);}catch(e){return new Date(Date.now()-7*86400000);} }
-  function readiness(){
-    try{ if(window.VertexReadiness && typeof window.VertexReadiness.cached==='function'){ var r=window.VertexReadiness.cached()||{}; if(Number.isFinite(Number(r.score))) return Math.round(Number(r.score)); } }catch(e){}
-    try{ if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){ var x=window.VertexRecoveryInsights.build()||{}; if(Number.isFinite(Number(x.recovery))) return Math.round(Number(x.recovery)); } }catch(e){}
-    return null;
-  }
-  function muscleRank(rs){
-    var out={}, start=wk();
-    try{rs.forEach(function(r){ var dt=new Date(r.completed_at||r.created_at||0); if(dt<start) return; var m=(r.metrics&&r.metrics.muscles)||{}; Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+Number((m[k]&&m[k].sets)||0); });});}catch(e){}
-    return Object.keys(out).map(function(k){return {name:k,sets:out[k]};}).sort(function(a,b){return b.sets-a.sets;});
-  }
-  function confidenceLabel(rs, key){
-    var count=Array.isArray(rs)?rs.length:0;
-    if(key==='Imbalance Detection') return count>=4?'High':count>=2?'Medium':'Low';
-    if(key==='Longitudinal Trend') return count>=8?'High':count>=4?'Medium':'Low';
-    if(key==='Recovery Trend' || key==='Load Tolerance' || key==='Adaptive Coach') return readiness()!==null?(count>=3?'High':'Medium'):'Low';
-    if(key==='Workout Memory') return count>=5?'High':count>=2?'Medium':'Low';
-    return count>=3?'Medium':'Low';
-  }
-  function explain(title, rs, sum, pf){
-    var r=readiness(), rank=muscleRank(rs), top=rank[0], second=rank[1], sessions=((sum.thisWeek||[]).length||0), prev=((sum.prevWeek||[]).length||0), topMove=pf&&pf[0];
-    var library={
-      'Recovery Trend':{
-        tip:'Shows whether recovery is supporting training or asking for restraint. Built from readiness plus recent workload context.',
-        why:r===null?'Recovery confidence is low until readiness data is available.':'This matters because readiness tells you whether to push, maintain, or reduce training stress today.',
-        pills:[r===null?'Readiness pending':'Readiness '+r, sessions+' sessions']
-      },
-      'Load Tolerance':{
-        tip:'Interprets whether your current workload appears absorbable based on readiness and recent training frequency.',
-        why:'This matters because load tolerance is the difference between productive overload and fatigue accumulation.',
-        pills:[sessions+' this week', prev+' previous']
-      },
-      'Adaptive Coach':{
-        tip:'Converts readiness, strain, and consistency into a practical training action.',
-        why:'This matters because the app should tell you what to do next, not just report numbers.',
-        pills:[r===null?'No score':'Score '+r, sessions?'Active week':'Baseline']
-      },
-      'Cardio Strain':{
-        tip:'Reads connected cardio load when available so strength work is not interpreted in isolation.',
-        why:'This matters because hard cardio can reduce leg freshness, recovery capacity, and next-session output.',
-        pills:['Cardio context','Recovery input']
-      },
-      'Workout Memory':{
-        tip:'Tracks repeated exercises and exposure so Vertex can coach fatigue, progression, and movement history.',
-        why:topMove?'This matters because repeated exposure to '+topMove.name+' can drive progress or fatigue depending on dose.':'This matters because repeated movements are required before meaningful progression coaching is possible.',
-        pills:[topMove?topMove.name:'Movement pending', ((sum.totalSets||0)+' sets')]
-      },
-      'Weekly Intelligence':{
-        tip:'Compares this week against your recent training baseline to separate trend from one-off noise.',
-        why:'This matters because weekly training direction is more useful than a single isolated workout.',
-        pills:[sessions+' current', prev+' prior']
-      },
-      'Imbalance Detection':{
-        tip:'Flags when one muscle group materially outpaces another in the current week.',
-        why:(top&&second)?('This matters because '+top.name+' is being compared against '+second.name+' to catch over-concentration before it becomes fatigue or compensation.'):'This matters once enough muscle-group volume exists for comparison.',
-        pills:[top?(top.name+' '+top.sets):'Top pending', second?(second.name+' '+second.sets):'Second pending']
-      },
-      'Consistency':{
-        tip:'Tracks whether your weekly training cadence is building, stable, or slipping.',
-        why:'This matters because consistency is the base layer; progression works best after cadence is stable.',
-        pills:[sessions+' this week', (sessions-prev>=0?'+':'')+(sessions-prev)+' vs prior']
-      },
-      'Longitudinal Trend':{
-        tip:'Uses repeated history to understand direction over time instead of reacting to one day.',
-        why:'This matters because long-term trend separates real progress from normal daily volatility.',
-        pills:[rs.length+' logs', topMove?'Lift signal':'Need repeats']
-      }
-    };
-    return library[title]||{tip:'Vertex explains this card from your training history, readiness, strain, and trend context.',why:'This matters because the card should point to a clear training decision.',pills:['Training context']};
-  }
-  function enhanceDeck(){
-    var deck=document.getElementById('vertexB2ProgressDeck'); if(!deck) return;
-    var rs=rows(), sum=summary(rs), pf=perf(rs);
-    deck.querySelectorAll('.vertex-b2-card').forEach(function(card){
-      var label=card.querySelector('.label'); if(!label) return;
-      var title=String(label.childNodes[0]&&label.childNodes[0].textContent||label.textContent||'').trim();
-      title=title.replace(/\s*i\s*$/,'').trim();
-      var data=explain(title,rs,sum,pf), conf=confidenceLabel(rs,title);
-      var i=label.querySelector('.vertex-i');
-      if(i) i.setAttribute('data-tip', data.tip);
-      if(!label.querySelector('.vertex-2c-confidence')){
-        var c=document.createElement('span'); c.className='vertex-2c-confidence '+(conf==='High'?'':conf==='Medium'?'medium':'low'); c.textContent=conf+' confidence'; label.appendChild(c);
-      }else{
-        var c2=label.querySelector('.vertex-2c-confidence'); c2.className='vertex-2c-confidence '+(conf==='High'?'':conf==='Medium'?'medium':'low'); c2.textContent=conf+' confidence';
-      }
-      if(!card.querySelector('.vertex-2c-why')){
-        var why=document.createElement('div'); why.className='vertex-2c-why';
-        why.innerHTML='<b>Why this matters</b>'+esc(data.why)+'<div class="vertex-2c-evidence">'+(data.pills||[]).filter(Boolean).slice(0,3).map(function(p){return '<span class="vertex-2c-pill">'+esc(p)+'</span>';}).join('')+'</div>';
-        card.appendChild(why);
-      }
-    });
-  }
-  function enhanceCoachFeed(){
-    var el=document.getElementById('progressInsights'); if(!el) return;
-    el.querySelectorAll('.vertex-phase2b-card').forEach(function(card){
-      if(card.querySelector('.vertex-2c-why')) return;
-      var action=card.querySelector('.vertex-phase2b-action');
-      var whyText=card.querySelector('.vertex-phase2b-why');
-      var title=card.querySelector('.vertex-phase2b-title b');
-      var block=document.createElement('div'); block.className='vertex-2c-why';
-      block.innerHTML='<b>Decision logic</b>'+esc((whyText&&whyText.textContent)||'Vertex links the recommendation to recent training and recovery signals.')+'<div class="vertex-2c-evidence"><span class="vertex-2c-pill">Actionable</span><span class="vertex-2c-pill">Coach logic</span></div>';
-      if(whyText) whyText.style.display='none';
-      (action||card).insertAdjacentElement('afterend', block);
-      var i=card.querySelector('.vertex-i');
-      if(i && title) i.setAttribute('data-tip','Explains why '+String(title.textContent||'this recommendation').toLowerCase()+' is being shown and what decision it supports.');
-    });
-  }
-  function sync(){ enhanceDeck(); enhanceCoachFeed(); }
-  document.addEventListener('click',function(e){
-    var btn=e.target&&e.target.closest?e.target.closest('.vertex-i'):null;
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    document.querySelectorAll('.vertex-i.vertex-i-open').forEach(function(x){ if(x!==btn) x.classList.remove('vertex-i-open'); });
-    btn.classList.toggle('vertex-i-open');
-  },true);
-  document.addEventListener('click',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('.vertex-i')) return;
-    document.querySelectorAll('.vertex-i.vertex-i-open').forEach(function(x){x.classList.remove('vertex-i-open');});
-  },true);
-  [120,360,800,1500,2600].forEach(function(ms){setTimeout(sync,ms);});
-  var old=window.renderProgressPage;
-  if(typeof old==='function' && !old.__vertexPhase2CWrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(sync,120); setTimeout(sync,480); return out; };
-    wrapped.__vertexPhase2CWrapped=true; window.renderProgressPage=wrapped;
-  }
-  try{ var mo=new MutationObserver(function(){ clearTimeout(window.__vertexPhase2CTimer); window.__vertexPhase2CTimer=setTimeout(sync,110); }); document.addEventListener('DOMContentLoaded',function(){ if(document.body) mo.observe(document.body,{childList:true,subtree:true}); }); }catch(e){}
-  window.VertexPhase2CExplainability={sync:sync,enhanceDeck:enhanceDeck,enhanceCoachFeed:enhanceCoachFeed};
-})();
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -11332,36 +10905,40 @@ function renderSegmentTrends(){
     {key:'legsLeanLbs', label:'Legs Lean', color:'#48d0ff'}
   ];
   const fmtDate = d => { try{ return new Date(d+'T12:00:00').toLocaleDateString([],{month:'short',year:'2-digit'}); }catch(e){return d||'';} };
+  const safeNum = (v, fallback) => { const n = Number(v); return Number.isFinite(n) ? n : fallback; };
+  const safePoint = (x,y) => safeNum(x,0).toFixed(1) + ',' + safeNum(y,0).toFixed(1);
   container.innerHTML = segments.map(seg=>{
-    const vals = scans.map(s=>({date:s.date, val:s[seg.key]})).filter(x=>x.val!=null);
+    const vals = scans.map(s=>({date:s.date, val:safeNum(s[seg.key], NaN)})).filter(x=>Number.isFinite(x.val));
     if(vals.length < 2) return '';
     const first = vals[0], last = vals[vals.length-1];
-    const delta = (last.val - first.val).toFixed(1);
-    const deltaColor = parseFloat(delta) >= 0 ? 'var(--green)' : 'var(--red)';
-    const maxVal = Math.max(...vals.map(v=>v.val));
-    const minVal = Math.min(...vals.map(v=>v.val));
-    const range = maxVal - minVal || 1;
-    // Mini sparkline SVG
+    const deltaNum = safeNum(last.val - first.val, 0);
+    const delta = deltaNum.toFixed(1);
+    const deltaColor = deltaNum >= 0 ? 'var(--green)' : 'var(--red)';
+    const maxVal = Math.max.apply(null, vals.map(v=>v.val));
+    const minVal = Math.min.apply(null, vals.map(v=>v.val));
+    const range = safeNum(maxVal - minVal, 1) || 1;
     const W=120, H=36, pad=4;
-    const points = vals.map((v,i)=>{
-      const x = pad + (i/(vals.length-1))*(W-pad*2);
+    const coords = vals.map((v,i)=>{
+      const denom = Math.max(vals.length-1, 1);
+      const x = pad + (i/denom)*(W-pad*2);
       const y = H - pad - ((v.val-minVal)/range)*(H-pad*2);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
-    return `<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:14px">
-      <div style="flex:1;min-width:0">
-        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${seg.label}</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap">
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${seg.color};white-space:nowrap">${Number(last.val).toFixed(1)} lb</span>
-          <span style="font-size:11px;font-weight:700;color:${deltaColor};white-space:nowrap">${parseFloat(delta)>=0?'+':''}${delta} lb since ${fmtDate(first.date)}</span>
-        </div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px">${vals.length} scans · ${fmtDate(first.date)} → ${fmtDate(last.date)}</div>
-      </div>
-      <svg width="${W}" height="${H}" style="flex-shrink:0;overflow:visible">
-        <polyline points="${points}" fill="none" stroke="${seg.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
-        ${vals.map((v,i)=>{ const x=pad+(i/(vals.length-1))*(W-pad*2); const y=H-pad-((v.val-minVal)/range)*(H-pad*2); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${seg.color}" opacity="0.9"/>`; }).join('')}
-      </svg>
-    </div>`;
+      return {x:safeNum(x,pad), y:safeNum(y,H-pad)};
+    });
+    const points = coords.map(pt=>safePoint(pt.x,pt.y)).join(' ');
+    const circles = coords.map(pt=>'<circle cx="'+safeNum(pt.x,0).toFixed(1)+'" cy="'+safeNum(pt.y,0).toFixed(1)+'" r="3" fill="'+seg.color+'" opacity="0.9"/>').join('');
+    return '<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:14px">'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">'+seg.label+'</div>'
+      + '<div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap">'
+      + '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:'+seg.color+';white-space:nowrap">'+safeNum(last.val,0).toFixed(1)+' lb</span>'
+      + '<span style="font-size:11px;font-weight:700;color:'+deltaColor+';white-space:nowrap">'+(deltaNum>=0?'+':'')+delta+' lb since '+fmtDate(first.date)+'</span>'
+      + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);margin-top:2px">'+vals.length+' scans · '+fmtDate(first.date)+' → '+fmtDate(last.date)+'</div>'
+      + '</div>'
+      + '<svg width="'+W+'" height="'+H+'" style="flex-shrink:0;overflow:visible">'
+      + '<polyline points="'+points+'" fill="none" stroke="'+seg.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>'
+      + circles
+      + '</svg></div>';
   }).join('');
 }
 window.renderSegmentTrends = renderSegmentTrends;
@@ -11574,220 +11151,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-<style id="vertex-phase2c-explainability-css">
-/* v20260527 Phase 2C — Explainability layer only. No rail/auth/boot/SW architecture changes. */
-#progressPage .vertex-2c-why{
-  margin-top:10px;
-  padding-top:9px;
-  border-top:1px solid rgba(255,255,255,.07);
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.45;
-}
-#progressPage .vertex-2c-why b{
-  color:var(--text);
-  font-size:11px;
-  font-family:'DM Mono',monospace;
-  letter-spacing:1.2px;
-  text-transform:uppercase;
-  display:block;
-  margin-bottom:3px;
-}
-#progressPage .vertex-2c-evidence{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:9px;
-}
-#progressPage .vertex-2c-pill{
-  border:1px solid rgba(232,255,71,.22);
-  border-radius:999px;
-  padding:3px 7px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  color:var(--muted);
-  background:rgba(232,255,71,.025);
-}
-#progressPage .vertex-2c-confidence{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid rgba(72,255,138,.25);
-  color:var(--green);
-  border-radius:999px;
-  padding:2px 6px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  margin-left:6px;
-  white-space:nowrap;
-}
-#progressPage .vertex-2c-confidence.medium{border-color:rgba(232,255,71,.3);color:var(--acc);}
-#progressPage .vertex-2c-confidence.low{border-color:rgba(255,176,71,.35);color:var(--orange);}
-.vertex-i.vertex-i-open::after{
-  opacity:1!important;
-  visibility:visible!important;
-  transform:translateY(0)!important;
-  transition:opacity .16s ease,transform .16s ease,visibility 0s linear 0s!important;
-}
-#progressPage .vertex-phase2b-card .vertex-2c-why{
-  margin-top:8px;
-}
-@media(max-width:900px){
-  #progressPage .vertex-2c-evidence{gap:5px;}
-  #progressPage .vertex-2c-pill{font-size:8.5px;padding:3px 6px;}
-}
-</style>
-<script id="vertex-phase2c-explainability-layer">
-(function(){
-  'use strict';
-  if(window.__vertexPhase2CExplainabilityLayer) return;
-  window.__vertexPhase2CExplainabilityLayer=true;
-
-  function esc(v){
-    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
-    return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
-  }
-  function rows(){ try{return (typeof progressRows==='function'?progressRows():[])||[];}catch(e){return [];} }
-  function summary(rs){ try{return (typeof progressSummary==='function'?progressSummary(rs):{})||{};}catch(e){return {};} }
-  function perf(rs){ try{return (typeof performanceSummary==='function'?performanceSummary(rs):[])||[];}catch(e){return [];} }
-  function wk(){ try{return typeof weekStart==='function'?weekStart():new Date(Date.now()-7*86400000);}catch(e){return new Date(Date.now()-7*86400000);} }
-  function readiness(){
-    try{ if(window.VertexReadiness && typeof window.VertexReadiness.cached==='function'){ var r=window.VertexReadiness.cached()||{}; if(Number.isFinite(Number(r.score))) return Math.round(Number(r.score)); } }catch(e){}
-    try{ if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){ var x=window.VertexRecoveryInsights.build()||{}; if(Number.isFinite(Number(x.recovery))) return Math.round(Number(x.recovery)); } }catch(e){}
-    return null;
-  }
-  function muscleRank(rs){
-    var out={}, start=wk();
-    try{rs.forEach(function(r){ var dt=new Date(r.completed_at||r.created_at||0); if(dt<start) return; var m=(r.metrics&&r.metrics.muscles)||{}; Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+Number((m[k]&&m[k].sets)||0); });});}catch(e){}
-    return Object.keys(out).map(function(k){return {name:k,sets:out[k]};}).sort(function(a,b){return b.sets-a.sets;});
-  }
-  function confidenceLabel(rs, key){
-    var count=Array.isArray(rs)?rs.length:0;
-    if(key==='Imbalance Detection') return count>=4?'High':count>=2?'Medium':'Low';
-    if(key==='Longitudinal Trend') return count>=8?'High':count>=4?'Medium':'Low';
-    if(key==='Recovery Trend' || key==='Load Tolerance' || key==='Adaptive Coach') return readiness()!==null?(count>=3?'High':'Medium'):'Low';
-    if(key==='Workout Memory') return count>=5?'High':count>=2?'Medium':'Low';
-    return count>=3?'Medium':'Low';
-  }
-  function explain(title, rs, sum, pf){
-    var r=readiness(), rank=muscleRank(rs), top=rank[0], second=rank[1], sessions=((sum.thisWeek||[]).length||0), prev=((sum.prevWeek||[]).length||0), topMove=pf&&pf[0];
-    var library={
-      'Recovery Trend':{
-        tip:'Shows whether recovery is supporting training or asking for restraint. Built from readiness plus recent workload context.',
-        why:r===null?'Recovery confidence is low until readiness data is available.':'This matters because readiness tells you whether to push, maintain, or reduce training stress today.',
-        pills:[r===null?'Readiness pending':'Readiness '+r, sessions+' sessions']
-      },
-      'Load Tolerance':{
-        tip:'Interprets whether your current workload appears absorbable based on readiness and recent training frequency.',
-        why:'This matters because load tolerance is the difference between productive overload and fatigue accumulation.',
-        pills:[sessions+' this week', prev+' previous']
-      },
-      'Adaptive Coach':{
-        tip:'Converts readiness, strain, and consistency into a practical training action.',
-        why:'This matters because the app should tell you what to do next, not just report numbers.',
-        pills:[r===null?'No score':'Score '+r, sessions?'Active week':'Baseline']
-      },
-      'Cardio Strain':{
-        tip:'Reads connected cardio load when available so strength work is not interpreted in isolation.',
-        why:'This matters because hard cardio can reduce leg freshness, recovery capacity, and next-session output.',
-        pills:['Cardio context','Recovery input']
-      },
-      'Workout Memory':{
-        tip:'Tracks repeated exercises and exposure so Vertex can coach fatigue, progression, and movement history.',
-        why:topMove?'This matters because repeated exposure to '+topMove.name+' can drive progress or fatigue depending on dose.':'This matters because repeated movements are required before meaningful progression coaching is possible.',
-        pills:[topMove?topMove.name:'Movement pending', ((sum.totalSets||0)+' sets')]
-      },
-      'Weekly Intelligence':{
-        tip:'Compares this week against your recent training baseline to separate trend from one-off noise.',
-        why:'This matters because weekly training direction is more useful than a single isolated workout.',
-        pills:[sessions+' current', prev+' prior']
-      },
-      'Imbalance Detection':{
-        tip:'Flags when one muscle group materially outpaces another in the current week.',
-        why:(top&&second)?('This matters because '+top.name+' is being compared against '+second.name+' to catch over-concentration before it becomes fatigue or compensation.'):'This matters once enough muscle-group volume exists for comparison.',
-        pills:[top?(top.name+' '+top.sets):'Top pending', second?(second.name+' '+second.sets):'Second pending']
-      },
-      'Consistency':{
-        tip:'Tracks whether your weekly training cadence is building, stable, or slipping.',
-        why:'This matters because consistency is the base layer; progression works best after cadence is stable.',
-        pills:[sessions+' this week', (sessions-prev>=0?'+':'')+(sessions-prev)+' vs prior']
-      },
-      'Longitudinal Trend':{
-        tip:'Uses repeated history to understand direction over time instead of reacting to one day.',
-        why:'This matters because long-term trend separates real progress from normal daily volatility.',
-        pills:[rs.length+' logs', topMove?'Lift signal':'Need repeats']
-      }
-    };
-    return library[title]||{tip:'Vertex explains this card from your training history, readiness, strain, and trend context.',why:'This matters because the card should point to a clear training decision.',pills:['Training context']};
-  }
-  function enhanceDeck(){
-    var deck=document.getElementById('vertexB2ProgressDeck'); if(!deck) return;
-    var rs=rows(), sum=summary(rs), pf=perf(rs);
-    deck.querySelectorAll('.vertex-b2-card').forEach(function(card){
-      var label=card.querySelector('.label'); if(!label) return;
-      var title=String(label.childNodes[0]&&label.childNodes[0].textContent||label.textContent||'').trim();
-      title=title.replace(/\s*i\s*$/,'').trim();
-      var data=explain(title,rs,sum,pf), conf=confidenceLabel(rs,title);
-      var i=label.querySelector('.vertex-i');
-      if(i) i.setAttribute('data-tip', data.tip);
-      if(!label.querySelector('.vertex-2c-confidence')){
-        var c=document.createElement('span'); c.className='vertex-2c-confidence '+(conf==='High'?'':conf==='Medium'?'medium':'low'); c.textContent=conf+' confidence'; label.appendChild(c);
-      }else{
-        var c2=label.querySelector('.vertex-2c-confidence'); c2.className='vertex-2c-confidence '+(conf==='High'?'':conf==='Medium'?'medium':'low'); c2.textContent=conf+' confidence';
-      }
-      if(!card.querySelector('.vertex-2c-why')){
-        var why=document.createElement('div'); why.className='vertex-2c-why';
-        why.innerHTML='<b>Why this matters</b>'+esc(data.why)+'<div class="vertex-2c-evidence">'+(data.pills||[]).filter(Boolean).slice(0,3).map(function(p){return '<span class="vertex-2c-pill">'+esc(p)+'</span>';}).join('')+'</div>';
-        card.appendChild(why);
-      }
-    });
-  }
-  function enhanceCoachFeed(){
-    var el=document.getElementById('progressInsights'); if(!el) return;
-    el.querySelectorAll('.vertex-phase2b-card').forEach(function(card){
-      if(card.querySelector('.vertex-2c-why')) return;
-      var action=card.querySelector('.vertex-phase2b-action');
-      var whyText=card.querySelector('.vertex-phase2b-why');
-      var title=card.querySelector('.vertex-phase2b-title b');
-      var block=document.createElement('div'); block.className='vertex-2c-why';
-      block.innerHTML='<b>Decision logic</b>'+esc((whyText&&whyText.textContent)||'Vertex links the recommendation to recent training and recovery signals.')+'<div class="vertex-2c-evidence"><span class="vertex-2c-pill">Actionable</span><span class="vertex-2c-pill">Coach logic</span></div>';
-      if(whyText) whyText.style.display='none';
-      (action||card).insertAdjacentElement('afterend', block);
-      var i=card.querySelector('.vertex-i');
-      if(i && title) i.setAttribute('data-tip','Explains why '+String(title.textContent||'this recommendation').toLowerCase()+' is being shown and what decision it supports.');
-    });
-  }
-  function sync(){ enhanceDeck(); enhanceCoachFeed(); }
-  document.addEventListener('click',function(e){
-    var btn=e.target&&e.target.closest?e.target.closest('.vertex-i'):null;
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    document.querySelectorAll('.vertex-i.vertex-i-open').forEach(function(x){ if(x!==btn) x.classList.remove('vertex-i-open'); });
-    btn.classList.toggle('vertex-i-open');
-  },true);
-  document.addEventListener('click',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('.vertex-i')) return;
-    document.querySelectorAll('.vertex-i.vertex-i-open').forEach(function(x){x.classList.remove('vertex-i-open');});
-  },true);
-  [120,360,800,1500,2600].forEach(function(ms){setTimeout(sync,ms);});
-  var old=window.renderProgressPage;
-  if(typeof old==='function' && !old.__vertexPhase2CWrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(sync,120); setTimeout(sync,480); return out; };
-    wrapped.__vertexPhase2CWrapped=true; window.renderProgressPage=wrapped;
-  }
-  try{ var mo=new MutationObserver(function(){ clearTimeout(window.__vertexPhase2CTimer); window.__vertexPhase2CTimer=setTimeout(sync,110); }); document.addEventListener('DOMContentLoaded',function(){ if(document.body) mo.observe(document.body,{childList:true,subtree:true}); }); }catch(e){}
-  window.VertexPhase2CExplainability={sync:sync,enhanceDeck:enhanceDeck,enhanceCoachFeed:enhanceCoachFeed};
-})();
-</script>
-
 </body></html>`);
     w.document.close();
   };
@@ -11861,14 +11224,21 @@ function renderHomeSparklines(){
   Object.keys(localStorage).filter(k=>k.startsWith('vertex_health_entries')).forEach(k=>{try{JSON.parse(localStorage.getItem(k)||'[]').forEach(r=>{if(r&&r.bodyWeight&&r.date)allW.push(r);});}catch(e){}});
   const wByDate={};allW.forEach(r=>{if(r.date&&r.bodyWeight)wByDate[r.date]=r.bodyWeight;});
   const wRows=Object.entries(wByDate).sort((a,b)=>a[0].localeCompare(b[0])).slice(-7);
+  const safeNum=(v,fallback)=>{const n=Number(v);return Number.isFinite(n)?n:fallback;};
   const sparkSVG=(vals,color)=>{
-    const clean=vals.map(v=>parseFloat(v)).filter(v=>!isNaN(v));
-    if(clean.length<2) return `<svg width="80" height="28"><text x="4" y="18" font-size="9" fill="var(--muted)">—</text></svg>`;
-    const mn=Math.min(...clean),mx=Math.max(...clean),rng=mx-mn||1;
+    const clean=vals.map(v=>safeNum(v,NaN)).filter(v=>Number.isFinite(v));
+    if(clean.length<2) return '<svg width="80" height="28"><text x="4" y="18" font-size="9" fill="var(--muted)">—</text></svg>';
+    const mn=Math.min.apply(null,clean), mx=Math.max.apply(null,clean), rng=(mx-mn)||1;
     const W=80,H=28,pad=3;
-    const pts=clean.map((v,i)=>{const x=pad+(i/(clean.length-1))*(W-pad*2);const y=H-pad-((v-mn)/rng)*(H-pad*2);return `${x.toFixed(1)},${y.toFixed(1)}`;}).join(' ');
-    const last=pts.split(' ').pop().split(',');
-    return `<svg width="${W}" height="${H}" style="overflow:visible"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="${color}"/></svg>`;
+    const coords=clean.map((v,i)=>{
+      const denom=Math.max(clean.length-1,1);
+      const x=pad+(i/denom)*(W-pad*2);
+      const y=H-pad-((v-mn)/rng)*(H-pad*2);
+      return {x:safeNum(x,pad),y:safeNum(y,H-pad)};
+    });
+    const pts=coords.map(pt=>pt.x.toFixed(1)+','+pt.y.toFixed(1)).join(' ');
+    const last=coords[coords.length-1]||{x:pad,y:H-pad};
+    return '<svg width="'+W+'" height="'+H+'" style="overflow:visible"><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="'+last.x.toFixed(1)+'" cy="'+last.y.toFixed(1)+'" r="2.5" fill="'+color+'"/></svg>';
   };
   const cards=[
     {label:'Weight',unit:'lb',color:'var(--acc)',vals:wRows.map(r=>r[1]),latest:wRows.length?Number(wRows[wRows.length-1][1]).toFixed(1):null},
@@ -11876,7 +11246,7 @@ function renderHomeSparklines(){
     {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(r=>r.hrv),latest:last7.length&&last7[last7.length-1]?.hrv!=null?Math.round(last7[last7.length-1].hrv):null},
     {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(r=>r.readiness||r.readinessScore),latest:last7.length&&(last7[last7.length-1]?.readiness||last7[last7.length-1]?.readinessScore)!=null?(last7[last7.length-1].readiness||last7[last7.length-1].readinessScore):null}
   ];
-  el.innerHTML=cards.map(c=>`<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">${c.label}</div><div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px"><div><span class="vertex-sparkline-val" style="color:${c.color}">${c.latest??'—'}</span>${c.unit?`<span style="font-size:9px;color:var(--muted);margin-left:1px">${c.unit}</span>`:''}</div>${sparkSVG(c.vals,c.color)}</div></div>`).join('');
+  el.innerHTML=cards.map(c=>'<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">'+c.label+'</div><div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px"><div><span class="vertex-sparkline-val" style="color:'+c.color+'">'+(c.latest??'—')+'</span>'+(c.unit?'<span style="font-size:9px;color:var(--muted);margin-left:1px">'+c.unit+'</span>':'')+'</div>'+sparkSVG(c.vals,c.color)+'</div></div>').join('');
 }
 window.renderHomeSparklines=renderHomeSparklines;
 
@@ -12016,220 +11386,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-<style id="vertex-phase2c-explainability-css">
-/* v20260527 Phase 2C — Explainability layer only. No rail/auth/boot/SW architecture changes. */
-#progressPage .vertex-2c-why{
-  margin-top:10px;
-  padding-top:9px;
-  border-top:1px solid rgba(255,255,255,.07);
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.45;
-}
-#progressPage .vertex-2c-why b{
-  color:var(--text);
-  font-size:11px;
-  font-family:'DM Mono',monospace;
-  letter-spacing:1.2px;
-  text-transform:uppercase;
-  display:block;
-  margin-bottom:3px;
-}
-#progressPage .vertex-2c-evidence{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:9px;
-}
-#progressPage .vertex-2c-pill{
-  border:1px solid rgba(232,255,71,.22);
-  border-radius:999px;
-  padding:3px 7px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  color:var(--muted);
-  background:rgba(232,255,71,.025);
-}
-#progressPage .vertex-2c-confidence{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid rgba(72,255,138,.25);
-  color:var(--green);
-  border-radius:999px;
-  padding:2px 6px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  margin-left:6px;
-  white-space:nowrap;
-}
-#progressPage .vertex-2c-confidence.medium{border-color:rgba(232,255,71,.3);color:var(--acc);}
-#progressPage .vertex-2c-confidence.low{border-color:rgba(255,176,71,.35);color:var(--orange);}
-.vertex-i.vertex-i-open::after{
-  opacity:1!important;
-  visibility:visible!important;
-  transform:translateY(0)!important;
-  transition:opacity .16s ease,transform .16s ease,visibility 0s linear 0s!important;
-}
-#progressPage .vertex-phase2b-card .vertex-2c-why{
-  margin-top:8px;
-}
-@media(max-width:900px){
-  #progressPage .vertex-2c-evidence{gap:5px;}
-  #progressPage .vertex-2c-pill{font-size:8.5px;padding:3px 6px;}
-}
-</style>
-<script id="vertex-phase2c-explainability-layer">
-(function(){
-  'use strict';
-  if(window.__vertexPhase2CExplainabilityLayer) return;
-  window.__vertexPhase2CExplainabilityLayer=true;
-
-  function esc(v){
-    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
-    return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
-  }
-  function rows(){ try{return (typeof progressRows==='function'?progressRows():[])||[];}catch(e){return [];} }
-  function summary(rs){ try{return (typeof progressSummary==='function'?progressSummary(rs):{})||{};}catch(e){return {};} }
-  function perf(rs){ try{return (typeof performanceSummary==='function'?performanceSummary(rs):[])||[];}catch(e){return [];} }
-  function wk(){ try{return typeof weekStart==='function'?weekStart():new Date(Date.now()-7*86400000);}catch(e){return new Date(Date.now()-7*86400000);} }
-  function readiness(){
-    try{ if(window.VertexReadiness && typeof window.VertexReadiness.cached==='function'){ var r=window.VertexReadiness.cached()||{}; if(Number.isFinite(Number(r.score))) return Math.round(Number(r.score)); } }catch(e){}
-    try{ if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){ var x=window.VertexRecoveryInsights.build()||{}; if(Number.isFinite(Number(x.recovery))) return Math.round(Number(x.recovery)); } }catch(e){}
-    return null;
-  }
-  function muscleRank(rs){
-    var out={}, start=wk();
-    try{rs.forEach(function(r){ var dt=new Date(r.completed_at||r.created_at||0); if(dt<start) return; var m=(r.metrics&&r.metrics.muscles)||{}; Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+Number((m[k]&&m[k].sets)||0); });});}catch(e){}
-    return Object.keys(out).map(function(k){return {name:k,sets:out[k]};}).sort(function(a,b){return b.sets-a.sets;});
-  }
-  function confidenceLabel(rs, key){
-    var count=Array.isArray(rs)?rs.length:0;
-    if(key==='Imbalance Detection') return count>=4?'High':count>=2?'Medium':'Low';
-    if(key==='Longitudinal Trend') return count>=8?'High':count>=4?'Medium':'Low';
-    if(key==='Recovery Trend' || key==='Load Tolerance' || key==='Adaptive Coach') return readiness()!==null?(count>=3?'High':'Medium'):'Low';
-    if(key==='Workout Memory') return count>=5?'High':count>=2?'Medium':'Low';
-    return count>=3?'Medium':'Low';
-  }
-  function explain(title, rs, sum, pf){
-    var r=readiness(), rank=muscleRank(rs), top=rank[0], second=rank[1], sessions=((sum.thisWeek||[]).length||0), prev=((sum.prevWeek||[]).length||0), topMove=pf&&pf[0];
-    var library={
-      'Recovery Trend':{
-        tip:'Shows whether recovery is supporting training or asking for restraint. Built from readiness plus recent workload context.',
-        why:r===null?'Recovery confidence is low until readiness data is available.':'This matters because readiness tells you whether to push, maintain, or reduce training stress today.',
-        pills:[r===null?'Readiness pending':'Readiness '+r, sessions+' sessions']
-      },
-      'Load Tolerance':{
-        tip:'Interprets whether your current workload appears absorbable based on readiness and recent training frequency.',
-        why:'This matters because load tolerance is the difference between productive overload and fatigue accumulation.',
-        pills:[sessions+' this week', prev+' previous']
-      },
-      'Adaptive Coach':{
-        tip:'Converts readiness, strain, and consistency into a practical training action.',
-        why:'This matters because the app should tell you what to do next, not just report numbers.',
-        pills:[r===null?'No score':'Score '+r, sessions?'Active week':'Baseline']
-      },
-      'Cardio Strain':{
-        tip:'Reads connected cardio load when available so strength work is not interpreted in isolation.',
-        why:'This matters because hard cardio can reduce leg freshness, recovery capacity, and next-session output.',
-        pills:['Cardio context','Recovery input']
-      },
-      'Workout Memory':{
-        tip:'Tracks repeated exercises and exposure so Vertex can coach fatigue, progression, and movement history.',
-        why:topMove?'This matters because repeated exposure to '+topMove.name+' can drive progress or fatigue depending on dose.':'This matters because repeated movements are required before meaningful progression coaching is possible.',
-        pills:[topMove?topMove.name:'Movement pending', ((sum.totalSets||0)+' sets')]
-      },
-      'Weekly Intelligence':{
-        tip:'Compares this week against your recent training baseline to separate trend from one-off noise.',
-        why:'This matters because weekly training direction is more useful than a single isolated workout.',
-        pills:[sessions+' current', prev+' prior']
-      },
-      'Imbalance Detection':{
-        tip:'Flags when one muscle group materially outpaces another in the current week.',
-        why:(top&&second)?('This matters because '+top.name+' is being compared against '+second.name+' to catch over-concentration before it becomes fatigue or compensation.'):'This matters once enough muscle-group volume exists for comparison.',
-        pills:[top?(top.name+' '+top.sets):'Top pending', second?(second.name+' '+second.sets):'Second pending']
-      },
-      'Consistency':{
-        tip:'Tracks whether your weekly training cadence is building, stable, or slipping.',
-        why:'This matters because consistency is the base layer; progression works best after cadence is stable.',
-        pills:[sessions+' this week', (sessions-prev>=0?'+':'')+(sessions-prev)+' vs prior']
-      },
-      'Longitudinal Trend':{
-        tip:'Uses repeated history to understand direction over time instead of reacting to one day.',
-        why:'This matters because long-term trend separates real progress from normal daily volatility.',
-        pills:[rs.length+' logs', topMove?'Lift signal':'Need repeats']
-      }
-    };
-    return library[title]||{tip:'Vertex explains this card from your training history, readiness, strain, and trend context.',why:'This matters because the card should point to a clear training decision.',pills:['Training context']};
-  }
-  function enhanceDeck(){
-    var deck=document.getElementById('vertexB2ProgressDeck'); if(!deck) return;
-    var rs=rows(), sum=summary(rs), pf=perf(rs);
-    deck.querySelectorAll('.vertex-b2-card').forEach(function(card){
-      var label=card.querySelector('.label'); if(!label) return;
-      var title=String(label.childNodes[0]&&label.childNodes[0].textContent||label.textContent||'').trim();
-      title=title.replace(/\s*i\s*$/,'').trim();
-      var data=explain(title,rs,sum,pf), conf=confidenceLabel(rs,title);
-      var i=label.querySelector('.vertex-i');
-      if(i) i.setAttribute('data-tip', data.tip);
-      if(!label.querySelector('.vertex-2c-confidence')){
-        var c=document.createElement('span'); c.className='vertex-2c-confidence '+(conf==='High'?'':conf==='Medium'?'medium':'low'); c.textContent=conf+' confidence'; label.appendChild(c);
-      }else{
-        var c2=label.querySelector('.vertex-2c-confidence'); c2.className='vertex-2c-confidence '+(conf==='High'?'':conf==='Medium'?'medium':'low'); c2.textContent=conf+' confidence';
-      }
-      if(!card.querySelector('.vertex-2c-why')){
-        var why=document.createElement('div'); why.className='vertex-2c-why';
-        why.innerHTML='<b>Why this matters</b>'+esc(data.why)+'<div class="vertex-2c-evidence">'+(data.pills||[]).filter(Boolean).slice(0,3).map(function(p){return '<span class="vertex-2c-pill">'+esc(p)+'</span>';}).join('')+'</div>';
-        card.appendChild(why);
-      }
-    });
-  }
-  function enhanceCoachFeed(){
-    var el=document.getElementById('progressInsights'); if(!el) return;
-    el.querySelectorAll('.vertex-phase2b-card').forEach(function(card){
-      if(card.querySelector('.vertex-2c-why')) return;
-      var action=card.querySelector('.vertex-phase2b-action');
-      var whyText=card.querySelector('.vertex-phase2b-why');
-      var title=card.querySelector('.vertex-phase2b-title b');
-      var block=document.createElement('div'); block.className='vertex-2c-why';
-      block.innerHTML='<b>Decision logic</b>'+esc((whyText&&whyText.textContent)||'Vertex links the recommendation to recent training and recovery signals.')+'<div class="vertex-2c-evidence"><span class="vertex-2c-pill">Actionable</span><span class="vertex-2c-pill">Coach logic</span></div>';
-      if(whyText) whyText.style.display='none';
-      (action||card).insertAdjacentElement('afterend', block);
-      var i=card.querySelector('.vertex-i');
-      if(i && title) i.setAttribute('data-tip','Explains why '+String(title.textContent||'this recommendation').toLowerCase()+' is being shown and what decision it supports.');
-    });
-  }
-  function sync(){ enhanceDeck(); enhanceCoachFeed(); }
-  document.addEventListener('click',function(e){
-    var btn=e.target&&e.target.closest?e.target.closest('.vertex-i'):null;
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    document.querySelectorAll('.vertex-i.vertex-i-open').forEach(function(x){ if(x!==btn) x.classList.remove('vertex-i-open'); });
-    btn.classList.toggle('vertex-i-open');
-  },true);
-  document.addEventListener('click',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('.vertex-i')) return;
-    document.querySelectorAll('.vertex-i.vertex-i-open').forEach(function(x){x.classList.remove('vertex-i-open');});
-  },true);
-  [120,360,800,1500,2600].forEach(function(ms){setTimeout(sync,ms);});
-  var old=window.renderProgressPage;
-  if(typeof old==='function' && !old.__vertexPhase2CWrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(sync,120); setTimeout(sync,480); return out; };
-    wrapped.__vertexPhase2CWrapped=true; window.renderProgressPage=wrapped;
-  }
-  try{ var mo=new MutationObserver(function(){ clearTimeout(window.__vertexPhase2CTimer); window.__vertexPhase2CTimer=setTimeout(sync,110); }); document.addEventListener('DOMContentLoaded',function(){ if(document.body) mo.observe(document.body,{childList:true,subtree:true}); }); }catch(e){}
-  window.VertexPhase2CExplainability={sync:sync,enhanceDeck:enhanceDeck,enhanceCoachFeed:enhanceCoachFeed};
-})();
-</script>
-
 </body></html>`);
   w.document.close();
 }
@@ -12730,6 +11886,8 @@ async function vertexRequestNotifPermission(){
 }
 function vertexShowNotifSettings(){
   const prefs=vertexGetNotifPrefs();
+  const workoutTime = String(prefs.workoutHour || 8).padStart(2,'0') + ':00';
+  const checkinTime = String(prefs.checkinHour || 20).padStart(2,'0') + ':00';
   document.getElementById('vertex-notif-modal')?.remove();
   const m=document.createElement('div'); m.id='vertex-notif-modal'; m.className='modal-overlay on';
   m.innerHTML=`<div class="modal" style="max-width:400px">
@@ -12738,11 +11896,11 @@ function vertexShowNotifSettings(){
     <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Active while Vertex is open in your browser. Background push on mobile requires APNs setup.</p>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
       <div><div style="font-weight:700">Workout Reminder</div><div style="font-size:12px;color:var(--muted)">Daily reminder to train</div></div>
-      <input type="time" id="vn-wt" value="${String(prefs.workoutHour||8).padStart(2,'0')}:00" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
+      <input type="time" id="vn-wt" value="${workoutTime}" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-bottom:16px">
       <div><div style="font-weight:700">Check-In Reminder</div><div style="font-size:12px;color:var(--muted)">Evening wellness check-in</div></div>
-      <input type="time" id="vn-ct" value="${String(prefs.checkinHour||20).padStart(2,'0')}:00" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
+      <input type="time" id="vn-ct" value="${checkinTime}" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn acc" id="vn-save" style="flex:1">Save</button>
@@ -19460,220 +18618,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 </script>
 
 
-
-
-
-<style id="vertex-phase2c-explainability-css">
-/* v20260527 Phase 2C — Explainability layer only. No rail/auth/boot/SW architecture changes. */
-#progressPage .vertex-2c-why{
-  margin-top:10px;
-  padding-top:9px;
-  border-top:1px solid rgba(255,255,255,.07);
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.45;
-}
-#progressPage .vertex-2c-why b{
-  color:var(--text);
-  font-size:11px;
-  font-family:'DM Mono',monospace;
-  letter-spacing:1.2px;
-  text-transform:uppercase;
-  display:block;
-  margin-bottom:3px;
-}
-#progressPage .vertex-2c-evidence{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:9px;
-}
-#progressPage .vertex-2c-pill{
-  border:1px solid rgba(232,255,71,.22);
-  border-radius:999px;
-  padding:3px 7px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  color:var(--muted);
-  background:rgba(232,255,71,.025);
-}
-#progressPage .vertex-2c-confidence{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid rgba(72,255,138,.25);
-  color:var(--green);
-  border-radius:999px;
-  padding:2px 6px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  margin-left:6px;
-  white-space:nowrap;
-}
-#progressPage .vertex-2c-confidence.medium{border-color:rgba(232,255,71,.3);color:var(--acc);}
-#progressPage .vertex-2c-confidence.low{border-color:rgba(255,176,71,.35);color:var(--orange);}
-.vertex-i.vertex-i-open::after{
-  opacity:1!important;
-  visibility:visible!important;
-  transform:translateY(0)!important;
-  transition:opacity .16s ease,transform .16s ease,visibility 0s linear 0s!important;
-}
-#progressPage .vertex-phase2b-card .vertex-2c-why{
-  margin-top:8px;
-}
-@media(max-width:900px){
-  #progressPage .vertex-2c-evidence{gap:5px;}
-  #progressPage .vertex-2c-pill{font-size:8.5px;padding:3px 6px;}
-}
-</style>
-<script id="vertex-phase2c-explainability-layer">
-(function(){
-  'use strict';
-  if(window.__vertexPhase2CExplainabilityLayer) return;
-  window.__vertexPhase2CExplainabilityLayer=true;
-
-  function esc(v){
-    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
-    return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
-  }
-  function rows(){ try{return (typeof progressRows==='function'?progressRows():[])||[];}catch(e){return [];} }
-  function summary(rs){ try{return (typeof progressSummary==='function'?progressSummary(rs):{})||{};}catch(e){return {};} }
-  function perf(rs){ try{return (typeof performanceSummary==='function'?performanceSummary(rs):[])||[];}catch(e){return [];} }
-  function wk(){ try{return typeof weekStart==='function'?weekStart():new Date(Date.now()-7*86400000);}catch(e){return new Date(Date.now()-7*86400000);} }
-  function readiness(){
-    try{ if(window.VertexReadiness && typeof window.VertexReadiness.cached==='function'){ var r=window.VertexReadiness.cached()||{}; if(Number.isFinite(Number(r.score))) return Math.round(Number(r.score)); } }catch(e){}
-    try{ if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){ var x=window.VertexRecoveryInsights.build()||{}; if(Number.isFinite(Number(x.recovery))) return Math.round(Number(x.recovery)); } }catch(e){}
-    return null;
-  }
-  function muscleRank(rs){
-    var out={}, start=wk();
-    try{rs.forEach(function(r){ var dt=new Date(r.completed_at||r.created_at||0); if(dt<start) return; var m=(r.metrics&&r.metrics.muscles)||{}; Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+Number((m[k]&&m[k].sets)||0); });});}catch(e){}
-    return Object.keys(out).map(function(k){return {name:k,sets:out[k]};}).sort(function(a,b){return b.sets-a.sets;});
-  }
-  function confidenceLabel(rs, key){
-    var count=Array.isArray(rs)?rs.length:0;
-    if(key==='Imbalance Detection') return count>=4?'High':count>=2?'Medium':'Low';
-    if(key==='Longitudinal Trend') return count>=8?'High':count>=4?'Medium':'Low';
-    if(key==='Recovery Trend' || key==='Load Tolerance' || key==='Adaptive Coach') return readiness()!==null?(count>=3?'High':'Medium'):'Low';
-    if(key==='Workout Memory') return count>=5?'High':count>=2?'Medium':'Low';
-    return count>=3?'Medium':'Low';
-  }
-  function explain(title, rs, sum, pf){
-    var r=readiness(), rank=muscleRank(rs), top=rank[0], second=rank[1], sessions=((sum.thisWeek||[]).length||0), prev=((sum.prevWeek||[]).length||0), topMove=pf&&pf[0];
-    var library={
-      'Recovery Trend':{
-        tip:'Shows whether recovery is supporting training or asking for restraint. Built from readiness plus recent workload context.',
-        why:r===null?'Recovery confidence is low until readiness data is available.':'This matters because readiness tells you whether to push, maintain, or reduce training stress today.',
-        pills:[r===null?'Readiness pending':'Readiness '+r, sessions+' sessions']
-      },
-      'Load Tolerance':{
-        tip:'Interprets whether your current workload appears absorbable based on readiness and recent training frequency.',
-        why:'This matters because load tolerance is the difference between productive overload and fatigue accumulation.',
-        pills:[sessions+' this week', prev+' previous']
-      },
-      'Adaptive Coach':{
-        tip:'Converts readiness, strain, and consistency into a practical training action.',
-        why:'This matters because the app should tell you what to do next, not just report numbers.',
-        pills:[r===null?'No score':'Score '+r, sessions?'Active week':'Baseline']
-      },
-      'Cardio Strain':{
-        tip:'Reads connected cardio load when available so strength work is not interpreted in isolation.',
-        why:'This matters because hard cardio can reduce leg freshness, recovery capacity, and next-session output.',
-        pills:['Cardio context','Recovery input']
-      },
-      'Workout Memory':{
-        tip:'Tracks repeated exercises and exposure so Vertex can coach fatigue, progression, and movement history.',
-        why:topMove?'This matters because repeated exposure to '+topMove.name+' can drive progress or fatigue depending on dose.':'This matters because repeated movements are required before meaningful progression coaching is possible.',
-        pills:[topMove?topMove.name:'Movement pending', ((sum.totalSets||0)+' sets')]
-      },
-      'Weekly Intelligence':{
-        tip:'Compares this week against your recent training baseline to separate trend from one-off noise.',
-        why:'This matters because weekly training direction is more useful than a single isolated workout.',
-        pills:[sessions+' current', prev+' prior']
-      },
-      'Imbalance Detection':{
-        tip:'Flags when one muscle group materially outpaces another in the current week.',
-        why:(top&&second)?('This matters because '+top.name+' is being compared against '+second.name+' to catch over-concentration before it becomes fatigue or compensation.'):'This matters once enough muscle-group volume exists for comparison.',
-        pills:[top?(top.name+' '+top.sets):'Top pending', second?(second.name+' '+second.sets):'Second pending']
-      },
-      'Consistency':{
-        tip:'Tracks whether your weekly training cadence is building, stable, or slipping.',
-        why:'This matters because consistency is the base layer; progression works best after cadence is stable.',
-        pills:[sessions+' this week', (sessions-prev>=0?'+':'')+(sessions-prev)+' vs prior']
-      },
-      'Longitudinal Trend':{
-        tip:'Uses repeated history to understand direction over time instead of reacting to one day.',
-        why:'This matters because long-term trend separates real progress from normal daily volatility.',
-        pills:[rs.length+' logs', topMove?'Lift signal':'Need repeats']
-      }
-    };
-    return library[title]||{tip:'Vertex explains this card from your training history, readiness, strain, and trend context.',why:'This matters because the card should point to a clear training decision.',pills:['Training context']};
-  }
-  function enhanceDeck(){
-    var deck=document.getElementById('vertexB2ProgressDeck'); if(!deck) return;
-    var rs=rows(), sum=summary(rs), pf=perf(rs);
-    deck.querySelectorAll('.vertex-b2-card').forEach(function(card){
-      var label=card.querySelector('.label'); if(!label) return;
-      var title=String(label.childNodes[0]&&label.childNodes[0].textContent||label.textContent||'').trim();
-      title=title.replace(/\s*i\s*$/,'').trim();
-      var data=explain(title,rs,sum,pf), conf=confidenceLabel(rs,title);
-      var i=label.querySelector('.vertex-i');
-      if(i) i.setAttribute('data-tip', data.tip);
-      if(!label.querySelector('.vertex-2c-confidence')){
-        var c=document.createElement('span'); c.className='vertex-2c-confidence '+(conf==='High'?'':conf==='Medium'?'medium':'low'); c.textContent=conf+' confidence'; label.appendChild(c);
-      }else{
-        var c2=label.querySelector('.vertex-2c-confidence'); c2.className='vertex-2c-confidence '+(conf==='High'?'':conf==='Medium'?'medium':'low'); c2.textContent=conf+' confidence';
-      }
-      if(!card.querySelector('.vertex-2c-why')){
-        var why=document.createElement('div'); why.className='vertex-2c-why';
-        why.innerHTML='<b>Why this matters</b>'+esc(data.why)+'<div class="vertex-2c-evidence">'+(data.pills||[]).filter(Boolean).slice(0,3).map(function(p){return '<span class="vertex-2c-pill">'+esc(p)+'</span>';}).join('')+'</div>';
-        card.appendChild(why);
-      }
-    });
-  }
-  function enhanceCoachFeed(){
-    var el=document.getElementById('progressInsights'); if(!el) return;
-    el.querySelectorAll('.vertex-phase2b-card').forEach(function(card){
-      if(card.querySelector('.vertex-2c-why')) return;
-      var action=card.querySelector('.vertex-phase2b-action');
-      var whyText=card.querySelector('.vertex-phase2b-why');
-      var title=card.querySelector('.vertex-phase2b-title b');
-      var block=document.createElement('div'); block.className='vertex-2c-why';
-      block.innerHTML='<b>Decision logic</b>'+esc((whyText&&whyText.textContent)||'Vertex links the recommendation to recent training and recovery signals.')+'<div class="vertex-2c-evidence"><span class="vertex-2c-pill">Actionable</span><span class="vertex-2c-pill">Coach logic</span></div>';
-      if(whyText) whyText.style.display='none';
-      (action||card).insertAdjacentElement('afterend', block);
-      var i=card.querySelector('.vertex-i');
-      if(i && title) i.setAttribute('data-tip','Explains why '+String(title.textContent||'this recommendation').toLowerCase()+' is being shown and what decision it supports.');
-    });
-  }
-  function sync(){ enhanceDeck(); enhanceCoachFeed(); }
-  document.addEventListener('click',function(e){
-    var btn=e.target&&e.target.closest?e.target.closest('.vertex-i'):null;
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    document.querySelectorAll('.vertex-i.vertex-i-open').forEach(function(x){ if(x!==btn) x.classList.remove('vertex-i-open'); });
-    btn.classList.toggle('vertex-i-open');
-  },true);
-  document.addEventListener('click',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('.vertex-i')) return;
-    document.querySelectorAll('.vertex-i.vertex-i-open').forEach(function(x){x.classList.remove('vertex-i-open');});
-  },true);
-  [120,360,800,1500,2600].forEach(function(ms){setTimeout(sync,ms);});
-  var old=window.renderProgressPage;
-  if(typeof old==='function' && !old.__vertexPhase2CWrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(sync,120); setTimeout(sync,480); return out; };
-    wrapped.__vertexPhase2CWrapped=true; window.renderProgressPage=wrapped;
-  }
-  try{ var mo=new MutationObserver(function(){ clearTimeout(window.__vertexPhase2CTimer); window.__vertexPhase2CTimer=setTimeout(sync,110); }); document.addEventListener('DOMContentLoaded',function(){ if(document.body) mo.observe(document.body,{childList:true,subtree:true}); }); }catch(e){}
-  window.VertexPhase2CExplainability={sync:sync,enhanceDeck:enhanceDeck,enhanceCoachFeed:enhanceCoachFeed};
-})();
-</script>
 
 </body>
 </html>

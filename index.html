@@ -8938,6 +8938,168 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
+
+
+<style id="vertex-phase-b2-mobile-swipe-fix">
+/* Phase B2 mobile repair — two independent KPI swipe rows; desktop unchanged */
+@media(max-width:900px){
+  body.app-page-progress #vertexProgressIntelligenceHolder{
+    display:flex!important;
+    flex-direction:column!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:visible!important;
+  }
+  body.app-page-progress .vertex-b2-swipe-row{
+    display:flex!important;
+    flex-direction:row!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    width:calc(100% + 4px)!important;
+    margin:0 -2px!important;
+    padding:0 2px 8px!important;
+  }
+  body.app-page-progress .vertex-b2-swipe-row::-webkit-scrollbar{display:none!important;}
+  body.app-page-progress .vertex-b2-swipe-row > div{
+    flex:0 0 min(78vw,330px)!important;
+    width:min(78vw,330px)!important;
+    min-width:min(78vw,330px)!important;
+    scroll-snap-align:start;
+    box-sizing:border-box!important;
+  }
+  body.app-page-progress #vertexRecoveryTrendPanel,
+  body.app-page-progress #vertexTolerancePanel,
+  body.app-page-progress #intelAcc,
+  body.app-page-progress .vertex-movement-history-card,
+  body.app-page-progress #ptab-history .progress-card{
+    width:100%!important;
+    max-width:100%!important;
+    flex:none!important;
+    grid-column:1/-1!important;
+  }
+}
+</style>
+
+<script id="vertex-phase-b2-mobile-swipe-fix-script">
+/* Phase B2 mobile repair only — layout/color/order; no chart/auth/sync/planner/recovery logic changes */
+(function(){
+  var ROW1 = ['vertexStrainPanel','vertexConsistencyPanel','vertexWorkoutPersistencePanel'];
+  var ROW2 = ['vertexCardioStrainPanel','vertexAdaptiveCoachPanel','vertexLongTrendPanel','vertexProgressionPanel','vertexPerformanceDecisionPanel'];
+  var FULL_TOP = ['vertexRecoveryTrendPanel'];
+  var FULL_BOTTOM = ['vertexTolerancePanel'];
+
+  function byId(id){ return document.getElementById(id); }
+  function mobile(){ return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; }
+  function isProgress(){
+    try{
+      var on = document.querySelector('.nav button.on');
+      return document.body.classList.contains('app-page-progress') || (on && String(on.textContent||'').trim().toLowerCase()==='progress');
+    }catch(e){ return false; }
+  }
+  function ensureRow(holder,id,label){
+    var row = byId(id);
+    if(!row){
+      row = document.createElement('div');
+      row.id = id;
+      row.className = 'vertex-b2-swipe-row';
+      row.setAttribute('aria-label', label);
+    }
+    if(row.parentNode !== holder) holder.appendChild(row);
+    return row;
+  }
+  function appendExisting(parent, ids){
+    ids.forEach(function(id){
+      var el = byId(id);
+      if(el) parent.appendChild(el);
+    });
+  }
+  function unwrapRows(holder){
+    ['vertexB2SwipeRow1','vertexB2SwipeRow2'].forEach(function(id){
+      var row = byId(id);
+      if(!row || row.parentNode !== holder) return;
+      while(row.firstChild) holder.insertBefore(row.firstChild,row);
+      row.remove();
+    });
+  }
+  function labelMovementHistory(){
+    var progress = byId('progressPage');
+    if(!progress) return;
+    Array.from(progress.querySelectorAll('.label')).forEach(function(el){
+      var t = String(el.textContent||'').trim();
+      if(t === 'Workout History' || t === 'Recent Logs' || t === 'Movement History'){
+        el.textContent = 'Movement History';
+        var card = el.closest('.progress-card') || el.closest('section') || el.parentElement;
+        if(card) card.classList.add('vertex-movement-history-card');
+      }
+    });
+  }
+  function colorFor(text, context){
+    var t = String(text||'').toLowerCase();
+    if(/critical|overreach|overreached|excessive|very high|reduce now|stop/.test(t)) return 'var(--red)';
+    if(context === 'strain' && /moderate\s*[–-]\s*high|moderate\s*\/\s*sustainable|moderate/.test(t)) return 'var(--green)';
+    if(/high|elevated|declining|fatigue|watch|caution|reduce|recovery priority|limited/.test(t)) return 'var(--orange)';
+    if(/low|good|stable|improving|sustainable|aligned|favorable|ready|recovered|maintain|push with control|progression|baseline building|no cardio load/.test(t)) return 'var(--green)';
+    if(/pending|not enough|no current|baseline pending/.test(t)) return 'var(--muted)';
+    return '';
+  }
+  function applyColors(){
+    var map = {
+      vertexStrainPanel:'strain', vertexRecoveryTrendPanel:'recovery', vertexTolerancePanel:'tolerance',
+      vertexConsistencyPanel:'consistency', vertexCardioStrainPanel:'strain', vertexAdaptiveCoachPanel:'coach',
+      vertexLongTrendPanel:'trend', vertexProgressionPanel:'progression', vertexPerformanceDecisionPanel:'decision',
+      vertexWorkoutPersistencePanel:'memory'
+    };
+    Object.keys(map).forEach(function(id){
+      var p = byId(id); if(!p) return;
+      var status = p.querySelector('.vertex-panel-body > div:first-child'); if(!status) return;
+      var c = colorFor(status.textContent, map[id]); if(c) status.style.color = c;
+    });
+  }
+  function organize(){
+    try{
+      labelMovementHistory();
+      applyColors();
+      var holder = byId('vertexProgressIntelligenceHolder');
+      if(!holder) return;
+      if(!mobile() || !isProgress()){
+        unwrapRows(holder);
+        return;
+      }
+      var row1 = ensureRow(holder,'vertexB2SwipeRow1','Progress KPI row 1');
+      var row2 = ensureRow(holder,'vertexB2SwipeRow2','Progress KPI row 2');
+      appendExisting(row1, ROW1);
+      appendExisting(row2, ROW2);
+      FULL_TOP.slice().reverse().forEach(function(id){ var el=byId(id); if(el) holder.insertBefore(el, holder.firstChild); });
+      if(row1.parentNode === holder) holder.insertBefore(row1, byId('vertexTolerancePanel') || null);
+      if(row2.parentNode === holder) holder.insertBefore(row2, byId('vertexTolerancePanel') || null);
+      appendExisting(holder, FULL_BOTTOM);
+    }catch(e){}
+  }
+  function schedule(){
+    organize();
+    setTimeout(organize,150);
+    setTimeout(organize,600);
+    setTimeout(organize,1500);
+    setTimeout(organize,3200);
+  }
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(organize,150); });
+  document.addEventListener('click', function(){ setTimeout(organize,220); }, true);
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__vertexB2SwipeTimer);
+      window.__vertexB2SwipeTimer = setTimeout(organize,120);
+    }).observe(document.body || document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
+  }catch(e){}
+})();
+</script>
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }

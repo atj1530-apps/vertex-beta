@@ -9297,6 +9297,15 @@ body.app-page-progress #progressPage.vertex-p2-carousel-locked #ptab-history #ve
 }
 </style>
 
+
+<!-- build: vertex_phase2a_progress_carousels_no_home_sparks | source: true-carousel build | removed Home SVG spark renderer -->
+<style id="vertex-final-mobile-carousel-lock">
+@media(max-width:900px){
+  #progressPage .vertex-p2-scroll-row{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important;padding:0 20px 6px 0!important;margin:0!important;}
+  #progressPage .vertex-p2-scroll-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-p2-scroll-row .vertex-b2-card{flex:0 0 86%!important;width:86%!important;min-width:86%!important;max-width:86%!important;scroll-snap-align:start!important;}
+}
+</style>
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -10913,6 +10922,15 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+<!-- build: vertex_phase2a_progress_carousels_no_home_sparks | source: true-carousel build | removed Home SVG spark renderer -->
+<style id="vertex-final-mobile-carousel-lock">
+@media(max-width:900px){
+  #progressPage .vertex-p2-scroll-row{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important;padding:0 20px 6px 0!important;margin:0!important;}
+  #progressPage .vertex-p2-scroll-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-p2-scroll-row .vertex-b2-card{flex:0 0 86%!important;width:86%!important;min-width:86%!important;max-width:86%!important;scroll-snap-align:start!important;}
+}
+</style>
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -11178,6 +11196,15 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+<!-- build: vertex_phase2a_progress_carousels_no_home_sparks | source: true-carousel build | removed Home SVG spark renderer -->
+<style id="vertex-final-mobile-carousel-lock">
+@media(max-width:900px){
+  #progressPage .vertex-p2-scroll-row{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important;padding:0 20px 6px 0!important;margin:0!important;}
+  #progressPage .vertex-p2-scroll-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-p2-scroll-row .vertex-b2-card{flex:0 0 86%!important;width:86%!important;min-width:86%!important;max-width:86%!important;scroll-snap-align:start!important;}
+}
+</style>
 </body></html>`);
     w.document.close();
   };
@@ -11241,7 +11268,7 @@ Coach recommendation: ${r.action}`;
 }
 window.renderDailyBrief=renderDailyBrief;
 
-// ── HOME SPARKLINES ───────────────────────────────────────────────────────────
+// ── HOME SUMMARY METRICS (NO SVG SPARKLINES) ────────────────────────────────
 function renderHomeSparklines(){
   const el=document.getElementById('vertex-sparklines-row');
   if(!el) return;
@@ -11251,22 +11278,13 @@ function renderHomeSparklines(){
   Object.keys(localStorage).filter(k=>k.startsWith('vertex_health_entries')).forEach(k=>{try{JSON.parse(localStorage.getItem(k)||'[]').forEach(r=>{if(r&&r.bodyWeight&&r.date)allW.push(r);});}catch(e){}});
   const wByDate={};allW.forEach(r=>{if(r.date&&r.bodyWeight)wByDate[r.date]=r.bodyWeight;});
   const wRows=Object.entries(wByDate).sort((a,b)=>a[0].localeCompare(b[0])).slice(-7);
-  const sparkSVG=(vals,color)=>{
-    const clean=vals.map(v=>parseFloat(v)).filter(v=>!isNaN(v));
-    if(clean.length<2) return `<svg width="80" height="28"><text x="4" y="18" font-size="9" fill="var(--muted)">—</text></svg>`;
-    const mn=Math.min(...clean),mx=Math.max(...clean),rng=mx-mn||1;
-    const W=80,H=28,pad=3;
-    const pts=clean.map((v,i)=>{const x=pad+(i/(clean.length-1))*(W-pad*2);const y=H-pad-((v-mn)/rng)*(H-pad*2);return `${x.toFixed(1)},${y.toFixed(1)}`;}).join(' ');
-    const last=pts.split(' ').pop().split(',');
-    return `<svg width="${W}" height="${H}" style="overflow:visible"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="${color}"/></svg>`;
-  };
   const cards=[
-    {label:'Weight',unit:'lb',color:'var(--acc)',vals:wRows.map(r=>r[1]),latest:wRows.length?Number(wRows[wRows.length-1][1]).toFixed(1):null},
-    {label:'Sleep',unit:'h',color:'#48d0ff',vals:last7.map(r=>r.sleepHours),latest:last7.length&&last7[last7.length-1]?.sleepHours!=null?Number(last7[last7.length-1].sleepHours).toFixed(1):null},
-    {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(r=>r.hrv),latest:last7.length&&last7[last7.length-1]?.hrv!=null?Math.round(last7[last7.length-1].hrv):null},
-    {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(r=>r.readiness||r.readinessScore),latest:last7.length&&(last7[last7.length-1]?.readiness||last7[last7.length-1]?.readinessScore)!=null?(last7[last7.length-1].readiness||last7[last7.length-1].readinessScore):null}
+    {label:'Weight',unit:'lb',color:'var(--acc)',latest:wRows.length?Number(wRows[wRows.length-1][1]).toFixed(1):null},
+    {label:'Sleep',unit:'h',color:'#48d0ff',latest:last7.length&&last7[last7.length-1]?.sleepHours!=null?Number(last7[last7.length-1].sleepHours).toFixed(1):null},
+    {label:'HRV',unit:'ms',color:'#48ff8a',latest:last7.length&&last7[last7.length-1]?.hrv!=null?Math.round(last7[last7.length-1].hrv):null},
+    {label:'Readiness',unit:'',color:'#ffd048',latest:last7.length&&(last7[last7.length-1]?.readiness||last7[last7.length-1]?.readinessScore)!=null?(last7[last7.length-1].readiness||last7[last7.length-1].readinessScore):null}
   ];
-  el.innerHTML=cards.map(c=>`<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">${c.label}</div><div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px"><div><span class="vertex-sparkline-val" style="color:${c.color}">${c.latest??'—'}</span>${c.unit?`<span style="font-size:9px;color:var(--muted);margin-left:1px">${c.unit}</span>`:''}</div>${sparkSVG(c.vals,c.color)}</div></div>`).join('');
+  el.innerHTML=cards.map(c=>`<div class="vertex-sparkline-card vertex-no-spark-card"><div class="vertex-sparkline-label">${c.label}</div><div><span class="vertex-sparkline-val" style="color:${c.color}">${c.latest??'—'}</span>${c.unit?`<span style="font-size:9px;color:var(--muted);margin-left:1px">${c.unit}</span>`:''}</div></div>`).join('');
 }
 window.renderHomeSparklines=renderHomeSparklines;
 
@@ -11404,6 +11422,15 @@ body.app-page-workout .sidebar #program-seg button[data-program]:focus-visible,
 body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible{
   outline:1px solid rgba(232,255,71,.35)!important;
   outline-offset:2px!important;
+}
+</style>
+
+<!-- build: vertex_phase2a_progress_carousels_no_home_sparks | source: true-carousel build | removed Home SVG spark renderer -->
+<style id="vertex-final-mobile-carousel-lock">
+@media(max-width:900px){
+  #progressPage .vertex-p2-scroll-row{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important;padding:0 20px 6px 0!important;margin:0!important;}
+  #progressPage .vertex-p2-scroll-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-p2-scroll-row .vertex-b2-card{flex:0 0 86%!important;width:86%!important;min-width:86%!important;max-width:86%!important;scroll-snap-align:start!important;}
 }
 </style>
 </body></html>`);
@@ -18637,6 +18664,15 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 
+
+<!-- build: vertex_phase2a_progress_carousels_no_home_sparks | source: true-carousel build | removed Home SVG spark renderer -->
+<style id="vertex-final-mobile-carousel-lock">
+@media(max-width:900px){
+  #progressPage .vertex-p2-scroll-row{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important;padding:0 20px 6px 0!important;margin:0!important;}
+  #progressPage .vertex-p2-scroll-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-p2-scroll-row .vertex-b2-card{flex:0 0 86%!important;width:86%!important;min-width:86%!important;max-width:86%!important;scroll-snap-align:start!important;}
+}
+</style>
 </body>
 </html>
 

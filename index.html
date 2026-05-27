@@ -3594,54 +3594,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
   .right .btn{min-height:36px!important;}
 }
 
-
-/* Phase B2 — Progress mobile polish only: KPI swipe rows + card ordering */
-@media(max-width:900px){
-  body.app-page-progress #progressSummary.progress-summary{
-    display:grid !important;
-    grid-auto-flow:column;
-    grid-template-rows:repeat(2,minmax(0,1fr));
-    grid-auto-columns:minmax(178px,calc(50vw - 22px));
-    grid-template-columns:none !important;
-    gap:10px;
-    overflow-x:auto;
-    overflow-y:hidden;
-    padding:2px 2px 10px;
-    margin:16px -2px 14px;
-    scroll-snap-type:x proximity;
-    -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
-  }
-  body.app-page-progress #progressSummary.progress-summary::-webkit-scrollbar{display:none}
-  body.app-page-progress #progressSummary .progress-kpi{
-    min-width:0;
-    scroll-snap-align:start;
-  }
-
-  body.app-page-progress #vertexProgressIntelligenceHolder{
-    grid-template-columns:1fr !important;
-  }
-  body.app-page-progress #vertexRecoveryTrendPanel,
-  body.app-page-progress #vertexTolerancePanel,
-  body.app-page-progress #vertexMovementHistoryPanel,
-  body.app-page-progress .vertex-movement-history-card{
-    grid-column:1 / -1 !important;
-    width:100% !important;
-  }
-  body.app-page-progress #ptab-history .progress-layout{
-    display:flex !important;
-    flex-direction:column !important;
-  }
-  body.app-page-progress .vertex-movement-history-card{
-    order:99;
-  }
-
-  #intelAcc{
-    width:100%;
-    grid-column:1 / -1;
-  }
-}
-
 </style>
 
 <style id="vertex-v20260526-aa-intelligence-layer">
@@ -3793,7 +3745,7 @@ window.vertexFinishBootstrap=function(){
   <main class="main">
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
     <div id="home-dashboard" style="display:none"></div>
-<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide vertex-movement-history-card"><div class="label">Movement History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
+<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace"></span>
@@ -6661,7 +6613,7 @@ function renderProgressPage(){
   if(history){
     const topExercises=perf.slice(0,5).map(x=>`<div class="history-row"><div class="history-date">Exercise</div><div><div class="history-name">${escapeHtml(x.name)}</div><div class="history-meta">Best weight ${Math.round(x.bestWeight||0)} lb · ${Math.round(x.volume||0)} total volume</div></div><div class="mono">${x.sets} sets</div><div class="mono">Top move</div></div>`).join('');
     const workoutRows=rows.length?rows.slice(0,14).map(r=>`<div class="history-row"><div class="history-date">${new Date(r.completed_at).toLocaleDateString()}<br>${new Date(r.completed_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</div><div><div class="history-name">${escapeHtml(r.workout_name||'Workout')}</div><div class="history-meta">${escapeHtml(String(r.workout_type||'strength').toUpperCase())} · ${r.metrics?.moves||0} moves · ${r.metrics?.est_minutes||0} min est.</div></div><div class="mono">${r.metrics?.sets||0} sets</div><div class="mono">${r.metrics?.load_volume?Math.round(r.metrics.load_volume):'—'} vol</div></div>`).join(''):'<div class="empty-note">Workout history is empty.</div>';
-    history.innerHTML=(topExercises?`<div style="margin-bottom:12px"><div class="label">Top Exercises</div>${topExercises}</div>`:'')+`<div class="label">Movement History</div>`+workoutRows;
+    history.innerHTML=(topExercises?`<div style="margin-bottom:12px"><div class="label">Top Exercises</div>${topExercises}</div>`:'')+`<div class="label">Recent Logs</div>`+workoutRows;
   }
   renderProgressSparklines(rows);
 }
@@ -8940,9 +8892,12 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 </style>
 
 
-<style id="vertex-phase-b2-mobile-swipe-fix">
-/* Phase B2 mobile repair — two independent KPI swipe rows; desktop unchanged */
-@media(max-width:900px){
+<style id="vertex-phase-b2-login-safe-mobile-progress">
+/* Phase B2 only — mobile Progress KPI swipe rows; desktop preserved */
+@media (min-width:901px){
+  #vertexB2SwipeRow1,#vertexB2SwipeRow2{display:contents!important;}
+}
+@media (max-width:900px){
   body.app-page-progress #vertexProgressIntelligenceHolder{
     display:flex!important;
     flex-direction:column!important;
@@ -8961,15 +8916,17 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
     -webkit-overflow-scrolling:touch!important;
     scroll-snap-type:x proximity;
     scrollbar-width:none;
-    width:calc(100% + 4px)!important;
-    margin:0 -2px!important;
-    padding:0 2px 8px!important;
+    width:calc(100% + 8px)!important;
+    max-width:calc(100% + 8px)!important;
+    margin:0 -4px!important;
+    padding:0 4px 10px!important;
   }
   body.app-page-progress .vertex-b2-swipe-row::-webkit-scrollbar{display:none!important;}
-  body.app-page-progress .vertex-b2-swipe-row > div{
+  body.app-page-progress .vertex-b2-swipe-row > *{
     flex:0 0 min(78vw,330px)!important;
     width:min(78vw,330px)!important;
     min-width:min(78vw,330px)!important;
+    max-width:min(78vw,330px)!important;
     scroll-snap-align:start;
     box-sizing:border-box!important;
   }
@@ -8980,14 +8937,14 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   body.app-page-progress #ptab-history .progress-card{
     width:100%!important;
     max-width:100%!important;
-    flex:none!important;
+    flex:0 0 auto!important;
     grid-column:1/-1!important;
   }
 }
 </style>
 
-<script id="vertex-phase-b2-mobile-swipe-fix-script">
-/* Phase B2 mobile repair only — layout/color/order; no chart/auth/sync/planner/recovery logic changes */
+<script id="vertex-phase-b2-login-safe-mobile-progress-script">
+/* Phase B2 only — layout/order/color polish; no chart, SVG, auth, sync, planner, recovery, or render lifecycle changes. */
 (function(){
   var ROW1 = ['vertexStrainPanel','vertexConsistencyPanel','vertexWorkoutPersistencePanel'];
   var ROW2 = ['vertexCardioStrainPanel','vertexAdaptiveCoachPanel','vertexLongTrendPanel','vertexProgressionPanel','vertexPerformanceDecisionPanel'];
@@ -8995,14 +8952,13 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   var FULL_BOTTOM = ['vertexTolerancePanel'];
 
   function byId(id){ return document.getElementById(id); }
-  function mobile(){ return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; }
+  function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; }
   function isProgress(){
-    try{
-      var on = document.querySelector('.nav button.on');
-      return document.body.classList.contains('app-page-progress') || (on && String(on.textContent||'').trim().toLowerCase()==='progress');
-    }catch(e){ return false; }
+    var on = document.querySelector('.nav button.on');
+    return document.body.classList.contains('app-page-progress') || (on && String(on.textContent || '').trim().toLowerCase() === 'progress');
   }
-  function ensureRow(holder,id,label){
+  function holder(){ return byId('vertexProgressIntelligenceHolder'); }
+  function makeRow(parent,id,label){
     var row = byId(id);
     if(!row){
       row = document.createElement('div');
@@ -9010,96 +8966,109 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
       row.className = 'vertex-b2-swipe-row';
       row.setAttribute('aria-label', label);
     }
-    if(row.parentNode !== holder) holder.appendChild(row);
+    if(row.parentNode !== parent) parent.appendChild(row);
     return row;
   }
-  function appendExisting(parent, ids){
+  function appendIds(parent, ids){
     ids.forEach(function(id){
       var el = byId(id);
       if(el) parent.appendChild(el);
     });
   }
-  function unwrapRows(holder){
+  function markMovementHistory(){
+    var progress = byId('progressPage');
+    if(!progress) return null;
+    var found = null;
+    Array.prototype.forEach.call(progress.querySelectorAll('.label'), function(label){
+      var text = String(label.textContent || '').trim();
+      if(text === 'Workout History' || text === 'Recent Logs' || text === 'Movement History'){
+        label.textContent = 'Movement History';
+        var card = label.closest('.progress-card') || label.closest('section');
+        if(card){
+          card.classList.add('vertex-movement-history-card');
+          found = card;
+        }
+      }
+    });
+    return found;
+  }
+  function severityColor(text){
+    var t = String(text || '').toLowerCase();
+    if(/overreach|overreached|excessive|critical|very high|elevated|declining|reduce|red/.test(t)) return 'var(--red)';
+    if(/moderate.high|moderate–high|moderate-high|watch|caution|controlled|control|build|orange|yellow/.test(t)) return 'var(--orange)';
+    if(/low|good|green|recovered|ready|stable|sustainable|improving|favorable|aligned|push/.test(t)) return 'var(--green)';
+    return '';
+  }
+  function applySeverityColors(){
+    var ids = ROW1.concat(ROW2).concat(FULL_TOP).concat(FULL_BOTTOM);
+    ids.forEach(function(id){
+      var panel = byId(id);
+      if(!panel) return;
+      var status = panel.querySelector('.vertex-panel-body > div:first-child');
+      if(!status) return;
+      var color = severityColor(status.textContent);
+      if(color) status.style.color = color;
+    });
+  }
+  function unwrap(parent){
     ['vertexB2SwipeRow1','vertexB2SwipeRow2'].forEach(function(id){
       var row = byId(id);
-      if(!row || row.parentNode !== holder) return;
-      while(row.firstChild) holder.insertBefore(row.firstChild,row);
+      if(!row || row.parentNode !== parent) return;
+      while(row.firstChild){ parent.insertBefore(row.firstChild, row); }
       row.remove();
     });
   }
-  function labelMovementHistory(){
-    var progress = byId('progressPage');
-    if(!progress) return;
-    Array.from(progress.querySelectorAll('.label')).forEach(function(el){
-      var t = String(el.textContent||'').trim();
-      if(t === 'Workout History' || t === 'Recent Logs' || t === 'Movement History'){
-        el.textContent = 'Movement History';
-        var card = el.closest('.progress-card') || el.closest('section') || el.parentElement;
-        if(card) card.classList.add('vertex-movement-history-card');
-      }
-    });
-  }
-  function colorFor(text, context){
-    var t = String(text||'').toLowerCase();
-    if(/critical|overreach|overreached|excessive|very high|reduce now|stop/.test(t)) return 'var(--red)';
-    if(context === 'strain' && /moderate\s*[–-]\s*high|moderate\s*\/\s*sustainable|moderate/.test(t)) return 'var(--green)';
-    if(/high|elevated|declining|fatigue|watch|caution|reduce|recovery priority|limited/.test(t)) return 'var(--orange)';
-    if(/low|good|stable|improving|sustainable|aligned|favorable|ready|recovered|maintain|push with control|progression|baseline building|no cardio load/.test(t)) return 'var(--green)';
-    if(/pending|not enough|no current|baseline pending/.test(t)) return 'var(--muted)';
-    return '';
-  }
-  function applyColors(){
-    var map = {
-      vertexStrainPanel:'strain', vertexRecoveryTrendPanel:'recovery', vertexTolerancePanel:'tolerance',
-      vertexConsistencyPanel:'consistency', vertexCardioStrainPanel:'strain', vertexAdaptiveCoachPanel:'coach',
-      vertexLongTrendPanel:'trend', vertexProgressionPanel:'progression', vertexPerformanceDecisionPanel:'decision',
-      vertexWorkoutPersistencePanel:'memory'
-    };
-    Object.keys(map).forEach(function(id){
-      var p = byId(id); if(!p) return;
-      var status = p.querySelector('.vertex-panel-body > div:first-child'); if(!status) return;
-      var c = colorFor(status.textContent, map[id]); if(c) status.style.color = c;
-    });
-  }
-  function organize(){
+  function arrange(){
     try{
-      labelMovementHistory();
-      applyColors();
-      var holder = byId('vertexProgressIntelligenceHolder');
-      if(!holder) return;
-      if(!mobile() || !isProgress()){
-        unwrapRows(holder);
+      markMovementHistory();
+      applySeverityColors();
+      var parent = holder();
+      if(!parent) return;
+      if(!isProgress()) return;
+
+      if(!isMobile()){
+        unwrap(parent);
+        parent.style.display = 'grid';
+        parent.style.gridTemplateColumns = 'repeat(2,minmax(0,1fr))';
         return;
       }
-      var row1 = ensureRow(holder,'vertexB2SwipeRow1','Progress KPI row 1');
-      var row2 = ensureRow(holder,'vertexB2SwipeRow2','Progress KPI row 2');
-      appendExisting(row1, ROW1);
-      appendExisting(row2, ROW2);
-      FULL_TOP.slice().reverse().forEach(function(id){ var el=byId(id); if(el) holder.insertBefore(el, holder.firstChild); });
-      if(row1.parentNode === holder) holder.insertBefore(row1, byId('vertexTolerancePanel') || null);
-      if(row2.parentNode === holder) holder.insertBefore(row2, byId('vertexTolerancePanel') || null);
-      appendExisting(holder, FULL_BOTTOM);
-    }catch(e){}
+
+      parent.style.display = 'flex';
+      parent.style.flexDirection = 'column';
+      parent.style.gridTemplateColumns = 'none';
+
+      var row1 = makeRow(parent, 'vertexB2SwipeRow1', 'Progress KPI row one');
+      var row2 = makeRow(parent, 'vertexB2SwipeRow2', 'Progress KPI row two');
+
+      appendIds(parent, FULL_TOP);
+      if(row1.parentNode !== parent) parent.appendChild(row1);
+      appendIds(row1, ROW1);
+      if(row2.parentNode !== parent) parent.appendChild(row2);
+      appendIds(row2, ROW2);
+      appendIds(parent, FULL_BOTTOM);
+
+      var history = byId('ptab-history');
+      var historyCard = document.querySelector('.vertex-movement-history-card');
+      if(history && historyCard && historyCard.parentNode){
+        historyCard.parentNode.appendChild(historyCard);
+      }
+    }catch(err){
+      console.error('Phase B2 mobile progress polish failed', err);
+    }
   }
   function schedule(){
-    organize();
-    setTimeout(organize,150);
-    setTimeout(organize,600);
-    setTimeout(organize,1500);
-    setTimeout(organize,3200);
+    arrange();
+    setTimeout(arrange, 250);
+    setTimeout(arrange, 900);
+    setTimeout(arrange, 2000);
   }
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(organize,150); });
-  document.addEventListener('click', function(){ setTimeout(organize,220); }, true);
-  try{
-    new MutationObserver(function(){
-      clearTimeout(window.__vertexB2SwipeTimer);
-      window.__vertexB2SwipeTimer = setTimeout(organize,120);
-    }).observe(document.body || document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
-  }catch(e){}
+  window.addEventListener('resize', function(){ setTimeout(arrange, 120); });
+  document.addEventListener('click', function(){ setTimeout(arrange, 180); }, true);
 })();
 </script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -10716,6 +10685,185 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+
+<style id="vertex-phase-b2-login-safe-mobile-progress">
+/* Phase B2 only — mobile Progress KPI swipe rows; desktop preserved */
+@media (min-width:901px){
+  #vertexB2SwipeRow1,#vertexB2SwipeRow2{display:contents!important;}
+}
+@media (max-width:900px){
+  body.app-page-progress #vertexProgressIntelligenceHolder{
+    display:flex!important;
+    flex-direction:column!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:visible!important;
+  }
+  body.app-page-progress .vertex-b2-swipe-row{
+    display:flex!important;
+    flex-direction:row!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    width:calc(100% + 8px)!important;
+    max-width:calc(100% + 8px)!important;
+    margin:0 -4px!important;
+    padding:0 4px 10px!important;
+  }
+  body.app-page-progress .vertex-b2-swipe-row::-webkit-scrollbar{display:none!important;}
+  body.app-page-progress .vertex-b2-swipe-row > *{
+    flex:0 0 min(78vw,330px)!important;
+    width:min(78vw,330px)!important;
+    min-width:min(78vw,330px)!important;
+    max-width:min(78vw,330px)!important;
+    scroll-snap-align:start;
+    box-sizing:border-box!important;
+  }
+  body.app-page-progress #vertexRecoveryTrendPanel,
+  body.app-page-progress #vertexTolerancePanel,
+  body.app-page-progress #intelAcc,
+  body.app-page-progress .vertex-movement-history-card,
+  body.app-page-progress #ptab-history .progress-card{
+    width:100%!important;
+    max-width:100%!important;
+    flex:0 0 auto!important;
+    grid-column:1/-1!important;
+  }
+}
+</style>
+
+<script id="vertex-phase-b2-login-safe-mobile-progress-script">
+/* Phase B2 only — layout/order/color polish; no chart, SVG, auth, sync, planner, recovery, or render lifecycle changes. */
+(function(){
+  var ROW1 = ['vertexStrainPanel','vertexConsistencyPanel','vertexWorkoutPersistencePanel'];
+  var ROW2 = ['vertexCardioStrainPanel','vertexAdaptiveCoachPanel','vertexLongTrendPanel','vertexProgressionPanel','vertexPerformanceDecisionPanel'];
+  var FULL_TOP = ['vertexRecoveryTrendPanel'];
+  var FULL_BOTTOM = ['vertexTolerancePanel'];
+
+  function byId(id){ return document.getElementById(id); }
+  function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; }
+  function isProgress(){
+    var on = document.querySelector('.nav button.on');
+    return document.body.classList.contains('app-page-progress') || (on && String(on.textContent || '').trim().toLowerCase() === 'progress');
+  }
+  function holder(){ return byId('vertexProgressIntelligenceHolder'); }
+  function makeRow(parent,id,label){
+    var row = byId(id);
+    if(!row){
+      row = document.createElement('div');
+      row.id = id;
+      row.className = 'vertex-b2-swipe-row';
+      row.setAttribute('aria-label', label);
+    }
+    if(row.parentNode !== parent) parent.appendChild(row);
+    return row;
+  }
+  function appendIds(parent, ids){
+    ids.forEach(function(id){
+      var el = byId(id);
+      if(el) parent.appendChild(el);
+    });
+  }
+  function markMovementHistory(){
+    var progress = byId('progressPage');
+    if(!progress) return null;
+    var found = null;
+    Array.prototype.forEach.call(progress.querySelectorAll('.label'), function(label){
+      var text = String(label.textContent || '').trim();
+      if(text === 'Workout History' || text === 'Recent Logs' || text === 'Movement History'){
+        label.textContent = 'Movement History';
+        var card = label.closest('.progress-card') || label.closest('section');
+        if(card){
+          card.classList.add('vertex-movement-history-card');
+          found = card;
+        }
+      }
+    });
+    return found;
+  }
+  function severityColor(text){
+    var t = String(text || '').toLowerCase();
+    if(/overreach|overreached|excessive|critical|very high|elevated|declining|reduce|red/.test(t)) return 'var(--red)';
+    if(/moderate.high|moderate–high|moderate-high|watch|caution|controlled|control|build|orange|yellow/.test(t)) return 'var(--orange)';
+    if(/low|good|green|recovered|ready|stable|sustainable|improving|favorable|aligned|push/.test(t)) return 'var(--green)';
+    return '';
+  }
+  function applySeverityColors(){
+    var ids = ROW1.concat(ROW2).concat(FULL_TOP).concat(FULL_BOTTOM);
+    ids.forEach(function(id){
+      var panel = byId(id);
+      if(!panel) return;
+      var status = panel.querySelector('.vertex-panel-body > div:first-child');
+      if(!status) return;
+      var color = severityColor(status.textContent);
+      if(color) status.style.color = color;
+    });
+  }
+  function unwrap(parent){
+    ['vertexB2SwipeRow1','vertexB2SwipeRow2'].forEach(function(id){
+      var row = byId(id);
+      if(!row || row.parentNode !== parent) return;
+      while(row.firstChild){ parent.insertBefore(row.firstChild, row); }
+      row.remove();
+    });
+  }
+  function arrange(){
+    try{
+      markMovementHistory();
+      applySeverityColors();
+      var parent = holder();
+      if(!parent) return;
+      if(!isProgress()) return;
+
+      if(!isMobile()){
+        unwrap(parent);
+        parent.style.display = 'grid';
+        parent.style.gridTemplateColumns = 'repeat(2,minmax(0,1fr))';
+        return;
+      }
+
+      parent.style.display = 'flex';
+      parent.style.flexDirection = 'column';
+      parent.style.gridTemplateColumns = 'none';
+
+      var row1 = makeRow(parent, 'vertexB2SwipeRow1', 'Progress KPI row one');
+      var row2 = makeRow(parent, 'vertexB2SwipeRow2', 'Progress KPI row two');
+
+      appendIds(parent, FULL_TOP);
+      if(row1.parentNode !== parent) parent.appendChild(row1);
+      appendIds(row1, ROW1);
+      if(row2.parentNode !== parent) parent.appendChild(row2);
+      appendIds(row2, ROW2);
+      appendIds(parent, FULL_BOTTOM);
+
+      var history = byId('ptab-history');
+      var historyCard = document.querySelector('.vertex-movement-history-card');
+      if(history && historyCard && historyCard.parentNode){
+        historyCard.parentNode.appendChild(historyCard);
+      }
+    }catch(err){
+      console.error('Phase B2 mobile progress polish failed', err);
+    }
+  }
+  function schedule(){
+    arrange();
+    setTimeout(arrange, 250);
+    setTimeout(arrange, 900);
+    setTimeout(arrange, 2000);
+  }
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(arrange, 120); });
+  document.addEventListener('click', function(){ setTimeout(arrange, 180); }, true);
+})();
+</script>
+
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -10981,6 +11129,185 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+
+<style id="vertex-phase-b2-login-safe-mobile-progress">
+/* Phase B2 only — mobile Progress KPI swipe rows; desktop preserved */
+@media (min-width:901px){
+  #vertexB2SwipeRow1,#vertexB2SwipeRow2{display:contents!important;}
+}
+@media (max-width:900px){
+  body.app-page-progress #vertexProgressIntelligenceHolder{
+    display:flex!important;
+    flex-direction:column!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:visible!important;
+  }
+  body.app-page-progress .vertex-b2-swipe-row{
+    display:flex!important;
+    flex-direction:row!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    width:calc(100% + 8px)!important;
+    max-width:calc(100% + 8px)!important;
+    margin:0 -4px!important;
+    padding:0 4px 10px!important;
+  }
+  body.app-page-progress .vertex-b2-swipe-row::-webkit-scrollbar{display:none!important;}
+  body.app-page-progress .vertex-b2-swipe-row > *{
+    flex:0 0 min(78vw,330px)!important;
+    width:min(78vw,330px)!important;
+    min-width:min(78vw,330px)!important;
+    max-width:min(78vw,330px)!important;
+    scroll-snap-align:start;
+    box-sizing:border-box!important;
+  }
+  body.app-page-progress #vertexRecoveryTrendPanel,
+  body.app-page-progress #vertexTolerancePanel,
+  body.app-page-progress #intelAcc,
+  body.app-page-progress .vertex-movement-history-card,
+  body.app-page-progress #ptab-history .progress-card{
+    width:100%!important;
+    max-width:100%!important;
+    flex:0 0 auto!important;
+    grid-column:1/-1!important;
+  }
+}
+</style>
+
+<script id="vertex-phase-b2-login-safe-mobile-progress-script">
+/* Phase B2 only — layout/order/color polish; no chart, SVG, auth, sync, planner, recovery, or render lifecycle changes. */
+(function(){
+  var ROW1 = ['vertexStrainPanel','vertexConsistencyPanel','vertexWorkoutPersistencePanel'];
+  var ROW2 = ['vertexCardioStrainPanel','vertexAdaptiveCoachPanel','vertexLongTrendPanel','vertexProgressionPanel','vertexPerformanceDecisionPanel'];
+  var FULL_TOP = ['vertexRecoveryTrendPanel'];
+  var FULL_BOTTOM = ['vertexTolerancePanel'];
+
+  function byId(id){ return document.getElementById(id); }
+  function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; }
+  function isProgress(){
+    var on = document.querySelector('.nav button.on');
+    return document.body.classList.contains('app-page-progress') || (on && String(on.textContent || '').trim().toLowerCase() === 'progress');
+  }
+  function holder(){ return byId('vertexProgressIntelligenceHolder'); }
+  function makeRow(parent,id,label){
+    var row = byId(id);
+    if(!row){
+      row = document.createElement('div');
+      row.id = id;
+      row.className = 'vertex-b2-swipe-row';
+      row.setAttribute('aria-label', label);
+    }
+    if(row.parentNode !== parent) parent.appendChild(row);
+    return row;
+  }
+  function appendIds(parent, ids){
+    ids.forEach(function(id){
+      var el = byId(id);
+      if(el) parent.appendChild(el);
+    });
+  }
+  function markMovementHistory(){
+    var progress = byId('progressPage');
+    if(!progress) return null;
+    var found = null;
+    Array.prototype.forEach.call(progress.querySelectorAll('.label'), function(label){
+      var text = String(label.textContent || '').trim();
+      if(text === 'Workout History' || text === 'Recent Logs' || text === 'Movement History'){
+        label.textContent = 'Movement History';
+        var card = label.closest('.progress-card') || label.closest('section');
+        if(card){
+          card.classList.add('vertex-movement-history-card');
+          found = card;
+        }
+      }
+    });
+    return found;
+  }
+  function severityColor(text){
+    var t = String(text || '').toLowerCase();
+    if(/overreach|overreached|excessive|critical|very high|elevated|declining|reduce|red/.test(t)) return 'var(--red)';
+    if(/moderate.high|moderate–high|moderate-high|watch|caution|controlled|control|build|orange|yellow/.test(t)) return 'var(--orange)';
+    if(/low|good|green|recovered|ready|stable|sustainable|improving|favorable|aligned|push/.test(t)) return 'var(--green)';
+    return '';
+  }
+  function applySeverityColors(){
+    var ids = ROW1.concat(ROW2).concat(FULL_TOP).concat(FULL_BOTTOM);
+    ids.forEach(function(id){
+      var panel = byId(id);
+      if(!panel) return;
+      var status = panel.querySelector('.vertex-panel-body > div:first-child');
+      if(!status) return;
+      var color = severityColor(status.textContent);
+      if(color) status.style.color = color;
+    });
+  }
+  function unwrap(parent){
+    ['vertexB2SwipeRow1','vertexB2SwipeRow2'].forEach(function(id){
+      var row = byId(id);
+      if(!row || row.parentNode !== parent) return;
+      while(row.firstChild){ parent.insertBefore(row.firstChild, row); }
+      row.remove();
+    });
+  }
+  function arrange(){
+    try{
+      markMovementHistory();
+      applySeverityColors();
+      var parent = holder();
+      if(!parent) return;
+      if(!isProgress()) return;
+
+      if(!isMobile()){
+        unwrap(parent);
+        parent.style.display = 'grid';
+        parent.style.gridTemplateColumns = 'repeat(2,minmax(0,1fr))';
+        return;
+      }
+
+      parent.style.display = 'flex';
+      parent.style.flexDirection = 'column';
+      parent.style.gridTemplateColumns = 'none';
+
+      var row1 = makeRow(parent, 'vertexB2SwipeRow1', 'Progress KPI row one');
+      var row2 = makeRow(parent, 'vertexB2SwipeRow2', 'Progress KPI row two');
+
+      appendIds(parent, FULL_TOP);
+      if(row1.parentNode !== parent) parent.appendChild(row1);
+      appendIds(row1, ROW1);
+      if(row2.parentNode !== parent) parent.appendChild(row2);
+      appendIds(row2, ROW2);
+      appendIds(parent, FULL_BOTTOM);
+
+      var history = byId('ptab-history');
+      var historyCard = document.querySelector('.vertex-movement-history-card');
+      if(history && historyCard && historyCard.parentNode){
+        historyCard.parentNode.appendChild(historyCard);
+      }
+    }catch(err){
+      console.error('Phase B2 mobile progress polish failed', err);
+    }
+  }
+  function schedule(){
+    arrange();
+    setTimeout(arrange, 250);
+    setTimeout(arrange, 900);
+    setTimeout(arrange, 2000);
+  }
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(arrange, 120); });
+  document.addEventListener('click', function(){ setTimeout(arrange, 180); }, true);
+})();
+</script>
+
 </body></html>`);
     w.document.close();
   };
@@ -11209,6 +11536,185 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+
+<style id="vertex-phase-b2-login-safe-mobile-progress">
+/* Phase B2 only — mobile Progress KPI swipe rows; desktop preserved */
+@media (min-width:901px){
+  #vertexB2SwipeRow1,#vertexB2SwipeRow2{display:contents!important;}
+}
+@media (max-width:900px){
+  body.app-page-progress #vertexProgressIntelligenceHolder{
+    display:flex!important;
+    flex-direction:column!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:visible!important;
+  }
+  body.app-page-progress .vertex-b2-swipe-row{
+    display:flex!important;
+    flex-direction:row!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    width:calc(100% + 8px)!important;
+    max-width:calc(100% + 8px)!important;
+    margin:0 -4px!important;
+    padding:0 4px 10px!important;
+  }
+  body.app-page-progress .vertex-b2-swipe-row::-webkit-scrollbar{display:none!important;}
+  body.app-page-progress .vertex-b2-swipe-row > *{
+    flex:0 0 min(78vw,330px)!important;
+    width:min(78vw,330px)!important;
+    min-width:min(78vw,330px)!important;
+    max-width:min(78vw,330px)!important;
+    scroll-snap-align:start;
+    box-sizing:border-box!important;
+  }
+  body.app-page-progress #vertexRecoveryTrendPanel,
+  body.app-page-progress #vertexTolerancePanel,
+  body.app-page-progress #intelAcc,
+  body.app-page-progress .vertex-movement-history-card,
+  body.app-page-progress #ptab-history .progress-card{
+    width:100%!important;
+    max-width:100%!important;
+    flex:0 0 auto!important;
+    grid-column:1/-1!important;
+  }
+}
+</style>
+
+<script id="vertex-phase-b2-login-safe-mobile-progress-script">
+/* Phase B2 only — layout/order/color polish; no chart, SVG, auth, sync, planner, recovery, or render lifecycle changes. */
+(function(){
+  var ROW1 = ['vertexStrainPanel','vertexConsistencyPanel','vertexWorkoutPersistencePanel'];
+  var ROW2 = ['vertexCardioStrainPanel','vertexAdaptiveCoachPanel','vertexLongTrendPanel','vertexProgressionPanel','vertexPerformanceDecisionPanel'];
+  var FULL_TOP = ['vertexRecoveryTrendPanel'];
+  var FULL_BOTTOM = ['vertexTolerancePanel'];
+
+  function byId(id){ return document.getElementById(id); }
+  function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; }
+  function isProgress(){
+    var on = document.querySelector('.nav button.on');
+    return document.body.classList.contains('app-page-progress') || (on && String(on.textContent || '').trim().toLowerCase() === 'progress');
+  }
+  function holder(){ return byId('vertexProgressIntelligenceHolder'); }
+  function makeRow(parent,id,label){
+    var row = byId(id);
+    if(!row){
+      row = document.createElement('div');
+      row.id = id;
+      row.className = 'vertex-b2-swipe-row';
+      row.setAttribute('aria-label', label);
+    }
+    if(row.parentNode !== parent) parent.appendChild(row);
+    return row;
+  }
+  function appendIds(parent, ids){
+    ids.forEach(function(id){
+      var el = byId(id);
+      if(el) parent.appendChild(el);
+    });
+  }
+  function markMovementHistory(){
+    var progress = byId('progressPage');
+    if(!progress) return null;
+    var found = null;
+    Array.prototype.forEach.call(progress.querySelectorAll('.label'), function(label){
+      var text = String(label.textContent || '').trim();
+      if(text === 'Workout History' || text === 'Recent Logs' || text === 'Movement History'){
+        label.textContent = 'Movement History';
+        var card = label.closest('.progress-card') || label.closest('section');
+        if(card){
+          card.classList.add('vertex-movement-history-card');
+          found = card;
+        }
+      }
+    });
+    return found;
+  }
+  function severityColor(text){
+    var t = String(text || '').toLowerCase();
+    if(/overreach|overreached|excessive|critical|very high|elevated|declining|reduce|red/.test(t)) return 'var(--red)';
+    if(/moderate.high|moderate–high|moderate-high|watch|caution|controlled|control|build|orange|yellow/.test(t)) return 'var(--orange)';
+    if(/low|good|green|recovered|ready|stable|sustainable|improving|favorable|aligned|push/.test(t)) return 'var(--green)';
+    return '';
+  }
+  function applySeverityColors(){
+    var ids = ROW1.concat(ROW2).concat(FULL_TOP).concat(FULL_BOTTOM);
+    ids.forEach(function(id){
+      var panel = byId(id);
+      if(!panel) return;
+      var status = panel.querySelector('.vertex-panel-body > div:first-child');
+      if(!status) return;
+      var color = severityColor(status.textContent);
+      if(color) status.style.color = color;
+    });
+  }
+  function unwrap(parent){
+    ['vertexB2SwipeRow1','vertexB2SwipeRow2'].forEach(function(id){
+      var row = byId(id);
+      if(!row || row.parentNode !== parent) return;
+      while(row.firstChild){ parent.insertBefore(row.firstChild, row); }
+      row.remove();
+    });
+  }
+  function arrange(){
+    try{
+      markMovementHistory();
+      applySeverityColors();
+      var parent = holder();
+      if(!parent) return;
+      if(!isProgress()) return;
+
+      if(!isMobile()){
+        unwrap(parent);
+        parent.style.display = 'grid';
+        parent.style.gridTemplateColumns = 'repeat(2,minmax(0,1fr))';
+        return;
+      }
+
+      parent.style.display = 'flex';
+      parent.style.flexDirection = 'column';
+      parent.style.gridTemplateColumns = 'none';
+
+      var row1 = makeRow(parent, 'vertexB2SwipeRow1', 'Progress KPI row one');
+      var row2 = makeRow(parent, 'vertexB2SwipeRow2', 'Progress KPI row two');
+
+      appendIds(parent, FULL_TOP);
+      if(row1.parentNode !== parent) parent.appendChild(row1);
+      appendIds(row1, ROW1);
+      if(row2.parentNode !== parent) parent.appendChild(row2);
+      appendIds(row2, ROW2);
+      appendIds(parent, FULL_BOTTOM);
+
+      var history = byId('ptab-history');
+      var historyCard = document.querySelector('.vertex-movement-history-card');
+      if(history && historyCard && historyCard.parentNode){
+        historyCard.parentNode.appendChild(historyCard);
+      }
+    }catch(err){
+      console.error('Phase B2 mobile progress polish failed', err);
+    }
+  }
+  function schedule(){
+    arrange();
+    setTimeout(arrange, 250);
+    setTimeout(arrange, 900);
+    setTimeout(arrange, 2000);
+  }
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(arrange, 120); });
+  document.addEventListener('click', function(){ setTimeout(arrange, 180); }, true);
+})();
+</script>
+
 </body></html>`);
   w.document.close();
 }
@@ -15780,14 +16286,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     return panel;
   }
 
-  function vertexB2SeverityColor(label, context){
-    var t = String(label || '').toLowerCase();
-    if(/recover|declin|elevated|high|caution|reduce|limited|watch/.test(t)) return context === 'strain' && /moderate/.test(t) ? 'var(--green)' : 'var(--orange)';
-    if(/low|stable|improv|sustainable|moderate|maintain|aligned|favorable|building|ready/.test(t)) return 'var(--green)';
-    if(/pending|not enough|no current|baseline/.test(t)) return 'var(--muted)';
-    return 'var(--text)';
-  }
-
   function buildPanels(){
     try{
       if(!window.VertexRecoveryInsights || typeof window.VertexRecoveryInsights.build !== 'function'){
@@ -15836,14 +16334,14 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
       if(strainPanel){
         strainPanel.querySelector('.vertex-panel-body').innerHTML =
-          '<div style="font-size:18px;color:' + vertexB2SeverityColor(strain, 'strain') + ';font-weight:700">' + strain + '</div>' +
+          '<div style="font-size:18px;color:var(--text);font-weight:700">' + strain + '</div>' +
           '<div style="margin-top:10px">4 sessions in 7 days</div>' +
           '<div>Recovery pressure aligned</div>';
       }
 
       if(consistencyPanel){
         consistencyPanel.querySelector('.vertex-panel-body').innerHTML =
-          '<div style="font-size:18px;color:' + vertexB2SeverityColor(streak, 'consistency') + ';font-weight:700">' + streak + '</div>' +
+          '<div style="font-size:18px;color:var(--green);font-weight:700">' + streak + '</div>' +
           '<div style="margin-top:10px">92% adherence</div>' +
           '<div>Workout consistency favorable</div>';
       }
@@ -16068,14 +16566,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     '</div>';
   }
 
-  function vertexB2SeverityColor(label, context){
-    var t = String(label || '').toLowerCase();
-    if(/recover|declin|elevated|high|caution|reduce|limited|watch/.test(t)) return context === 'strain' && /moderate/.test(t) ? 'var(--green)' : 'var(--orange)';
-    if(/low|stable|improv|sustainable|moderate|maintain|aligned|favorable|building|ready|session week/.test(t)) return 'var(--green)';
-    if(/pending|not enough|no current|no active|baseline/.test(t)) return 'var(--muted)';
-    return 'var(--text)';
-  }
-
   function integrityUpdatePanels(){
     try{
       var weekly = parseWeeklyWorkoutCount();
@@ -16098,7 +16588,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
             var avg3 = Math.max(0, Math.min(100, ready.score - 2));
             var avg7 = Math.max(0, Math.min(100, ready.score - 4));
             body.innerHTML =
-              '<div style="font-size:18px;color:' + vertexB2SeverityColor(ready.trend, 'recovery') + ';font-weight:700">→ ' + ready.trend + '</div>' +
+              '<div style="font-size:18px;color:var(--green);font-weight:700">→ ' + ready.trend + '</div>' +
               htmlRow('3-day readiness avg', avg3) +
               htmlRow('7-day readiness avg', avg7) +
               htmlRow('Basis', 'Readiness score');
@@ -16111,18 +16601,18 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
         if(body2){
           if(weekly === 0){
             body2.innerHTML =
-              '<div style="font-size:18px;color:' + vertexB2SeverityColor('No current training strain', 'strain') + ';font-weight:700">No current training strain</div>' +
+              '<div style="font-size:18px;color:var(--muted);font-weight:700">No current training strain</div>' +
               '<div style="margin-top:10px">0 workouts logged this week</div>' +
               '<div>Strain will calculate after logged sessions.</div>';
           }else if(weekly !== null){
             var label = weekly >= 5 ? 'High' : weekly >= 3 ? 'Moderate' : 'Low';
             body2.innerHTML =
-              '<div style="font-size:18px;color:' + vertexB2SeverityColor(label, 'strain') + ';font-weight:700">' + label + '</div>' +
+              '<div style="font-size:18px;color:var(--text);font-weight:700">' + label + '</div>' +
               '<div style="margin-top:10px">' + weekly + ' workouts logged this week</div>' +
               '<div>Based on actual logged workout count.</div>';
           }else{
             body2.innerHTML =
-              '<div style="font-size:18px;color:' + vertexB2SeverityColor('Not enough workout data', 'strain') + ';font-weight:700">Not enough workout data</div>' +
+              '<div style="font-size:18px;color:var(--muted);font-weight:700">Not enough workout data</div>' +
               '<div style="margin-top:10px">Log workouts to calculate strain.</div>';
           }
         }
@@ -16161,7 +16651,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
           }else if(weekly !== null && ready.score !== null){
             var tol = ready.score >= 70 && weekly >= 2 ? 'Stable / improving' : 'Building baseline';
             body4.innerHTML =
-              '<div style="font-size:18px;color:' + vertexB2SeverityColor(tol, 'tolerance') + ';font-weight:700">' + tol + '</div>' +
+              '<div style="font-size:18px;color:var(--green);font-weight:700">' + tol + '</div>' +
               '<div style="margin-top:10px">Uses readiness plus logged workout frequency.</div>' +
               '<div>More sessions will improve accuracy.</div>';
           }else{
@@ -18622,65 +19112,181 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 </script>
 
 
-<script>
-/* Phase B2 label/order repair only — no chart/auth/sync/planner/recovery logic changes */
+
+<style id="vertex-phase-b2-login-safe-mobile-progress">
+/* Phase B2 only — mobile Progress KPI swipe rows; desktop preserved */
+@media (min-width:901px){
+  #vertexB2SwipeRow1,#vertexB2SwipeRow2{display:contents!important;}
+}
+@media (max-width:900px){
+  body.app-page-progress #vertexProgressIntelligenceHolder{
+    display:flex!important;
+    flex-direction:column!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:visible!important;
+  }
+  body.app-page-progress .vertex-b2-swipe-row{
+    display:flex!important;
+    flex-direction:row!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+    width:calc(100% + 8px)!important;
+    max-width:calc(100% + 8px)!important;
+    margin:0 -4px!important;
+    padding:0 4px 10px!important;
+  }
+  body.app-page-progress .vertex-b2-swipe-row::-webkit-scrollbar{display:none!important;}
+  body.app-page-progress .vertex-b2-swipe-row > *{
+    flex:0 0 min(78vw,330px)!important;
+    width:min(78vw,330px)!important;
+    min-width:min(78vw,330px)!important;
+    max-width:min(78vw,330px)!important;
+    scroll-snap-align:start;
+    box-sizing:border-box!important;
+  }
+  body.app-page-progress #vertexRecoveryTrendPanel,
+  body.app-page-progress #vertexTolerancePanel,
+  body.app-page-progress #intelAcc,
+  body.app-page-progress .vertex-movement-history-card,
+  body.app-page-progress #ptab-history .progress-card{
+    width:100%!important;
+    max-width:100%!important;
+    flex:0 0 auto!important;
+    grid-column:1/-1!important;
+  }
+}
+</style>
+
+<script id="vertex-phase-b2-login-safe-mobile-progress-script">
+/* Phase B2 only — layout/order/color polish; no chart, SVG, auth, sync, planner, recovery, or render lifecycle changes. */
 (function(){
-  function normalizeMovementHistoryLabel(){
-    try{
-      var progress = document.getElementById('progressPage');
-      if(!progress) return;
-      Array.from(progress.querySelectorAll('.label')).forEach(function(el){
-        var t = String(el.textContent || '').trim();
-        if(t === 'Workout History' || t === 'Recent Logs'){
-          el.textContent = 'Movement History';
-          var card = el.closest('.progress-card') || el.closest('section');
-          if(card) card.classList.add('vertex-movement-history-card');
+  var ROW1 = ['vertexStrainPanel','vertexConsistencyPanel','vertexWorkoutPersistencePanel'];
+  var ROW2 = ['vertexCardioStrainPanel','vertexAdaptiveCoachPanel','vertexLongTrendPanel','vertexProgressionPanel','vertexPerformanceDecisionPanel'];
+  var FULL_TOP = ['vertexRecoveryTrendPanel'];
+  var FULL_BOTTOM = ['vertexTolerancePanel'];
+
+  function byId(id){ return document.getElementById(id); }
+  function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; }
+  function isProgress(){
+    var on = document.querySelector('.nav button.on');
+    return document.body.classList.contains('app-page-progress') || (on && String(on.textContent || '').trim().toLowerCase() === 'progress');
+  }
+  function holder(){ return byId('vertexProgressIntelligenceHolder'); }
+  function makeRow(parent,id,label){
+    var row = byId(id);
+    if(!row){
+      row = document.createElement('div');
+      row.id = id;
+      row.className = 'vertex-b2-swipe-row';
+      row.setAttribute('aria-label', label);
+    }
+    if(row.parentNode !== parent) parent.appendChild(row);
+    return row;
+  }
+  function appendIds(parent, ids){
+    ids.forEach(function(id){
+      var el = byId(id);
+      if(el) parent.appendChild(el);
+    });
+  }
+  function markMovementHistory(){
+    var progress = byId('progressPage');
+    if(!progress) return null;
+    var found = null;
+    Array.prototype.forEach.call(progress.querySelectorAll('.label'), function(label){
+      var text = String(label.textContent || '').trim();
+      if(text === 'Workout History' || text === 'Recent Logs' || text === 'Movement History'){
+        label.textContent = 'Movement History';
+        var card = label.closest('.progress-card') || label.closest('section');
+        if(card){
+          card.classList.add('vertex-movement-history-card');
+          found = card;
         }
-      });
-    }catch(e){}
-  }
-
-  function applyPhaseB2StatusColors(){
-    try{
-      var map = [
-        ['vertexStrainPanel','strain'],
-        ['vertexRecoveryTrendPanel','recovery'],
-        ['vertexTolerancePanel','tolerance'],
-        ['vertexConsistencyPanel','consistency'],
-        ['vertexCardioStrainPanel','strain'],
-        ['vertexPerformanceDecisionPanel','decision'],
-        ['vertexProgressionPanel','progression']
-      ];
-      function colorFor(text, context){
-        var t = String(text || '').toLowerCase();
-        if(/not enough|pending|no current|no active|baseline/.test(t)) return 'var(--muted)';
-        if(/elevated|high|declining|reduce|recovery priority|watch|caution/.test(t)) return /moderate/.test(t) ? 'var(--green)' : 'var(--orange)';
-        if(/low|moderate|stable|improving|sustainable|aligned|favorable|ready|maintain|push with control|progression/.test(t)) return 'var(--green)';
-        return '';
       }
-      map.forEach(function(item){
-        var panel = document.getElementById(item[0]);
-        if(!panel) return;
-        var status = panel.querySelector('.vertex-panel-body > div:first-child');
-        if(!status) return;
-        var c = colorFor(status.textContent, item[1]);
-        if(c) status.style.color = c;
-      });
-    }catch(e){}
+    });
+    return found;
   }
-
-  function runPhaseB2(){
-    normalizeMovementHistoryLabel();
-    applyPhaseB2StatusColors();
+  function severityColor(text){
+    var t = String(text || '').toLowerCase();
+    if(/overreach|overreached|excessive|critical|very high|elevated|declining|reduce|red/.test(t)) return 'var(--red)';
+    if(/moderate.high|moderate–high|moderate-high|watch|caution|controlled|control|build|orange|yellow/.test(t)) return 'var(--orange)';
+    if(/low|good|green|recovered|ready|stable|sustainable|improving|favorable|aligned|push/.test(t)) return 'var(--green)';
+    return '';
   }
+  function applySeverityColors(){
+    var ids = ROW1.concat(ROW2).concat(FULL_TOP).concat(FULL_BOTTOM);
+    ids.forEach(function(id){
+      var panel = byId(id);
+      if(!panel) return;
+      var status = panel.querySelector('.vertex-panel-body > div:first-child');
+      if(!status) return;
+      var color = severityColor(status.textContent);
+      if(color) status.style.color = color;
+    });
+  }
+  function unwrap(parent){
+    ['vertexB2SwipeRow1','vertexB2SwipeRow2'].forEach(function(id){
+      var row = byId(id);
+      if(!row || row.parentNode !== parent) return;
+      while(row.firstChild){ parent.insertBefore(row.firstChild, row); }
+      row.remove();
+    });
+  }
+  function arrange(){
+    try{
+      markMovementHistory();
+      applySeverityColors();
+      var parent = holder();
+      if(!parent) return;
+      if(!isProgress()) return;
 
-  document.addEventListener('DOMContentLoaded', function(){
-    setTimeout(runPhaseB2, 250);
-    setTimeout(runPhaseB2, 1200);
-    setTimeout(runPhaseB2, 3200);
-  });
-  window.addEventListener('load', function(){ setTimeout(runPhaseB2, 600); });
-  document.addEventListener('click', function(){ setTimeout(runPhaseB2, 250); }, true);
+      if(!isMobile()){
+        unwrap(parent);
+        parent.style.display = 'grid';
+        parent.style.gridTemplateColumns = 'repeat(2,minmax(0,1fr))';
+        return;
+      }
+
+      parent.style.display = 'flex';
+      parent.style.flexDirection = 'column';
+      parent.style.gridTemplateColumns = 'none';
+
+      var row1 = makeRow(parent, 'vertexB2SwipeRow1', 'Progress KPI row one');
+      var row2 = makeRow(parent, 'vertexB2SwipeRow2', 'Progress KPI row two');
+
+      appendIds(parent, FULL_TOP);
+      if(row1.parentNode !== parent) parent.appendChild(row1);
+      appendIds(row1, ROW1);
+      if(row2.parentNode !== parent) parent.appendChild(row2);
+      appendIds(row2, ROW2);
+      appendIds(parent, FULL_BOTTOM);
+
+      var history = byId('ptab-history');
+      var historyCard = document.querySelector('.vertex-movement-history-card');
+      if(history && historyCard && historyCard.parentNode){
+        historyCard.parentNode.appendChild(historyCard);
+      }
+    }catch(err){
+      console.error('Phase B2 mobile progress polish failed', err);
+    }
+  }
+  function schedule(){
+    arrange();
+    setTimeout(arrange, 250);
+    setTimeout(arrange, 900);
+    setTimeout(arrange, 2000);
+  }
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(arrange, 120); });
+  document.addEventListener('click', function(){ setTimeout(arrange, 180); }, true);
 })();
 </script>
 

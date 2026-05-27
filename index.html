@@ -8890,6 +8890,221 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
+
+
+<!-- Vertex Phase B2 final hierarchy repair: Progress scoped, no auth/service worker/chart/SVG logic changes -->
+<style id="vertex-b2-final-hierarchy-css">
+@media (max-width:900px){
+  #progressPage #progressSummary.vertex-b2-kpi-mounted{
+    display:block!important;
+    margin:14px 0 12px!important;
+    overflow:visible!important;
+  }
+  #progressPage .vertex-b2-kpi-row{
+    display:flex!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x proximity!important;
+    scrollbar-width:none!important;
+    padding:2px 2px 10px!important;
+    margin:0 0 8px!important;
+  }
+  #progressPage .vertex-b2-kpi-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-kpi-row .progress-kpi{
+    flex:0 0 72%!important;
+    min-width:72%!important;
+    max-width:72%!important;
+    scroll-snap-align:start!important;
+    margin:0!important;
+  }
+  #progressPage .vertex-b2-progress-panel-row{
+    display:flex!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    padding:2px 2px 10px!important;
+    margin:10px 0 12px!important;
+  }
+  #progressPage .vertex-b2-progress-panel-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-progress-panel-row > div,
+  #progressPage .vertex-b2-progress-panel-row > section{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    margin:0!important;
+  }
+  #progressPage #vertexProgressDecisionHolder{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+    margin:14px 0!important;
+  }
+  #progressPage #vertexProgressDecisionHolder > div,
+  #progressPage #vertexProgressDecisionHolder > section,
+  #progressPage #vertexMovementHistoryHolder{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+  body:not(.app-page-progress) .vertex-b2-progress-only,
+  body.app-page-home .vertex-b2-progress-only{display:none!important;}
+}
+@media (min-width:901px){
+  #progressPage #progressSummary.vertex-b2-kpi-mounted{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px!important;}
+  #progressPage .vertex-b2-kpi-row{display:contents!important;}
+  #progressPage .vertex-b2-progress-panel-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:12px 0!important;}
+  #progressPage #vertexProgressDecisionHolder{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:14px 0!important;}
+}
+.vertex-b2-severity-good{color:var(--green)!important;border-color:rgba(72,255,138,.45)!important;}
+.vertex-b2-severity-watch{color:var(--orange)!important;border-color:rgba(255,176,71,.5)!important;}
+.vertex-b2-severity-bad{color:var(--red)!important;border-color:rgba(255,77,77,.5)!important;}
+</style>
+<script id="vertex-b2-final-hierarchy-js">
+(function(){
+  var CAROUSEL_PANEL_IDS = [
+    'vertexCardioStrainPanel',
+    'vertexStrainPanel',
+    'vertexLongTrendPanel',
+    'vertexConsistencyPanel',
+    'vertexAdaptiveCoachPanel',
+    'vertexHybridRoutingPanel'
+  ];
+  var FULL_WIDTH_PANEL_IDS = [
+    'vertexProgressionPanel',
+    'vertexPerformanceDecisionPanel',
+    'vertexRecoveryTrendPanel',
+    'vertexTolerancePanel'
+  ];
+  var MEMORY_PANEL_ID = 'vertexWorkoutPersistencePanel';
+
+  function progressPage(){ return document.getElementById('progressPage'); }
+  function isProgressActive(){
+    try{
+      var p = progressPage();
+      if(!p) return false;
+      var s = window.getComputedStyle ? window.getComputedStyle(p) : null;
+      return document.body.classList.contains('app-page-progress') || (p.style.display !== 'none' && (!s || s.display !== 'none'));
+    }catch(e){ return false; }
+  }
+  function byId(id){ return document.getElementById(id); }
+  function makeHolder(id, className){
+    var h = byId(id);
+    if(!h){
+      h = document.createElement('div');
+      h.id = id;
+      if(className) h.className = className;
+    }
+    h.classList.add('vertex-b2-progress-only');
+    return h;
+  }
+  function normalizePanel(panel){
+    if(!panel) return;
+    panel.classList.add('vertex-b2-progress-only');
+    panel.style.boxSizing = 'border-box';
+    panel.style.borderRadius = panel.style.borderRadius || '18px';
+    panel.style.marginBottom = '0';
+    panel.style.display = isProgressActive() ? '' : 'none';
+  }
+  function mountKpiRows(p){
+    var summary = byId('progressSummary');
+    if(!summary || !p.contains(summary)) return;
+    var cards = Array.prototype.slice.call(summary.querySelectorAll(':scope > .progress-kpi, :scope > .vertex-b2-kpi-row > .progress-kpi'));
+    if(!cards.length) return;
+    var row1 = byId('vertexB2KpiRow1') || document.createElement('div');
+    var row2 = byId('vertexB2KpiRow2') || document.createElement('div');
+    row1.id = 'vertexB2KpiRow1'; row2.id = 'vertexB2KpiRow2';
+    row1.className = 'vertex-b2-kpi-row'; row2.className = 'vertex-b2-kpi-row';
+    if(row1.parentNode !== summary) summary.appendChild(row1);
+    if(row2.parentNode !== summary) summary.appendChild(row2);
+    var split = Math.ceil(cards.length / 2);
+    cards.forEach(function(card, idx){ (idx < split ? row1 : row2).appendChild(card); });
+    summary.classList.add('vertex-b2-kpi-mounted');
+  }
+  function mountProgressPanels(p){
+    var tabs = p.querySelector('.progress-tabs');
+    var tabContent = byId('progressTabContent');
+    if(!tabs || !tabContent) return;
+
+    // Ensure the sub-tab menu remains immediately before the analytics tab content.
+    if(tabs.nextElementSibling !== tabContent){
+      tabs.insertAdjacentElement('afterend', tabContent);
+    }
+
+    var carouselHolder = makeHolder('vertexProgressCarouselHolder','vertex-b2-progress-panel-row');
+    var decisionHolder = makeHolder('vertexProgressDecisionHolder','');
+    var memoryHolder = makeHolder('vertexProgressMemoryHolder','');
+    var movementHolder = makeHolder('vertexMovementHistoryHolder','progress-card wide vertex-b2-progress-only');
+
+    // Keep added B2 panels below the analytics tabs/content, not above the sub-tabs.
+    if(tabContent.nextElementSibling !== carouselHolder) tabContent.insertAdjacentElement('afterend', carouselHolder);
+    if(carouselHolder.nextElementSibling !== decisionHolder) carouselHolder.insertAdjacentElement('afterend', decisionHolder);
+    if(decisionHolder.nextElementSibling !== memoryHolder) decisionHolder.insertAdjacentElement('afterend', memoryHolder);
+    if(memoryHolder.nextElementSibling !== movementHolder) memoryHolder.insertAdjacentElement('afterend', movementHolder);
+
+    CAROUSEL_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); carouselHolder.appendChild(el); } });
+    FULL_WIDTH_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); decisionHolder.appendChild(el); } });
+
+    var memory = byId(MEMORY_PANEL_ID);
+    if(memory){
+      normalizePanel(memory);
+      memoryHolder.appendChild(memory);
+      memoryHolder.style.display = isProgressActive() ? '' : 'none';
+    }
+
+    var history = byId('progressHistory');
+    if(history && movementHolder){
+      if(!movementHolder.querySelector('.label')){
+        var label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = 'Movement History';
+        movementHolder.appendChild(label);
+      }
+      movementHolder.appendChild(history);
+      movementHolder.style.display = isProgressActive() ? '' : 'none';
+    }
+
+    [carouselHolder, decisionHolder, memoryHolder, movementHolder].forEach(function(h){
+      if(h) h.style.display = isProgressActive() ? '' : 'none';
+    });
+  }
+  function applySeverityColors(root){
+    root = root || document;
+    var targets = root.querySelectorAll('#progressPage .vertex-panel-body div, #progressPage .vertex-panel-body b, #progressPage .badge, #progressPage .perf-pill');
+    Array.prototype.forEach.call(targets, function(el){
+      var t = (el.textContent || '').toLowerCase();
+      if(!t) return;
+      el.classList.remove('vertex-b2-severity-good','vertex-b2-severity-watch','vertex-b2-severity-bad');
+      if(/overreach|elevated|high|declin|reduce|fatigue|caution/.test(t)) el.classList.add('vertex-b2-severity-bad');
+      else if(/moderate|watch|hold|maintain|stable|controlled/.test(t)) el.classList.add('vertex-b2-severity-watch');
+      else if(/low|good|recovered|improving|progression|on track|favorable|sustainable/.test(t)) el.classList.add('vertex-b2-severity-good');
+    });
+  }
+  function run(){
+    try{
+      var p = progressPage();
+      if(!p) return;
+      mountKpiRows(p);
+      mountProgressPanels(p);
+      applySeverityColors(p);
+    }catch(e){ console.error('Vertex B2 final hierarchy repair failed', e); }
+  }
+  function schedule(){ [0,80,250,700,1400,2600].forEach(function(ms){ setTimeout(run, ms); }); }
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(run, 80); });
+  document.addEventListener('click', function(){ setTimeout(run, 120); }, true);
+  try{
+    var mo = new MutationObserver(function(){ clearTimeout(window.__vertexB2HierarchyTimer); window.__vertexB2HierarchyTimer = setTimeout(run, 80); });
+    mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['style','class']});
+  }catch(e){}
+})();
+</script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -10506,6 +10721,221 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+
+<!-- Vertex Phase B2 final hierarchy repair: Progress scoped, no auth/service worker/chart/SVG logic changes -->
+<style id="vertex-b2-final-hierarchy-css">
+@media (max-width:900px){
+  #progressPage #progressSummary.vertex-b2-kpi-mounted{
+    display:block!important;
+    margin:14px 0 12px!important;
+    overflow:visible!important;
+  }
+  #progressPage .vertex-b2-kpi-row{
+    display:flex!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x proximity!important;
+    scrollbar-width:none!important;
+    padding:2px 2px 10px!important;
+    margin:0 0 8px!important;
+  }
+  #progressPage .vertex-b2-kpi-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-kpi-row .progress-kpi{
+    flex:0 0 72%!important;
+    min-width:72%!important;
+    max-width:72%!important;
+    scroll-snap-align:start!important;
+    margin:0!important;
+  }
+  #progressPage .vertex-b2-progress-panel-row{
+    display:flex!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    padding:2px 2px 10px!important;
+    margin:10px 0 12px!important;
+  }
+  #progressPage .vertex-b2-progress-panel-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-progress-panel-row > div,
+  #progressPage .vertex-b2-progress-panel-row > section{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    margin:0!important;
+  }
+  #progressPage #vertexProgressDecisionHolder{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+    margin:14px 0!important;
+  }
+  #progressPage #vertexProgressDecisionHolder > div,
+  #progressPage #vertexProgressDecisionHolder > section,
+  #progressPage #vertexMovementHistoryHolder{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+  body:not(.app-page-progress) .vertex-b2-progress-only,
+  body.app-page-home .vertex-b2-progress-only{display:none!important;}
+}
+@media (min-width:901px){
+  #progressPage #progressSummary.vertex-b2-kpi-mounted{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px!important;}
+  #progressPage .vertex-b2-kpi-row{display:contents!important;}
+  #progressPage .vertex-b2-progress-panel-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:12px 0!important;}
+  #progressPage #vertexProgressDecisionHolder{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:14px 0!important;}
+}
+.vertex-b2-severity-good{color:var(--green)!important;border-color:rgba(72,255,138,.45)!important;}
+.vertex-b2-severity-watch{color:var(--orange)!important;border-color:rgba(255,176,71,.5)!important;}
+.vertex-b2-severity-bad{color:var(--red)!important;border-color:rgba(255,77,77,.5)!important;}
+</style>
+<script id="vertex-b2-final-hierarchy-js">
+(function(){
+  var CAROUSEL_PANEL_IDS = [
+    'vertexCardioStrainPanel',
+    'vertexStrainPanel',
+    'vertexLongTrendPanel',
+    'vertexConsistencyPanel',
+    'vertexAdaptiveCoachPanel',
+    'vertexHybridRoutingPanel'
+  ];
+  var FULL_WIDTH_PANEL_IDS = [
+    'vertexProgressionPanel',
+    'vertexPerformanceDecisionPanel',
+    'vertexRecoveryTrendPanel',
+    'vertexTolerancePanel'
+  ];
+  var MEMORY_PANEL_ID = 'vertexWorkoutPersistencePanel';
+
+  function progressPage(){ return document.getElementById('progressPage'); }
+  function isProgressActive(){
+    try{
+      var p = progressPage();
+      if(!p) return false;
+      var s = window.getComputedStyle ? window.getComputedStyle(p) : null;
+      return document.body.classList.contains('app-page-progress') || (p.style.display !== 'none' && (!s || s.display !== 'none'));
+    }catch(e){ return false; }
+  }
+  function byId(id){ return document.getElementById(id); }
+  function makeHolder(id, className){
+    var h = byId(id);
+    if(!h){
+      h = document.createElement('div');
+      h.id = id;
+      if(className) h.className = className;
+    }
+    h.classList.add('vertex-b2-progress-only');
+    return h;
+  }
+  function normalizePanel(panel){
+    if(!panel) return;
+    panel.classList.add('vertex-b2-progress-only');
+    panel.style.boxSizing = 'border-box';
+    panel.style.borderRadius = panel.style.borderRadius || '18px';
+    panel.style.marginBottom = '0';
+    panel.style.display = isProgressActive() ? '' : 'none';
+  }
+  function mountKpiRows(p){
+    var summary = byId('progressSummary');
+    if(!summary || !p.contains(summary)) return;
+    var cards = Array.prototype.slice.call(summary.querySelectorAll(':scope > .progress-kpi, :scope > .vertex-b2-kpi-row > .progress-kpi'));
+    if(!cards.length) return;
+    var row1 = byId('vertexB2KpiRow1') || document.createElement('div');
+    var row2 = byId('vertexB2KpiRow2') || document.createElement('div');
+    row1.id = 'vertexB2KpiRow1'; row2.id = 'vertexB2KpiRow2';
+    row1.className = 'vertex-b2-kpi-row'; row2.className = 'vertex-b2-kpi-row';
+    if(row1.parentNode !== summary) summary.appendChild(row1);
+    if(row2.parentNode !== summary) summary.appendChild(row2);
+    var split = Math.ceil(cards.length / 2);
+    cards.forEach(function(card, idx){ (idx < split ? row1 : row2).appendChild(card); });
+    summary.classList.add('vertex-b2-kpi-mounted');
+  }
+  function mountProgressPanels(p){
+    var tabs = p.querySelector('.progress-tabs');
+    var tabContent = byId('progressTabContent');
+    if(!tabs || !tabContent) return;
+
+    // Ensure the sub-tab menu remains immediately before the analytics tab content.
+    if(tabs.nextElementSibling !== tabContent){
+      tabs.insertAdjacentElement('afterend', tabContent);
+    }
+
+    var carouselHolder = makeHolder('vertexProgressCarouselHolder','vertex-b2-progress-panel-row');
+    var decisionHolder = makeHolder('vertexProgressDecisionHolder','');
+    var memoryHolder = makeHolder('vertexProgressMemoryHolder','');
+    var movementHolder = makeHolder('vertexMovementHistoryHolder','progress-card wide vertex-b2-progress-only');
+
+    // Keep added B2 panels below the analytics tabs/content, not above the sub-tabs.
+    if(tabContent.nextElementSibling !== carouselHolder) tabContent.insertAdjacentElement('afterend', carouselHolder);
+    if(carouselHolder.nextElementSibling !== decisionHolder) carouselHolder.insertAdjacentElement('afterend', decisionHolder);
+    if(decisionHolder.nextElementSibling !== memoryHolder) decisionHolder.insertAdjacentElement('afterend', memoryHolder);
+    if(memoryHolder.nextElementSibling !== movementHolder) memoryHolder.insertAdjacentElement('afterend', movementHolder);
+
+    CAROUSEL_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); carouselHolder.appendChild(el); } });
+    FULL_WIDTH_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); decisionHolder.appendChild(el); } });
+
+    var memory = byId(MEMORY_PANEL_ID);
+    if(memory){
+      normalizePanel(memory);
+      memoryHolder.appendChild(memory);
+      memoryHolder.style.display = isProgressActive() ? '' : 'none';
+    }
+
+    var history = byId('progressHistory');
+    if(history && movementHolder){
+      if(!movementHolder.querySelector('.label')){
+        var label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = 'Movement History';
+        movementHolder.appendChild(label);
+      }
+      movementHolder.appendChild(history);
+      movementHolder.style.display = isProgressActive() ? '' : 'none';
+    }
+
+    [carouselHolder, decisionHolder, memoryHolder, movementHolder].forEach(function(h){
+      if(h) h.style.display = isProgressActive() ? '' : 'none';
+    });
+  }
+  function applySeverityColors(root){
+    root = root || document;
+    var targets = root.querySelectorAll('#progressPage .vertex-panel-body div, #progressPage .vertex-panel-body b, #progressPage .badge, #progressPage .perf-pill');
+    Array.prototype.forEach.call(targets, function(el){
+      var t = (el.textContent || '').toLowerCase();
+      if(!t) return;
+      el.classList.remove('vertex-b2-severity-good','vertex-b2-severity-watch','vertex-b2-severity-bad');
+      if(/overreach|elevated|high|declin|reduce|fatigue|caution/.test(t)) el.classList.add('vertex-b2-severity-bad');
+      else if(/moderate|watch|hold|maintain|stable|controlled/.test(t)) el.classList.add('vertex-b2-severity-watch');
+      else if(/low|good|recovered|improving|progression|on track|favorable|sustainable/.test(t)) el.classList.add('vertex-b2-severity-good');
+    });
+  }
+  function run(){
+    try{
+      var p = progressPage();
+      if(!p) return;
+      mountKpiRows(p);
+      mountProgressPanels(p);
+      applySeverityColors(p);
+    }catch(e){ console.error('Vertex B2 final hierarchy repair failed', e); }
+  }
+  function schedule(){ [0,80,250,700,1400,2600].forEach(function(ms){ setTimeout(run, ms); }); }
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(run, 80); });
+  document.addEventListener('click', function(){ setTimeout(run, 120); }, true);
+  try{
+    var mo = new MutationObserver(function(){ clearTimeout(window.__vertexB2HierarchyTimer); window.__vertexB2HierarchyTimer = setTimeout(run, 80); });
+    mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['style','class']});
+  }catch(e){}
+})();
+</script>
+
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -10771,6 +11201,221 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+
+<!-- Vertex Phase B2 final hierarchy repair: Progress scoped, no auth/service worker/chart/SVG logic changes -->
+<style id="vertex-b2-final-hierarchy-css">
+@media (max-width:900px){
+  #progressPage #progressSummary.vertex-b2-kpi-mounted{
+    display:block!important;
+    margin:14px 0 12px!important;
+    overflow:visible!important;
+  }
+  #progressPage .vertex-b2-kpi-row{
+    display:flex!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x proximity!important;
+    scrollbar-width:none!important;
+    padding:2px 2px 10px!important;
+    margin:0 0 8px!important;
+  }
+  #progressPage .vertex-b2-kpi-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-kpi-row .progress-kpi{
+    flex:0 0 72%!important;
+    min-width:72%!important;
+    max-width:72%!important;
+    scroll-snap-align:start!important;
+    margin:0!important;
+  }
+  #progressPage .vertex-b2-progress-panel-row{
+    display:flex!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    padding:2px 2px 10px!important;
+    margin:10px 0 12px!important;
+  }
+  #progressPage .vertex-b2-progress-panel-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-progress-panel-row > div,
+  #progressPage .vertex-b2-progress-panel-row > section{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    margin:0!important;
+  }
+  #progressPage #vertexProgressDecisionHolder{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+    margin:14px 0!important;
+  }
+  #progressPage #vertexProgressDecisionHolder > div,
+  #progressPage #vertexProgressDecisionHolder > section,
+  #progressPage #vertexMovementHistoryHolder{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+  body:not(.app-page-progress) .vertex-b2-progress-only,
+  body.app-page-home .vertex-b2-progress-only{display:none!important;}
+}
+@media (min-width:901px){
+  #progressPage #progressSummary.vertex-b2-kpi-mounted{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px!important;}
+  #progressPage .vertex-b2-kpi-row{display:contents!important;}
+  #progressPage .vertex-b2-progress-panel-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:12px 0!important;}
+  #progressPage #vertexProgressDecisionHolder{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:14px 0!important;}
+}
+.vertex-b2-severity-good{color:var(--green)!important;border-color:rgba(72,255,138,.45)!important;}
+.vertex-b2-severity-watch{color:var(--orange)!important;border-color:rgba(255,176,71,.5)!important;}
+.vertex-b2-severity-bad{color:var(--red)!important;border-color:rgba(255,77,77,.5)!important;}
+</style>
+<script id="vertex-b2-final-hierarchy-js">
+(function(){
+  var CAROUSEL_PANEL_IDS = [
+    'vertexCardioStrainPanel',
+    'vertexStrainPanel',
+    'vertexLongTrendPanel',
+    'vertexConsistencyPanel',
+    'vertexAdaptiveCoachPanel',
+    'vertexHybridRoutingPanel'
+  ];
+  var FULL_WIDTH_PANEL_IDS = [
+    'vertexProgressionPanel',
+    'vertexPerformanceDecisionPanel',
+    'vertexRecoveryTrendPanel',
+    'vertexTolerancePanel'
+  ];
+  var MEMORY_PANEL_ID = 'vertexWorkoutPersistencePanel';
+
+  function progressPage(){ return document.getElementById('progressPage'); }
+  function isProgressActive(){
+    try{
+      var p = progressPage();
+      if(!p) return false;
+      var s = window.getComputedStyle ? window.getComputedStyle(p) : null;
+      return document.body.classList.contains('app-page-progress') || (p.style.display !== 'none' && (!s || s.display !== 'none'));
+    }catch(e){ return false; }
+  }
+  function byId(id){ return document.getElementById(id); }
+  function makeHolder(id, className){
+    var h = byId(id);
+    if(!h){
+      h = document.createElement('div');
+      h.id = id;
+      if(className) h.className = className;
+    }
+    h.classList.add('vertex-b2-progress-only');
+    return h;
+  }
+  function normalizePanel(panel){
+    if(!panel) return;
+    panel.classList.add('vertex-b2-progress-only');
+    panel.style.boxSizing = 'border-box';
+    panel.style.borderRadius = panel.style.borderRadius || '18px';
+    panel.style.marginBottom = '0';
+    panel.style.display = isProgressActive() ? '' : 'none';
+  }
+  function mountKpiRows(p){
+    var summary = byId('progressSummary');
+    if(!summary || !p.contains(summary)) return;
+    var cards = Array.prototype.slice.call(summary.querySelectorAll(':scope > .progress-kpi, :scope > .vertex-b2-kpi-row > .progress-kpi'));
+    if(!cards.length) return;
+    var row1 = byId('vertexB2KpiRow1') || document.createElement('div');
+    var row2 = byId('vertexB2KpiRow2') || document.createElement('div');
+    row1.id = 'vertexB2KpiRow1'; row2.id = 'vertexB2KpiRow2';
+    row1.className = 'vertex-b2-kpi-row'; row2.className = 'vertex-b2-kpi-row';
+    if(row1.parentNode !== summary) summary.appendChild(row1);
+    if(row2.parentNode !== summary) summary.appendChild(row2);
+    var split = Math.ceil(cards.length / 2);
+    cards.forEach(function(card, idx){ (idx < split ? row1 : row2).appendChild(card); });
+    summary.classList.add('vertex-b2-kpi-mounted');
+  }
+  function mountProgressPanels(p){
+    var tabs = p.querySelector('.progress-tabs');
+    var tabContent = byId('progressTabContent');
+    if(!tabs || !tabContent) return;
+
+    // Ensure the sub-tab menu remains immediately before the analytics tab content.
+    if(tabs.nextElementSibling !== tabContent){
+      tabs.insertAdjacentElement('afterend', tabContent);
+    }
+
+    var carouselHolder = makeHolder('vertexProgressCarouselHolder','vertex-b2-progress-panel-row');
+    var decisionHolder = makeHolder('vertexProgressDecisionHolder','');
+    var memoryHolder = makeHolder('vertexProgressMemoryHolder','');
+    var movementHolder = makeHolder('vertexMovementHistoryHolder','progress-card wide vertex-b2-progress-only');
+
+    // Keep added B2 panels below the analytics tabs/content, not above the sub-tabs.
+    if(tabContent.nextElementSibling !== carouselHolder) tabContent.insertAdjacentElement('afterend', carouselHolder);
+    if(carouselHolder.nextElementSibling !== decisionHolder) carouselHolder.insertAdjacentElement('afterend', decisionHolder);
+    if(decisionHolder.nextElementSibling !== memoryHolder) decisionHolder.insertAdjacentElement('afterend', memoryHolder);
+    if(memoryHolder.nextElementSibling !== movementHolder) memoryHolder.insertAdjacentElement('afterend', movementHolder);
+
+    CAROUSEL_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); carouselHolder.appendChild(el); } });
+    FULL_WIDTH_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); decisionHolder.appendChild(el); } });
+
+    var memory = byId(MEMORY_PANEL_ID);
+    if(memory){
+      normalizePanel(memory);
+      memoryHolder.appendChild(memory);
+      memoryHolder.style.display = isProgressActive() ? '' : 'none';
+    }
+
+    var history = byId('progressHistory');
+    if(history && movementHolder){
+      if(!movementHolder.querySelector('.label')){
+        var label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = 'Movement History';
+        movementHolder.appendChild(label);
+      }
+      movementHolder.appendChild(history);
+      movementHolder.style.display = isProgressActive() ? '' : 'none';
+    }
+
+    [carouselHolder, decisionHolder, memoryHolder, movementHolder].forEach(function(h){
+      if(h) h.style.display = isProgressActive() ? '' : 'none';
+    });
+  }
+  function applySeverityColors(root){
+    root = root || document;
+    var targets = root.querySelectorAll('#progressPage .vertex-panel-body div, #progressPage .vertex-panel-body b, #progressPage .badge, #progressPage .perf-pill');
+    Array.prototype.forEach.call(targets, function(el){
+      var t = (el.textContent || '').toLowerCase();
+      if(!t) return;
+      el.classList.remove('vertex-b2-severity-good','vertex-b2-severity-watch','vertex-b2-severity-bad');
+      if(/overreach|elevated|high|declin|reduce|fatigue|caution/.test(t)) el.classList.add('vertex-b2-severity-bad');
+      else if(/moderate|watch|hold|maintain|stable|controlled/.test(t)) el.classList.add('vertex-b2-severity-watch');
+      else if(/low|good|recovered|improving|progression|on track|favorable|sustainable/.test(t)) el.classList.add('vertex-b2-severity-good');
+    });
+  }
+  function run(){
+    try{
+      var p = progressPage();
+      if(!p) return;
+      mountKpiRows(p);
+      mountProgressPanels(p);
+      applySeverityColors(p);
+    }catch(e){ console.error('Vertex B2 final hierarchy repair failed', e); }
+  }
+  function schedule(){ [0,80,250,700,1400,2600].forEach(function(ms){ setTimeout(run, ms); }); }
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(run, 80); });
+  document.addEventListener('click', function(){ setTimeout(run, 120); }, true);
+  try{
+    var mo = new MutationObserver(function(){ clearTimeout(window.__vertexB2HierarchyTimer); window.__vertexB2HierarchyTimer = setTimeout(run, 80); });
+    mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['style','class']});
+  }catch(e){}
+})();
+</script>
+
 </body></html>`);
     w.document.close();
   };
@@ -10999,6 +11644,221 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+
+<!-- Vertex Phase B2 final hierarchy repair: Progress scoped, no auth/service worker/chart/SVG logic changes -->
+<style id="vertex-b2-final-hierarchy-css">
+@media (max-width:900px){
+  #progressPage #progressSummary.vertex-b2-kpi-mounted{
+    display:block!important;
+    margin:14px 0 12px!important;
+    overflow:visible!important;
+  }
+  #progressPage .vertex-b2-kpi-row{
+    display:flex!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x proximity!important;
+    scrollbar-width:none!important;
+    padding:2px 2px 10px!important;
+    margin:0 0 8px!important;
+  }
+  #progressPage .vertex-b2-kpi-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-kpi-row .progress-kpi{
+    flex:0 0 72%!important;
+    min-width:72%!important;
+    max-width:72%!important;
+    scroll-snap-align:start!important;
+    margin:0!important;
+  }
+  #progressPage .vertex-b2-progress-panel-row{
+    display:flex!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    padding:2px 2px 10px!important;
+    margin:10px 0 12px!important;
+  }
+  #progressPage .vertex-b2-progress-panel-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-progress-panel-row > div,
+  #progressPage .vertex-b2-progress-panel-row > section{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    margin:0!important;
+  }
+  #progressPage #vertexProgressDecisionHolder{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+    margin:14px 0!important;
+  }
+  #progressPage #vertexProgressDecisionHolder > div,
+  #progressPage #vertexProgressDecisionHolder > section,
+  #progressPage #vertexMovementHistoryHolder{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+  body:not(.app-page-progress) .vertex-b2-progress-only,
+  body.app-page-home .vertex-b2-progress-only{display:none!important;}
+}
+@media (min-width:901px){
+  #progressPage #progressSummary.vertex-b2-kpi-mounted{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px!important;}
+  #progressPage .vertex-b2-kpi-row{display:contents!important;}
+  #progressPage .vertex-b2-progress-panel-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:12px 0!important;}
+  #progressPage #vertexProgressDecisionHolder{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:14px 0!important;}
+}
+.vertex-b2-severity-good{color:var(--green)!important;border-color:rgba(72,255,138,.45)!important;}
+.vertex-b2-severity-watch{color:var(--orange)!important;border-color:rgba(255,176,71,.5)!important;}
+.vertex-b2-severity-bad{color:var(--red)!important;border-color:rgba(255,77,77,.5)!important;}
+</style>
+<script id="vertex-b2-final-hierarchy-js">
+(function(){
+  var CAROUSEL_PANEL_IDS = [
+    'vertexCardioStrainPanel',
+    'vertexStrainPanel',
+    'vertexLongTrendPanel',
+    'vertexConsistencyPanel',
+    'vertexAdaptiveCoachPanel',
+    'vertexHybridRoutingPanel'
+  ];
+  var FULL_WIDTH_PANEL_IDS = [
+    'vertexProgressionPanel',
+    'vertexPerformanceDecisionPanel',
+    'vertexRecoveryTrendPanel',
+    'vertexTolerancePanel'
+  ];
+  var MEMORY_PANEL_ID = 'vertexWorkoutPersistencePanel';
+
+  function progressPage(){ return document.getElementById('progressPage'); }
+  function isProgressActive(){
+    try{
+      var p = progressPage();
+      if(!p) return false;
+      var s = window.getComputedStyle ? window.getComputedStyle(p) : null;
+      return document.body.classList.contains('app-page-progress') || (p.style.display !== 'none' && (!s || s.display !== 'none'));
+    }catch(e){ return false; }
+  }
+  function byId(id){ return document.getElementById(id); }
+  function makeHolder(id, className){
+    var h = byId(id);
+    if(!h){
+      h = document.createElement('div');
+      h.id = id;
+      if(className) h.className = className;
+    }
+    h.classList.add('vertex-b2-progress-only');
+    return h;
+  }
+  function normalizePanel(panel){
+    if(!panel) return;
+    panel.classList.add('vertex-b2-progress-only');
+    panel.style.boxSizing = 'border-box';
+    panel.style.borderRadius = panel.style.borderRadius || '18px';
+    panel.style.marginBottom = '0';
+    panel.style.display = isProgressActive() ? '' : 'none';
+  }
+  function mountKpiRows(p){
+    var summary = byId('progressSummary');
+    if(!summary || !p.contains(summary)) return;
+    var cards = Array.prototype.slice.call(summary.querySelectorAll(':scope > .progress-kpi, :scope > .vertex-b2-kpi-row > .progress-kpi'));
+    if(!cards.length) return;
+    var row1 = byId('vertexB2KpiRow1') || document.createElement('div');
+    var row2 = byId('vertexB2KpiRow2') || document.createElement('div');
+    row1.id = 'vertexB2KpiRow1'; row2.id = 'vertexB2KpiRow2';
+    row1.className = 'vertex-b2-kpi-row'; row2.className = 'vertex-b2-kpi-row';
+    if(row1.parentNode !== summary) summary.appendChild(row1);
+    if(row2.parentNode !== summary) summary.appendChild(row2);
+    var split = Math.ceil(cards.length / 2);
+    cards.forEach(function(card, idx){ (idx < split ? row1 : row2).appendChild(card); });
+    summary.classList.add('vertex-b2-kpi-mounted');
+  }
+  function mountProgressPanels(p){
+    var tabs = p.querySelector('.progress-tabs');
+    var tabContent = byId('progressTabContent');
+    if(!tabs || !tabContent) return;
+
+    // Ensure the sub-tab menu remains immediately before the analytics tab content.
+    if(tabs.nextElementSibling !== tabContent){
+      tabs.insertAdjacentElement('afterend', tabContent);
+    }
+
+    var carouselHolder = makeHolder('vertexProgressCarouselHolder','vertex-b2-progress-panel-row');
+    var decisionHolder = makeHolder('vertexProgressDecisionHolder','');
+    var memoryHolder = makeHolder('vertexProgressMemoryHolder','');
+    var movementHolder = makeHolder('vertexMovementHistoryHolder','progress-card wide vertex-b2-progress-only');
+
+    // Keep added B2 panels below the analytics tabs/content, not above the sub-tabs.
+    if(tabContent.nextElementSibling !== carouselHolder) tabContent.insertAdjacentElement('afterend', carouselHolder);
+    if(carouselHolder.nextElementSibling !== decisionHolder) carouselHolder.insertAdjacentElement('afterend', decisionHolder);
+    if(decisionHolder.nextElementSibling !== memoryHolder) decisionHolder.insertAdjacentElement('afterend', memoryHolder);
+    if(memoryHolder.nextElementSibling !== movementHolder) memoryHolder.insertAdjacentElement('afterend', movementHolder);
+
+    CAROUSEL_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); carouselHolder.appendChild(el); } });
+    FULL_WIDTH_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); decisionHolder.appendChild(el); } });
+
+    var memory = byId(MEMORY_PANEL_ID);
+    if(memory){
+      normalizePanel(memory);
+      memoryHolder.appendChild(memory);
+      memoryHolder.style.display = isProgressActive() ? '' : 'none';
+    }
+
+    var history = byId('progressHistory');
+    if(history && movementHolder){
+      if(!movementHolder.querySelector('.label')){
+        var label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = 'Movement History';
+        movementHolder.appendChild(label);
+      }
+      movementHolder.appendChild(history);
+      movementHolder.style.display = isProgressActive() ? '' : 'none';
+    }
+
+    [carouselHolder, decisionHolder, memoryHolder, movementHolder].forEach(function(h){
+      if(h) h.style.display = isProgressActive() ? '' : 'none';
+    });
+  }
+  function applySeverityColors(root){
+    root = root || document;
+    var targets = root.querySelectorAll('#progressPage .vertex-panel-body div, #progressPage .vertex-panel-body b, #progressPage .badge, #progressPage .perf-pill');
+    Array.prototype.forEach.call(targets, function(el){
+      var t = (el.textContent || '').toLowerCase();
+      if(!t) return;
+      el.classList.remove('vertex-b2-severity-good','vertex-b2-severity-watch','vertex-b2-severity-bad');
+      if(/overreach|elevated|high|declin|reduce|fatigue|caution/.test(t)) el.classList.add('vertex-b2-severity-bad');
+      else if(/moderate|watch|hold|maintain|stable|controlled/.test(t)) el.classList.add('vertex-b2-severity-watch');
+      else if(/low|good|recovered|improving|progression|on track|favorable|sustainable/.test(t)) el.classList.add('vertex-b2-severity-good');
+    });
+  }
+  function run(){
+    try{
+      var p = progressPage();
+      if(!p) return;
+      mountKpiRows(p);
+      mountProgressPanels(p);
+      applySeverityColors(p);
+    }catch(e){ console.error('Vertex B2 final hierarchy repair failed', e); }
+  }
+  function schedule(){ [0,80,250,700,1400,2600].forEach(function(ms){ setTimeout(run, ms); }); }
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(run, 80); });
+  document.addEventListener('click', function(){ setTimeout(run, 120); }, true);
+  try{
+    var mo = new MutationObserver(function(){ clearTimeout(window.__vertexB2HierarchyTimer); window.__vertexB2HierarchyTimer = setTimeout(run, 80); });
+    mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['style','class']});
+  }catch(e){}
+})();
+</script>
+
 </body></html>`);
   w.document.close();
 }
@@ -18396,6 +19256,221 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 })();
 </script>
 
+
+
+<!-- Vertex Phase B2 final hierarchy repair: Progress scoped, no auth/service worker/chart/SVG logic changes -->
+<style id="vertex-b2-final-hierarchy-css">
+@media (max-width:900px){
+  #progressPage #progressSummary.vertex-b2-kpi-mounted{
+    display:block!important;
+    margin:14px 0 12px!important;
+    overflow:visible!important;
+  }
+  #progressPage .vertex-b2-kpi-row{
+    display:flex!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x proximity!important;
+    scrollbar-width:none!important;
+    padding:2px 2px 10px!important;
+    margin:0 0 8px!important;
+  }
+  #progressPage .vertex-b2-kpi-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-kpi-row .progress-kpi{
+    flex:0 0 72%!important;
+    min-width:72%!important;
+    max-width:72%!important;
+    scroll-snap-align:start!important;
+    margin:0!important;
+  }
+  #progressPage .vertex-b2-progress-panel-row{
+    display:flex!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    padding:2px 2px 10px!important;
+    margin:10px 0 12px!important;
+  }
+  #progressPage .vertex-b2-progress-panel-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-progress-panel-row > div,
+  #progressPage .vertex-b2-progress-panel-row > section{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    margin:0!important;
+  }
+  #progressPage #vertexProgressDecisionHolder{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+    margin:14px 0!important;
+  }
+  #progressPage #vertexProgressDecisionHolder > div,
+  #progressPage #vertexProgressDecisionHolder > section,
+  #progressPage #vertexMovementHistoryHolder{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+  body:not(.app-page-progress) .vertex-b2-progress-only,
+  body.app-page-home .vertex-b2-progress-only{display:none!important;}
+}
+@media (min-width:901px){
+  #progressPage #progressSummary.vertex-b2-kpi-mounted{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px!important;}
+  #progressPage .vertex-b2-kpi-row{display:contents!important;}
+  #progressPage .vertex-b2-progress-panel-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:12px 0!important;}
+  #progressPage #vertexProgressDecisionHolder{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:14px 0!important;}
+}
+.vertex-b2-severity-good{color:var(--green)!important;border-color:rgba(72,255,138,.45)!important;}
+.vertex-b2-severity-watch{color:var(--orange)!important;border-color:rgba(255,176,71,.5)!important;}
+.vertex-b2-severity-bad{color:var(--red)!important;border-color:rgba(255,77,77,.5)!important;}
+</style>
+<script id="vertex-b2-final-hierarchy-js">
+(function(){
+  var CAROUSEL_PANEL_IDS = [
+    'vertexCardioStrainPanel',
+    'vertexStrainPanel',
+    'vertexLongTrendPanel',
+    'vertexConsistencyPanel',
+    'vertexAdaptiveCoachPanel',
+    'vertexHybridRoutingPanel'
+  ];
+  var FULL_WIDTH_PANEL_IDS = [
+    'vertexProgressionPanel',
+    'vertexPerformanceDecisionPanel',
+    'vertexRecoveryTrendPanel',
+    'vertexTolerancePanel'
+  ];
+  var MEMORY_PANEL_ID = 'vertexWorkoutPersistencePanel';
+
+  function progressPage(){ return document.getElementById('progressPage'); }
+  function isProgressActive(){
+    try{
+      var p = progressPage();
+      if(!p) return false;
+      var s = window.getComputedStyle ? window.getComputedStyle(p) : null;
+      return document.body.classList.contains('app-page-progress') || (p.style.display !== 'none' && (!s || s.display !== 'none'));
+    }catch(e){ return false; }
+  }
+  function byId(id){ return document.getElementById(id); }
+  function makeHolder(id, className){
+    var h = byId(id);
+    if(!h){
+      h = document.createElement('div');
+      h.id = id;
+      if(className) h.className = className;
+    }
+    h.classList.add('vertex-b2-progress-only');
+    return h;
+  }
+  function normalizePanel(panel){
+    if(!panel) return;
+    panel.classList.add('vertex-b2-progress-only');
+    panel.style.boxSizing = 'border-box';
+    panel.style.borderRadius = panel.style.borderRadius || '18px';
+    panel.style.marginBottom = '0';
+    panel.style.display = isProgressActive() ? '' : 'none';
+  }
+  function mountKpiRows(p){
+    var summary = byId('progressSummary');
+    if(!summary || !p.contains(summary)) return;
+    var cards = Array.prototype.slice.call(summary.querySelectorAll(':scope > .progress-kpi, :scope > .vertex-b2-kpi-row > .progress-kpi'));
+    if(!cards.length) return;
+    var row1 = byId('vertexB2KpiRow1') || document.createElement('div');
+    var row2 = byId('vertexB2KpiRow2') || document.createElement('div');
+    row1.id = 'vertexB2KpiRow1'; row2.id = 'vertexB2KpiRow2';
+    row1.className = 'vertex-b2-kpi-row'; row2.className = 'vertex-b2-kpi-row';
+    if(row1.parentNode !== summary) summary.appendChild(row1);
+    if(row2.parentNode !== summary) summary.appendChild(row2);
+    var split = Math.ceil(cards.length / 2);
+    cards.forEach(function(card, idx){ (idx < split ? row1 : row2).appendChild(card); });
+    summary.classList.add('vertex-b2-kpi-mounted');
+  }
+  function mountProgressPanels(p){
+    var tabs = p.querySelector('.progress-tabs');
+    var tabContent = byId('progressTabContent');
+    if(!tabs || !tabContent) return;
+
+    // Ensure the sub-tab menu remains immediately before the analytics tab content.
+    if(tabs.nextElementSibling !== tabContent){
+      tabs.insertAdjacentElement('afterend', tabContent);
+    }
+
+    var carouselHolder = makeHolder('vertexProgressCarouselHolder','vertex-b2-progress-panel-row');
+    var decisionHolder = makeHolder('vertexProgressDecisionHolder','');
+    var memoryHolder = makeHolder('vertexProgressMemoryHolder','');
+    var movementHolder = makeHolder('vertexMovementHistoryHolder','progress-card wide vertex-b2-progress-only');
+
+    // Keep added B2 panels below the analytics tabs/content, not above the sub-tabs.
+    if(tabContent.nextElementSibling !== carouselHolder) tabContent.insertAdjacentElement('afterend', carouselHolder);
+    if(carouselHolder.nextElementSibling !== decisionHolder) carouselHolder.insertAdjacentElement('afterend', decisionHolder);
+    if(decisionHolder.nextElementSibling !== memoryHolder) decisionHolder.insertAdjacentElement('afterend', memoryHolder);
+    if(memoryHolder.nextElementSibling !== movementHolder) memoryHolder.insertAdjacentElement('afterend', movementHolder);
+
+    CAROUSEL_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); carouselHolder.appendChild(el); } });
+    FULL_WIDTH_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); decisionHolder.appendChild(el); } });
+
+    var memory = byId(MEMORY_PANEL_ID);
+    if(memory){
+      normalizePanel(memory);
+      memoryHolder.appendChild(memory);
+      memoryHolder.style.display = isProgressActive() ? '' : 'none';
+    }
+
+    var history = byId('progressHistory');
+    if(history && movementHolder){
+      if(!movementHolder.querySelector('.label')){
+        var label = document.createElement('div');
+        label.className = 'label';
+        label.textContent = 'Movement History';
+        movementHolder.appendChild(label);
+      }
+      movementHolder.appendChild(history);
+      movementHolder.style.display = isProgressActive() ? '' : 'none';
+    }
+
+    [carouselHolder, decisionHolder, memoryHolder, movementHolder].forEach(function(h){
+      if(h) h.style.display = isProgressActive() ? '' : 'none';
+    });
+  }
+  function applySeverityColors(root){
+    root = root || document;
+    var targets = root.querySelectorAll('#progressPage .vertex-panel-body div, #progressPage .vertex-panel-body b, #progressPage .badge, #progressPage .perf-pill');
+    Array.prototype.forEach.call(targets, function(el){
+      var t = (el.textContent || '').toLowerCase();
+      if(!t) return;
+      el.classList.remove('vertex-b2-severity-good','vertex-b2-severity-watch','vertex-b2-severity-bad');
+      if(/overreach|elevated|high|declin|reduce|fatigue|caution/.test(t)) el.classList.add('vertex-b2-severity-bad');
+      else if(/moderate|watch|hold|maintain|stable|controlled/.test(t)) el.classList.add('vertex-b2-severity-watch');
+      else if(/low|good|recovered|improving|progression|on track|favorable|sustainable/.test(t)) el.classList.add('vertex-b2-severity-good');
+    });
+  }
+  function run(){
+    try{
+      var p = progressPage();
+      if(!p) return;
+      mountKpiRows(p);
+      mountProgressPanels(p);
+      applySeverityColors(p);
+    }catch(e){ console.error('Vertex B2 final hierarchy repair failed', e); }
+  }
+  function schedule(){ [0,80,250,700,1400,2600].forEach(function(ms){ setTimeout(run, ms); }); }
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(run, 80); });
+  document.addEventListener('click', function(){ setTimeout(run, 120); }, true);
+  try{
+    var mo = new MutationObserver(function(){ clearTimeout(window.__vertexB2HierarchyTimer); window.__vertexB2HierarchyTimer = setTimeout(run, 80); });
+    mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['style','class']});
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
 
@@ -18564,13 +19639,13 @@ window.addEventListener('vertex-auth-ready', async function() {
 </script>
 
 
-<style id="vertex-phase-b2-progress-scoped">
+<style id="vertex-phase-b2-clean-no-state">
 /* ============================================================
-   Phase B2 progress-scoped patch — presentation only.
-   Keeps B2 intelligence cards inside Progress only.
+   Phase B2 clean patch — mobile presentation only.
    No auth, service worker, chart, SVG, planner, recovery, or state logic changes.
    ============================================================ */
 @media(max-width:900px){
+  /* Top Progress KPI summary: two-row horizontal swipe rail. */
   #progressPage #progressSummary.progress-summary{
     display:grid!important;
     grid-auto-flow:column!important;
@@ -18593,17 +19668,8 @@ window.addEventListener('vertex-auth-ready', async function() {
     scroll-snap-align:start!important;
   }
 
-  #progressPage #vertexProgressIntelligenceHolder{
-    display:block!important;
-    overflow:visible!important;
-    margin-top:14px!important;
-  }
-  body:not(.app-page-progress) #vertexProgressIntelligenceHolder,
-  #app:not(.page-mode) #vertexProgressIntelligenceHolder:not(#progressPage #vertexProgressIntelligenceHolder){
-    display:none!important;
-  }
-
-  #progressPage #vertexB2KpiRails{
+  /* B2 rail for compact progress intelligence/status cards. */
+  #vertexB2KpiRails{
     display:grid!important;
     grid-auto-flow:column!important;
     grid-template-rows:repeat(2,auto)!important;
@@ -18618,8 +19684,8 @@ window.addEventListener('vertex-auth-ready', async function() {
     -webkit-overflow-scrolling:touch!important;
     scrollbar-width:none!important;
   }
-  #progressPage #vertexB2KpiRails::-webkit-scrollbar{display:none!important;}
-  #progressPage #vertexB2KpiRails > *{
+  #vertexB2KpiRails::-webkit-scrollbar{display:none!important;}
+  #vertexB2KpiRails > *{
     width:100%!important;
     min-width:0!important;
     max-width:none!important;
@@ -18627,47 +19693,54 @@ window.addEventListener('vertex-auth-ready', async function() {
     scroll-snap-align:start!important;
   }
 
-  #progressPage #vertexProgressIntelligenceHolder > *:not(#vertexB2KpiRails),
-  #progressPage #vertexRecoveryTrendPanel,
-  #progressPage #vertexTolerancePanel,
-  #progressPage #vertexWorkoutPersistencePanel{
+  /* Holder becomes a normal vertical stack for full-width items. */
+  #vertexProgressIntelligenceHolder{
+    display:block!important;
+    overflow:visible!important;
+    margin-top:14px!important;
+  }
+  #vertexProgressIntelligenceHolder > *:not(#vertexB2KpiRails),
+  #vertexRecoveryTrendPanel,
+  #vertexTolerancePanel,
+  #vertexWorkoutPersistencePanel{
     display:block!important;
     width:100%!important;
     max-width:100%!important;
     margin:0 0 14px!important;
   }
-  #progressPage #vertexWorkoutPersistencePanel{margin-bottom:0!important;}
+  #vertexWorkoutPersistencePanel{margin-bottom:0!important;}
 
+  /* Progress body cards remain full width. */
   #progressPage .progress-layout{grid-template-columns:1fr!important;width:100%!important;}
   #progressPage .progress-card,
   #progressPage .progress-card.wide{width:100%!important;max-width:100%!important;}
 
-  #progressPage #vertexStrainPanel[data-b2-severity="low"],
-  #progressPage #vertexCardioStrainPanel[data-b2-severity="low"],
-  #progressPage #vertexAdaptiveCoachPanel[data-b2-severity="low"]{border-color:rgba(72,255,138,.42)!important;}
-  #progressPage #vertexStrainPanel[data-b2-severity="moderate"],
-  #progressPage #vertexCardioStrainPanel[data-b2-severity="moderate"],
-  #progressPage #vertexAdaptiveCoachPanel[data-b2-severity="moderate"]{border-color:rgba(232,255,71,.5)!important;}
-  #progressPage #vertexStrainPanel[data-b2-severity="watch"],
-  #progressPage #vertexCardioStrainPanel[data-b2-severity="watch"],
-  #progressPage #vertexAdaptiveCoachPanel[data-b2-severity="watch"]{border-color:rgba(255,176,71,.55)!important;}
-  #progressPage #vertexStrainPanel[data-b2-severity="high"],
-  #progressPage #vertexCardioStrainPanel[data-b2-severity="high"],
-  #progressPage #vertexAdaptiveCoachPanel[data-b2-severity="high"]{border-color:rgba(255,77,77,.55)!important;}
+  /* Semantic severity accents for status/intelligence labels. */
+  #vertexStrainPanel[data-b2-severity="low"],
+  #vertexCardioStrainPanel[data-b2-severity="low"],
+  #vertexAdaptiveCoachPanel[data-b2-severity="low"]{border-color:rgba(72,255,138,.42)!important;}
+  #vertexStrainPanel[data-b2-severity="moderate"],
+  #vertexCardioStrainPanel[data-b2-severity="moderate"],
+  #vertexAdaptiveCoachPanel[data-b2-severity="moderate"]{border-color:rgba(232,255,71,.5)!important;}
+  #vertexStrainPanel[data-b2-severity="watch"],
+  #vertexCardioStrainPanel[data-b2-severity="watch"],
+  #vertexAdaptiveCoachPanel[data-b2-severity="watch"]{border-color:rgba(255,176,71,.55)!important;}
+  #vertexStrainPanel[data-b2-severity="high"],
+  #vertexCardioStrainPanel[data-b2-severity="high"],
+  #vertexAdaptiveCoachPanel[data-b2-severity="high"]{border-color:rgba(255,77,77,.55)!important;}
 }
 
 @media(min-width:901px){
-  #progressPage #vertexB2KpiRails{display:contents!important;}
+  #vertexB2KpiRails{display:contents!important;}
   #progressPage #progressSummary.progress-summary{display:grid!important;grid-template-columns:repeat(4,1fr)!important;overflow:visible!important;}
-  body:not(.app-page-progress) #vertexProgressIntelligenceHolder{display:none!important;}
 }
 </style>
 
-<script id="vertex-phase-b2-progress-scoped">
-/* Phase B2 clean DOM presentation patch. Progress page only; DOM/state safe. */
+<script id="vertex-phase-b2-clean-no-state">
+/* Phase B2 clean DOM presentation patch. Uses DOM only; no app state reference. */
 (function(){
-  if(window.__vertexPhaseB2ProgressScoped) return;
-  window.__vertexPhaseB2ProgressScoped = true;
+  if(window.__vertexPhaseB2CleanNoState) return;
+  window.__vertexPhaseB2CleanNoState = true;
 
   var railIds = [
     'vertexStrainPanel',
@@ -18681,13 +19754,6 @@ window.addEventListener('vertex-auth-ready', async function() {
     'vertexTolerancePanel',
     'vertexWorkoutPersistencePanel'
   ];
-
-  function isProgressVisible(){
-    var page = document.getElementById('progressPage');
-    if(!page) return false;
-    if(document.body && document.body.classList.contains('app-page-progress')) return true;
-    return page.style.display !== 'none' && page.offsetParent !== null;
-  }
 
   function severityFromText(text){
     text = String(text || '').toLowerCase();
@@ -18706,41 +19772,16 @@ window.addEventListener('vertex-auth-ready', async function() {
     if(body){
       var first = body.querySelector('div');
       if(first && sev){
-        first.style.color = sev === 'high' ? 'var(--red)' : sev === 'watch' ? 'var(--orange)' : sev === 'moderate' ? 'var(--acc)' : 'var(--green)';
+        var color = sev === 'high' ? 'var(--red)' : sev === 'watch' ? 'var(--orange)' : sev === 'moderate' ? 'var(--acc)' : 'var(--green)';
+        first.style.color = color;
       }
     }
-  }
-
-  function ensureHolder(){
-    var page = document.getElementById('progressPage');
-    if(!page) return null;
-    var holder = document.getElementById('vertexProgressIntelligenceHolder');
-    if(!holder){
-      holder = document.createElement('div');
-      holder.id = 'vertexProgressIntelligenceHolder';
-    }
-    var summary = document.getElementById('progressSummary');
-    if(holder.parentNode !== page){
-      if(summary && summary.parentNode === page){
-        summary.insertAdjacentElement('afterend', holder);
-      }else{
-        page.appendChild(holder);
-      }
-    }
-    return holder;
   }
 
   function applyB2Layout(){
     try{
       var holder = document.getElementById('vertexProgressIntelligenceHolder');
-      if(!isProgressVisible()){
-        if(holder) holder.style.display = 'none';
-        return;
-      }
-
-      holder = ensureHolder();
       if(!holder) return;
-      holder.style.display = '';
 
       var rail = document.getElementById('vertexB2KpiRails');
       if(!rail){
@@ -18754,21 +19795,19 @@ window.addEventListener('vertex-auth-ready', async function() {
       railIds.forEach(function(id){
         var panel = document.getElementById(id);
         if(panel && panel.parentNode !== rail) rail.appendChild(panel);
-        if(panel) panel.style.display = '';
         applySeverity(panel);
       });
 
       fullWidthIds.forEach(function(id){
         var panel = document.getElementById(id);
         if(panel && panel.parentNode !== holder) holder.appendChild(panel);
-        if(panel) panel.style.display = '';
         applySeverity(panel);
       });
 
       var memory = document.getElementById('vertexWorkoutPersistencePanel');
       if(memory && memory.parentNode === holder) holder.appendChild(memory);
     }catch(e){
-      console.warn('Vertex Phase B2 progress-scoped patch skipped:', e);
+      console.warn('Vertex Phase B2 layout patch skipped:', e);
     }
   }
 

@@ -3919,6 +3919,7 @@ body.app-page-progress #progressPage #progressTabContent{order:5!important;}
 }
 </style>
 
+<!-- build: vertex_phase2a_scroll_categories_index211 | baseline:index(211).html | progress deck grouping only -->
 </head>
 <body class="auth-resolving">
 
@@ -6945,26 +6946,21 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
   const recoveryCards=[
     card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', 'Basis: recovery synthesis']),
     card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Continue tracking volume and recovery response.']),
-    card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean reps.']),
+    card('Adaptive Coaching', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean reps.']),
     card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`])
   ];
-  const intelligenceCards=[
+  const trainingCards=[
     card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Top movement: ${topMove.name} (${topMove.sets||0} sets)`:'Top movement pending']),
-    card('Weekly Intelligence', weeklyTrend, [
-      sessions?`${sessions} session${sessions===1?'':'s'} this week — use Volume for raw totals.`:'Log this week to unlock weekly coaching.',
-      daysSince===null?'Last workout pending':daysSince===0?'You logged a workout today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`
-    ]),
-    card('Consistency', consistencyLabel, [
-      sessions>prev?'Keep the rhythm; avoid chasing extra volume.':sessions<prev?'Rebuild frequency before adding load.':'Maintain cadence and quality.',
-      `This week: ${sessions}; previous: ${prev}`
-    ]),
-    card('Longitudinal Trend', longTrend, [readiness!==null?`30-day readiness: ${readiness}`:'Recovery baseline pending', topMove?`Primary movement signal: ${topMove.name}`:'More repeated lifts needed'])
+    card('Longitudinal Trend', longTrend, [readiness!==null?`30-day readiness: ${readiness}`:'Recovery baseline pending', topMove?`Primary movement signal: ${topMove.name}`:'More repeated lifts needed']),
+    card('Progressive Engine', sessions>=3?'Progression eligible':sessions?'Baseline building':'Awaiting sessions', [sessions>=3?'Progress only if form and recovery hold.':'Log repeat sessions to calibrate progression.', topMove?`Anchor lift: ${topMove.name}`:'Anchor lift pending']),
+    card('Performance Decision', readiness!==null&&readiness<60?'Hold or deload':sessions>=3?'Controlled increase':'Build baseline', [readiness!==null&&readiness<60?'Recovery is limiting today.':'Use clean reps before adding load.', `Weekly sessions: ${sessions}`]),
+    card('Hybrid Intelligence', cardio.score>35?'Balance strength + cardio':'Strength-led week', [cardio.score>35?'Watch endurance load before heavy lower-body work.':'Cardio load is not limiting strength work.', `Cardio strain: ${cardio.score||0}`])
   ];
   deck.innerHTML=[
     '<div class="vertex-b2-section-label">Recovery / Readiness</div>',
     `<div class="vertex-b2-row vertex-b2-row-recovery">${recoveryCards.join('')}</div>`,
     '<div class="vertex-b2-section-label">Training Intelligence</div>',
-    `<div class="vertex-b2-row vertex-b2-row-intelligence">${intelligenceCards.join('')}</div>`
+    `<div class="vertex-b2-row vertex-b2-row-intelligence">${trainingCards.join('')}</div>`
   ].join('');
 }
 

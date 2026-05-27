@@ -13017,6 +13017,179 @@ window.vertexImportHKWorkout = async function(idx) {
     observer.observe(document.documentElement, { childList:true, subtree:true });
   } catch(e) {}
 
+
+
+/* ============================================================
+   v20260526-b1 — Planner + Save-State Stability
+   Scope: planner hydration, edit/load save-state, duplicate save guards.
+   No chart/SVG/auth/provider/recovery changes.
+   ============================================================ */
+(function(){
+  if(state.__vertexB1PlannerStability) return;
+  state.__vertexB1PlannerStability=true;
+
+  const b1Locks={plannerDay:Object.create(null),workoutSave:false};
+  const b1ValidDay=day=>DAYS.includes(day);
+  const b1NormalizeWorkout=w=>{
+    if(!w || typeof w!=='object') return null;
+    const x=clone(w);
+    if(!x.name) x.name='Workout';
+    if(!x.type) x.type='strength';
+    if(x.type==='strength' && !Array.isArray(x.exercises)) x.exercises=[];
+    if((x.type==='flow'||x.type==='interval') && !Array.isArray(x.moves)) x.moves=[];
+    return x;
+  };
+  const b1NormalizePlanner=p=>{
+    const out=emptyPlanner();
+    if(p && typeof p==='object'){
+      DAYS.forEach(day=>{
+        const w=p[day];
+        out[day]=w?b1NormalizeWorkout(w):null;
+      });
+    }
+    return out;
+  };
+  const b1RenderPlannerViews=()=>{
+    try{ renderPlanner(); }catch(e){ console.warn('B1 planner render skipped:',e); }
+    try{ renderToday(); }catch(e){ console.warn('B1 today render skipped:',e); }
+    try{ if(typeof renderHomeDashboard==='function') renderHomeDashboard(); }catch(e){}
+  };
+  const b1SetButtonBusy=(selector,busy,label)=>{
+    try{
+      document.querySelectorAll(selector).forEach(btn=>{
+        if(busy){ btn.dataset.b1PrevText=btn.textContent; btn.textContent=label||'Saving...'; btn.disabled=true; }
+        else { if(btn.dataset.b1PrevText) btn.textContent=btn.dataset.b1PrevText; btn.disabled=false; delete btn.dataset.b1PrevText; }
+      });
+    }catch(e){}
+  };
+
+  const b1OriginalLoadPlanner=loadPlanner;
+  loadPlanner=function(){
+    try{
+      const raw=localStorage.getItem(plannerKey());
+      return b1NormalizePlanner(raw?JSON.parse(raw):null);
+    }catch(e){
+      console.warn('Planner local load repaired:',e);
+      try{return b1NormalizePlanner(b1OriginalLoadPlanner());}catch(_){return emptyPlanner();}
+    }
+  };
+  savePlanner=function(){
+    state.planner=b1NormalizePlanner(state.planner);
+    localStorage.setItem(plannerKey(),JSON.stringify(state.planner));
+  };
+
+  hydratePlannerFromCloud=async function(){
+    const localPlanner=b1NormalizePlanner(loadPlanner());
+    if(!cloudEnabled()) { state.planner=localPlanner; return false; }
+    const supa=getSupa();
+    try{
+      const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('Planner hydrate timeout')),9000));
+      const {data,error}=await Promise.race([
+        supa.from('vertex_planner_days').select('day,workout_payload').eq('user_id',authUser.id),
+        timeout
+      ]);
+      if(error) throw error;
+      const cloudPlanner=emptyPlanner();
+      (data||[]).forEach(row=>{
+        if(b1ValidDay(row.day) && row.workout_payload) cloudPlanner[row.day]=b1NormalizeWorkout(row.workout_payload);
+      });
+      const cleared=loadClearedDays();
+      const retryDeletes=[];
+      cleared.forEach(day=>{
+        if(b1ValidDay(day) && cloudPlanner[day]!==null){ cloudPlanner[day]=null; retryDeletes.push(day); }
+      });
+      state.planner=b1NormalizePlanner(cloudPlanner);
+      savePlanner();
+      retryDeletes.forEach(day=>{
+        supa.from('vertex_planner_days').delete().eq('user_id',authUser.id).eq('day',day)
+          .then(({error:e})=>{ if(e) console.warn('Retry delete failed for',day,e); });
+      });
+      setSyncStatus('synced','Supabase synced');
+      return true;
+    }catch(err){
+      console.warn('Cloud planner hydrate failed; preserved local planner.',err);
+      state.planner=localPlanner;
+      savePlanner();
+      setSyncStatus(navigator.onLine?'failed':'local',navigator.onLine?'Planner local fallback':'Offline local');
+      return false;
+    }
+  };
+
+  editDay=function(day){
+    if(!b1ValidDay(day)) return;
+    const w=state.planner && state.planner[day] ? b1NormalizeWorkout(state.planner[day]) : null;
+    state.tracking=false;
+    state.activePhase=0;
+    if(w){
+      w.assignedDay=day;
+      state.current=clone(w);
+      refreshSyncStatus();
+    }else{
+      state.current={name:DAY_LABEL[day]+' Workout',type:'strength',exercises:[],source:'manual',assignedDay:day};
+      refreshSyncStatus();
+    }
+    state.page='workout';
+    renderAll();
+    if(!hasWorkout()) expandTopIfEmpty();
+    document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display='');
+    document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>el.style.display='');
+    setTimeout(()=>{
+      const builderEl=document.getElementById('builder');
+      if(builderEl) builderEl.scrollIntoView({block:'start',behavior:'smooth'});
+      else window.scrollTo({top:0,behavior:'smooth'});
+    },80);
+  };
+
+  saveDay=async function(day=todayKey){
+    if(!b1ValidDay(day)) return toast('Choose a valid planner day');
+    if(b1Locks.plannerDay[day]) return toast('Save already in progress');
+    const w=b1NormalizeWorkout(state.current);
+    if(!hasWorkout(w)) return toast('Nothing to save');
+    b1Locks.plannerDay[day]=true;
+    b1SetButtonBusy(`[data-save-day="${day}"]`,true,'Saving...');
+    if(cloudEnabled()) setSyncStatus('syncing','Syncing...');
+    try{
+      w.assignedDay=day;
+      state.planner=b1NormalizePlanner(state.planner);
+      state.planner[day]=clone(w);
+      state.current.assignedDay=day;
+      savePlanner();
+      unmarkDayCleared(day);
+      renderAll();
+      const ok=await persistPlannerDay(day,w);
+      if(authUser) setSyncStatus(ok?'synced':'failed',ok?'Supabase synced':'Local fallback');
+      else setSyncStatus('local','Local mode');
+      toast('Saved to '+DAY_LABEL[day]+(authUser?(ok?' · cloud synced':' · local fallback') : ''));
+    }catch(err){
+      console.warn('Planner day save failed:',err);
+      setSyncStatus('failed','Sync failed');
+      toast('Planner save failed — local copy preserved');
+    }finally{
+      b1Locks.plannerDay[day]=false;
+      b1SetButtonBusy(`[data-save-day="${day}"]`,false);
+      b1RenderPlannerViews();
+    }
+  };
+
+  const b1OriginalSaveCurrentWorkout=saveCurrentWorkout;
+  saveCurrentWorkout=async function(){
+    if(b1Locks.workoutSave) return toast('Save already in progress');
+    b1Locks.workoutSave=true;
+    b1SetButtonBusy('#btn-save',true,'Saving...');
+    try{ await b1OriginalSaveCurrentWorkout(); }
+    finally{ b1Locks.workoutSave=false; b1SetButtonBusy('#btn-save',false); }
+  };
+
+  const b1OriginalLoadSavedWorkout=loadSavedWorkout;
+  loadSavedWorkout=function(i){
+    b1OriginalLoadSavedWorkout(i);
+    try{ refreshSyncStatus(); }catch(e){}
+  };
+
+  state.planner=b1NormalizePlanner(state.planner);
+  try{ savePlanner(); }catch(e){}
+})();
+
   // renderTemplates is now active — workout templates restored
 })();
 </script>

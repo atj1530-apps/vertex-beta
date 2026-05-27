@@ -3850,6 +3850,20 @@ body.app-page-progress #progressPage #progressTabContent{order:5!important;}
 }
 </style>
 
+
+<style id="vertex-phase2a-final-mobile-carousel-override">
+@media(max-width:900px){
+  body.app-page-progress #progressPage #vertexB2ProgressDeck,#progressPage #vertexB2ProgressDeck,#vertexB2ProgressDeck{display:block!important;width:100%!important;max-width:100%!important;overflow:visible!important;margin:14px 0 18px!important;}
+  body.app-page-progress #vertexB2ProgressDeck .vertex-b2-row,#vertexB2ProgressDeck .vertex-b2-row{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;grid-template-columns:none!important;gap:12px!important;width:auto!important;max-width:none!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 16px 12px!important;margin:0 -16px 18px!important;scrollbar-width:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  body.app-page-progress #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card,#vertexB2ProgressDeck .vertex-b2-row > .vertex-b2-card{flex:0 0 84%!important;min-width:84%!important;max-width:84%!important;width:84%!important;scroll-snap-align:start!important;min-height:178px!important;margin:0!important;}
+  #vertexB2ProgressDeck .vertex-b2-row-one::before,#vertexB2ProgressDeck .vertex-b2-row-two::before{flex:0 0 100%!important;min-width:100%!important;max-width:100%!important;display:block!important;font-family:'DM Mono',monospace!important;font-size:11px!important;letter-spacing:3px!important;text-transform:uppercase!important;color:var(--acc)!important;padding:0 0 2px!important;margin:0 0 -2px!important;}
+  #vertexB2ProgressDeck .vertex-b2-row-one::before{content:'Recovery / Readiness';}
+  #vertexB2ProgressDeck .vertex-b2-row-two::before{content:'Training Intelligence';}
+  #vertexB2ProgressDeck .vertex-b2-full-stack{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;margin-top:0!important;}
+}
+</style>
+
 </head>
 <body class="auth-resolving">
 
@@ -9181,131 +9195,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
-
-
-<!-- build: vertex_phase2a_mobile_progress_true_carousels | baseline index(210) | isolated progress mobile carousel patch -->
-<script id="vertex-phase2a-mobile-progress-carousel-fix">
-(function(){
-  'use strict';
-  if(window.__vertexPhase2AMobileProgressCarouselFix) return;
-  window.__vertexPhase2AMobileProgressCarouselFix = true;
-
-  function norm(s){return String(s||'').trim().toLowerCase();}
-  function cardTitle(card){
-    var label=card && card.querySelector && card.querySelector('.label');
-    return norm(label ? label.textContent : '');
-  }
-  function makeSection(title, cards){
-    var section=document.createElement('section');
-    section.className='vertex-p2-scroll-section';
-    var h=document.createElement('div');
-    h.className='vertex-p2-scroll-title';
-    h.textContent=title;
-    var row=document.createElement('div');
-    row.className='vertex-p2-scroll-row';
-    cards.forEach(function(card){ row.appendChild(card); });
-    section.appendChild(h);
-    section.appendChild(row);
-    return section;
-  }
-  function restructureProgressDeck(){
-    try{
-      var page=document.getElementById('progressPage');
-      var deck=document.getElementById('vertexB2ProgressDeck');
-      if(!page || !deck) return;
-      if(page.classList) page.classList.add('vertex-p2-carousel-locked');
-
-      var tabs=page.querySelector('.progress-tabs');
-      var head=page.querySelector('.progress-head');
-      var content=document.getElementById('progressTabContent');
-      var overview=document.getElementById('ptab-overview');
-      if(head && tabs && head.nextElementSibling!==tabs){ head.insertAdjacentElement('afterend', tabs); }
-      if(tabs && content && tabs.nextElementSibling!==content){ tabs.insertAdjacentElement('afterend', content); }
-      if(overview && deck.parentElement!==overview){ overview.insertBefore(deck, overview.firstChild); }
-      var current=(tabs && tabs.querySelector('.progress-tab.on') && tabs.querySelector('.progress-tab.on').getAttribute('data-ptab')) || 'overview';
-      ['overview','volume','exercises','history'].forEach(function(t){ var el=document.getElementById('ptab-'+t); if(el) el.style.display=(t===current?'block':'none'); });
-      deck.style.display = current==='overview' ? '' : 'none';
-      if(current!=='overview') return;
-
-      if(deck.getAttribute('data-p2-carousel-ready')==='1') return;
-      var originalCards=[].slice.call(deck.querySelectorAll('.vertex-b2-card'));
-      if(!originalCards.length) return;
-
-      var recoveryNames={'recovery trend':1,'load tolerance':1,'adaptive coach':1,'cardio strain':1,'readiness':1,'training strain':1};
-      var intelligenceNames={'workout memory':1,'weekly intelligence':1,'consistency':1,'longitudinal trend':1,'progression engine':1,'performance decision':1,'hybrid routing':1};
-      var recovery=[], intelligence=[];
-      originalCards.forEach(function(card){
-        var t=cardTitle(card);
-        if(recoveryNames[t]) recovery.push(card);
-        else if(intelligenceNames[t]) intelligence.push(card);
-      });
-      if(!recovery.length && !intelligence.length) return;
-      deck.innerHTML='';
-      if(recovery.length) deck.appendChild(makeSection('Recovery / Readiness', recovery));
-      if(intelligence.length) deck.appendChild(makeSection('Training Intelligence', intelligence));
-      deck.setAttribute('data-p2-carousel-ready','1');
-    }catch(e){ console.warn('[Vertex Phase2A] mobile progress carousel fix failed', e); }
-  }
-
-  function runLater(){ setTimeout(restructureProgressDeck,0); setTimeout(restructureProgressDeck,120); setTimeout(restructureProgressDeck,450); }
-  var originalRender=window.renderProgressPage;
-  if(typeof originalRender==='function' && !originalRender.__vertexP2CarouselWrapped){
-    var wrapped=function(){ var out=originalRender.apply(this,arguments); runLater(); return out; };
-    wrapped.__vertexP2CarouselWrapped=true;
-    window.renderProgressPage=wrapped;
-  }
-  var originalSetTab=window.setProgressTab;
-  if(typeof originalSetTab==='function' && !originalSetTab.__vertexP2CarouselWrapped){
-    var wrappedTab=function(){ var out=originalSetTab.apply(this,arguments); runLater(); return out; };
-    wrappedTab.__vertexP2CarouselWrapped=true;
-    window.setProgressTab=wrappedTab;
-  }
-  document.addEventListener('click',function(e){
-    if(e.target && (e.target.closest('[data-ptab]') || e.target.closest('[data-nav]'))){ runLater(); }
-  },true);
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',runLater);
-  else runLater();
-})();
-</script>
-<style id="vertex-phase2a-mobile-progress-carousel-fix-css">
-body.app-page-progress #progressPage.vertex-p2-carousel-locked{display:flex!important;flex-direction:column!important;}
-body.app-page-progress #progressPage.vertex-p2-carousel-locked .progress-head{order:1!important;}
-body.app-page-progress #progressPage.vertex-p2-carousel-locked .progress-tabs{order:2!important;margin:10px 0 14px!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:10px!important;scrollbar-width:none!important;}
-body.app-page-progress #progressPage.vertex-p2-carousel-locked .progress-tabs::-webkit-scrollbar{display:none!important;}
-body.app-page-progress #progressPage.vertex-p2-carousel-locked .progress-tabs .progress-tab{flex:0 0 auto!important;border-radius:999px!important;padding:10px 16px!important;}
-body.app-page-progress #progressPage.vertex-p2-carousel-locked #progressTabContent{order:3!important;}
-body.app-page-progress #progressPage.vertex-p2-carousel-locked #progressSummary{order:4!important;display:none!important;}
-body.app-page-progress #progressPage.vertex-p2-carousel-locked #ptab-overview #vertexB2ProgressDeck{display:block!important;margin:0 0 14px!important;}
-body.app-page-progress #progressPage.vertex-p2-carousel-locked #ptab-volume #vertexB2ProgressDeck,
-body.app-page-progress #progressPage.vertex-p2-carousel-locked #ptab-exercises #vertexB2ProgressDeck,
-body.app-page-progress #progressPage.vertex-p2-carousel-locked #ptab-history #vertexB2ProgressDeck{display:none!important;}
-.vertex-p2-scroll-section{margin:0 0 18px!important;}
-.vertex-p2-scroll-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);font-weight:800;margin:0 0 10px!important;}
-.vertex-p2-scroll-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
-.vertex-p2-scroll-row .vertex-b2-card{min-width:0!important;width:auto!important;}
-@media(max-width:900px){
-  body.app-page-progress #progressPage.vertex-p2-carousel-locked #ptab-overview .progress-layout{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;}
-  .vertex-p2-scroll-section{margin-left:-2px!important;margin-right:-12px!important;overflow:visible!important;}
-  .vertex-p2-scroll-title{padding-left:2px!important;margin-bottom:10px!important;}
-  .vertex-p2-scroll-row{display:flex!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x proximity!important;scrollbar-width:none!important;padding:0 18px 4px 0!important;margin:0!important;}
-  .vertex-p2-scroll-row::-webkit-scrollbar{display:none!important;}
-  .vertex-p2-scroll-row .vertex-b2-card{flex:0 0 82%!important;width:82%!important;min-width:82%!important;max-width:82%!important;min-height:210px!important;scroll-snap-align:start!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;}
-  .vertex-p2-scroll-row .vertex-b2-card .label{white-space:normal!important;}
-}
-@media(max-width:520px){
-  .vertex-p2-scroll-row .vertex-b2-card{flex-basis:86%!important;width:86%!important;min-width:86%!important;max-width:86%!important;min-height:220px!important;}
-}
-</style>
-
-
-<!-- build: vertex_phase2a_progress_carousels_no_home_sparks | source: true-carousel build | removed Home SVG spark renderer -->
-<style id="vertex-final-mobile-carousel-lock">
-@media(max-width:900px){
-  #progressPage .vertex-p2-scroll-row{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important;padding:0 20px 6px 0!important;margin:0!important;}
-  #progressPage .vertex-p2-scroll-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-p2-scroll-row .vertex-b2-card{flex:0 0 86%!important;width:86%!important;min-width:86%!important;max-width:86%!important;scroll-snap-align:start!important;}
-}
-</style>
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -10922,15 +10811,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-<!-- build: vertex_phase2a_progress_carousels_no_home_sparks | source: true-carousel build | removed Home SVG spark renderer -->
-<style id="vertex-final-mobile-carousel-lock">
-@media(max-width:900px){
-  #progressPage .vertex-p2-scroll-row{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important;padding:0 20px 6px 0!important;margin:0!important;}
-  #progressPage .vertex-p2-scroll-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-p2-scroll-row .vertex-b2-card{flex:0 0 86%!important;width:86%!important;min-width:86%!important;max-width:86%!important;scroll-snap-align:start!important;}
-}
-</style>
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -10943,50 +10823,31 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 }
 
 // ── SEGMENT TREND CARDS (Body Comp tab) ──────────────────────────────────────
+
 function renderSegmentTrends(){
-  const container = document.getElementById('vertex-segment-trends');
-  if(!container) return;
-  const scans = (typeof wcDexaScans !== 'undefined' ? wcDexaScans : []);
-  if(scans.length < 2){ container.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px 0">Add a second DEXA scan to see segment trends over time.</div>'; return; }
-  const segments = [
-    {key:'armsLeanLbs', label:'Arms Lean', color:'#48ff8a'},
-    {key:'trunkLeanLbs', label:'Trunk Lean', color:'#ffd048'},
-    {key:'legsLeanLbs', label:'Legs Lean', color:'#48d0ff'}
+  const el=document.getElementById('vertex-segment-trends');
+  if(!el) return;
+  let scans=[];
+  try{ scans=Array.isArray(window.wcDexaScans)?window.wcDexaScans:(Array.isArray(wcDexaScans)?wcDexaScans:[]); }catch(e){ scans=[]; }
+  const safeNum=v=>{const n=Number(v);return Number.isFinite(n)?n:null;};
+  const safeDate=d=>{try{return (typeof fmtDate==='function')?fmtDate(d):new Date(d).toLocaleDateString();}catch(e){return String(d||'');}};
+  const segs=[
+    {key:'leanMass',label:'Lean Mass',unit:'lb',color:'var(--green)'},
+    {key:'fatMass',label:'Fat Mass',unit:'lb',color:'var(--orange)'},
+    {key:'bodyFatPct',label:'Body Fat',unit:'%',color:'var(--acc)'},
+    {key:'weight',label:'Weight',unit:'lb',color:'var(--blue)'}
   ];
-  const fmtDate = d => { try{ return new Date(d+'T12:00:00').toLocaleDateString([],{month:'short',year:'2-digit'}); }catch(e){return d||'';} };
-  container.innerHTML = segments.map(seg=>{
-    const vals = scans.map(s=>({date:s.date, val:s[seg.key]})).filter(x=>x.val!=null);
-    if(vals.length < 2) return '';
-    const first = vals[0], last = vals[vals.length-1];
-    const delta = (last.val - first.val).toFixed(1);
-    const deltaColor = parseFloat(delta) >= 0 ? 'var(--green)' : 'var(--red)';
-    const maxVal = Math.max(...vals.map(v=>v.val));
-    const minVal = Math.min(...vals.map(v=>v.val));
-    const range = maxVal - minVal || 1;
-    // Mini sparkline SVG
-    const W=120, H=36, pad=4;
-    const points = vals.map((v,i)=>{
-      const x = pad + (i/(vals.length-1))*(W-pad*2);
-      const y = H - pad - ((v.val-minVal)/range)*(H-pad*2);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
-    return `<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:14px">
-      <div style="flex:1;min-width:0">
-        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${seg.label}</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap">
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${seg.color};white-space:nowrap">${Number(last.val).toFixed(1)} lb</span>
-          <span style="font-size:11px;font-weight:700;color:${deltaColor};white-space:nowrap">${parseFloat(delta)>=0?'+':''}${delta} lb since ${fmtDate(first.date)}</span>
-        </div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px">${vals.length} scans · ${fmtDate(first.date)} → ${fmtDate(last.date)}</div>
-      </div>
-      <svg width="${W}" height="${H}" style="flex-shrink:0;overflow:visible">
-        <polyline points="${points}" fill="none" stroke="${seg.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
-        ${vals.map((v,i)=>{ const x=pad+(i/(vals.length-1))*(W-pad*2); const y=H-pad-((v.val-minVal)/range)*(H-pad*2); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${seg.color}" opacity="0.9"/>`; }).join('')}
-      </svg>
-    </div>`;
-  }).join('');
+  const cards=segs.map(seg=>{
+    const vals=scans.map(x=>({date:x.date,val:safeNum(x[seg.key])})).filter(x=>x.date&&x.val!==null).sort((a,b)=>new Date(a.date)-new Date(b.date));
+    if(vals.length<2) return '';
+    const first=vals[0], last=vals[vals.length-1], delta=last.val-first.val;
+    const deltaColor=delta>=0?'var(--green)':'var(--red)';
+    const pct=Math.max(6,Math.min(100,Math.round((Math.abs(delta)/(Math.max(Math.abs(first.val),Math.abs(last.val),1)))*100)));
+    return `<div class="segment-trend-card" style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:14px"><div style="flex:1;min-width:0"><div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${seg.label}</div><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${seg.color};white-space:nowrap">${Number(last.val).toFixed(1)} ${seg.unit}</span><span style="font-size:11px;font-weight:700;color:${deltaColor};white-space:nowrap">${delta>=0?'+':''}${delta.toFixed(1)} since ${safeDate(first.date)}</span></div><div style="font-size:10px;color:var(--muted);margin-top:2px">${vals.length} scans · ${safeDate(first.date)} → ${safeDate(last.date)}</div><div style="height:4px;background:var(--panel3);border-radius:999px;margin-top:8px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${seg.color};border-radius:999px"></div></div></div></div>`;
+  }).filter(Boolean).join('');
+  el.innerHTML=cards||'<div style="font-size:12px;color:var(--muted)">Add at least two DEXA/body scans to show segment trends.</div>';
 }
-window.renderSegmentTrends = renderSegmentTrends;
+window.renderSegmentTrends=renderSegmentTrends;
 
 // ── BF% FORECAST ─────────────────────────────────────────────────────────────
 function renderBFforecast(){
@@ -11196,15 +11057,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-<!-- build: vertex_phase2a_progress_carousels_no_home_sparks | source: true-carousel build | removed Home SVG spark renderer -->
-<style id="vertex-final-mobile-carousel-lock">
-@media(max-width:900px){
-  #progressPage .vertex-p2-scroll-row{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important;padding:0 20px 6px 0!important;margin:0!important;}
-  #progressPage .vertex-p2-scroll-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-p2-scroll-row .vertex-b2-card{flex:0 0 86%!important;width:86%!important;min-width:86%!important;max-width:86%!important;scroll-snap-align:start!important;}
-}
-</style>
 </body></html>`);
     w.document.close();
   };
@@ -11268,7 +11120,8 @@ Coach recommendation: ${r.action}`;
 }
 window.renderDailyBrief=renderDailyBrief;
 
-// ── HOME SUMMARY METRICS (NO SVG SPARKLINES) ────────────────────────────────
+// ── HOME SPARKLINES ───────────────────────────────────────────────────────────
+
 function renderHomeSparklines(){
   const el=document.getElementById('vertex-sparklines-row');
   if(!el) return;
@@ -11278,13 +11131,20 @@ function renderHomeSparklines(){
   Object.keys(localStorage).filter(k=>k.startsWith('vertex_health_entries')).forEach(k=>{try{JSON.parse(localStorage.getItem(k)||'[]').forEach(r=>{if(r&&r.bodyWeight&&r.date)allW.push(r);});}catch(e){}});
   const wByDate={};allW.forEach(r=>{if(r.date&&r.bodyWeight)wByDate[r.date]=r.bodyWeight;});
   const wRows=Object.entries(wByDate).sort((a,b)=>a[0].localeCompare(b[0])).slice(-7);
+  const miniBar=(vals,color)=>{
+    const clean=vals.map(v=>parseFloat(v)).filter(v=>!isNaN(v));
+    if(clean.length<2) return '<div style="width:80px;height:4px;background:var(--panel3);border-radius:999px"></div>';
+    const first=clean[0], last=clean[clean.length-1];
+    const pct=Math.max(8,Math.min(100,Math.round((Math.abs(last-first)/(Math.max(Math.abs(first),Math.abs(last),1)))*100)));
+    return `<div style="width:80px;height:4px;background:var(--panel3);border-radius:999px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${color};border-radius:999px"></div></div>`;
+  };
   const cards=[
-    {label:'Weight',unit:'lb',color:'var(--acc)',latest:wRows.length?Number(wRows[wRows.length-1][1]).toFixed(1):null},
-    {label:'Sleep',unit:'h',color:'#48d0ff',latest:last7.length&&last7[last7.length-1]?.sleepHours!=null?Number(last7[last7.length-1].sleepHours).toFixed(1):null},
-    {label:'HRV',unit:'ms',color:'#48ff8a',latest:last7.length&&last7[last7.length-1]?.hrv!=null?Math.round(last7[last7.length-1].hrv):null},
-    {label:'Readiness',unit:'',color:'#ffd048',latest:last7.length&&(last7[last7.length-1]?.readiness||last7[last7.length-1]?.readinessScore)!=null?(last7[last7.length-1].readiness||last7[last7.length-1].readinessScore):null}
+    {label:'Weight',unit:'lb',color:'var(--acc)',vals:wRows.map(r=>r[1]),latest:wRows.length?Number(wRows[wRows.length-1][1]).toFixed(1):null},
+    {label:'Sleep',unit:'h',color:'#48d0ff',vals:last7.map(r=>r.sleepHours),latest:last7.length&&last7[last7.length-1]?.sleepHours!=null?Number(last7[last7.length-1].sleepHours).toFixed(1):null},
+    {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(r=>r.hrv),latest:last7.length&&last7[last7.length-1]?.hrv!=null?Math.round(last7[last7.length-1].hrv):null},
+    {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(r=>r.readiness||r.readinessScore),latest:last7.length&&(last7[last7.length-1]?.readiness||last7[last7.length-1]?.readinessScore)!=null?(last7[last7.length-1].readiness||last7[last7.length-1].readinessScore):null}
   ];
-  el.innerHTML=cards.map(c=>`<div class="vertex-sparkline-card vertex-no-spark-card"><div class="vertex-sparkline-label">${c.label}</div><div><span class="vertex-sparkline-val" style="color:${c.color}">${c.latest??'—'}</span>${c.unit?`<span style="font-size:9px;color:var(--muted);margin-left:1px">${c.unit}</span>`:''}</div></div>`).join('');
+  el.innerHTML=cards.map(c=>`<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">${c.label}</div><div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px"><div><span class="vertex-sparkline-val" style="color:${c.color}">${c.latest??'—'}</span>${c.unit?`<span style="font-size:9px;color:var(--muted);margin-left:1px">${c.unit}</span>`:''}</div>${miniBar(c.vals,c.color)}</div></div>`).join('');
 }
 window.renderHomeSparklines=renderHomeSparklines;
 
@@ -11422,15 +11282,6 @@ body.app-page-workout .sidebar #program-seg button[data-program]:focus-visible,
 body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible{
   outline:1px solid rgba(232,255,71,.35)!important;
   outline-offset:2px!important;
-}
-</style>
-
-<!-- build: vertex_phase2a_progress_carousels_no_home_sparks | source: true-carousel build | removed Home SVG spark renderer -->
-<style id="vertex-final-mobile-carousel-lock">
-@media(max-width:900px){
-  #progressPage .vertex-p2-scroll-row{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important;padding:0 20px 6px 0!important;margin:0!important;}
-  #progressPage .vertex-p2-scroll-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-p2-scroll-row .vertex-b2-card{flex:0 0 86%!important;width:86%!important;min-width:86%!important;max-width:86%!important;scroll-snap-align:start!important;}
 }
 </style>
 </body></html>`);
@@ -18664,15 +18515,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 
-
-<!-- build: vertex_phase2a_progress_carousels_no_home_sparks | source: true-carousel build | removed Home SVG spark renderer -->
-<style id="vertex-final-mobile-carousel-lock">
-@media(max-width:900px){
-  #progressPage .vertex-p2-scroll-row{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important;padding:0 20px 6px 0!important;margin:0!important;}
-  #progressPage .vertex-p2-scroll-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-p2-scroll-row .vertex-b2-card{flex:0 0 86%!important;width:86%!important;min-width:86%!important;max-width:86%!important;scroll-snap-align:start!important;}
-}
-</style>
 </body>
 </html>
 

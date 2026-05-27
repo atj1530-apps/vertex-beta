@@ -3384,6 +3384,216 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
   .vertex-sparkline-card svg{max-width:78px!important;}
 }
 
+
+
+/* ============================================================
+   v20260526 Phase A3 — Wellness Final UI Polish (CSS only)
+   Safe scope: visual density, compact pills, manual entry containment.
+   No JS, no SVG, no chart/auth/sync/planner/recovery logic changes.
+   ============================================================ */
+#wellnessPage .page-panel,
+#wellnessPage .progress-card,
+#wellnessPage .wc-section,
+#wellnessPage .wc-dash-card,
+#wellnessPage .wc-trend-card,
+#wellnessPage .wc-kpi-card,
+#vertexWellnessRecoveryCenter{
+  border-radius:var(--r)!important;
+  border-color:var(--border-subtle)!important;
+}
+#wellnessPage .progress-head{
+  align-items:flex-start!important;
+  gap:12px!important;
+  margin-bottom:10px!important;
+}
+#wellnessPage .page-title{
+  line-height:.95!important;
+}
+#wellnessPage .page-copy{
+  max-width:720px!important;
+}
+#wtab-health > div:first-child,
+#wtab-dashboard > div:first-child,
+#wtab-checkin > div:first-child,
+#wtab-protocol > div:first-child{
+  margin-top:0!important;
+}
+#wellnessPage .segment,
+#wellnessPage .wellness-tabs,
+#wellnessPage .wc-tabs,
+#wellnessPage [role="tablist"]{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  gap:7px!important;
+  overflow-x:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  margin:8px 0 12px!important;
+  padding:2px 2px 6px!important;
+}
+#wellnessPage .segment::-webkit-scrollbar,
+#wellnessPage .wellness-tabs::-webkit-scrollbar,
+#wellnessPage .wc-tabs::-webkit-scrollbar,
+#wellnessPage [role="tablist"]::-webkit-scrollbar{display:none!important;}
+#wellnessPage .seg-btn,
+#wellnessPage .progress-tab,
+#wellnessPage [data-wtab],
+#wellnessPage [role="tab"]{
+  border-radius:var(--r-pill)!important;
+  min-height:32px!important;
+  padding:7px 12px!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  letter-spacing:.5px!important;
+  white-space:nowrap!important;
+  flex:0 0 auto!important;
+}
+#wellnessPage .seg-btn.on,
+#wellnessPage .progress-tab.on,
+#wellnessPage [data-wtab].on,
+#wellnessPage [role="tab"][aria-selected="true"]{
+  background:var(--acc)!important;
+  border-color:var(--acc)!important;
+  color:#000!important;
+}
+#healthManualEntryAcc{
+  margin-top:8px!important;
+  margin-bottom:12px!important;
+  background:rgba(255,255,255,.015)!important;
+  border-color:rgba(255,255,255,.07)!important;
+}
+#healthManualEntryAcc .acc-head{
+  min-height:38px!important;
+  padding:9px 12px!important;
+  background:rgba(255,255,255,.025)!important;
+}
+#healthManualEntryAcc .acc-title{
+  font-size:12px!important;
+}
+#healthManualEntryAcc .acc-hint{
+  font-size:9px!important;
+  letter-spacing:1.6px!important;
+}
+#healthManualEntryAcc:not(.open) .acc-body{
+  display:none!important;
+}
+#healthManualEntryAcc .acc-body{
+  padding:12px!important;
+}
+#manualHealthModal .modal-card,
+#manualHealthModal .health-form,
+#manualHealthModal .modal-grid{
+  max-width:100%!important;
+}
+#manualHealthModal .health-form{
+  gap:8px!important;
+  margin-top:10px!important;
+}
+#manualHealthModal .health-input{
+  padding:10px!important;
+}
+#manualHealthModal .health-input input,
+#manualHealthModal .health-input select{
+  min-height:38px!important;
+}
+#wellnessPage .wc-kpi-grid,
+#wellnessPage .wc-dash-grid,
+#wellnessPage .progress-layout,
+#wellnessPage .coach-grid{
+  gap:10px!important;
+}
+#wellnessPage .wc-dash-card-label,
+#wellnessPage .label{
+  letter-spacing:1.8px!important;
+}
+#wellnessPage .empty-note,
+#wellnessPage .empty-cta{
+  padding:18px!important;
+}
+@media(max-width:900px){
+  #wellnessPage .page-panel{padding:13px!important;margin-bottom:10px!important;}
+  #wellnessPage .progress-card,
+  #wellnessPage .wc-section,
+  #wellnessPage .wc-dash-card,
+  #wellnessPage .wc-trend-card,
+  #wellnessPage .wc-kpi-card,
+  #vertexWellnessRecoveryCenter{padding:11px!important;margin-bottom:9px!important;}
+  #wellnessPage .page-title{font-size:34px!important;letter-spacing:3px!important;}
+  #wellnessPage .page-copy{display:none!important;}
+  #wellnessPage .progress-head{margin-bottom:6px!important;}
+  #wellnessPage .wc-kpi-grid,
+  #wellnessPage .wc-dash-grid,
+  #wellnessPage .progress-layout,
+  #wellnessPage .coach-grid{grid-template-columns:1fr!important;gap:9px!important;}
+  #wellnessPage .seg-btn,
+  #wellnessPage .progress-tab,
+  #wellnessPage [data-wtab],
+  #wellnessPage [role="tab"]{min-height:30px!important;padding:6px 11px!important;font-size:10px!important;}
+  #healthManualEntryAcc{margin-top:6px!important;margin-bottom:10px!important;}
+  #healthManualEntryAcc .acc-head{min-height:36px!important;padding:8px 11px!important;}
+  #manualHealthModal .modal-card{margin:10px!important;padding:14px!important;}
+  #manualHealthModal .health-form{grid-template-columns:1fr!important;gap:7px!important;}
+}
+
+
+
+/* ============================================================
+   v20260526-af4 — Phase A4 Saved / Coach Mobile Rail Cleanup
+   CSS-only. No JS, no SVG, no route/auth/sync/planner/recovery edits.
+   ============================================================ */
+@media(max-width:900px){
+  .right{
+    border-top:1px solid rgba(255,255,255,.08)!important;
+    background:transparent!important;
+  }
+  body:not(.app-page-home) .right::before{
+    margin:0 12px 10px!important;
+    border:1px solid rgba(255,255,255,.08)!important;
+    border-radius:12px!important;
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015))!important;
+    color:var(--acc)!important;
+    box-shadow:none!important;
+  }
+  .right > section{
+    border-radius:12px!important;
+  }
+  .right.open > section{
+    margin:10px 12px 12px!important;
+  }
+  .right .panel,
+  .right .coach-card,
+  .right .saved-item,
+  .right .stat-box{
+    border-radius:12px!important;
+    border-color:rgba(255,255,255,.08)!important;
+  }
+  .right .panel{
+    margin-bottom:10px!important;
+    padding:12px!important;
+  }
+  .right .saved-item{
+    margin-top:8px!important;
+    padding:10px!important;
+  }
+  .right .stat-grid{
+    gap:8px!important;
+  }
+  .right .coach-list{
+    gap:8px!important;
+  }
+  .right .coach-item{
+    border-radius:10px!important;
+    padding:10px!important;
+  }
+  body.app-page-home .right > section{
+    margin:10px 12px 12px!important;
+  }
+}
+@media(max-width:520px){
+  .right .stat-grid{grid-template-columns:1fr 1fr!important;}
+  .right .btn{min-height:36px!important;}
+}
+
 </style>
 
 <style id="vertex-v20260526-aa-intelligence-layer">

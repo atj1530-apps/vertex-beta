@@ -19351,6 +19351,7 @@ body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-pan
         'vertexProgressionPanel',
         'vertexPerformanceDecisionPanel',
         'vertexHybridRoutingPanel',
+        'vertexImbalanceDetectionPanel',
         'vertexConsistencyPanel'
       ]
     }
@@ -19577,3 +19578,126 @@ body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-pan
 })();
 </script>
 
+<script id="vertex-phase2b1-final-imbalance-card-lock">
+(function(){
+  'use strict';
+  if(window.__vertexPhase2B1FinalImbalanceCardLock) return;
+  window.__vertexPhase2B1FinalImbalanceCardLock = true;
+
+  function esc(v){
+    try{ if(typeof escapeHtml === 'function') return escapeHtml(String(v == null ? '' : v)); }catch(e){}
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function isProgress(){
+    try{
+      return !!(document.body && document.body.classList && document.body.classList.contains('app-page-progress')) ||
+        !!Array.from(document.querySelectorAll('.nav button.on')).find(function(b){return String(b.textContent||'').trim().toLowerCase()==='progress';});
+    }catch(e){ return false; }
+  }
+  function rows(){ try{return (typeof progressRows==='function' ? progressRows() : []) || [];}catch(e){return [];} }
+  function weekStartSafe(){ try{return typeof weekStart==='function' ? weekStart() : new Date(Date.now()-7*86400000);}catch(e){return new Date(Date.now()-7*86400000);} }
+  function num(v){ v=Number(v); return Number.isFinite(v)?v:0; }
+  function key(v){ return String(v||'').toLowerCase().replace(/[^a-z]/g,''); }
+  function bucket(name){
+    var x=key(name);
+    if(/chest|pec|press|push|tricep|frontdelt|shoulder|delt/.test(x)) return {pattern:'push',region:'upper'};
+    if(/back|lat|row|pull|trap|rear|bicep/.test(x)) return {pattern:'pull',region:'upper'};
+    if(/quad|ham|glute|calf|leg|hip|squat|lunge|deadlift|adductor|abductor/.test(x)) return {pattern:'lower',region:'lower'};
+    if(/core|ab|oblique/.test(x)) return {pattern:'core',region:'core'};
+    return {pattern:'other',region:'other'};
+  }
+  function analyze(){
+    try{
+      if(window.VertexPhase2B1ImbalanceDetection && typeof window.VertexPhase2B1ImbalanceDetection.analyze === 'function'){
+        var existing = window.VertexPhase2B1ImbalanceDetection.analyze();
+        if(existing && existing.label) return existing;
+      }
+    }catch(e){}
+
+    var start=weekStartSafe(), totals={}, pattern={push:0,pull:0,lower:0,core:0,other:0}, region={upper:0,lower:0,core:0,other:0};
+    rows().forEach(function(r){
+      try{
+        var dt=new Date(r.completed_at || r.created_at || 0); if(dt < start) return;
+        var m=(r.metrics && r.metrics.muscles) || {};
+        Object.keys(m).forEach(function(k){
+          var sets=num(m[k] && m[k].sets); if(!sets) return;
+          totals[k]=(totals[k]||0)+sets;
+          var b=bucket(k); pattern[b.pattern]=(pattern[b.pattern]||0)+sets; region[b.region]=(region[b.region]||0)+sets;
+        });
+      }catch(err){}
+    });
+    var ranked=Object.keys(totals).map(function(k){return {name:k,sets:totals[k]};}).sort(function(a,b){return b.sets-a.sets;});
+    var top=ranked[0], second=ranked[1];
+    var push=pattern.push||0, pull=pattern.pull||0, lower=pattern.lower||0, upper=region.upper||0;
+    var total=ranked.reduce(function(a,x){return a+x.sets;},0);
+    var out={label:'Balance baseline pending',tone:'neutral',action:'Log more weekly volume to unlock imbalance coaching.',why:'Vertex needs enough same-week volume to separate real imbalance from normal workout variation.',detail:'This week: '+total+' tracked muscle sets'};
+    if(total>0){
+      out={label:'Balance acceptable',tone:'green',action:'Keep distribution steady and progress only one priority movement if form is stable.',why:'No major push/pull, upper/lower, or single-muscle concentration issue is obvious from this week’s logged volume.',detail:'Push '+push+' · Pull '+pull+' · Lower '+lower};
+    }
+    if(push>=8 && pull>0 && push>=pull*1.35) out={label:'Push / pull imbalance',tone:'warn',action:'Add pulling volume or keep the next push block submaximal.',why:'Push-side work is materially ahead of pull-side work this week.',detail:'Push '+push+' vs Pull '+pull};
+    else if(pull>=8 && push>0 && pull>=push*1.35) out={label:'Pull / push imbalance',tone:'warn',action:'Add controlled pressing or avoid stacking more pull volume today.',why:'Pull-side work is materially ahead of push-side work this week.',detail:'Pull '+pull+' vs Push '+push};
+    if(upper>=10 && lower>0 && upper>=lower*1.65) out={label:'Upper / lower imbalance',tone:'warn',action:'Prioritize lower-body or recovery work before adding more upper-body volume.',why:'Upper-body exposure is outpacing lower-body exposure this week.',detail:'Upper '+upper+' vs Lower '+lower};
+    else if(lower>=10 && upper>0 && lower>=upper*1.65) out={label:'Lower / upper imbalance',tone:'warn',action:'Avoid another heavy lower-body session unless recovery and warm-ups are clearly strong.',why:'Lower-body volume is outpacing upper-body volume this week.',detail:'Lower '+lower+' vs Upper '+upper};
+    if(top && top.sets>=10 && (!second || top.sets>=Math.max(8, second.sets*1.45))){
+      out={label:'Dominant muscle pattern',tone:'warn',action:'Balance '+top.name+' with complementary work or cap the next '+top.name+' block.',why:'One muscle group is carrying a disproportionate share of weekly work.',detail:top.name+' '+top.sets+' sets'+(second?' · next '+second.name+' '+second.sets:'')};
+    }
+    return out;
+  }
+  function info(text){ return '<button class="vertex-i" type="button" aria-label="Info" data-tip="'+esc(text)+'">i</button>'; }
+  function ensureHolder(){ return document.getElementById('vertexProgressIntelligenceHolder'); }
+  function ensureRail(holder){
+    var section=document.getElementById('vertexProgressCategory_training');
+    if(!section && holder){
+      section=document.createElement('section');
+      section.id='vertexProgressCategory_training';
+      section.className='vertex-progress-category';
+      section.setAttribute('data-progress-category','training');
+      section.innerHTML='<div class="vertex-progress-category-title">TRAINING INTELLIGENCE</div><div class="vertex-progress-category-rail" id="vertexProgressRail_training"></div>';
+      holder.appendChild(section);
+    }
+    return document.getElementById('vertexProgressRail_training') || (section && section.querySelector('.vertex-progress-category-rail'));
+  }
+  function render(){
+    try{
+      var holder=ensureHolder(); if(!holder) return false;
+      var rail=ensureRail(holder); if(!rail) return false;
+      var panel=document.getElementById('vertexImbalanceDetectionPanel');
+      if(!panel){
+        panel=document.createElement('div');
+        panel.id='vertexImbalanceDetectionPanel';
+        panel.className='progress-card vertex-phase2b1-panel';
+      }
+      panel.style.cssText='margin:0!important;margin-bottom:0!important;width:auto!important;max-width:none!important;grid-column:auto!important;min-height:150px!important;display:'+(isProgress()?'block':'none')+';';
+      var a=analyze();
+      var color=a.tone==='warn'?'var(--orange)':(a.tone==='green'?'var(--green)':'var(--muted)');
+      panel.innerHTML='<div class="vertex-phase2b1-titleline"><div style="font-size:11px;letter-spacing:.35em;color:var(--muted);margin-bottom:12px">IMBALANCE DETECTION</div>'+info('Flags push/pull, upper/lower, and dominant muscle-group patterns from this week’s logged sets.')+'</div>'+
+        '<div class="vertex-panel-body" style="color:var(--muted);font-size:13px;line-height:1.5">'+
+        '<div style="font-size:18px;color:'+color+';font-weight:700">'+esc(a.label)+'</div>'+
+        '<div class="vertex-phase2b1-row"><span>Signal</span><b>'+esc(a.detail)+'</b></div>'+
+        '<div class="vertex-phase2b1-action">'+esc(a.action)+'</div>'+
+        '<div class="vertex-phase2b1-note">'+esc(a.why)+'</div>'+
+        '</div>';
+      var consistency=document.getElementById('vertexConsistencyPanel');
+      if(consistency && consistency.parentNode===rail) rail.insertBefore(panel, consistency);
+      else rail.appendChild(panel);
+      return true;
+    }catch(e){ console.warn('[Vertex Phase 2B.1] final imbalance lock failed', e); return false; }
+  }
+  function sync(){
+    render();
+    setTimeout(render,80);
+    setTimeout(render,260);
+  }
+  var old = window.VertexProgressCategoryRails && window.VertexProgressCategoryRails.sync;
+  if(typeof old === 'function' && !old.__vertexPhase2B1FinalImbalanceCardLock){
+    var wrapped=function(){ var out=old.apply(this,arguments); sync(); return out; };
+    wrapped.__vertexPhase2B1FinalImbalanceCardLock=true;
+    window.VertexProgressCategoryRails.sync=wrapped;
+  }
+  [60,180,420,900,1600,3000,5000].forEach(function(ms){setTimeout(sync,ms);});
+  document.addEventListener('DOMContentLoaded',sync);
+  window.addEventListener('load',sync);
+  document.addEventListener('click',function(e){ if(e.target && e.target.closest && e.target.closest('.vertex-i')) return; setTimeout(sync,140); },true);
+  try{ var mo=new MutationObserver(function(){ clearTimeout(window.__vertexPhase2B1FinalImbalanceTimer); window.__vertexPhase2B1FinalImbalanceTimer=setTimeout(sync,120); }); document.addEventListener('DOMContentLoaded',function(){ if(document.body) mo.observe(document.body,{childList:true,subtree:true}); }); }catch(e){}
+})();
+</script>

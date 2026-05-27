@@ -3850,7 +3850,75 @@ body.app-page-progress #progressPage #progressTabContent{order:5!important;}
 }
 </style>
 
-<!-- build: vertex_phase2a_stable_rollback_index210 | baseline: index(210).html | no logic changes -->
+
+<style id="vertex-phase2a-scroll-groups-final-css">
+/* Phase 2A final: Progress intelligence cards only. Keeps planner M-Su and tab placement untouched. */
+#progressPage #vertexB2ProgressDeck{
+  display:block!important;
+  margin:14px 0 18px!important;
+  width:100%!important;
+}
+#progressPage #vertexB2ProgressDeck:empty{display:none!important;}
+#progressPage .vertex-b2-section-label{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--acc);
+  font-weight:800;
+  margin:14px 0 10px;
+}
+#progressPage .vertex-b2-row{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important;
+  margin:0 0 16px!important;
+}
+#progressPage .vertex-b2-card{
+  border:1px solid var(--line)!important;
+  background:var(--panel2)!important;
+  border-radius:18px!important;
+  padding:16px!important;
+  min-height:132px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+#progressPage .vertex-b2-card .label{margin-bottom:12px!important;}
+#progressPage .vertex-b2-value{font-size:18px;font-weight:800;color:var(--green);line-height:1.15;margin-bottom:10px;}
+#progressPage .vertex-b2-line{color:var(--muted);font-size:13px;line-height:1.45;margin-top:3px;}
+#progressPage .vertex-b2-good .vertex-b2-value{color:var(--green)!important;}
+#progressPage .vertex-b2-moderate .vertex-b2-value{color:var(--acc)!important;}
+#progressPage .vertex-b2-watch .vertex-b2-value{color:var(--orange)!important;}
+#progressPage .vertex-b2-high .vertex-b2-value{color:var(--red)!important;}
+@media(max-width:900px){
+  #progressPage .vertex-b2-section-label{
+    margin:14px 0 10px!important;
+    padding-left:0!important;
+  }
+  #progressPage .vertex-b2-row{
+    display:flex!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x mandatory!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px 16px!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-row .vertex-b2-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    scroll-snap-align:start!important;
+    min-height:178px!important;
+    margin:0!important;
+  }
+}
+</style>
+
 </head>
 <body class="auth-resolving">
 
@@ -6857,14 +6925,11 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
   }
   const cardio=cardioData();
   const consistencyLabel=sessions>prev?'Improving':sessions<prev?'Needs attention':'Stable';
-  const trainingStrain = readiness!==null ? (readiness>=75?'Moderate / Sustainable':readiness>=60?'Moderate–High':'Elevated') : (sessions>=4?'Moderate–High':sessions>=2?'Moderate':'Baseline');
   const adaptive = readiness!==null ? (readiness>=80?'Progression opportunity':readiness>=65?'Push with control':readiness>=50?'Maintain':'Recovery priority') : 'Build baseline';
   const longTrend = readiness!==null ? (readiness>=70?'Baseline building':readiness>=55?'Watch recovery':'Recovery constrained') : 'Baseline pending';
-  const hybrid = readiness!==null ? 'Apple Health + Vertex' : 'Vertex logs';
-  const progression = topMove ? 'Progression ready' : 'Progression baseline pending';
-  const performance = readiness!==null ? (readiness>=65?'Accumulated load watch':'Recovery-first decision') : 'Build baseline';
   const recoveryTrend = readiness!==null ? (readiness>=70?'→ Stable':readiness>=55?'↘ Watch':'↓ Constrained') : 'Pending';
   const loadTolerance = readiness!==null && readiness<60 ? 'Reduce' : 'Stable';
+  const weeklyTrend = sessions ? 'Actionable trend' : 'Baseline pending';
   function sev(text){
     text=String(text||'').toLowerCase();
     if(/reduce|elevated|high|constrained|recovery-first|needs attention/.test(text)) return 'high';
@@ -6873,30 +6938,34 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
     if(/ready|push|opportunity|good|sustainable|improving/.test(text)) return 'good';
     return 'moderate';
   }
-  function card(title,value,lines,wide){
+  function card(title,value,lines){
     const s=sev(value+' '+(lines||[]).join(' '));
-    return `<section class="vertex-b2-card vertex-b2-${s}${wide?' vertex-b2-wide':''}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
+    return `<section class="vertex-b2-card vertex-b2-${s}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
   }
-  const row1=[
-    card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Top movement: ${topMove.name} (${topMove.sets||0} sets)`:'Top movement pending']),
-    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`]),
+  const recoveryCards=[
+    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', 'Basis: recovery synthesis']),
+    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Continue tracking volume and recovery response.']),
     card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean reps.']),
-    card('Longitudinal Trend', longTrend, [readiness!==null?`Current readiness: ${readiness}`:'Recovery baseline pending', sessions?`${sessions} sessions this week`:'No sessions this week'])
+    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`])
   ];
-  const row2=[
-    card('Training Strain', trainingStrain, [`${sessions} sessions this week`, topMuscle?`${topMuscle[0]} leads volume at ${topMuscle[1]} sets`:'Volume baseline pending']),
-    card('Consistency', consistencyLabel, [`This week: ${sessions} sessions`, `Previous week: ${prev} sessions`]),
-    card('Hybrid Routing', hybrid, ['Sleep / HRV / RHR from health data when available', 'Workout signal from Vertex logs']),
-    card('Readiness', readiness!==null?String(readiness):'Pending', [readiness!==null?'Recovery synthesis active':'More recovery data needed'])
+  const intelligenceCards=[
+    card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Top movement: ${topMove.name} (${topMove.sets||0} sets)`:'Top movement pending']),
+    card('Weekly Intelligence', weeklyTrend, [
+      sessions?`${sessions} session${sessions===1?'':'s'} this week — use Volume for raw totals.`:'Log this week to unlock weekly coaching.',
+      daysSince===null?'Last workout pending':daysSince===0?'You logged a workout today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`
+    ]),
+    card('Consistency', consistencyLabel, [
+      sessions>prev?'Keep the rhythm; avoid chasing extra volume.':sessions<prev?'Rebuild frequency before adding load.':'Maintain cadence and quality.',
+      `This week: ${sessions}; previous: ${prev}`
+    ]),
+    card('Longitudinal Trend', longTrend, [readiness!==null?`30-day readiness: ${readiness}`:'Recovery baseline pending', topMove?`Primary movement signal: ${topMove.name}`:'More repeated lifts needed'])
   ];
-  const full=[
-    card('Progression Engine', progression, [topMove?`Repeat ${topMove.name}; add a rep or small load only if form is stable.`:'Log repeated movements to unlock progression guidance.'], true),
-    card('Performance Decision', performance, [readiness!==null&&readiness>=65?'Keep progression conservative until recovery improves.':'Use today to reinforce movement quality and consistency.'], true),
-    card('Weekly Intelligence', sessions?`You logged ${sessions} workout${sessions===1?'':'s'} this week.`:'No workout logged this week', [topMuscle?`${topMuscle[0]} has the highest set volume this week at ${topMuscle[1]} sets.`:'Muscle volume will populate after logs.', daysSince===null?'Last workout pending':daysSince===0?'You logged a workout today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`], true),
-    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', 'Basis: recovery synthesis'], true),
-    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Continue tracking volume and recovery response.'], true)
-  ];
-  deck.innerHTML=`<div class="vertex-b2-row vertex-b2-row-one">${row1.join('')}</div><div class="vertex-b2-row vertex-b2-row-two">${row2.join('')}</div><div class="vertex-b2-full-stack">${full.join('')}</div>`;
+  deck.innerHTML=[
+    '<div class="vertex-b2-section-label">Recovery / Readiness</div>',
+    `<div class="vertex-b2-row vertex-b2-row-recovery">${recoveryCards.join('')}</div>`,
+    '<div class="vertex-b2-section-label">Training Intelligence</div>',
+    `<div class="vertex-b2-row vertex-b2-row-intelligence">${intelligenceCards.join('')}</div>`
+  ].join('');
 }
 
 function renderProgressPage(){

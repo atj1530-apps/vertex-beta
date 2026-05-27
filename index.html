@@ -8890,217 +8890,162 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
-
-
-<!-- Vertex Phase B2 final hierarchy repair: Progress scoped, no auth/service worker/chart/SVG logic changes -->
-<style id="vertex-b2-final-hierarchy-css">
-@media (max-width:900px){
-  #progressPage #progressSummary.vertex-b2-kpi-mounted{
-    display:block!important;
-    margin:14px 0 12px!important;
-    overflow:visible!important;
-  }
-  #progressPage .vertex-b2-kpi-row{
-    display:flex!important;
-    gap:10px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scroll-snap-type:x proximity!important;
-    scrollbar-width:none!important;
-    padding:2px 2px 10px!important;
-    margin:0 0 8px!important;
-  }
-  #progressPage .vertex-b2-kpi-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-b2-kpi-row .progress-kpi{
-    flex:0 0 72%!important;
-    min-width:72%!important;
-    max-width:72%!important;
-    scroll-snap-align:start!important;
-    margin:0!important;
-  }
-  #progressPage .vertex-b2-progress-panel-row{
-    display:flex!important;
-    gap:10px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-    padding:2px 2px 10px!important;
-    margin:10px 0 12px!important;
-  }
-  #progressPage .vertex-b2-progress-panel-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-b2-progress-panel-row > div,
-  #progressPage .vertex-b2-progress-panel-row > section{
-    flex:0 0 82%!important;
-    min-width:82%!important;
-    max-width:82%!important;
-    margin:0!important;
-  }
-  #progressPage #vertexProgressDecisionHolder{
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    gap:12px!important;
-    margin:14px 0!important;
-  }
-  #progressPage #vertexProgressDecisionHolder > div,
-  #progressPage #vertexProgressDecisionHolder > section,
-  #progressPage #vertexMovementHistoryHolder{
-    width:100%!important;
-    max-width:100%!important;
-    margin-left:0!important;
-    margin-right:0!important;
-  }
-  body:not(.app-page-progress) .vertex-b2-progress-only,
-  body.app-page-home .vertex-b2-progress-only{display:none!important;}
+<style id="vertex-phase-b2-safe-hierarchy-final">
+/* Phase B2 safe hierarchy repair: progress-only DOM placement + mobile swipe rows. No chart/SVG/auth/service-worker changes. */
+#progressPage #vertexProgressIntelligenceHolder{margin:16px 0 18px!important;gap:12px!important;}
+#progressPage #vertexB2Row1,#progressPage #vertexB2Row2,#progressPage #vertexB2Full{display:contents;}
+#progressPage #vertexB2Full > #vertexProgressionPanel,
+#progressPage #vertexB2Full > #vertexPerformanceDecisionPanel,
+#progressPage #vertexB2Full > #vertexRecoveryTrendPanel,
+#progressPage #vertexB2Full > #vertexTolerancePanel,
+#progressPage #vertexB2Full > #vertexWorkoutPersistencePanel{grid-column:1/-1!important;}
+#progressPage #vertexProgressIntelligenceHolder .vertex-b2-panel-sev-low .vertex-panel-body > div:first-child{color:var(--green)!important;}
+#progressPage #vertexProgressIntelligenceHolder .vertex-b2-panel-sev-moderate .vertex-panel-body > div:first-child{color:var(--acc)!important;}
+#progressPage #vertexProgressIntelligenceHolder .vertex-b2-panel-sev-watch .vertex-panel-body > div:first-child{color:var(--orange)!important;}
+#progressPage #vertexProgressIntelligenceHolder .vertex-b2-panel-sev-high .vertex-panel-body > div:first-child{color:var(--red)!important;}
+@media(max-width:900px){
+  #progressPage #vertexProgressIntelligenceHolder{display:block!important;margin:14px 0 16px!important;}
+  #progressPage #vertexB2Row1,#progressPage #vertexB2Row2{display:flex!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x proximity!important;padding:0 14px 10px!important;margin:0 -14px 14px!important;scrollbar-width:none!important;}
+  #progressPage #vertexB2Row1::-webkit-scrollbar,#progressPage #vertexB2Row2::-webkit-scrollbar{display:none!important;}
+  #progressPage #vertexB2Row1 > *,#progressPage #vertexB2Row2 > *{flex:0 0 78%!important;min-width:78%!important;max-width:78%!important;scroll-snap-align:start!important;margin:0!important;min-height:170px!important;}
+  #progressPage #vertexB2Full{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;}
+  #progressPage #vertexB2Full > *{width:100%!important;margin:0!important;min-height:unset!important;}
 }
-@media (min-width:901px){
-  #progressPage #progressSummary.vertex-b2-kpi-mounted{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px!important;}
-  #progressPage .vertex-b2-kpi-row{display:contents!important;}
-  #progressPage .vertex-b2-progress-panel-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:12px 0!important;}
-  #progressPage #vertexProgressDecisionHolder{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:14px 0!important;}
+@media(min-width:901px){
+  #progressPage #vertexProgressIntelligenceHolder{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;}
 }
-.vertex-b2-severity-good{color:var(--green)!important;border-color:rgba(72,255,138,.45)!important;}
-.vertex-b2-severity-watch{color:var(--orange)!important;border-color:rgba(255,176,71,.5)!important;}
-.vertex-b2-severity-bad{color:var(--red)!important;border-color:rgba(255,77,77,.5)!important;}
+body:not(.app-page-progress) #vertexProgressIntelligenceHolder,
+body:not(.app-page-progress) #vertexRecoveryTrendPanel,
+body:not(.app-page-progress) #vertexStrainPanel,
+body:not(.app-page-progress) #vertexConsistencyPanel,
+body:not(.app-page-progress) #vertexTolerancePanel,
+body:not(.app-page-progress) #vertexHybridRoutingPanel,
+body:not(.app-page-progress) #vertexCardioStrainPanel,
+body:not(.app-page-progress) #vertexAdaptiveCoachPanel,
+body:not(.app-page-progress) #vertexLongTrendPanel,
+body:not(.app-page-progress) #vertexProgressionPanel,
+body:not(.app-page-progress) #vertexPerformanceDecisionPanel,
+body:not(.app-page-progress) #vertexWorkoutPersistencePanel{display:none!important;}
 </style>
-<script id="vertex-b2-final-hierarchy-js">
+<script id="vertex-phase-b2-safe-hierarchy-final">
 (function(){
-  var CAROUSEL_PANEL_IDS = [
-    'vertexCardioStrainPanel',
-    'vertexStrainPanel',
-    'vertexLongTrendPanel',
-    'vertexConsistencyPanel',
-    'vertexAdaptiveCoachPanel',
-    'vertexHybridRoutingPanel'
-  ];
-  var FULL_WIDTH_PANEL_IDS = [
-    'vertexProgressionPanel',
-    'vertexPerformanceDecisionPanel',
-    'vertexRecoveryTrendPanel',
-    'vertexTolerancePanel'
-  ];
-  var MEMORY_PANEL_ID = 'vertexWorkoutPersistencePanel';
+  if(window.__vertexPhaseB2SafeHierarchyFinal) return;
+  window.__vertexPhaseB2SafeHierarchyFinal = true;
 
-  function progressPage(){ return document.getElementById('progressPage'); }
-  function isProgressActive(){
+  var compactRow1 = ['vertexStrainPanel','vertexCardioStrainPanel','vertexConsistencyPanel'];
+  var compactRow2 = ['vertexAdaptiveCoachPanel','vertexLongTrendPanel','vertexHybridRoutingPanel'];
+  var fullWidth = ['vertexProgressionPanel','vertexPerformanceDecisionPanel','vertexRecoveryTrendPanel','vertexTolerancePanel','vertexWorkoutPersistencePanel'];
+  var allIds = compactRow1.concat(compactRow2, fullWidth);
+
+  function isProgress(){
     try{
-      var p = progressPage();
-      if(!p) return false;
-      var s = window.getComputedStyle ? window.getComputedStyle(p) : null;
-      return document.body.classList.contains('app-page-progress') || (p.style.display !== 'none' && (!s || s.display !== 'none'));
+      if(document.body && document.body.classList.contains('app-page-progress')) return true;
+      var on = document.querySelector('.nav button.on,[data-nav].on');
+      return !!(on && String(on.textContent || '').trim().toLowerCase() === 'progress');
     }catch(e){ return false; }
   }
-  function byId(id){ return document.getElementById(id); }
-  function makeHolder(id, className){
-    var h = byId(id);
-    if(!h){
-      h = document.createElement('div');
-      h.id = id;
-      if(className) h.className = className;
-    }
-    h.classList.add('vertex-b2-progress-only');
-    return h;
+
+  function ensureEl(id, parent){
+    var el = document.getElementById(id);
+    if(!el){ el = document.createElement('div'); el.id = id; }
+    if(parent && el.parentNode !== parent) parent.appendChild(el);
+    return el;
   }
-  function normalizePanel(panel){
-    if(!panel) return;
-    panel.classList.add('vertex-b2-progress-only');
-    panel.style.boxSizing = 'border-box';
-    panel.style.borderRadius = panel.style.borderRadius || '18px';
-    panel.style.marginBottom = '0';
-    panel.style.display = isProgressActive() ? '' : 'none';
+
+  function panel(id){ return document.getElementById(id); }
+
+  function severityFromText(txt){
+    txt = String(txt || '').toLowerCase();
+    if(/overreach|strained|critical|very high|high endurance|high training|reduce|back off|excessive|red/.test(txt)) return 'high';
+    if(/moderate.high|watch|caution|elevated|orange|monitor|fatigue/.test(txt)) return 'watch';
+    if(/moderate|maintain|baseline|building|controlled|normal|stable/.test(txt)) return 'moderate';
+    if(/low|good|green|ready|recovered|improving|push with control|no cardio load|active/.test(txt)) return 'low';
+    return '';
   }
-  function mountKpiRows(p){
-    var summary = byId('progressSummary');
-    if(!summary || !p.contains(summary)) return;
-    var cards = Array.prototype.slice.call(summary.querySelectorAll(':scope > .progress-kpi, :scope > .vertex-b2-kpi-row > .progress-kpi'));
-    if(!cards.length) return;
-    var row1 = byId('vertexB2KpiRow1') || document.createElement('div');
-    var row2 = byId('vertexB2KpiRow2') || document.createElement('div');
-    row1.id = 'vertexB2KpiRow1'; row2.id = 'vertexB2KpiRow2';
-    row1.className = 'vertex-b2-kpi-row'; row2.className = 'vertex-b2-kpi-row';
-    if(row1.parentNode !== summary) summary.appendChild(row1);
-    if(row2.parentNode !== summary) summary.appendChild(row2);
-    var split = Math.ceil(cards.length / 2);
-    cards.forEach(function(card, idx){ (idx < split ? row1 : row2).appendChild(card); });
-    summary.classList.add('vertex-b2-kpi-mounted');
+
+  function applySeverity(el){
+    if(!el) return;
+    el.classList.remove('vertex-b2-panel-sev-low','vertex-b2-panel-sev-moderate','vertex-b2-panel-sev-watch','vertex-b2-panel-sev-high');
+    var sev = severityFromText(el.textContent || '');
+    if(sev) el.classList.add('vertex-b2-panel-sev-' + sev);
   }
-  function mountProgressPanels(p){
-    var tabs = p.querySelector('.progress-tabs');
-    var tabContent = byId('progressTabContent');
-    if(!tabs || !tabContent) return;
 
-    // Ensure the sub-tab menu remains immediately before the analytics tab content.
-    if(tabs.nextElementSibling !== tabContent){
-      tabs.insertAdjacentElement('afterend', tabContent);
-    }
-
-    var carouselHolder = makeHolder('vertexProgressCarouselHolder','vertex-b2-progress-panel-row');
-    var decisionHolder = makeHolder('vertexProgressDecisionHolder','');
-    var memoryHolder = makeHolder('vertexProgressMemoryHolder','');
-    var movementHolder = makeHolder('vertexMovementHistoryHolder','progress-card wide vertex-b2-progress-only');
-
-    // Keep added B2 panels below the analytics tabs/content, not above the sub-tabs.
-    if(tabContent.nextElementSibling !== carouselHolder) tabContent.insertAdjacentElement('afterend', carouselHolder);
-    if(carouselHolder.nextElementSibling !== decisionHolder) carouselHolder.insertAdjacentElement('afterend', decisionHolder);
-    if(decisionHolder.nextElementSibling !== memoryHolder) decisionHolder.insertAdjacentElement('afterend', memoryHolder);
-    if(memoryHolder.nextElementSibling !== movementHolder) memoryHolder.insertAdjacentElement('afterend', movementHolder);
-
-    CAROUSEL_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); carouselHolder.appendChild(el); } });
-    FULL_WIDTH_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); decisionHolder.appendChild(el); } });
-
-    var memory = byId(MEMORY_PANEL_ID);
-    if(memory){
-      normalizePanel(memory);
-      memoryHolder.appendChild(memory);
-      memoryHolder.style.display = isProgressActive() ? '' : 'none';
-    }
-
-    var history = byId('progressHistory');
-    if(history && movementHolder){
-      if(!movementHolder.querySelector('.label')){
-        var label = document.createElement('div');
-        label.className = 'label';
-        label.textContent = 'Movement History';
-        movementHolder.appendChild(label);
+  function cleanWorkoutMemoryText(){
+    var p = panel('vertexWorkoutPersistencePanel');
+    if(!p) return;
+    var body = p.querySelector('.vertex-panel-body') || p;
+    body.querySelectorAll('*').forEach(function(el){
+      if(el.childNodes && el.childNodes.length === 1 && el.childNodes[0].nodeType === 3){
+        el.textContent = el.textContent
+          .replace(/Top movement:\s*Top movement:/gi, 'Top movement:')
+          .replace(/Volume leader:\s*Volume leader:/gi, 'Volume leader:');
       }
-      movementHolder.appendChild(history);
-      movementHolder.style.display = isProgressActive() ? '' : 'none';
-    }
+    });
+    body.innerHTML = body.innerHTML
+      .replace(/Top movement:\s*<b[^>]*>Top movement:/gi, 'Top movement: <b>')
+      .replace(/Volume leader:\s*<b[^>]*>Volume leader:/gi, 'Volume leader: <b>')
+      .replace(/Top movement:\s*Top movement:/gi, 'Top movement:')
+      .replace(/Volume leader:\s*Volume leader:/gi, 'Volume leader:');
+  }
 
-    [carouselHolder, decisionHolder, memoryHolder, movementHolder].forEach(function(h){
-      if(h) h.style.display = isProgressActive() ? '' : 'none';
-    });
-  }
-  function applySeverityColors(root){
-    root = root || document;
-    var targets = root.querySelectorAll('#progressPage .vertex-panel-body div, #progressPage .vertex-panel-body b, #progressPage .badge, #progressPage .perf-pill');
-    Array.prototype.forEach.call(targets, function(el){
-      var t = (el.textContent || '').toLowerCase();
-      if(!t) return;
-      el.classList.remove('vertex-b2-severity-good','vertex-b2-severity-watch','vertex-b2-severity-bad');
-      if(/overreach|elevated|high|declin|reduce|fatigue|caution/.test(t)) el.classList.add('vertex-b2-severity-bad');
-      else if(/moderate|watch|hold|maintain|stable|controlled/.test(t)) el.classList.add('vertex-b2-severity-watch');
-      else if(/low|good|recovered|improving|progression|on track|favorable|sustainable/.test(t)) el.classList.add('vertex-b2-severity-good');
-    });
-  }
-  function run(){
+  function repair(){
     try{
-      var p = progressPage();
-      if(!p) return;
-      mountKpiRows(p);
-      mountProgressPanels(p);
-      applySeverityColors(p);
-    }catch(e){ console.error('Vertex B2 final hierarchy repair failed', e); }
+      var progressPage = document.getElementById('progressPage');
+      var tabContent = document.getElementById('progressTabContent');
+      var overview = document.getElementById('ptab-overview');
+      if(!progressPage || !tabContent || !overview) return;
+
+      var holder = document.getElementById('vertexProgressIntelligenceHolder');
+      if(!holder){
+        holder = document.createElement('div');
+        holder.id = 'vertexProgressIntelligenceHolder';
+      }
+
+      // Correct hierarchy: Progress tabs stay above this content; B2 cards live inside Overview only.
+      var overviewFirst = overview.firstElementChild;
+      if(holder.parentNode !== overview || holder.nextElementSibling !== overviewFirst){
+        overview.insertBefore(holder, overviewFirst || null);
+      }
+
+      var row1 = ensureEl('vertexB2Row1', holder);
+      var row2 = ensureEl('vertexB2Row2', holder);
+      var full = ensureEl('vertexB2Full', holder);
+
+      compactRow1.forEach(function(id){ var el = panel(id); if(el){ row1.appendChild(el); applySeverity(el); }});
+      compactRow2.forEach(function(id){ var el = panel(id); if(el){ row2.appendChild(el); applySeverity(el); }});
+      fullWidth.forEach(function(id){ var el = panel(id); if(el){ full.appendChild(el); applySeverity(el); }});
+
+      // Keep holder visibility scoped to Progress/Overview; never Home.
+      var show = isProgress();
+      holder.style.display = show ? '' : 'none';
+      allIds.forEach(function(id){ var el = panel(id); if(el) el.style.display = show ? '' : 'none'; });
+
+      cleanWorkoutMemoryText();
+    }catch(e){
+      console.warn('Vertex B2 safe hierarchy repair skipped:', e);
+    }
   }
-  function schedule(){ [0,80,250,700,1400,2600].forEach(function(ms){ setTimeout(run, ms); }); }
+
+  function schedule(){
+    repair();
+    [80,250,700,1300,2400,3600].forEach(function(ms){ setTimeout(repair, ms); });
+  }
+
   document.addEventListener('DOMContentLoaded', schedule);
   window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(run, 80); });
-  document.addEventListener('click', function(){ setTimeout(run, 120); }, true);
+  window.addEventListener('resize', function(){ setTimeout(repair, 120); });
+  document.addEventListener('click', function(){ setTimeout(repair, 180); setTimeout(repair, 800); }, true);
+
   try{
-    var mo = new MutationObserver(function(){ clearTimeout(window.__vertexB2HierarchyTimer); window.__vertexB2HierarchyTimer = setTimeout(run, 80); });
-    mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['style','class']});
+    var mo = new MutationObserver(function(muts){
+      var needs = muts.some(function(m){
+        return Array.prototype.some.call(m.addedNodes || [], function(n){
+          return n && n.nodeType === 1 && (n.id === 'vertexProgressIntelligenceHolder' || allIds.indexOf(n.id) >= 0 || (n.querySelector && n.querySelector('#vertexProgressIntelligenceHolder')));
+        });
+      });
+      if(needs) setTimeout(repair, 50);
+    });
+    mo.observe(document.body || document.documentElement, {childList:true, subtree:true});
   }catch(e){}
 })();
 </script>
@@ -10721,221 +10666,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-<!-- Vertex Phase B2 final hierarchy repair: Progress scoped, no auth/service worker/chart/SVG logic changes -->
-<style id="vertex-b2-final-hierarchy-css">
-@media (max-width:900px){
-  #progressPage #progressSummary.vertex-b2-kpi-mounted{
-    display:block!important;
-    margin:14px 0 12px!important;
-    overflow:visible!important;
-  }
-  #progressPage .vertex-b2-kpi-row{
-    display:flex!important;
-    gap:10px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scroll-snap-type:x proximity!important;
-    scrollbar-width:none!important;
-    padding:2px 2px 10px!important;
-    margin:0 0 8px!important;
-  }
-  #progressPage .vertex-b2-kpi-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-b2-kpi-row .progress-kpi{
-    flex:0 0 72%!important;
-    min-width:72%!important;
-    max-width:72%!important;
-    scroll-snap-align:start!important;
-    margin:0!important;
-  }
-  #progressPage .vertex-b2-progress-panel-row{
-    display:flex!important;
-    gap:10px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-    padding:2px 2px 10px!important;
-    margin:10px 0 12px!important;
-  }
-  #progressPage .vertex-b2-progress-panel-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-b2-progress-panel-row > div,
-  #progressPage .vertex-b2-progress-panel-row > section{
-    flex:0 0 82%!important;
-    min-width:82%!important;
-    max-width:82%!important;
-    margin:0!important;
-  }
-  #progressPage #vertexProgressDecisionHolder{
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    gap:12px!important;
-    margin:14px 0!important;
-  }
-  #progressPage #vertexProgressDecisionHolder > div,
-  #progressPage #vertexProgressDecisionHolder > section,
-  #progressPage #vertexMovementHistoryHolder{
-    width:100%!important;
-    max-width:100%!important;
-    margin-left:0!important;
-    margin-right:0!important;
-  }
-  body:not(.app-page-progress) .vertex-b2-progress-only,
-  body.app-page-home .vertex-b2-progress-only{display:none!important;}
-}
-@media (min-width:901px){
-  #progressPage #progressSummary.vertex-b2-kpi-mounted{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px!important;}
-  #progressPage .vertex-b2-kpi-row{display:contents!important;}
-  #progressPage .vertex-b2-progress-panel-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:12px 0!important;}
-  #progressPage #vertexProgressDecisionHolder{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:14px 0!important;}
-}
-.vertex-b2-severity-good{color:var(--green)!important;border-color:rgba(72,255,138,.45)!important;}
-.vertex-b2-severity-watch{color:var(--orange)!important;border-color:rgba(255,176,71,.5)!important;}
-.vertex-b2-severity-bad{color:var(--red)!important;border-color:rgba(255,77,77,.5)!important;}
-</style>
-<script id="vertex-b2-final-hierarchy-js">
-(function(){
-  var CAROUSEL_PANEL_IDS = [
-    'vertexCardioStrainPanel',
-    'vertexStrainPanel',
-    'vertexLongTrendPanel',
-    'vertexConsistencyPanel',
-    'vertexAdaptiveCoachPanel',
-    'vertexHybridRoutingPanel'
-  ];
-  var FULL_WIDTH_PANEL_IDS = [
-    'vertexProgressionPanel',
-    'vertexPerformanceDecisionPanel',
-    'vertexRecoveryTrendPanel',
-    'vertexTolerancePanel'
-  ];
-  var MEMORY_PANEL_ID = 'vertexWorkoutPersistencePanel';
-
-  function progressPage(){ return document.getElementById('progressPage'); }
-  function isProgressActive(){
-    try{
-      var p = progressPage();
-      if(!p) return false;
-      var s = window.getComputedStyle ? window.getComputedStyle(p) : null;
-      return document.body.classList.contains('app-page-progress') || (p.style.display !== 'none' && (!s || s.display !== 'none'));
-    }catch(e){ return false; }
-  }
-  function byId(id){ return document.getElementById(id); }
-  function makeHolder(id, className){
-    var h = byId(id);
-    if(!h){
-      h = document.createElement('div');
-      h.id = id;
-      if(className) h.className = className;
-    }
-    h.classList.add('vertex-b2-progress-only');
-    return h;
-  }
-  function normalizePanel(panel){
-    if(!panel) return;
-    panel.classList.add('vertex-b2-progress-only');
-    panel.style.boxSizing = 'border-box';
-    panel.style.borderRadius = panel.style.borderRadius || '18px';
-    panel.style.marginBottom = '0';
-    panel.style.display = isProgressActive() ? '' : 'none';
-  }
-  function mountKpiRows(p){
-    var summary = byId('progressSummary');
-    if(!summary || !p.contains(summary)) return;
-    var cards = Array.prototype.slice.call(summary.querySelectorAll(':scope > .progress-kpi, :scope > .vertex-b2-kpi-row > .progress-kpi'));
-    if(!cards.length) return;
-    var row1 = byId('vertexB2KpiRow1') || document.createElement('div');
-    var row2 = byId('vertexB2KpiRow2') || document.createElement('div');
-    row1.id = 'vertexB2KpiRow1'; row2.id = 'vertexB2KpiRow2';
-    row1.className = 'vertex-b2-kpi-row'; row2.className = 'vertex-b2-kpi-row';
-    if(row1.parentNode !== summary) summary.appendChild(row1);
-    if(row2.parentNode !== summary) summary.appendChild(row2);
-    var split = Math.ceil(cards.length / 2);
-    cards.forEach(function(card, idx){ (idx < split ? row1 : row2).appendChild(card); });
-    summary.classList.add('vertex-b2-kpi-mounted');
-  }
-  function mountProgressPanels(p){
-    var tabs = p.querySelector('.progress-tabs');
-    var tabContent = byId('progressTabContent');
-    if(!tabs || !tabContent) return;
-
-    // Ensure the sub-tab menu remains immediately before the analytics tab content.
-    if(tabs.nextElementSibling !== tabContent){
-      tabs.insertAdjacentElement('afterend', tabContent);
-    }
-
-    var carouselHolder = makeHolder('vertexProgressCarouselHolder','vertex-b2-progress-panel-row');
-    var decisionHolder = makeHolder('vertexProgressDecisionHolder','');
-    var memoryHolder = makeHolder('vertexProgressMemoryHolder','');
-    var movementHolder = makeHolder('vertexMovementHistoryHolder','progress-card wide vertex-b2-progress-only');
-
-    // Keep added B2 panels below the analytics tabs/content, not above the sub-tabs.
-    if(tabContent.nextElementSibling !== carouselHolder) tabContent.insertAdjacentElement('afterend', carouselHolder);
-    if(carouselHolder.nextElementSibling !== decisionHolder) carouselHolder.insertAdjacentElement('afterend', decisionHolder);
-    if(decisionHolder.nextElementSibling !== memoryHolder) decisionHolder.insertAdjacentElement('afterend', memoryHolder);
-    if(memoryHolder.nextElementSibling !== movementHolder) memoryHolder.insertAdjacentElement('afterend', movementHolder);
-
-    CAROUSEL_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); carouselHolder.appendChild(el); } });
-    FULL_WIDTH_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); decisionHolder.appendChild(el); } });
-
-    var memory = byId(MEMORY_PANEL_ID);
-    if(memory){
-      normalizePanel(memory);
-      memoryHolder.appendChild(memory);
-      memoryHolder.style.display = isProgressActive() ? '' : 'none';
-    }
-
-    var history = byId('progressHistory');
-    if(history && movementHolder){
-      if(!movementHolder.querySelector('.label')){
-        var label = document.createElement('div');
-        label.className = 'label';
-        label.textContent = 'Movement History';
-        movementHolder.appendChild(label);
-      }
-      movementHolder.appendChild(history);
-      movementHolder.style.display = isProgressActive() ? '' : 'none';
-    }
-
-    [carouselHolder, decisionHolder, memoryHolder, movementHolder].forEach(function(h){
-      if(h) h.style.display = isProgressActive() ? '' : 'none';
-    });
-  }
-  function applySeverityColors(root){
-    root = root || document;
-    var targets = root.querySelectorAll('#progressPage .vertex-panel-body div, #progressPage .vertex-panel-body b, #progressPage .badge, #progressPage .perf-pill');
-    Array.prototype.forEach.call(targets, function(el){
-      var t = (el.textContent || '').toLowerCase();
-      if(!t) return;
-      el.classList.remove('vertex-b2-severity-good','vertex-b2-severity-watch','vertex-b2-severity-bad');
-      if(/overreach|elevated|high|declin|reduce|fatigue|caution/.test(t)) el.classList.add('vertex-b2-severity-bad');
-      else if(/moderate|watch|hold|maintain|stable|controlled/.test(t)) el.classList.add('vertex-b2-severity-watch');
-      else if(/low|good|recovered|improving|progression|on track|favorable|sustainable/.test(t)) el.classList.add('vertex-b2-severity-good');
-    });
-  }
-  function run(){
-    try{
-      var p = progressPage();
-      if(!p) return;
-      mountKpiRows(p);
-      mountProgressPanels(p);
-      applySeverityColors(p);
-    }catch(e){ console.error('Vertex B2 final hierarchy repair failed', e); }
-  }
-  function schedule(){ [0,80,250,700,1400,2600].forEach(function(ms){ setTimeout(run, ms); }); }
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(run, 80); });
-  document.addEventListener('click', function(){ setTimeout(run, 120); }, true);
-  try{
-    var mo = new MutationObserver(function(){ clearTimeout(window.__vertexB2HierarchyTimer); window.__vertexB2HierarchyTimer = setTimeout(run, 80); });
-    mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['style','class']});
-  }catch(e){}
-})();
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -11201,221 +10931,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-<!-- Vertex Phase B2 final hierarchy repair: Progress scoped, no auth/service worker/chart/SVG logic changes -->
-<style id="vertex-b2-final-hierarchy-css">
-@media (max-width:900px){
-  #progressPage #progressSummary.vertex-b2-kpi-mounted{
-    display:block!important;
-    margin:14px 0 12px!important;
-    overflow:visible!important;
-  }
-  #progressPage .vertex-b2-kpi-row{
-    display:flex!important;
-    gap:10px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scroll-snap-type:x proximity!important;
-    scrollbar-width:none!important;
-    padding:2px 2px 10px!important;
-    margin:0 0 8px!important;
-  }
-  #progressPage .vertex-b2-kpi-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-b2-kpi-row .progress-kpi{
-    flex:0 0 72%!important;
-    min-width:72%!important;
-    max-width:72%!important;
-    scroll-snap-align:start!important;
-    margin:0!important;
-  }
-  #progressPage .vertex-b2-progress-panel-row{
-    display:flex!important;
-    gap:10px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-    padding:2px 2px 10px!important;
-    margin:10px 0 12px!important;
-  }
-  #progressPage .vertex-b2-progress-panel-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-b2-progress-panel-row > div,
-  #progressPage .vertex-b2-progress-panel-row > section{
-    flex:0 0 82%!important;
-    min-width:82%!important;
-    max-width:82%!important;
-    margin:0!important;
-  }
-  #progressPage #vertexProgressDecisionHolder{
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    gap:12px!important;
-    margin:14px 0!important;
-  }
-  #progressPage #vertexProgressDecisionHolder > div,
-  #progressPage #vertexProgressDecisionHolder > section,
-  #progressPage #vertexMovementHistoryHolder{
-    width:100%!important;
-    max-width:100%!important;
-    margin-left:0!important;
-    margin-right:0!important;
-  }
-  body:not(.app-page-progress) .vertex-b2-progress-only,
-  body.app-page-home .vertex-b2-progress-only{display:none!important;}
-}
-@media (min-width:901px){
-  #progressPage #progressSummary.vertex-b2-kpi-mounted{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px!important;}
-  #progressPage .vertex-b2-kpi-row{display:contents!important;}
-  #progressPage .vertex-b2-progress-panel-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:12px 0!important;}
-  #progressPage #vertexProgressDecisionHolder{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:14px 0!important;}
-}
-.vertex-b2-severity-good{color:var(--green)!important;border-color:rgba(72,255,138,.45)!important;}
-.vertex-b2-severity-watch{color:var(--orange)!important;border-color:rgba(255,176,71,.5)!important;}
-.vertex-b2-severity-bad{color:var(--red)!important;border-color:rgba(255,77,77,.5)!important;}
-</style>
-<script id="vertex-b2-final-hierarchy-js">
-(function(){
-  var CAROUSEL_PANEL_IDS = [
-    'vertexCardioStrainPanel',
-    'vertexStrainPanel',
-    'vertexLongTrendPanel',
-    'vertexConsistencyPanel',
-    'vertexAdaptiveCoachPanel',
-    'vertexHybridRoutingPanel'
-  ];
-  var FULL_WIDTH_PANEL_IDS = [
-    'vertexProgressionPanel',
-    'vertexPerformanceDecisionPanel',
-    'vertexRecoveryTrendPanel',
-    'vertexTolerancePanel'
-  ];
-  var MEMORY_PANEL_ID = 'vertexWorkoutPersistencePanel';
-
-  function progressPage(){ return document.getElementById('progressPage'); }
-  function isProgressActive(){
-    try{
-      var p = progressPage();
-      if(!p) return false;
-      var s = window.getComputedStyle ? window.getComputedStyle(p) : null;
-      return document.body.classList.contains('app-page-progress') || (p.style.display !== 'none' && (!s || s.display !== 'none'));
-    }catch(e){ return false; }
-  }
-  function byId(id){ return document.getElementById(id); }
-  function makeHolder(id, className){
-    var h = byId(id);
-    if(!h){
-      h = document.createElement('div');
-      h.id = id;
-      if(className) h.className = className;
-    }
-    h.classList.add('vertex-b2-progress-only');
-    return h;
-  }
-  function normalizePanel(panel){
-    if(!panel) return;
-    panel.classList.add('vertex-b2-progress-only');
-    panel.style.boxSizing = 'border-box';
-    panel.style.borderRadius = panel.style.borderRadius || '18px';
-    panel.style.marginBottom = '0';
-    panel.style.display = isProgressActive() ? '' : 'none';
-  }
-  function mountKpiRows(p){
-    var summary = byId('progressSummary');
-    if(!summary || !p.contains(summary)) return;
-    var cards = Array.prototype.slice.call(summary.querySelectorAll(':scope > .progress-kpi, :scope > .vertex-b2-kpi-row > .progress-kpi'));
-    if(!cards.length) return;
-    var row1 = byId('vertexB2KpiRow1') || document.createElement('div');
-    var row2 = byId('vertexB2KpiRow2') || document.createElement('div');
-    row1.id = 'vertexB2KpiRow1'; row2.id = 'vertexB2KpiRow2';
-    row1.className = 'vertex-b2-kpi-row'; row2.className = 'vertex-b2-kpi-row';
-    if(row1.parentNode !== summary) summary.appendChild(row1);
-    if(row2.parentNode !== summary) summary.appendChild(row2);
-    var split = Math.ceil(cards.length / 2);
-    cards.forEach(function(card, idx){ (idx < split ? row1 : row2).appendChild(card); });
-    summary.classList.add('vertex-b2-kpi-mounted');
-  }
-  function mountProgressPanels(p){
-    var tabs = p.querySelector('.progress-tabs');
-    var tabContent = byId('progressTabContent');
-    if(!tabs || !tabContent) return;
-
-    // Ensure the sub-tab menu remains immediately before the analytics tab content.
-    if(tabs.nextElementSibling !== tabContent){
-      tabs.insertAdjacentElement('afterend', tabContent);
-    }
-
-    var carouselHolder = makeHolder('vertexProgressCarouselHolder','vertex-b2-progress-panel-row');
-    var decisionHolder = makeHolder('vertexProgressDecisionHolder','');
-    var memoryHolder = makeHolder('vertexProgressMemoryHolder','');
-    var movementHolder = makeHolder('vertexMovementHistoryHolder','progress-card wide vertex-b2-progress-only');
-
-    // Keep added B2 panels below the analytics tabs/content, not above the sub-tabs.
-    if(tabContent.nextElementSibling !== carouselHolder) tabContent.insertAdjacentElement('afterend', carouselHolder);
-    if(carouselHolder.nextElementSibling !== decisionHolder) carouselHolder.insertAdjacentElement('afterend', decisionHolder);
-    if(decisionHolder.nextElementSibling !== memoryHolder) decisionHolder.insertAdjacentElement('afterend', memoryHolder);
-    if(memoryHolder.nextElementSibling !== movementHolder) memoryHolder.insertAdjacentElement('afterend', movementHolder);
-
-    CAROUSEL_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); carouselHolder.appendChild(el); } });
-    FULL_WIDTH_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); decisionHolder.appendChild(el); } });
-
-    var memory = byId(MEMORY_PANEL_ID);
-    if(memory){
-      normalizePanel(memory);
-      memoryHolder.appendChild(memory);
-      memoryHolder.style.display = isProgressActive() ? '' : 'none';
-    }
-
-    var history = byId('progressHistory');
-    if(history && movementHolder){
-      if(!movementHolder.querySelector('.label')){
-        var label = document.createElement('div');
-        label.className = 'label';
-        label.textContent = 'Movement History';
-        movementHolder.appendChild(label);
-      }
-      movementHolder.appendChild(history);
-      movementHolder.style.display = isProgressActive() ? '' : 'none';
-    }
-
-    [carouselHolder, decisionHolder, memoryHolder, movementHolder].forEach(function(h){
-      if(h) h.style.display = isProgressActive() ? '' : 'none';
-    });
-  }
-  function applySeverityColors(root){
-    root = root || document;
-    var targets = root.querySelectorAll('#progressPage .vertex-panel-body div, #progressPage .vertex-panel-body b, #progressPage .badge, #progressPage .perf-pill');
-    Array.prototype.forEach.call(targets, function(el){
-      var t = (el.textContent || '').toLowerCase();
-      if(!t) return;
-      el.classList.remove('vertex-b2-severity-good','vertex-b2-severity-watch','vertex-b2-severity-bad');
-      if(/overreach|elevated|high|declin|reduce|fatigue|caution/.test(t)) el.classList.add('vertex-b2-severity-bad');
-      else if(/moderate|watch|hold|maintain|stable|controlled/.test(t)) el.classList.add('vertex-b2-severity-watch');
-      else if(/low|good|recovered|improving|progression|on track|favorable|sustainable/.test(t)) el.classList.add('vertex-b2-severity-good');
-    });
-  }
-  function run(){
-    try{
-      var p = progressPage();
-      if(!p) return;
-      mountKpiRows(p);
-      mountProgressPanels(p);
-      applySeverityColors(p);
-    }catch(e){ console.error('Vertex B2 final hierarchy repair failed', e); }
-  }
-  function schedule(){ [0,80,250,700,1400,2600].forEach(function(ms){ setTimeout(run, ms); }); }
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(run, 80); });
-  document.addEventListener('click', function(){ setTimeout(run, 120); }, true);
-  try{
-    var mo = new MutationObserver(function(){ clearTimeout(window.__vertexB2HierarchyTimer); window.__vertexB2HierarchyTimer = setTimeout(run, 80); });
-    mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['style','class']});
-  }catch(e){}
-})();
-</script>
-
 </body></html>`);
     w.document.close();
   };
@@ -11644,221 +11159,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-<!-- Vertex Phase B2 final hierarchy repair: Progress scoped, no auth/service worker/chart/SVG logic changes -->
-<style id="vertex-b2-final-hierarchy-css">
-@media (max-width:900px){
-  #progressPage #progressSummary.vertex-b2-kpi-mounted{
-    display:block!important;
-    margin:14px 0 12px!important;
-    overflow:visible!important;
-  }
-  #progressPage .vertex-b2-kpi-row{
-    display:flex!important;
-    gap:10px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scroll-snap-type:x proximity!important;
-    scrollbar-width:none!important;
-    padding:2px 2px 10px!important;
-    margin:0 0 8px!important;
-  }
-  #progressPage .vertex-b2-kpi-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-b2-kpi-row .progress-kpi{
-    flex:0 0 72%!important;
-    min-width:72%!important;
-    max-width:72%!important;
-    scroll-snap-align:start!important;
-    margin:0!important;
-  }
-  #progressPage .vertex-b2-progress-panel-row{
-    display:flex!important;
-    gap:10px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-    padding:2px 2px 10px!important;
-    margin:10px 0 12px!important;
-  }
-  #progressPage .vertex-b2-progress-panel-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-b2-progress-panel-row > div,
-  #progressPage .vertex-b2-progress-panel-row > section{
-    flex:0 0 82%!important;
-    min-width:82%!important;
-    max-width:82%!important;
-    margin:0!important;
-  }
-  #progressPage #vertexProgressDecisionHolder{
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    gap:12px!important;
-    margin:14px 0!important;
-  }
-  #progressPage #vertexProgressDecisionHolder > div,
-  #progressPage #vertexProgressDecisionHolder > section,
-  #progressPage #vertexMovementHistoryHolder{
-    width:100%!important;
-    max-width:100%!important;
-    margin-left:0!important;
-    margin-right:0!important;
-  }
-  body:not(.app-page-progress) .vertex-b2-progress-only,
-  body.app-page-home .vertex-b2-progress-only{display:none!important;}
-}
-@media (min-width:901px){
-  #progressPage #progressSummary.vertex-b2-kpi-mounted{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px!important;}
-  #progressPage .vertex-b2-kpi-row{display:contents!important;}
-  #progressPage .vertex-b2-progress-panel-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:12px 0!important;}
-  #progressPage #vertexProgressDecisionHolder{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:14px 0!important;}
-}
-.vertex-b2-severity-good{color:var(--green)!important;border-color:rgba(72,255,138,.45)!important;}
-.vertex-b2-severity-watch{color:var(--orange)!important;border-color:rgba(255,176,71,.5)!important;}
-.vertex-b2-severity-bad{color:var(--red)!important;border-color:rgba(255,77,77,.5)!important;}
-</style>
-<script id="vertex-b2-final-hierarchy-js">
-(function(){
-  var CAROUSEL_PANEL_IDS = [
-    'vertexCardioStrainPanel',
-    'vertexStrainPanel',
-    'vertexLongTrendPanel',
-    'vertexConsistencyPanel',
-    'vertexAdaptiveCoachPanel',
-    'vertexHybridRoutingPanel'
-  ];
-  var FULL_WIDTH_PANEL_IDS = [
-    'vertexProgressionPanel',
-    'vertexPerformanceDecisionPanel',
-    'vertexRecoveryTrendPanel',
-    'vertexTolerancePanel'
-  ];
-  var MEMORY_PANEL_ID = 'vertexWorkoutPersistencePanel';
-
-  function progressPage(){ return document.getElementById('progressPage'); }
-  function isProgressActive(){
-    try{
-      var p = progressPage();
-      if(!p) return false;
-      var s = window.getComputedStyle ? window.getComputedStyle(p) : null;
-      return document.body.classList.contains('app-page-progress') || (p.style.display !== 'none' && (!s || s.display !== 'none'));
-    }catch(e){ return false; }
-  }
-  function byId(id){ return document.getElementById(id); }
-  function makeHolder(id, className){
-    var h = byId(id);
-    if(!h){
-      h = document.createElement('div');
-      h.id = id;
-      if(className) h.className = className;
-    }
-    h.classList.add('vertex-b2-progress-only');
-    return h;
-  }
-  function normalizePanel(panel){
-    if(!panel) return;
-    panel.classList.add('vertex-b2-progress-only');
-    panel.style.boxSizing = 'border-box';
-    panel.style.borderRadius = panel.style.borderRadius || '18px';
-    panel.style.marginBottom = '0';
-    panel.style.display = isProgressActive() ? '' : 'none';
-  }
-  function mountKpiRows(p){
-    var summary = byId('progressSummary');
-    if(!summary || !p.contains(summary)) return;
-    var cards = Array.prototype.slice.call(summary.querySelectorAll(':scope > .progress-kpi, :scope > .vertex-b2-kpi-row > .progress-kpi'));
-    if(!cards.length) return;
-    var row1 = byId('vertexB2KpiRow1') || document.createElement('div');
-    var row2 = byId('vertexB2KpiRow2') || document.createElement('div');
-    row1.id = 'vertexB2KpiRow1'; row2.id = 'vertexB2KpiRow2';
-    row1.className = 'vertex-b2-kpi-row'; row2.className = 'vertex-b2-kpi-row';
-    if(row1.parentNode !== summary) summary.appendChild(row1);
-    if(row2.parentNode !== summary) summary.appendChild(row2);
-    var split = Math.ceil(cards.length / 2);
-    cards.forEach(function(card, idx){ (idx < split ? row1 : row2).appendChild(card); });
-    summary.classList.add('vertex-b2-kpi-mounted');
-  }
-  function mountProgressPanels(p){
-    var tabs = p.querySelector('.progress-tabs');
-    var tabContent = byId('progressTabContent');
-    if(!tabs || !tabContent) return;
-
-    // Ensure the sub-tab menu remains immediately before the analytics tab content.
-    if(tabs.nextElementSibling !== tabContent){
-      tabs.insertAdjacentElement('afterend', tabContent);
-    }
-
-    var carouselHolder = makeHolder('vertexProgressCarouselHolder','vertex-b2-progress-panel-row');
-    var decisionHolder = makeHolder('vertexProgressDecisionHolder','');
-    var memoryHolder = makeHolder('vertexProgressMemoryHolder','');
-    var movementHolder = makeHolder('vertexMovementHistoryHolder','progress-card wide vertex-b2-progress-only');
-
-    // Keep added B2 panels below the analytics tabs/content, not above the sub-tabs.
-    if(tabContent.nextElementSibling !== carouselHolder) tabContent.insertAdjacentElement('afterend', carouselHolder);
-    if(carouselHolder.nextElementSibling !== decisionHolder) carouselHolder.insertAdjacentElement('afterend', decisionHolder);
-    if(decisionHolder.nextElementSibling !== memoryHolder) decisionHolder.insertAdjacentElement('afterend', memoryHolder);
-    if(memoryHolder.nextElementSibling !== movementHolder) memoryHolder.insertAdjacentElement('afterend', movementHolder);
-
-    CAROUSEL_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); carouselHolder.appendChild(el); } });
-    FULL_WIDTH_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); decisionHolder.appendChild(el); } });
-
-    var memory = byId(MEMORY_PANEL_ID);
-    if(memory){
-      normalizePanel(memory);
-      memoryHolder.appendChild(memory);
-      memoryHolder.style.display = isProgressActive() ? '' : 'none';
-    }
-
-    var history = byId('progressHistory');
-    if(history && movementHolder){
-      if(!movementHolder.querySelector('.label')){
-        var label = document.createElement('div');
-        label.className = 'label';
-        label.textContent = 'Movement History';
-        movementHolder.appendChild(label);
-      }
-      movementHolder.appendChild(history);
-      movementHolder.style.display = isProgressActive() ? '' : 'none';
-    }
-
-    [carouselHolder, decisionHolder, memoryHolder, movementHolder].forEach(function(h){
-      if(h) h.style.display = isProgressActive() ? '' : 'none';
-    });
-  }
-  function applySeverityColors(root){
-    root = root || document;
-    var targets = root.querySelectorAll('#progressPage .vertex-panel-body div, #progressPage .vertex-panel-body b, #progressPage .badge, #progressPage .perf-pill');
-    Array.prototype.forEach.call(targets, function(el){
-      var t = (el.textContent || '').toLowerCase();
-      if(!t) return;
-      el.classList.remove('vertex-b2-severity-good','vertex-b2-severity-watch','vertex-b2-severity-bad');
-      if(/overreach|elevated|high|declin|reduce|fatigue|caution/.test(t)) el.classList.add('vertex-b2-severity-bad');
-      else if(/moderate|watch|hold|maintain|stable|controlled/.test(t)) el.classList.add('vertex-b2-severity-watch');
-      else if(/low|good|recovered|improving|progression|on track|favorable|sustainable/.test(t)) el.classList.add('vertex-b2-severity-good');
-    });
-  }
-  function run(){
-    try{
-      var p = progressPage();
-      if(!p) return;
-      mountKpiRows(p);
-      mountProgressPanels(p);
-      applySeverityColors(p);
-    }catch(e){ console.error('Vertex B2 final hierarchy repair failed', e); }
-  }
-  function schedule(){ [0,80,250,700,1400,2600].forEach(function(ms){ setTimeout(run, ms); }); }
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(run, 80); });
-  document.addEventListener('click', function(){ setTimeout(run, 120); }, true);
-  try{
-    var mo = new MutationObserver(function(){ clearTimeout(window.__vertexB2HierarchyTimer); window.__vertexB2HierarchyTimer = setTimeout(run, 80); });
-    mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['style','class']});
-  }catch(e){}
-})();
-</script>
-
 </body></html>`);
   w.document.close();
 }
@@ -19256,221 +18556,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 })();
 </script>
 
-
-
-<!-- Vertex Phase B2 final hierarchy repair: Progress scoped, no auth/service worker/chart/SVG logic changes -->
-<style id="vertex-b2-final-hierarchy-css">
-@media (max-width:900px){
-  #progressPage #progressSummary.vertex-b2-kpi-mounted{
-    display:block!important;
-    margin:14px 0 12px!important;
-    overflow:visible!important;
-  }
-  #progressPage .vertex-b2-kpi-row{
-    display:flex!important;
-    gap:10px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scroll-snap-type:x proximity!important;
-    scrollbar-width:none!important;
-    padding:2px 2px 10px!important;
-    margin:0 0 8px!important;
-  }
-  #progressPage .vertex-b2-kpi-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-b2-kpi-row .progress-kpi{
-    flex:0 0 72%!important;
-    min-width:72%!important;
-    max-width:72%!important;
-    scroll-snap-align:start!important;
-    margin:0!important;
-  }
-  #progressPage .vertex-b2-progress-panel-row{
-    display:flex!important;
-    gap:10px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-    padding:2px 2px 10px!important;
-    margin:10px 0 12px!important;
-  }
-  #progressPage .vertex-b2-progress-panel-row::-webkit-scrollbar{display:none!important;}
-  #progressPage .vertex-b2-progress-panel-row > div,
-  #progressPage .vertex-b2-progress-panel-row > section{
-    flex:0 0 82%!important;
-    min-width:82%!important;
-    max-width:82%!important;
-    margin:0!important;
-  }
-  #progressPage #vertexProgressDecisionHolder{
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    gap:12px!important;
-    margin:14px 0!important;
-  }
-  #progressPage #vertexProgressDecisionHolder > div,
-  #progressPage #vertexProgressDecisionHolder > section,
-  #progressPage #vertexMovementHistoryHolder{
-    width:100%!important;
-    max-width:100%!important;
-    margin-left:0!important;
-    margin-right:0!important;
-  }
-  body:not(.app-page-progress) .vertex-b2-progress-only,
-  body.app-page-home .vertex-b2-progress-only{display:none!important;}
-}
-@media (min-width:901px){
-  #progressPage #progressSummary.vertex-b2-kpi-mounted{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px!important;}
-  #progressPage .vertex-b2-kpi-row{display:contents!important;}
-  #progressPage .vertex-b2-progress-panel-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:12px 0!important;}
-  #progressPage #vertexProgressDecisionHolder{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:14px 0!important;}
-}
-.vertex-b2-severity-good{color:var(--green)!important;border-color:rgba(72,255,138,.45)!important;}
-.vertex-b2-severity-watch{color:var(--orange)!important;border-color:rgba(255,176,71,.5)!important;}
-.vertex-b2-severity-bad{color:var(--red)!important;border-color:rgba(255,77,77,.5)!important;}
-</style>
-<script id="vertex-b2-final-hierarchy-js">
-(function(){
-  var CAROUSEL_PANEL_IDS = [
-    'vertexCardioStrainPanel',
-    'vertexStrainPanel',
-    'vertexLongTrendPanel',
-    'vertexConsistencyPanel',
-    'vertexAdaptiveCoachPanel',
-    'vertexHybridRoutingPanel'
-  ];
-  var FULL_WIDTH_PANEL_IDS = [
-    'vertexProgressionPanel',
-    'vertexPerformanceDecisionPanel',
-    'vertexRecoveryTrendPanel',
-    'vertexTolerancePanel'
-  ];
-  var MEMORY_PANEL_ID = 'vertexWorkoutPersistencePanel';
-
-  function progressPage(){ return document.getElementById('progressPage'); }
-  function isProgressActive(){
-    try{
-      var p = progressPage();
-      if(!p) return false;
-      var s = window.getComputedStyle ? window.getComputedStyle(p) : null;
-      return document.body.classList.contains('app-page-progress') || (p.style.display !== 'none' && (!s || s.display !== 'none'));
-    }catch(e){ return false; }
-  }
-  function byId(id){ return document.getElementById(id); }
-  function makeHolder(id, className){
-    var h = byId(id);
-    if(!h){
-      h = document.createElement('div');
-      h.id = id;
-      if(className) h.className = className;
-    }
-    h.classList.add('vertex-b2-progress-only');
-    return h;
-  }
-  function normalizePanel(panel){
-    if(!panel) return;
-    panel.classList.add('vertex-b2-progress-only');
-    panel.style.boxSizing = 'border-box';
-    panel.style.borderRadius = panel.style.borderRadius || '18px';
-    panel.style.marginBottom = '0';
-    panel.style.display = isProgressActive() ? '' : 'none';
-  }
-  function mountKpiRows(p){
-    var summary = byId('progressSummary');
-    if(!summary || !p.contains(summary)) return;
-    var cards = Array.prototype.slice.call(summary.querySelectorAll(':scope > .progress-kpi, :scope > .vertex-b2-kpi-row > .progress-kpi'));
-    if(!cards.length) return;
-    var row1 = byId('vertexB2KpiRow1') || document.createElement('div');
-    var row2 = byId('vertexB2KpiRow2') || document.createElement('div');
-    row1.id = 'vertexB2KpiRow1'; row2.id = 'vertexB2KpiRow2';
-    row1.className = 'vertex-b2-kpi-row'; row2.className = 'vertex-b2-kpi-row';
-    if(row1.parentNode !== summary) summary.appendChild(row1);
-    if(row2.parentNode !== summary) summary.appendChild(row2);
-    var split = Math.ceil(cards.length / 2);
-    cards.forEach(function(card, idx){ (idx < split ? row1 : row2).appendChild(card); });
-    summary.classList.add('vertex-b2-kpi-mounted');
-  }
-  function mountProgressPanels(p){
-    var tabs = p.querySelector('.progress-tabs');
-    var tabContent = byId('progressTabContent');
-    if(!tabs || !tabContent) return;
-
-    // Ensure the sub-tab menu remains immediately before the analytics tab content.
-    if(tabs.nextElementSibling !== tabContent){
-      tabs.insertAdjacentElement('afterend', tabContent);
-    }
-
-    var carouselHolder = makeHolder('vertexProgressCarouselHolder','vertex-b2-progress-panel-row');
-    var decisionHolder = makeHolder('vertexProgressDecisionHolder','');
-    var memoryHolder = makeHolder('vertexProgressMemoryHolder','');
-    var movementHolder = makeHolder('vertexMovementHistoryHolder','progress-card wide vertex-b2-progress-only');
-
-    // Keep added B2 panels below the analytics tabs/content, not above the sub-tabs.
-    if(tabContent.nextElementSibling !== carouselHolder) tabContent.insertAdjacentElement('afterend', carouselHolder);
-    if(carouselHolder.nextElementSibling !== decisionHolder) carouselHolder.insertAdjacentElement('afterend', decisionHolder);
-    if(decisionHolder.nextElementSibling !== memoryHolder) decisionHolder.insertAdjacentElement('afterend', memoryHolder);
-    if(memoryHolder.nextElementSibling !== movementHolder) memoryHolder.insertAdjacentElement('afterend', movementHolder);
-
-    CAROUSEL_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); carouselHolder.appendChild(el); } });
-    FULL_WIDTH_PANEL_IDS.forEach(function(id){ var el = byId(id); if(el){ normalizePanel(el); decisionHolder.appendChild(el); } });
-
-    var memory = byId(MEMORY_PANEL_ID);
-    if(memory){
-      normalizePanel(memory);
-      memoryHolder.appendChild(memory);
-      memoryHolder.style.display = isProgressActive() ? '' : 'none';
-    }
-
-    var history = byId('progressHistory');
-    if(history && movementHolder){
-      if(!movementHolder.querySelector('.label')){
-        var label = document.createElement('div');
-        label.className = 'label';
-        label.textContent = 'Movement History';
-        movementHolder.appendChild(label);
-      }
-      movementHolder.appendChild(history);
-      movementHolder.style.display = isProgressActive() ? '' : 'none';
-    }
-
-    [carouselHolder, decisionHolder, memoryHolder, movementHolder].forEach(function(h){
-      if(h) h.style.display = isProgressActive() ? '' : 'none';
-    });
-  }
-  function applySeverityColors(root){
-    root = root || document;
-    var targets = root.querySelectorAll('#progressPage .vertex-panel-body div, #progressPage .vertex-panel-body b, #progressPage .badge, #progressPage .perf-pill');
-    Array.prototype.forEach.call(targets, function(el){
-      var t = (el.textContent || '').toLowerCase();
-      if(!t) return;
-      el.classList.remove('vertex-b2-severity-good','vertex-b2-severity-watch','vertex-b2-severity-bad');
-      if(/overreach|elevated|high|declin|reduce|fatigue|caution/.test(t)) el.classList.add('vertex-b2-severity-bad');
-      else if(/moderate|watch|hold|maintain|stable|controlled/.test(t)) el.classList.add('vertex-b2-severity-watch');
-      else if(/low|good|recovered|improving|progression|on track|favorable|sustainable/.test(t)) el.classList.add('vertex-b2-severity-good');
-    });
-  }
-  function run(){
-    try{
-      var p = progressPage();
-      if(!p) return;
-      mountKpiRows(p);
-      mountProgressPanels(p);
-      applySeverityColors(p);
-    }catch(e){ console.error('Vertex B2 final hierarchy repair failed', e); }
-  }
-  function schedule(){ [0,80,250,700,1400,2600].forEach(function(ms){ setTimeout(run, ms); }); }
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(run, 80); });
-  document.addEventListener('click', function(){ setTimeout(run, 120); }, true);
-  try{
-    var mo = new MutationObserver(function(){ clearTimeout(window.__vertexB2HierarchyTimer); window.__vertexB2HierarchyTimer = setTimeout(run, 80); });
-    mo.observe(document.documentElement, {childList:true, subtree:true, attributes:true, attributeFilter:['style','class']});
-  }catch(e){}
-})();
-</script>
-
 </body>
 </html>
 
@@ -19636,191 +18721,4 @@ window.openSettingsModal = function() {
 window.addEventListener('vertex-auth-ready', async function() {
   if (stravaIsConnected()) await stravaSyncActivities();
 }, { once: true });
-</script>
-
-
-<style id="vertex-phase-b2-clean-no-state">
-/* ============================================================
-   Phase B2 clean patch — mobile presentation only.
-   No auth, service worker, chart, SVG, planner, recovery, or state logic changes.
-   ============================================================ */
-@media(max-width:900px){
-  /* Top Progress KPI summary: two-row horizontal swipe rail. */
-  #progressPage #progressSummary.progress-summary{
-    display:grid!important;
-    grid-auto-flow:column!important;
-    grid-template-rows:repeat(2,auto)!important;
-    grid-auto-columns:minmax(168px,74vw)!important;
-    grid-template-columns:none!important;
-    gap:10px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    margin:12px -14px 14px!important;
-    padding:0 14px 10px!important;
-    scroll-snap-type:x proximity!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-  }
-  #progressPage #progressSummary.progress-summary::-webkit-scrollbar{display:none!important;}
-  #progressPage #progressSummary .progress-kpi{
-    width:100%!important;
-    min-width:0!important;
-    scroll-snap-align:start!important;
-  }
-
-  /* B2 rail for compact progress intelligence/status cards. */
-  #vertexB2KpiRails{
-    display:grid!important;
-    grid-auto-flow:column!important;
-    grid-template-rows:repeat(2,auto)!important;
-    grid-auto-columns:minmax(270px,86vw)!important;
-    grid-template-columns:none!important;
-    gap:12px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    margin:14px -14px 18px!important;
-    padding:0 14px 12px!important;
-    scroll-snap-type:x proximity!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-  }
-  #vertexB2KpiRails::-webkit-scrollbar{display:none!important;}
-  #vertexB2KpiRails > *{
-    width:100%!important;
-    min-width:0!important;
-    max-width:none!important;
-    margin:0!important;
-    scroll-snap-align:start!important;
-  }
-
-  /* Holder becomes a normal vertical stack for full-width items. */
-  #vertexProgressIntelligenceHolder{
-    display:block!important;
-    overflow:visible!important;
-    margin-top:14px!important;
-  }
-  #vertexProgressIntelligenceHolder > *:not(#vertexB2KpiRails),
-  #vertexRecoveryTrendPanel,
-  #vertexTolerancePanel,
-  #vertexWorkoutPersistencePanel{
-    display:block!important;
-    width:100%!important;
-    max-width:100%!important;
-    margin:0 0 14px!important;
-  }
-  #vertexWorkoutPersistencePanel{margin-bottom:0!important;}
-
-  /* Progress body cards remain full width. */
-  #progressPage .progress-layout{grid-template-columns:1fr!important;width:100%!important;}
-  #progressPage .progress-card,
-  #progressPage .progress-card.wide{width:100%!important;max-width:100%!important;}
-
-  /* Semantic severity accents for status/intelligence labels. */
-  #vertexStrainPanel[data-b2-severity="low"],
-  #vertexCardioStrainPanel[data-b2-severity="low"],
-  #vertexAdaptiveCoachPanel[data-b2-severity="low"]{border-color:rgba(72,255,138,.42)!important;}
-  #vertexStrainPanel[data-b2-severity="moderate"],
-  #vertexCardioStrainPanel[data-b2-severity="moderate"],
-  #vertexAdaptiveCoachPanel[data-b2-severity="moderate"]{border-color:rgba(232,255,71,.5)!important;}
-  #vertexStrainPanel[data-b2-severity="watch"],
-  #vertexCardioStrainPanel[data-b2-severity="watch"],
-  #vertexAdaptiveCoachPanel[data-b2-severity="watch"]{border-color:rgba(255,176,71,.55)!important;}
-  #vertexStrainPanel[data-b2-severity="high"],
-  #vertexCardioStrainPanel[data-b2-severity="high"],
-  #vertexAdaptiveCoachPanel[data-b2-severity="high"]{border-color:rgba(255,77,77,.55)!important;}
-}
-
-@media(min-width:901px){
-  #vertexB2KpiRails{display:contents!important;}
-  #progressPage #progressSummary.progress-summary{display:grid!important;grid-template-columns:repeat(4,1fr)!important;overflow:visible!important;}
-}
-</style>
-
-<script id="vertex-phase-b2-clean-no-state">
-/* Phase B2 clean DOM presentation patch. Uses DOM only; no app state reference. */
-(function(){
-  if(window.__vertexPhaseB2CleanNoState) return;
-  window.__vertexPhaseB2CleanNoState = true;
-
-  var railIds = [
-    'vertexStrainPanel',
-    'vertexConsistencyPanel',
-    'vertexCardioStrainPanel',
-    'vertexAdaptiveCoachPanel',
-    'vertexLongTrendPanel'
-  ];
-  var fullWidthIds = [
-    'vertexRecoveryTrendPanel',
-    'vertexTolerancePanel',
-    'vertexWorkoutPersistencePanel'
-  ];
-
-  function severityFromText(text){
-    text = String(text || '').toLowerCase();
-    if(/overreached|overreach|very high|critical|red|excessive|high strain|fatigue watch|reduce volume|back off/.test(text)) return 'high';
-    if(/moderate-high|watch|elevated|caution|yellow|orange|monitor/.test(text)) return 'watch';
-    if(/moderate|maintain|baseline|controlled|building|normal/.test(text)) return 'moderate';
-    if(/low|good|green|recovered|ready|no cardio load|push with control|supportive/.test(text)) return 'low';
-    return '';
-  }
-
-  function applySeverity(panel){
-    if(!panel) return;
-    var sev = severityFromText(panel.textContent || '');
-    if(sev) panel.setAttribute('data-b2-severity', sev);
-    var body = panel.querySelector('.vertex-panel-body');
-    if(body){
-      var first = body.querySelector('div');
-      if(first && sev){
-        var color = sev === 'high' ? 'var(--red)' : sev === 'watch' ? 'var(--orange)' : sev === 'moderate' ? 'var(--acc)' : 'var(--green)';
-        first.style.color = color;
-      }
-    }
-  }
-
-  function applyB2Layout(){
-    try{
-      var holder = document.getElementById('vertexProgressIntelligenceHolder');
-      if(!holder) return;
-
-      var rail = document.getElementById('vertexB2KpiRails');
-      if(!rail){
-        rail = document.createElement('div');
-        rail.id = 'vertexB2KpiRails';
-      }
-      if(rail.parentNode !== holder){
-        holder.insertBefore(rail, holder.firstChild);
-      }
-
-      railIds.forEach(function(id){
-        var panel = document.getElementById(id);
-        if(panel && panel.parentNode !== rail) rail.appendChild(panel);
-        applySeverity(panel);
-      });
-
-      fullWidthIds.forEach(function(id){
-        var panel = document.getElementById(id);
-        if(panel && panel.parentNode !== holder) holder.appendChild(panel);
-        applySeverity(panel);
-      });
-
-      var memory = document.getElementById('vertexWorkoutPersistencePanel');
-      if(memory && memory.parentNode === holder) holder.appendChild(memory);
-    }catch(e){
-      console.warn('Vertex Phase B2 layout patch skipped:', e);
-    }
-  }
-
-  function schedule(){
-    applyB2Layout();
-    setTimeout(applyB2Layout,120);
-    setTimeout(applyB2Layout,500);
-    setTimeout(applyB2Layout,1200);
-  }
-
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  window.addEventListener('resize', function(){ setTimeout(applyB2Layout,80); });
-  document.addEventListener('click', function(){ setTimeout(applyB2Layout,120); }, true);
-})();
 </script>

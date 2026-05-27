@@ -3594,82 +3594,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
   .right .btn{min-height:36px!important;}
 }
 
-
-
-/* ============================================================
-   v20260526 Phase B2 mobile-only layout patch — CSS only
-   Base: verified Phase B1 index(208). No auth/sync/chart/SVG/render JS touched.
-   ============================================================ */
-@media(max-width:900px){
-  /* Progress top KPI summary: two independent horizontal swipe rows. */
-  #progressSummary.progress-summary{
-    display:grid!important;
-    grid-auto-flow:column!important;
-    grid-template-rows:repeat(2,auto)!important;
-    grid-auto-columns:minmax(168px,74vw)!important;
-    grid-template-columns:none!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    gap:10px!important;
-    margin:12px -14px 14px!important;
-    padding:0 14px 10px!important;
-    scroll-snap-type:x mandatory!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-  }
-  #progressSummary.progress-summary::-webkit-scrollbar{display:none!important;}
-  #progressSummary.progress-summary .progress-kpi{
-    min-width:0!important;
-    width:100%!important;
-    scroll-snap-align:start!important;
-  }
-
-  /* Dynamically injected Progress intelligence cards: two-row mobile swipe rail. */
-  #vertexProgressIntelligenceHolder{
-    display:grid!important;
-    grid-auto-flow:column!important;
-    grid-template-rows:repeat(2,auto)!important;
-    grid-auto-columns:minmax(265px,86vw)!important;
-    grid-template-columns:none!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    gap:12px!important;
-    margin:14px -14px 18px!important;
-    padding:0 14px 12px!important;
-    scroll-snap-type:x mandatory!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-  }
-  #vertexProgressIntelligenceHolder::-webkit-scrollbar{display:none!important;}
-  #vertexProgressIntelligenceHolder > *{
-    width:100%!important;
-    min-width:0!important;
-    max-width:none!important;
-    min-height:156px!important;
-    margin:0!important;
-    scroll-snap-align:start!important;
-  }
-
-  /* Keep primary Progress content full-width below swipe rails. */
-  #progressPage .progress-layout,
-  #progressPage .progress-card.wide{
-    width:100%!important;
-    max-width:100%!important;
-  }
-}
-
-@media(min-width:901px){
-  #progressSummary.progress-summary{
-    display:grid!important;
-    grid-template-columns:repeat(4,1fr)!important;
-    overflow:visible!important;
-  }
-  #vertexProgressIntelligenceHolder{
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    overflow:visible!important;
-  }
-}
 </style>
 
 <style id="vertex-v20260526-aa-intelligence-layer">
@@ -13749,7 +13673,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.61.12-b2-css-safe';
+  const VERSION='v13.61.12';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -18636,4 +18560,191 @@ window.openSettingsModal = function() {
 window.addEventListener('vertex-auth-ready', async function() {
   if (stravaIsConnected()) await stravaSyncActivities();
 }, { once: true });
+</script>
+
+
+<style id="vertex-phase-b2-clean-no-state">
+/* ============================================================
+   Phase B2 clean patch — mobile presentation only.
+   No auth, service worker, chart, SVG, planner, recovery, or state logic changes.
+   ============================================================ */
+@media(max-width:900px){
+  /* Top Progress KPI summary: two-row horizontal swipe rail. */
+  #progressPage #progressSummary.progress-summary{
+    display:grid!important;
+    grid-auto-flow:column!important;
+    grid-template-rows:repeat(2,auto)!important;
+    grid-auto-columns:minmax(168px,74vw)!important;
+    grid-template-columns:none!important;
+    gap:10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    margin:12px -14px 14px!important;
+    padding:0 14px 10px!important;
+    scroll-snap-type:x proximity!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage #progressSummary.progress-summary::-webkit-scrollbar{display:none!important;}
+  #progressPage #progressSummary .progress-kpi{
+    width:100%!important;
+    min-width:0!important;
+    scroll-snap-align:start!important;
+  }
+
+  /* B2 rail for compact progress intelligence/status cards. */
+  #vertexB2KpiRails{
+    display:grid!important;
+    grid-auto-flow:column!important;
+    grid-template-rows:repeat(2,auto)!important;
+    grid-auto-columns:minmax(270px,86vw)!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    margin:14px -14px 18px!important;
+    padding:0 14px 12px!important;
+    scroll-snap-type:x proximity!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+  }
+  #vertexB2KpiRails::-webkit-scrollbar{display:none!important;}
+  #vertexB2KpiRails > *{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    margin:0!important;
+    scroll-snap-align:start!important;
+  }
+
+  /* Holder becomes a normal vertical stack for full-width items. */
+  #vertexProgressIntelligenceHolder{
+    display:block!important;
+    overflow:visible!important;
+    margin-top:14px!important;
+  }
+  #vertexProgressIntelligenceHolder > *:not(#vertexB2KpiRails),
+  #vertexRecoveryTrendPanel,
+  #vertexTolerancePanel,
+  #vertexWorkoutPersistencePanel{
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin:0 0 14px!important;
+  }
+  #vertexWorkoutPersistencePanel{margin-bottom:0!important;}
+
+  /* Progress body cards remain full width. */
+  #progressPage .progress-layout{grid-template-columns:1fr!important;width:100%!important;}
+  #progressPage .progress-card,
+  #progressPage .progress-card.wide{width:100%!important;max-width:100%!important;}
+
+  /* Semantic severity accents for status/intelligence labels. */
+  #vertexStrainPanel[data-b2-severity="low"],
+  #vertexCardioStrainPanel[data-b2-severity="low"],
+  #vertexAdaptiveCoachPanel[data-b2-severity="low"]{border-color:rgba(72,255,138,.42)!important;}
+  #vertexStrainPanel[data-b2-severity="moderate"],
+  #vertexCardioStrainPanel[data-b2-severity="moderate"],
+  #vertexAdaptiveCoachPanel[data-b2-severity="moderate"]{border-color:rgba(232,255,71,.5)!important;}
+  #vertexStrainPanel[data-b2-severity="watch"],
+  #vertexCardioStrainPanel[data-b2-severity="watch"],
+  #vertexAdaptiveCoachPanel[data-b2-severity="watch"]{border-color:rgba(255,176,71,.55)!important;}
+  #vertexStrainPanel[data-b2-severity="high"],
+  #vertexCardioStrainPanel[data-b2-severity="high"],
+  #vertexAdaptiveCoachPanel[data-b2-severity="high"]{border-color:rgba(255,77,77,.55)!important;}
+}
+
+@media(min-width:901px){
+  #vertexB2KpiRails{display:contents!important;}
+  #progressPage #progressSummary.progress-summary{display:grid!important;grid-template-columns:repeat(4,1fr)!important;overflow:visible!important;}
+}
+</style>
+
+<script id="vertex-phase-b2-clean-no-state">
+/* Phase B2 clean DOM presentation patch. Uses DOM only; no app state reference. */
+(function(){
+  if(window.__vertexPhaseB2CleanNoState) return;
+  window.__vertexPhaseB2CleanNoState = true;
+
+  var railIds = [
+    'vertexStrainPanel',
+    'vertexConsistencyPanel',
+    'vertexCardioStrainPanel',
+    'vertexAdaptiveCoachPanel',
+    'vertexLongTrendPanel'
+  ];
+  var fullWidthIds = [
+    'vertexRecoveryTrendPanel',
+    'vertexTolerancePanel',
+    'vertexWorkoutPersistencePanel'
+  ];
+
+  function severityFromText(text){
+    text = String(text || '').toLowerCase();
+    if(/overreached|overreach|very high|critical|red|excessive|high strain|fatigue watch|reduce volume|back off/.test(text)) return 'high';
+    if(/moderate-high|watch|elevated|caution|yellow|orange|monitor/.test(text)) return 'watch';
+    if(/moderate|maintain|baseline|controlled|building|normal/.test(text)) return 'moderate';
+    if(/low|good|green|recovered|ready|no cardio load|push with control|supportive/.test(text)) return 'low';
+    return '';
+  }
+
+  function applySeverity(panel){
+    if(!panel) return;
+    var sev = severityFromText(panel.textContent || '');
+    if(sev) panel.setAttribute('data-b2-severity', sev);
+    var body = panel.querySelector('.vertex-panel-body');
+    if(body){
+      var first = body.querySelector('div');
+      if(first && sev){
+        var color = sev === 'high' ? 'var(--red)' : sev === 'watch' ? 'var(--orange)' : sev === 'moderate' ? 'var(--acc)' : 'var(--green)';
+        first.style.color = color;
+      }
+    }
+  }
+
+  function applyB2Layout(){
+    try{
+      var holder = document.getElementById('vertexProgressIntelligenceHolder');
+      if(!holder) return;
+
+      var rail = document.getElementById('vertexB2KpiRails');
+      if(!rail){
+        rail = document.createElement('div');
+        rail.id = 'vertexB2KpiRails';
+      }
+      if(rail.parentNode !== holder){
+        holder.insertBefore(rail, holder.firstChild);
+      }
+
+      railIds.forEach(function(id){
+        var panel = document.getElementById(id);
+        if(panel && panel.parentNode !== rail) rail.appendChild(panel);
+        applySeverity(panel);
+      });
+
+      fullWidthIds.forEach(function(id){
+        var panel = document.getElementById(id);
+        if(panel && panel.parentNode !== holder) holder.appendChild(panel);
+        applySeverity(panel);
+      });
+
+      var memory = document.getElementById('vertexWorkoutPersistencePanel');
+      if(memory && memory.parentNode === holder) holder.appendChild(memory);
+    }catch(e){
+      console.warn('Vertex Phase B2 layout patch skipped:', e);
+    }
+  }
+
+  function schedule(){
+    applyB2Layout();
+    setTimeout(applyB2Layout,120);
+    setTimeout(applyB2Layout,500);
+    setTimeout(applyB2Layout,1200);
+  }
+
+  document.addEventListener('DOMContentLoaded', schedule);
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(applyB2Layout,80); });
+  document.addEventListener('click', function(){ setTimeout(applyB2Layout,120); }, true);
+})();
 </script>

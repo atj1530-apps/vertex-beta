@@ -18564,13 +18564,13 @@ window.addEventListener('vertex-auth-ready', async function() {
 </script>
 
 
-<style id="vertex-phase-b2-clean-no-state">
+<style id="vertex-phase-b2-progress-scoped">
 /* ============================================================
-   Phase B2 clean patch — mobile presentation only.
+   Phase B2 progress-scoped patch — presentation only.
+   Keeps B2 intelligence cards inside Progress only.
    No auth, service worker, chart, SVG, planner, recovery, or state logic changes.
    ============================================================ */
 @media(max-width:900px){
-  /* Top Progress KPI summary: two-row horizontal swipe rail. */
   #progressPage #progressSummary.progress-summary{
     display:grid!important;
     grid-auto-flow:column!important;
@@ -18593,8 +18593,17 @@ window.addEventListener('vertex-auth-ready', async function() {
     scroll-snap-align:start!important;
   }
 
-  /* B2 rail for compact progress intelligence/status cards. */
-  #vertexB2KpiRails{
+  #progressPage #vertexProgressIntelligenceHolder{
+    display:block!important;
+    overflow:visible!important;
+    margin-top:14px!important;
+  }
+  body:not(.app-page-progress) #vertexProgressIntelligenceHolder,
+  #app:not(.page-mode) #vertexProgressIntelligenceHolder:not(#progressPage #vertexProgressIntelligenceHolder){
+    display:none!important;
+  }
+
+  #progressPage #vertexB2KpiRails{
     display:grid!important;
     grid-auto-flow:column!important;
     grid-template-rows:repeat(2,auto)!important;
@@ -18609,8 +18618,8 @@ window.addEventListener('vertex-auth-ready', async function() {
     -webkit-overflow-scrolling:touch!important;
     scrollbar-width:none!important;
   }
-  #vertexB2KpiRails::-webkit-scrollbar{display:none!important;}
-  #vertexB2KpiRails > *{
+  #progressPage #vertexB2KpiRails::-webkit-scrollbar{display:none!important;}
+  #progressPage #vertexB2KpiRails > *{
     width:100%!important;
     min-width:0!important;
     max-width:none!important;
@@ -18618,54 +18627,47 @@ window.addEventListener('vertex-auth-ready', async function() {
     scroll-snap-align:start!important;
   }
 
-  /* Holder becomes a normal vertical stack for full-width items. */
-  #vertexProgressIntelligenceHolder{
-    display:block!important;
-    overflow:visible!important;
-    margin-top:14px!important;
-  }
-  #vertexProgressIntelligenceHolder > *:not(#vertexB2KpiRails),
-  #vertexRecoveryTrendPanel,
-  #vertexTolerancePanel,
-  #vertexWorkoutPersistencePanel{
+  #progressPage #vertexProgressIntelligenceHolder > *:not(#vertexB2KpiRails),
+  #progressPage #vertexRecoveryTrendPanel,
+  #progressPage #vertexTolerancePanel,
+  #progressPage #vertexWorkoutPersistencePanel{
     display:block!important;
     width:100%!important;
     max-width:100%!important;
     margin:0 0 14px!important;
   }
-  #vertexWorkoutPersistencePanel{margin-bottom:0!important;}
+  #progressPage #vertexWorkoutPersistencePanel{margin-bottom:0!important;}
 
-  /* Progress body cards remain full width. */
   #progressPage .progress-layout{grid-template-columns:1fr!important;width:100%!important;}
   #progressPage .progress-card,
   #progressPage .progress-card.wide{width:100%!important;max-width:100%!important;}
 
-  /* Semantic severity accents for status/intelligence labels. */
-  #vertexStrainPanel[data-b2-severity="low"],
-  #vertexCardioStrainPanel[data-b2-severity="low"],
-  #vertexAdaptiveCoachPanel[data-b2-severity="low"]{border-color:rgba(72,255,138,.42)!important;}
-  #vertexStrainPanel[data-b2-severity="moderate"],
-  #vertexCardioStrainPanel[data-b2-severity="moderate"],
-  #vertexAdaptiveCoachPanel[data-b2-severity="moderate"]{border-color:rgba(232,255,71,.5)!important;}
-  #vertexStrainPanel[data-b2-severity="watch"],
-  #vertexCardioStrainPanel[data-b2-severity="watch"],
-  #vertexAdaptiveCoachPanel[data-b2-severity="watch"]{border-color:rgba(255,176,71,.55)!important;}
-  #vertexStrainPanel[data-b2-severity="high"],
-  #vertexCardioStrainPanel[data-b2-severity="high"],
-  #vertexAdaptiveCoachPanel[data-b2-severity="high"]{border-color:rgba(255,77,77,.55)!important;}
+  #progressPage #vertexStrainPanel[data-b2-severity="low"],
+  #progressPage #vertexCardioStrainPanel[data-b2-severity="low"],
+  #progressPage #vertexAdaptiveCoachPanel[data-b2-severity="low"]{border-color:rgba(72,255,138,.42)!important;}
+  #progressPage #vertexStrainPanel[data-b2-severity="moderate"],
+  #progressPage #vertexCardioStrainPanel[data-b2-severity="moderate"],
+  #progressPage #vertexAdaptiveCoachPanel[data-b2-severity="moderate"]{border-color:rgba(232,255,71,.5)!important;}
+  #progressPage #vertexStrainPanel[data-b2-severity="watch"],
+  #progressPage #vertexCardioStrainPanel[data-b2-severity="watch"],
+  #progressPage #vertexAdaptiveCoachPanel[data-b2-severity="watch"]{border-color:rgba(255,176,71,.55)!important;}
+  #progressPage #vertexStrainPanel[data-b2-severity="high"],
+  #progressPage #vertexCardioStrainPanel[data-b2-severity="high"],
+  #progressPage #vertexAdaptiveCoachPanel[data-b2-severity="high"]{border-color:rgba(255,77,77,.55)!important;}
 }
 
 @media(min-width:901px){
-  #vertexB2KpiRails{display:contents!important;}
+  #progressPage #vertexB2KpiRails{display:contents!important;}
   #progressPage #progressSummary.progress-summary{display:grid!important;grid-template-columns:repeat(4,1fr)!important;overflow:visible!important;}
+  body:not(.app-page-progress) #vertexProgressIntelligenceHolder{display:none!important;}
 }
 </style>
 
-<script id="vertex-phase-b2-clean-no-state">
-/* Phase B2 clean DOM presentation patch. Uses DOM only; no app state reference. */
+<script id="vertex-phase-b2-progress-scoped">
+/* Phase B2 clean DOM presentation patch. Progress page only; DOM/state safe. */
 (function(){
-  if(window.__vertexPhaseB2CleanNoState) return;
-  window.__vertexPhaseB2CleanNoState = true;
+  if(window.__vertexPhaseB2ProgressScoped) return;
+  window.__vertexPhaseB2ProgressScoped = true;
 
   var railIds = [
     'vertexStrainPanel',
@@ -18679,6 +18681,13 @@ window.addEventListener('vertex-auth-ready', async function() {
     'vertexTolerancePanel',
     'vertexWorkoutPersistencePanel'
   ];
+
+  function isProgressVisible(){
+    var page = document.getElementById('progressPage');
+    if(!page) return false;
+    if(document.body && document.body.classList.contains('app-page-progress')) return true;
+    return page.style.display !== 'none' && page.offsetParent !== null;
+  }
 
   function severityFromText(text){
     text = String(text || '').toLowerCase();
@@ -18697,16 +18706,41 @@ window.addEventListener('vertex-auth-ready', async function() {
     if(body){
       var first = body.querySelector('div');
       if(first && sev){
-        var color = sev === 'high' ? 'var(--red)' : sev === 'watch' ? 'var(--orange)' : sev === 'moderate' ? 'var(--acc)' : 'var(--green)';
-        first.style.color = color;
+        first.style.color = sev === 'high' ? 'var(--red)' : sev === 'watch' ? 'var(--orange)' : sev === 'moderate' ? 'var(--acc)' : 'var(--green)';
       }
     }
+  }
+
+  function ensureHolder(){
+    var page = document.getElementById('progressPage');
+    if(!page) return null;
+    var holder = document.getElementById('vertexProgressIntelligenceHolder');
+    if(!holder){
+      holder = document.createElement('div');
+      holder.id = 'vertexProgressIntelligenceHolder';
+    }
+    var summary = document.getElementById('progressSummary');
+    if(holder.parentNode !== page){
+      if(summary && summary.parentNode === page){
+        summary.insertAdjacentElement('afterend', holder);
+      }else{
+        page.appendChild(holder);
+      }
+    }
+    return holder;
   }
 
   function applyB2Layout(){
     try{
       var holder = document.getElementById('vertexProgressIntelligenceHolder');
+      if(!isProgressVisible()){
+        if(holder) holder.style.display = 'none';
+        return;
+      }
+
+      holder = ensureHolder();
       if(!holder) return;
+      holder.style.display = '';
 
       var rail = document.getElementById('vertexB2KpiRails');
       if(!rail){
@@ -18720,19 +18754,21 @@ window.addEventListener('vertex-auth-ready', async function() {
       railIds.forEach(function(id){
         var panel = document.getElementById(id);
         if(panel && panel.parentNode !== rail) rail.appendChild(panel);
+        if(panel) panel.style.display = '';
         applySeverity(panel);
       });
 
       fullWidthIds.forEach(function(id){
         var panel = document.getElementById(id);
         if(panel && panel.parentNode !== holder) holder.appendChild(panel);
+        if(panel) panel.style.display = '';
         applySeverity(panel);
       });
 
       var memory = document.getElementById('vertexWorkoutPersistencePanel');
       if(memory && memory.parentNode === holder) holder.appendChild(memory);
     }catch(e){
-      console.warn('Vertex Phase B2 layout patch skipped:', e);
+      console.warn('Vertex Phase B2 progress-scoped patch skipped:', e);
     }
   }
 

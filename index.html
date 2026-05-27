@@ -3793,6 +3793,63 @@ body:not(.app-page-progress) #vertexB2ProgressDeck{display:none!important;}
 }
 </style>
 
+
+
+<style id="vertex-phase1c-tabs-planner-dots-css">
+/* Phase 1C: CSS-only polish. No JS, no SVG/chart, no auth/service-worker changes. */
+
+/* Progress: move the sub-tab menu up so it behaves like Wellness navigation. */
+body.app-page-progress #progressPage.progress-page{
+  display:flex!important;
+  flex-direction:column!important;
+}
+body.app-page-progress #progressPage .progress-head{order:1!important;}
+body.app-page-progress #progressPage #progressSummary{order:2!important;}
+body.app-page-progress #progressPage .progress-tabs{
+  order:3!important;
+  margin:12px 0 16px!important;
+  display:flex!important;
+  gap:10px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  flex-wrap:nowrap!important;
+}
+body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
+body.app-page-progress #progressPage .progress-tabs .progress-tab{
+  flex:0 0 auto!important;
+  border-radius:999px!important;
+  padding:10px 16px!important;
+}
+body.app-page-progress #progressPage #vertexB2ProgressDeck{order:4!important;}
+body.app-page-progress #progressPage #progressTabContent{order:5!important;}
+
+/* Weekly Planner: add visual count dots under the mobile carousel, matching the Today/Tomorrow cue. */
+@media(max-width:900px){
+  body.app-page-home #plannerAcc.planner-panel::after,
+  body.app-page-home #plannerAcc::after{
+    content:"●  ●  ●  ●  ●  ●  ●";
+    display:block;
+    text-align:center;
+    font-size:12px;
+    line-height:1;
+    letter-spacing:4px;
+    color:rgba(232,255,71,.42);
+    margin:0 auto 2px;
+    padding-top:4px;
+    pointer-events:none;
+  }
+  body.app-page-home #plannerAcc.planner-panel,
+  body.app-page-home #plannerAcc{
+    padding-bottom:12px!important;
+  }
+}
+@media(min-width:901px){
+  body.app-page-home #plannerAcc::after{display:none!important;}
+}
+</style>
+
 </head>
 <body class="auth-resolving">
 

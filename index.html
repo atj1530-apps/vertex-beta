@@ -3694,6 +3694,10 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 #progressPage #vertexPerformanceDecisionPanel,
 #progressPage #vertexWorkoutPersistencePanel{display:none!important;}
 #vertexB2ProgressDeck{margin:14px 0 18px;}
+.vertex-b2-group{margin-bottom:14px;}
+.vertex-b2-group-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:0 0 10px;}
+.vertex-b2-group-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);font-weight:800;}
+.vertex-b2-group-sub{color:var(--muted);font-size:12px;line-height:1.35;text-align:right;max-width:420px;}
 .vertex-b2-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px;}
 .vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin-top:2px;}
 .vertex-b2-card{border:1px solid var(--line);background:var(--panel2);border-radius:18px;padding:16px;min-height:132px;box-sizing:border-box;overflow:hidden;}
@@ -3707,11 +3711,14 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 body:not(.app-page-progress) #vertexB2ProgressDeck{display:none!important;}
 @media(max-width:900px){
   #vertexB2ProgressDeck{margin:12px 0 16px;}
-  #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 10px!important;margin:0 -14px 14px!important;scrollbar-width:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-group{margin-bottom:16px!important;}
+  #vertexB2ProgressDeck .vertex-b2-group-head{display:block!important;margin:0 0 8px!important;}
+  #vertexB2ProgressDeck .vertex-b2-group-title{font-size:11px!important;letter-spacing:2px!important;}
+  #vertexB2ProgressDeck .vertex-b2-group-sub{text-align:left!important;max-width:none!important;margin-top:4px!important;font-size:11px!important;}
+  #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 10px!important;margin:0 -14px 0!important;scrollbar-width:none!important;}
   #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
   #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{flex:0 0 82%!important;min-width:82%!important;max-width:82%!important;scroll-snap-align:start!important;min-height:178px!important;margin:0!important;}
-  #vertexB2ProgressDeck .vertex-b2-full-stack{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;}
-  #vertexB2ProgressDeck .vertex-b2-full-stack .vertex-b2-card{min-height:unset!important;width:100%!important;}
+  #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
 }
 @media(min-width:901px){
   #vertexB2ProgressDeck .vertex-b2-row{grid-template-columns:repeat(4,minmax(0,1fr));}
@@ -6856,13 +6863,9 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
   }
   const cardio=cardioData();
   const consistencyLabel=sessions>prev?'Improving':sessions<prev?'Needs attention':'Stable';
-  const trainingStrain = readiness!==null ? (readiness>=75?'Moderate / Sustainable':readiness>=60?'Moderate–High':'Elevated') : (sessions>=4?'Moderate–High':sessions>=2?'Moderate':'Baseline');
   const adaptive = readiness!==null ? (readiness>=80?'Progression opportunity':readiness>=65?'Push with control':readiness>=50?'Maintain':'Recovery priority') : 'Build baseline';
   const longTrend = readiness!==null ? (readiness>=70?'Baseline building':readiness>=55?'Watch recovery':'Recovery constrained') : 'Baseline pending';
-  const hybrid = readiness!==null ? 'Apple Health + Vertex' : 'Vertex logs';
-  const progression = topMove ? 'Progression ready' : 'Progression baseline pending';
-  const performance = readiness!==null ? (readiness>=65?'Accumulated load watch':'Recovery-first decision') : 'Build baseline';
-  const recoveryTrend = readiness!==null ? (readiness>=70?'→ Stable':readiness>=55?'↘ Watch':'↓ Constrained') : 'Pending';
+  const recoveryTrend = readiness!==null ? (readiness>=70?'Stable':readiness>=55?'Watch':'Constrained') : 'Pending';
   const loadTolerance = readiness!==null && readiness<60 ? 'Reduce' : 'Stable';
   function sev(text){
     text=String(text||'').toLowerCase();
@@ -6872,30 +6875,26 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
     if(/ready|push|opportunity|good|sustainable|improving/.test(text)) return 'good';
     return 'moderate';
   }
-  function card(title,value,lines,wide){
+  function card(title,value,lines){
     const s=sev(value+' '+(lines||[]).join(' '));
-    return `<section class="vertex-b2-card vertex-b2-${s}${wide?' vertex-b2-wide':''}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
+    return `<section class="vertex-b2-card vertex-b2-${s}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
   }
-  const row1=[
-    card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Top movement: ${topMove.name} (${topMove.sets||0} sets)`:'Top movement pending']),
-    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`]),
-    card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean reps.']),
+  function group(title,subtitle,cards,cls){
+    return `<section class="vertex-b2-group ${cls||''}"><div class="vertex-b2-group-head"><div class="vertex-b2-group-title">${esc(title)}</div><div class="vertex-b2-group-sub">${esc(subtitle)}</div></div><div class="vertex-b2-row">${cards.join('')}</div></section>`;
+  }
+  const recoveryCards=[
+    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', recoveryTrend==='Stable'?'Recovery signal supports normal training.':recoveryTrend==='Watch'?'Keep intensity selective today.':'Bias toward recovery and clean reps.']),
+    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Use recovery response to set today’s ceiling.']),
+    card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean movement quality.']),
+    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`])
+  ];
+  const intelligenceCards=[
+    card('Workout Memory', topMove?'Progression signal active':'Baseline pending', [topMove?`Repeat ${topMove.name}; add a rep or small load only if form is stable.`:'Log repeated movements to unlock progression guidance.', `Stored sets: ${totalSets||0}`]),
+    card('Weekly Intelligence', sessions?`${sessions} workout${sessions===1?'':'s'} this week`:'No workout logged this week', [topMuscle?`${topMuscle[0]} is leading volume; watch balance across the week.`:'Muscle balance appears after logs.', daysSince===null?'Last workout pending':daysSince===0?'You logged a workout today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`]),
+    card('Consistency', consistencyLabel, [sessions>prev?'Momentum is improving; protect recovery while building rhythm.':sessions<prev?'Rebuild rhythm with one lower-friction session.':'Maintain the current weekly rhythm.', `This week: ${sessions} · Previous: ${prev}`]),
     card('Longitudinal Trend', longTrend, [readiness!==null?`Current readiness: ${readiness}`:'Recovery baseline pending', sessions?`${sessions} sessions this week`:'No sessions this week'])
   ];
-  const row2=[
-    card('Training Strain', trainingStrain, [`${sessions} sessions this week`, topMuscle?`${topMuscle[0]} leads volume at ${topMuscle[1]} sets`:'Volume baseline pending']),
-    card('Consistency', consistencyLabel, [`This week: ${sessions} sessions`, `Previous week: ${prev} sessions`]),
-    card('Hybrid Routing', hybrid, ['Sleep / HRV / RHR from health data when available', 'Workout signal from Vertex logs']),
-    card('Readiness', readiness!==null?String(readiness):'Pending', [readiness!==null?'Recovery synthesis active':'More recovery data needed'])
-  ];
-  const full=[
-    card('Progression Engine', progression, [topMove?`Repeat ${topMove.name}; add a rep or small load only if form is stable.`:'Log repeated movements to unlock progression guidance.'], true),
-    card('Performance Decision', performance, [readiness!==null&&readiness>=65?'Keep progression conservative until recovery improves.':'Use today to reinforce movement quality and consistency.'], true),
-    card('Weekly Intelligence', sessions?`You logged ${sessions} workout${sessions===1?'':'s'} this week.`:'No workout logged this week', [topMuscle?`${topMuscle[0]} has the highest set volume this week at ${topMuscle[1]} sets.`:'Muscle volume will populate after logs.', daysSince===null?'Last workout pending':daysSince===0?'You logged a workout today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`], true),
-    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', 'Basis: recovery synthesis'], true),
-    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Continue tracking volume and recovery response.'], true)
-  ];
-  deck.innerHTML=`<div class="vertex-b2-row vertex-b2-row-one">${row1.join('')}</div><div class="vertex-b2-row vertex-b2-row-two">${row2.join('')}</div><div class="vertex-b2-full-stack">${full.join('')}</div>`;
+  deck.innerHTML=group('Recovery / Readiness','Today-state coaching from recovery, load, and cardio signals.',recoveryCards,'vertex-b2-recovery')+group('Training Intelligence','Pattern coaching from workouts, consistency, and progression history.',intelligenceCards,'vertex-b2-intelligence');
 }
 
 function renderProgressPage(){
@@ -18687,3 +18686,215 @@ window.addEventListener('vertex-auth-ready', async function() {
   if (stravaIsConnected()) await stravaSyncActivities();
 }, { once: true });
 </script>
+
+
+<script id="vertex-phase1f-stability-tabs-dots-coachfeed">
+(function(){
+  'use strict';
+  if(window.__vertexPhase1FStabilityPatch) return;
+  window.__vertexPhase1FStabilityPatch = true;
+
+  function esc(v){
+    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
+    return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});
+  }
+  function getRows(){ try{return (typeof progressRows==='function'?progressRows():[])||[];}catch(e){return [];} }
+  function getSummary(rows){ try{return (typeof progressSummary==='function'?progressSummary(rows):{})||{};}catch(e){return {};} }
+  function getPerf(rows){ try{return (typeof performanceSummary==='function'?performanceSummary(rows):[])||[];}catch(e){return [];} }
+  function week0(){ try{return typeof weekStart==='function'?weekStart():new Date();}catch(e){return new Date();} }
+
+  function lockProgressArchitecture(){
+    try{
+      var page=document.getElementById('progressPage'); if(!page) return;
+      var head=page.querySelector('.progress-head');
+      var tabs=page.querySelector('.progress-tabs');
+      var content=document.getElementById('progressTabContent');
+      var deck=document.getElementById('vertexB2ProgressDeck');
+      var overview=document.getElementById('ptab-overview');
+      var overviewLayout=overview && overview.querySelector('.progress-layout');
+      if(head && tabs && head.nextElementSibling!==tabs){ head.insertAdjacentElement('afterend', tabs); }
+      if(overview && deck && deck.parentElement!==overview){
+        if(overview.firstElementChild) overview.insertBefore(deck, overview.firstElementChild);
+        else overview.appendChild(deck);
+      }
+      if(tabs && content && tabs.nextElementSibling!==content){ tabs.insertAdjacentElement('afterend', content); }
+      if(page.classList) page.classList.add('vertex-phase1f-progress-locked');
+      if(overviewLayout) overviewLayout.classList.add('vertex-overview-interpretation');
+      var current='overview';
+      var on=tabs && tabs.querySelector('.progress-tab.on');
+      if(on) current=on.getAttribute('data-ptab')||'overview';
+      ['overview','volume','exercises','history'].forEach(function(t){
+        var el=document.getElementById('ptab-'+t); if(el) el.style.display=(t===current?'block':'none');
+      });
+    }catch(e){ console.warn('[Vertex Phase1F] progress architecture lock failed',e); }
+  }
+
+  function buildCoachFeed(rows,sum,perf){
+    var cards=[];
+    var sessions=sum.thisWeek?sum.thisWeek.length:0;
+    var prev=sum.prevWeek?sum.prevWeek.length:0;
+    var delta=sessions-prev;
+    var daysSince=(sum.daysSince==null?null:sum.daysSince);
+    var totals={};
+    try{
+      var start=week0();
+      rows.filter(function(r){return new Date(r.completed_at)>=start;}).forEach(function(r){
+        var muscles=(r.metrics&&r.metrics.muscles)||{};
+        Object.keys(muscles).forEach(function(m){ totals[m]=(totals[m]||0)+((muscles[m]&&muscles[m].sets)||0); });
+      });
+    }catch(e){}
+    var ranked=Object.keys(totals).map(function(k){return [k,totals[k]];}).sort(function(a,b){return b[1]-a[1];});
+    var top=ranked[0], second=ranked[1];
+    var topMove=perf && perf[0];
+    function add(title,body,tone){ cards.push({title:title,body:body,tone:tone||''}); }
+    if(!rows.length){
+      add('Start the baseline','Log 3–4 workouts before Vertex makes stronger progression, recovery, and volume recommendations.','');
+      return cards;
+    }
+    if(delta>0){ add('Protect the ramp-up','Consistency is improving versus last week. Keep load jumps conservative until recovery confirms you can absorb the added frequency.','green'); }
+    else if(delta<0){ add('Rebuild rhythm','Training frequency dipped versus last week. Prioritize one short, high-quality session before chasing more volume.','warn'); }
+    else { add('Hold the rhythm','Frequency is stable. Use the next session to improve execution quality or one priority lift, not every movement.',''); }
+    if(top && second && top[1] >= Math.max(6, second[1]*1.45)){
+      add('Balance the dominant muscle group', top[0]+' is pulling ahead this week. Add complementary work or keep the next '+top[0]+' session submaximal to avoid overloading one pattern.','warn');
+    } else if(top){
+      add('Volume is balanced enough to progress','No single muscle group is dramatically outpacing the rest. Progress one priority movement if warm-ups feel strong.','green');
+    }
+    if(topMove && topMove.sets>=8){
+      add('Watch repeat-movement fatigue', topMove.name+' has high repeat exposure. If performance stalls, hold load and add reps only with clean form.','');
+    }
+    if(daysSince!==null){
+      if(daysSince===0) add('Do not stack intensity blindly','You trained today. Treat any second session as technique, mobility, or low-strain conditioning.','warn');
+      else if(daysSince>=4) add('Restart with control','It has been '+daysSince+' days since your last workout. Re-enter at moderate intensity before testing max effort.','warn');
+      else add('Timing supports productive training','Last workout timing leaves room for a productive session if sleep, HRV, and warm-up quality are acceptable.','green');
+    }
+    return cards.slice(0,4);
+  }
+
+  function renderCoachFeedAndCompactWeeks(){
+    try{
+      var rows=getRows(), sum=getSummary(rows), perf=getPerf(rows);
+      var insights=document.getElementById('progressInsights');
+      if(insights){
+        var feed=buildCoachFeed(rows,sum,perf);
+        insights.innerHTML=feed.map(function(c){
+          return '<div class="insight vertex-coach-feed-card '+(c.tone==='warn'?'coach-warning':c.tone==='green'?'coach-green':'')+'"><b>'+esc(c.title)+'</b><span>'+esc(c.body)+'</span></div>';
+        }).join('');
+      }
+      var weeks=document.getElementById('progressWeeks');
+      if(weeks){
+        var starts=[0,1,2,3].map(function(i){var d=week0(); d.setDate(d.getDate()-(i*7)); return d;}).reverse();
+        var data=starts.map(function(st,idx){
+          var end=new Date(st); end.setDate(end.getDate()+7);
+          var count=rows.filter(function(r){var dt=new Date(r.completed_at); return dt>=st && dt<end && r.workout_type!=='hk_dismissed' && r.workout_type!=='hk_imported_dismissed';}).length;
+          return {label:'W'+(idx+1),date:st.toLocaleDateString([],{month:'short',day:'numeric'}),count:count};
+        });
+        var max=Math.max(1, ...data.map(function(w){return w.count;}));
+        if(data.some(function(w){return w.count>0;})){
+          weeks.innerHTML='<div class="vertex-week-compact">'+data.map(function(w){
+            var pct=Math.max(8,Math.round((w.count/max)*100));
+            return '<div class="vertex-week-pill" title="'+esc(w.date)+'"><div class="vertex-week-label">'+esc(w.label)+'</div><div class="vertex-week-bar"><span style="height:'+pct+'%"></span></div><div class="vertex-week-count">'+w.count+'</div></div>';
+          }).join('')+'</div><div class="vertex-week-note">Mobile view is capped at the last 4 weeks.</div>';
+        }else{
+          weeks.innerHTML='<div class="empty-note">Log your first workout to see weekly consistency.</div>';
+        }
+      }
+    }catch(e){ console.warn('[Vertex Phase1F] coach/weekly patch failed',e); }
+  }
+
+  function ensurePlannerDots(){
+    try{
+      var acc=document.getElementById('plannerAcc');
+      var planner=document.getElementById('planner');
+      if(!acc || !planner) return;
+      var dots=document.getElementById('vertexPlannerDots');
+      if(!dots){
+        dots=document.createElement('div');
+        dots.id='vertexPlannerDots';
+        dots.className='vertex-planner-dots';
+        dots.innerHTML=['M','T','W','Th','F','S','Su'].map(function(d,i){return '<span class="vertex-planner-dot" data-planner-dot="'+i+'">'+d+'</span>';}).join('');
+        var body=acc.querySelector('.acc-body')||acc;
+        body.appendChild(dots);
+      }
+      function update(){
+        var cards=planner.querySelectorAll('.day-card');
+        var idx=0;
+        if(cards.length){
+          var left=planner.scrollLeft||0;
+          var best=Infinity;
+          cards.forEach(function(card,i){
+            var dist=Math.abs((card.offsetLeft||0)-left);
+            if(dist<best){best=dist; idx=i;}
+          });
+        }
+        dots.querySelectorAll('.vertex-planner-dot').forEach(function(d,i){d.classList.toggle('active',i===idx);});
+      }
+      if(!planner.__vertexPlannerDotsBound){
+        planner.__vertexPlannerDotsBound=true;
+        var timer;
+        planner.addEventListener('scroll',function(){ clearTimeout(timer); timer=setTimeout(update,60); },{passive:true});
+        dots.addEventListener('click',function(e){
+          var d=e.target.closest('[data-planner-dot]'); if(!d) return;
+          var i=Number(d.getAttribute('data-planner-dot')||0);
+          var card=planner.querySelectorAll('.day-card')[i];
+          if(card) planner.scrollTo({left:card.offsetLeft,behavior:'smooth'});
+          update();
+        });
+      }
+      setTimeout(update,30); setTimeout(update,250);
+    }catch(e){ console.warn('[Vertex Phase1F] planner dots failed',e); }
+  }
+
+  function applyAll(){
+    lockProgressArchitecture();
+    renderCoachFeedAndCompactWeeks();
+    ensurePlannerDots();
+  }
+
+  var originalRender=window.renderProgressPage;
+  if(typeof originalRender==='function' && !originalRender.__vertexPhase1FWrapped){
+    var wrapped=function(){ var out=originalRender.apply(this,arguments); setTimeout(applyAll,0); return out; };
+    wrapped.__vertexPhase1FWrapped=true;
+    window.renderProgressPage=wrapped;
+  }
+  var originalSetTab=window.setProgressTab;
+  if(typeof originalSetTab==='function' && !originalSetTab.__vertexPhase1FWrapped){
+    var wrappedTab=function(tab){ var out=originalSetTab.apply(this,arguments); setTimeout(applyAll,0); return out; };
+    wrappedTab.__vertexPhase1FWrapped=true;
+    window.setProgressTab=wrappedTab;
+  }
+  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-ptab]') || e.target.closest('[data-nav]'))){ setTimeout(applyAll,80); setTimeout(applyAll,350); } },true);
+  window.addEventListener('resize',function(){ setTimeout(ensurePlannerDots,100); });
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(applyAll,50); setTimeout(applyAll,500); });
+  else { setTimeout(applyAll,50); setTimeout(applyAll,500); setTimeout(applyAll,1500); }
+})();
+</script>
+<style id="vertex-phase1f-stability-tabs-dots-coachfeed-css">
+body.app-page-progress #progressPage.vertex-phase1f-progress-locked{display:flex!important;flex-direction:column!important;}
+body.app-page-progress #progressPage.vertex-phase1f-progress-locked .progress-head{order:1!important;}
+body.app-page-progress #progressPage.vertex-phase1f-progress-locked .progress-tabs{order:2!important;margin:10px 0 14px!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:10px!important;scrollbar-width:none!important;}
+body.app-page-progress #progressPage.vertex-phase1f-progress-locked .progress-tabs::-webkit-scrollbar{display:none!important;}
+body.app-page-progress #progressPage.vertex-phase1f-progress-locked .progress-tabs .progress-tab{flex:0 0 auto!important;border-radius:999px!important;padding:10px 16px!important;}
+body.app-page-progress #progressPage.vertex-phase1f-progress-locked #progressTabContent{order:3!important;}
+body.app-page-progress #progressPage.vertex-phase1f-progress-locked #progressSummary{order:4!important;display:none!important;}
+body.app-page-progress #progressPage.vertex-phase1f-progress-locked #ptab-overview #vertexB2ProgressDeck{display:block!important;margin:0 0 14px!important;}
+body.app-page-progress #progressPage.vertex-phase1f-progress-locked #ptab-volume #vertexB2ProgressDeck,
+body.app-page-progress #progressPage.vertex-phase1f-progress-locked #ptab-exercises #vertexB2ProgressDeck,
+body.app-page-progress #progressPage.vertex-phase1f-progress-locked #ptab-history #vertexB2ProgressDeck{display:none!important;}
+.vertex-coach-feed-card b{display:block;font-size:14px;margin-bottom:5px;color:var(--text);}
+.vertex-coach-feed-card span{display:block;color:var(--muted);font-size:13px;line-height:1.45;}
+.vertex-coach-feed-card.coach-green{border-color:rgba(72,255,138,.32)!important;background:rgba(72,255,138,.045)!important;}
+.vertex-coach-feed-card.coach-warning{border-color:rgba(255,176,71,.38)!important;background:rgba(255,176,71,.045)!important;}
+.vertex-week-compact{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-items:end;margin-top:12px;}
+.vertex-week-pill{border:1px solid var(--line2);background:rgba(255,255,255,.025);border-radius:10px;padding:8px;text-align:center;min-height:94px;display:flex;flex-direction:column;justify-content:space-between;}
+.vertex-week-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);}
+.vertex-week-bar{height:44px;display:flex;align-items:flex-end;justify-content:center;}
+.vertex-week-bar span{display:block;width:18px;min-height:4px;border-radius:6px 6px 2px 2px;background:var(--acc);}
+.vertex-week-count{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:var(--text);}
+.vertex-week-note{color:var(--dim);font-size:11px;margin-top:8px;line-height:1.35;}
+body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-panel::after,body.app-page-home #plannerAcc .acc-body::after{display:none!important;content:none!important;}
+.vertex-planner-dots{display:flex;justify-content:center;align-items:center;gap:10px;margin:12px auto 0;padding:2px 0 0;}
+.vertex-planner-dot{width:28px;height:28px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(232,255,71,.18);background:rgba(232,255,71,.10);color:rgba(232,255,71,.45);font-family:'DM Mono',monospace;font-size:10px;font-weight:800;letter-spacing:.2px;transition:background .18s ease,color .18s ease,border-color .18s ease,transform .18s ease;}
+.vertex-planner-dot.active{background:var(--acc);border-color:var(--acc);color:#000;transform:scale(1.05);}
+@media(min-width:901px){.vertex-planner-dots{display:none!important;}}
+@media(max-width:520px){.vertex-planner-dots{gap:6px}.vertex-planner-dot{width:24px;height:24px;font-size:9px}.vertex-week-compact{gap:6px}.vertex-week-pill{padding:7px 5px;min-height:84px}}
+</style>

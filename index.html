@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ae: recovery intelligence engine v2; service worker/cache unchanged -->
+<!-- v20260527-phase2a: score intelligence + actionable coach feed; service worker/cache unchanged -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -3956,6 +3956,20 @@ body.app-page-progress #progressPage #progressTabContent{order:5!important;}
 }
 </style>
 
+
+<style id="vertex-phase2a-score-coach-css">
+/* Phase 2A — score explanations + actionable coach feed; layout-safe overlay only */
+#progressPage .vertex-score-info{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;margin-left:6px;border:1px solid rgba(232,255,71,.45);border-radius:999px;color:var(--acc);font-family:'DM Mono',monospace;font-size:10px;line-height:1;vertical-align:middle;cursor:help;position:relative;background:rgba(232,255,71,.04)}
+#progressPage .vertex-score-info:focus{outline:1px solid var(--acc);outline-offset:2px}
+#progressPage .vertex-score-info:hover::after,#progressPage .vertex-score-info:focus::after{content:attr(data-tip);position:absolute;left:0;top:22px;z-index:20;width:min(260px,calc(100vw - 48px));padding:10px 12px;border:1px solid rgba(232,255,71,.32);border-radius:10px;background:#171717;color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:12px;line-height:1.45;letter-spacing:0;text-transform:none;box-shadow:0 18px 42px rgba(0,0,0,.55);white-space:normal}
+#progressPage .vertex-score-info:hover::before,#progressPage .vertex-score-info:focus::before{content:'';position:absolute;left:6px;top:18px;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:5px solid rgba(232,255,71,.32);z-index:21}
+#progressPage .vertex-coach-feed-title{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+#progressPage .vertex-coach-feed .insight{border-color:rgba(232,255,71,.22);background:rgba(232,255,71,.035)}
+#progressPage .vertex-coach-feed .insight b{display:block;margin-bottom:3px;color:var(--text)}
+#progressPage .vertex-coach-feed .insight span{color:var(--muted);font-size:12px;line-height:1.45}
+@media(max-width:800px){#progressPage .vertex-score-info:hover::after,#progressPage .vertex-score-info:focus::after{left:auto;right:-8px;width:min(250px,calc(100vw - 34px));}}
+</style>
+
 </head>
 <body class="auth-resolving">
 
@@ -6980,9 +6994,21 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
     if(/ready|push|opportunity|good|sustainable|improving/.test(text)) return 'good';
     return 'moderate';
   }
+  const scoreExplain={
+    'Readiness':'Composite recovery signal. Uses available sleep, HRV, resting HR, soreness, stress, energy, and recent training load. Higher means the body is better positioned to handle intensity.',
+    'Load Tolerance':'How well your recent recovery appears to support the training load you are carrying. Reduce means keep volume or intensity conservative until recovery improves.',
+    'Training Strain':'A practical strain estimate based on this week’s training frequency, volume pattern, and recovery context. It is a coaching signal, not a medical metric.',
+    'Adaptive Coach':'Daily recommendation layer. It converts readiness and recent workload into a simple action: push, maintain, or recover.',
+    'Recovery Trend':'Direction of recovery based on the latest readiness signal and recent training context.',
+    'Cardio Strain':'Endurance load signal when Strava/cardio data exists. It helps prevent stacking hard lifting on top of high cardio stress.'
+  };
+  function infoIcon(title){
+    const tip=scoreExplain[title];
+    return tip?`<span class="vertex-score-info" tabindex="0" role="button" aria-label="${esc(title)} explanation" data-tip="${esc(tip)}">i</span>`:'';
+  }
   function card(title,value,lines,wide){
     const s=sev(value+' '+(lines||[]).join(' '));
-    return `<section class="vertex-b2-card vertex-b2-${s}${wide?' vertex-b2-wide':''}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
+    return `<section class="vertex-b2-card vertex-b2-${s}${wide?' vertex-b2-wide':''}"><div class="label">${esc(title)}${infoIcon(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
   }
   const row1=[
     card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Top movement: ${topMove.name} (${topMove.sets||0} sets)`:'Top movement pending']),
@@ -7041,9 +7067,21 @@ function renderProgressPage(){
       const delta=sum.thisWeek.length-sum.prevWeek.length;
       const muscleTotals={}; rows.filter(r=>new Date(r.completed_at)>=weekStart()).forEach(r=>Object.entries(r.metrics?.muscles||{}).forEach(([m,v])=>{muscleTotals[m]=(muscleTotals[m]||0)+(v.sets||0)}));
       const top=Object.entries(muscleTotals).sort((a,b)=>b[1]-a[1])[0];
+      const sortedMuscles=Object.entries(muscleTotals).sort((a,b)=>b[1]-a[1]);
+      const second=sortedMuscles[1]||null;
       const topMove=perf[0];
-      const notes=[`You logged ${sum.thisWeek.length} workout${sum.thisWeek.length===1?'':'s'} this week.`, delta>0?`Consistency is up ${delta} session${delta===1?'':'s'} versus last week.`:delta<0?`Consistency is down ${Math.abs(delta)} session${Math.abs(delta)===1?'':'s'} versus last week.`:'Consistency matches last week.', top?`${top[0]} has the highest set volume this week at ${top[1]} sets.`:'No strength volume logged this week.', topMove?`${topMove.name} is your most logged exercise (${topMove.sets} sets).`:'Exercise history will appear after strength logs.', sum.daysSince===0?'You logged a workout today.':`Last workout was ${sum.daysSince} day${sum.daysSince===1?'':'s'} ago.`];
-      insights.innerHTML=notes.map(n=>`<div class="insight">${escapeHtml(n)}</div>`).join('');
+      const coach=[];
+      if(delta>0) coach.push({t:'Consistency is improving',d:`You are up ${delta} session${delta===1?'':'s'} versus last week. Keep intensity controlled so the added frequency does not turn into recovery debt.`});
+      else if(delta<0) coach.push({t:'Consistency slipped',d:`You are down ${Math.abs(delta)} session${Math.abs(delta)===1?'':'s'} versus last week. Prioritize the next scheduled session before adding extra volume.`});
+      else coach.push({t:'Consistency is stable',d:'Your weekly rhythm matches last week. The next improvement should come from cleaner execution, not more random work.'});
+      if(top && second && top[1] >= Math.max(8, second[1]*1.45)) coach.push({t:'Volume balance watch',d:`${top[0]} is leading weekly set volume by a wide margin. Use the Volume tab to confirm balance before adding more ${top[0]} work.`});
+      else if(top) coach.push({t:'Volume distribution looks manageable',d:`${top[0]} is the current lead muscle group. If soreness is low, maintain rather than aggressively increasing sets.`});
+      if(topMove) coach.push({t:'Progression opportunity',d:`${topMove.name} has enough history to guide progression. Add load or reps only if recovery is green and form quality stays consistent.`});
+      else coach.push({t:'Build repeatable movement history',d:'Repeat core lifts across sessions so Vertex can separate true progression from one-off workouts.'});
+      if(sum.daysSince===0) coach.push({t:'Today is logged',d:'Let recovery data catch up before using another hard session to chase volume.'});
+      else if(Number(sum.daysSince)>=4) coach.push({t:'Return-to-training note',d:`It has been ${sum.daysSince} days since the last workout. Restart with moderate volume before pushing intensity.`});
+      else if(Number.isFinite(Number(sum.daysSince))) coach.push({t:'Next-session setup',d:`Last workout was ${sum.daysSince} day${sum.daysSince===1?'':'s'} ago. If soreness is low, the next session can be productive without forcing max effort.`});
+      insights.innerHTML=`<div class="vertex-coach-feed">${coach.slice(0,5).map(n=>`<div class="insight"><b>${escapeHtml(n.t)}</b><span>${escapeHtml(n.d)}</span></div>`).join('')}</div>`;
     }
   }
   const weeks=document.getElementById('progressWeeks');

@@ -6837,7 +6837,7 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
   rows=Array.isArray(rows)?rows:[];
   sum=sum||{};
   perf=Array.isArray(perf)?perf:[];
-  function esc(v){return (typeof escapeHtml==='function')?escapeHtml(String(v ?? '')):String(v ?? '').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+  function esc(v){return (typeof escapeHtml==='function')?escapeHtml(String(v ?? '')):String(v ?? '').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]||m));}
   function readReadiness(){
     try{
       if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
@@ -6870,46 +6870,36 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
   }
   const cardio=cardioData();
   const consistencyLabel=sessions>prev?'Improving':sessions<prev?'Needs attention':'Stable';
-  const trainingStrain = readiness!==null ? (readiness>=75?'Moderate / Sustainable':readiness>=60?'Moderate–High':'Elevated') : (sessions>=4?'Moderate–High':sessions>=2?'Moderate':'Baseline');
-  const adaptive = readiness!==null ? (readiness>=80?'Progression opportunity':readiness>=65?'Push with control':readiness>=50?'Maintain':'Recovery priority') : 'Build baseline';
+  const adaptive = readiness!==null ? (readiness>=80?'Progression opportunity':readiness>=65?'Push with control':readiness>=50?'Maintain quality':'Recovery priority') : 'Build baseline';
   const longTrend = readiness!==null ? (readiness>=70?'Baseline building':readiness>=55?'Watch recovery':'Recovery constrained') : 'Baseline pending';
-  const hybrid = readiness!==null ? 'Apple Health + Vertex' : 'Vertex logs';
-  const progression = topMove ? 'Progression ready' : 'Progression baseline pending';
-  const performance = readiness!==null ? (readiness>=65?'Accumulated load watch':'Recovery-first decision') : 'Build baseline';
   const recoveryTrend = readiness!==null ? (readiness>=70?'→ Stable':readiness>=55?'↘ Watch':'↓ Constrained') : 'Pending';
   const loadTolerance = readiness!==null && readiness<60 ? 'Reduce' : 'Stable';
   function sev(text){
     text=String(text||'').toLowerCase();
     if(/reduce|elevated|high|constrained|recovery-first|needs attention/.test(text)) return 'high';
-    if(/watch|moderate.high|moderate–high|caution/.test(text)) return 'watch';
-    if(/stable|moderate|baseline|build|ready for strava/.test(text)) return 'moderate';
+    if(/watch|caution|maintain/.test(text)) return 'watch';
+    if(/stable|moderate|baseline|build|ready for strava|pending/.test(text)) return 'moderate';
     if(/ready|push|opportunity|good|sustainable|improving/.test(text)) return 'good';
     return 'moderate';
   }
-  function card(title,value,lines,wide){
+  function card(title,value,lines){
     const s=sev(value+' '+(lines||[]).join(' '));
-    return `<section class="vertex-b2-card vertex-b2-${s}${wide?' vertex-b2-wide':''}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
+    return `<section class="vertex-b2-card vertex-b2-${s}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
   }
-  const row1=[
-    card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Top movement: ${topMove.name} (${topMove.sets||0} sets)`:'Top movement pending']),
-    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`]),
-    card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean reps.']),
-    card('Longitudinal Trend', longTrend, [readiness!==null?`Current readiness: ${readiness}`:'Recovery baseline pending', sessions?`${sessions} sessions this week`:'No sessions this week'])
+  const recoveryCards=[
+    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending','Direction of recovery based on sleep, HRV, RHR, and recent load.']),
+    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.','Use recovery response before increasing volume.']),
+    card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, but keep progression selective.':'Favor clean reps, sleep, and recovery.']),
+    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`])
   ];
-  const row2=[
-    card('Training Strain', trainingStrain, [`${sessions} sessions this week`, topMuscle?`${topMuscle[0]} leads volume at ${topMuscle[1]} sets`:'Volume baseline pending']),
-    card('Consistency', consistencyLabel, [`This week: ${sessions} sessions`, `Previous week: ${prev} sessions`]),
-    card('Hybrid Routing', hybrid, ['Sleep / HRV / RHR from health data when available', 'Workout signal from Vertex logs']),
-    card('Readiness', readiness!==null?String(readiness):'Pending', [readiness!==null?'Recovery synthesis active':'More recovery data needed'])
+  const intelligenceCards=[
+    card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Repeat ${topMove.name}; progress only if form and recovery hold.`:'Log repeat movements to unlock progression guidance.']),
+    card('Weekly Intelligence', sessions?`Actionable trend`:'Baseline pending', [sessions?`${sessions} sessions this week — use Volume for raw totals.`:'Log workouts to build weekly pattern logic.', daysSince===null?'Last workout pending':daysSince===0?'You logged a workout today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`]),
+    card('Consistency', consistencyLabel, [sessions>prev?'Consistency is up versus last week.':sessions<prev?'Frequency dipped versus last week.':'Frequency is holding steady.', sessions>=3?'Keep rhythm; avoid chasing extra volume.':'Prioritize one quality session next.']),
+    card('Longitudinal Trend', longTrend, [readiness!==null?`30-day readiness: ${readiness}`:'Recovery baseline pending', topMuscle?`${topMuscle[0]} is leading recent load.`:'Pattern depth is still building.'])
   ];
-  const full=[
-    card('Progression Engine', progression, [topMove?`Repeat ${topMove.name}; add a rep or small load only if form is stable.`:'Log repeated movements to unlock progression guidance.'], true),
-    card('Performance Decision', performance, [readiness!==null&&readiness>=65?'Keep progression conservative until recovery improves.':'Use today to reinforce movement quality and consistency.'], true),
-    card('Weekly Intelligence', sessions?`You logged ${sessions} workout${sessions===1?'':'s'} this week.`:'No workout logged this week', [topMuscle?`${topMuscle[0]} has the highest set volume this week at ${topMuscle[1]} sets.`:'Muscle volume will populate after logs.', daysSince===null?'Last workout pending':daysSince===0?'You logged a workout today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`], true),
-    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', 'Basis: recovery synthesis'], true),
-    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Continue tracking volume and recovery response.'], true)
-  ];
-  deck.innerHTML=`<div class="vertex-b2-row vertex-b2-row-one">${row1.join('')}</div><div class="vertex-b2-row vertex-b2-row-two">${row2.join('')}</div><div class="vertex-b2-full-stack">${full.join('')}</div>`;
+  deck.innerHTML=`<div class="vertex-b2-section-title">Recovery / Readiness</div><div class="vertex-b2-row vertex-b2-row-one" data-carousel="recovery">${recoveryCards.join('')}</div><div class="vertex-b2-section-title">Training Intelligence</div><div class="vertex-b2-row vertex-b2-row-two" data-carousel="intelligence">${intelligenceCards.join('')}</div>`;
+  if(typeof window.vertexApplyProgressCarousels==='function') setTimeout(window.vertexApplyProgressCarousels,0);
 }
 
 function renderProgressPage(){
@@ -9195,6 +9185,57 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
+
+<style id="vertex-final-progress-mobile-carousel-css">
+#vertexB2ProgressDeck .vertex-b2-row-one::before,#vertexB2ProgressDeck .vertex-b2-row-two::before{content:none!important;display:none!important;}
+#vertexB2ProgressDeck .vertex-b2-section-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin:16px 0 10px;}
+#vertexB2ProgressDeck .vertex-b2-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:0 0 14px!important;}
+#vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
+@media(max-width:900px){
+  #progressPage #vertexB2ProgressDeck{display:block!important;width:100%!important;max-width:100%!important;overflow:visible!important;margin:0 0 16px!important;}
+  #vertexB2ProgressDeck .vertex-b2-section-title{margin:18px 0 10px!important;padding-left:0!important;}
+  #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;grid-template-columns:none!important;gap:12px!important;width:auto!important;max-width:none!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 12px!important;margin:0 -14px 18px!important;scrollbar-width:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row > .vertex-b2-card{flex:0 0 84%!important;min-width:84%!important;max-width:84%!important;width:84%!important;scroll-snap-align:start!important;min-height:190px!important;margin:0!important;}
+}
+</style>
+<script id="vertex-final-progress-mobile-carousel-js">
+(function(){
+  if(window.__vertexFinalProgressCarouselLock) return;
+  window.__vertexFinalProgressCarouselLock=true;
+  window.vertexApplyProgressCarousels=function(){
+    try{
+      var deck=document.getElementById('vertexB2ProgressDeck');
+      if(!deck) return;
+      var mobile=window.matchMedia && window.matchMedia('(max-width:900px)').matches;
+      deck.querySelectorAll('.vertex-b2-full-stack').forEach(function(el){el.style.display='none';});
+      deck.querySelectorAll('.vertex-b2-row').forEach(function(row){
+        if(mobile){
+          row.style.display='flex'; row.style.flexDirection='row'; row.style.flexWrap='nowrap';
+          row.style.overflowX='auto'; row.style.overflowY='hidden'; row.style.webkitOverflowScrolling='touch';
+          row.style.scrollSnapType='x mandatory'; row.style.gap='12px'; row.style.padding='0 14px 12px'; row.style.margin='0 -14px 18px';
+          row.querySelectorAll('.vertex-b2-card').forEach(function(card){
+            card.style.flex='0 0 84%'; card.style.minWidth='84%'; card.style.maxWidth='84%'; card.style.width='84%'; card.style.scrollSnapAlign='start'; card.style.minHeight='190px';
+          });
+        }else{
+          row.style.display='grid'; row.style.gridTemplateColumns='repeat(4,minmax(0,1fr))'; row.style.overflowX='visible'; row.style.gap='12px'; row.style.padding='0'; row.style.margin='0 0 14px';
+          row.querySelectorAll('.vertex-b2-card').forEach(function(card){card.removeAttribute('style');});
+        }
+      });
+    }catch(e){console.warn('[Vertex] final progress carousel lock failed',e);}
+  };
+  var oldRender=window.renderProgressPage;
+  if(typeof oldRender==='function' && !oldRender.__vertexFinalCarouselWrapped){
+    window.renderProgressPage=function(){var out=oldRender.apply(this,arguments); setTimeout(window.vertexApplyProgressCarousels,0); setTimeout(window.vertexApplyProgressCarousels,250); return out;};
+    window.renderProgressPage.__vertexFinalCarouselWrapped=true;
+  }
+  window.addEventListener('resize',function(){setTimeout(window.vertexApplyProgressCarousels,80);});
+  document.addEventListener('click',function(e){if(e.target&&e.target.closest('[data-ptab],[data-nav]')) setTimeout(window.vertexApplyProgressCarousels,120);},true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(window.vertexApplyProgressCarousels,200);});
+  else setTimeout(window.vertexApplyProgressCarousels,200);
+})();
+</script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -10811,6 +10852,57 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+<style id="vertex-final-progress-mobile-carousel-css">
+#vertexB2ProgressDeck .vertex-b2-row-one::before,#vertexB2ProgressDeck .vertex-b2-row-two::before{content:none!important;display:none!important;}
+#vertexB2ProgressDeck .vertex-b2-section-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin:16px 0 10px;}
+#vertexB2ProgressDeck .vertex-b2-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:0 0 14px!important;}
+#vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
+@media(max-width:900px){
+  #progressPage #vertexB2ProgressDeck{display:block!important;width:100%!important;max-width:100%!important;overflow:visible!important;margin:0 0 16px!important;}
+  #vertexB2ProgressDeck .vertex-b2-section-title{margin:18px 0 10px!important;padding-left:0!important;}
+  #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;grid-template-columns:none!important;gap:12px!important;width:auto!important;max-width:none!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 12px!important;margin:0 -14px 18px!important;scrollbar-width:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row > .vertex-b2-card{flex:0 0 84%!important;min-width:84%!important;max-width:84%!important;width:84%!important;scroll-snap-align:start!important;min-height:190px!important;margin:0!important;}
+}
+</style>
+<script id="vertex-final-progress-mobile-carousel-js">
+(function(){
+  if(window.__vertexFinalProgressCarouselLock) return;
+  window.__vertexFinalProgressCarouselLock=true;
+  window.vertexApplyProgressCarousels=function(){
+    try{
+      var deck=document.getElementById('vertexB2ProgressDeck');
+      if(!deck) return;
+      var mobile=window.matchMedia && window.matchMedia('(max-width:900px)').matches;
+      deck.querySelectorAll('.vertex-b2-full-stack').forEach(function(el){el.style.display='none';});
+      deck.querySelectorAll('.vertex-b2-row').forEach(function(row){
+        if(mobile){
+          row.style.display='flex'; row.style.flexDirection='row'; row.style.flexWrap='nowrap';
+          row.style.overflowX='auto'; row.style.overflowY='hidden'; row.style.webkitOverflowScrolling='touch';
+          row.style.scrollSnapType='x mandatory'; row.style.gap='12px'; row.style.padding='0 14px 12px'; row.style.margin='0 -14px 18px';
+          row.querySelectorAll('.vertex-b2-card').forEach(function(card){
+            card.style.flex='0 0 84%'; card.style.minWidth='84%'; card.style.maxWidth='84%'; card.style.width='84%'; card.style.scrollSnapAlign='start'; card.style.minHeight='190px';
+          });
+        }else{
+          row.style.display='grid'; row.style.gridTemplateColumns='repeat(4,minmax(0,1fr))'; row.style.overflowX='visible'; row.style.gap='12px'; row.style.padding='0'; row.style.margin='0 0 14px';
+          row.querySelectorAll('.vertex-b2-card').forEach(function(card){card.removeAttribute('style');});
+        }
+      });
+    }catch(e){console.warn('[Vertex] final progress carousel lock failed',e);}
+  };
+  var oldRender=window.renderProgressPage;
+  if(typeof oldRender==='function' && !oldRender.__vertexFinalCarouselWrapped){
+    window.renderProgressPage=function(){var out=oldRender.apply(this,arguments); setTimeout(window.vertexApplyProgressCarousels,0); setTimeout(window.vertexApplyProgressCarousels,250); return out;};
+    window.renderProgressPage.__vertexFinalCarouselWrapped=true;
+  }
+  window.addEventListener('resize',function(){setTimeout(window.vertexApplyProgressCarousels,80);});
+  document.addEventListener('click',function(e){if(e.target&&e.target.closest('[data-ptab],[data-nav]')) setTimeout(window.vertexApplyProgressCarousels,120);},true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(window.vertexApplyProgressCarousels,200);});
+  else setTimeout(window.vertexApplyProgressCarousels,200);
+})();
+</script>
+
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -11057,6 +11149,57 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+<style id="vertex-final-progress-mobile-carousel-css">
+#vertexB2ProgressDeck .vertex-b2-row-one::before,#vertexB2ProgressDeck .vertex-b2-row-two::before{content:none!important;display:none!important;}
+#vertexB2ProgressDeck .vertex-b2-section-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin:16px 0 10px;}
+#vertexB2ProgressDeck .vertex-b2-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:0 0 14px!important;}
+#vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
+@media(max-width:900px){
+  #progressPage #vertexB2ProgressDeck{display:block!important;width:100%!important;max-width:100%!important;overflow:visible!important;margin:0 0 16px!important;}
+  #vertexB2ProgressDeck .vertex-b2-section-title{margin:18px 0 10px!important;padding-left:0!important;}
+  #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;grid-template-columns:none!important;gap:12px!important;width:auto!important;max-width:none!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 12px!important;margin:0 -14px 18px!important;scrollbar-width:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row > .vertex-b2-card{flex:0 0 84%!important;min-width:84%!important;max-width:84%!important;width:84%!important;scroll-snap-align:start!important;min-height:190px!important;margin:0!important;}
+}
+</style>
+<script id="vertex-final-progress-mobile-carousel-js">
+(function(){
+  if(window.__vertexFinalProgressCarouselLock) return;
+  window.__vertexFinalProgressCarouselLock=true;
+  window.vertexApplyProgressCarousels=function(){
+    try{
+      var deck=document.getElementById('vertexB2ProgressDeck');
+      if(!deck) return;
+      var mobile=window.matchMedia && window.matchMedia('(max-width:900px)').matches;
+      deck.querySelectorAll('.vertex-b2-full-stack').forEach(function(el){el.style.display='none';});
+      deck.querySelectorAll('.vertex-b2-row').forEach(function(row){
+        if(mobile){
+          row.style.display='flex'; row.style.flexDirection='row'; row.style.flexWrap='nowrap';
+          row.style.overflowX='auto'; row.style.overflowY='hidden'; row.style.webkitOverflowScrolling='touch';
+          row.style.scrollSnapType='x mandatory'; row.style.gap='12px'; row.style.padding='0 14px 12px'; row.style.margin='0 -14px 18px';
+          row.querySelectorAll('.vertex-b2-card').forEach(function(card){
+            card.style.flex='0 0 84%'; card.style.minWidth='84%'; card.style.maxWidth='84%'; card.style.width='84%'; card.style.scrollSnapAlign='start'; card.style.minHeight='190px';
+          });
+        }else{
+          row.style.display='grid'; row.style.gridTemplateColumns='repeat(4,minmax(0,1fr))'; row.style.overflowX='visible'; row.style.gap='12px'; row.style.padding='0'; row.style.margin='0 0 14px';
+          row.querySelectorAll('.vertex-b2-card').forEach(function(card){card.removeAttribute('style');});
+        }
+      });
+    }catch(e){console.warn('[Vertex] final progress carousel lock failed',e);}
+  };
+  var oldRender=window.renderProgressPage;
+  if(typeof oldRender==='function' && !oldRender.__vertexFinalCarouselWrapped){
+    window.renderProgressPage=function(){var out=oldRender.apply(this,arguments); setTimeout(window.vertexApplyProgressCarousels,0); setTimeout(window.vertexApplyProgressCarousels,250); return out;};
+    window.renderProgressPage.__vertexFinalCarouselWrapped=true;
+  }
+  window.addEventListener('resize',function(){setTimeout(window.vertexApplyProgressCarousels,80);});
+  document.addEventListener('click',function(e){if(e.target&&e.target.closest('[data-ptab],[data-nav]')) setTimeout(window.vertexApplyProgressCarousels,120);},true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(window.vertexApplyProgressCarousels,200);});
+  else setTimeout(window.vertexApplyProgressCarousels,200);
+})();
+</script>
+
 </body></html>`);
     w.document.close();
   };
@@ -11284,6 +11427,57 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+<style id="vertex-final-progress-mobile-carousel-css">
+#vertexB2ProgressDeck .vertex-b2-row-one::before,#vertexB2ProgressDeck .vertex-b2-row-two::before{content:none!important;display:none!important;}
+#vertexB2ProgressDeck .vertex-b2-section-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin:16px 0 10px;}
+#vertexB2ProgressDeck .vertex-b2-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:0 0 14px!important;}
+#vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
+@media(max-width:900px){
+  #progressPage #vertexB2ProgressDeck{display:block!important;width:100%!important;max-width:100%!important;overflow:visible!important;margin:0 0 16px!important;}
+  #vertexB2ProgressDeck .vertex-b2-section-title{margin:18px 0 10px!important;padding-left:0!important;}
+  #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;grid-template-columns:none!important;gap:12px!important;width:auto!important;max-width:none!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 12px!important;margin:0 -14px 18px!important;scrollbar-width:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row > .vertex-b2-card{flex:0 0 84%!important;min-width:84%!important;max-width:84%!important;width:84%!important;scroll-snap-align:start!important;min-height:190px!important;margin:0!important;}
+}
+</style>
+<script id="vertex-final-progress-mobile-carousel-js">
+(function(){
+  if(window.__vertexFinalProgressCarouselLock) return;
+  window.__vertexFinalProgressCarouselLock=true;
+  window.vertexApplyProgressCarousels=function(){
+    try{
+      var deck=document.getElementById('vertexB2ProgressDeck');
+      if(!deck) return;
+      var mobile=window.matchMedia && window.matchMedia('(max-width:900px)').matches;
+      deck.querySelectorAll('.vertex-b2-full-stack').forEach(function(el){el.style.display='none';});
+      deck.querySelectorAll('.vertex-b2-row').forEach(function(row){
+        if(mobile){
+          row.style.display='flex'; row.style.flexDirection='row'; row.style.flexWrap='nowrap';
+          row.style.overflowX='auto'; row.style.overflowY='hidden'; row.style.webkitOverflowScrolling='touch';
+          row.style.scrollSnapType='x mandatory'; row.style.gap='12px'; row.style.padding='0 14px 12px'; row.style.margin='0 -14px 18px';
+          row.querySelectorAll('.vertex-b2-card').forEach(function(card){
+            card.style.flex='0 0 84%'; card.style.minWidth='84%'; card.style.maxWidth='84%'; card.style.width='84%'; card.style.scrollSnapAlign='start'; card.style.minHeight='190px';
+          });
+        }else{
+          row.style.display='grid'; row.style.gridTemplateColumns='repeat(4,minmax(0,1fr))'; row.style.overflowX='visible'; row.style.gap='12px'; row.style.padding='0'; row.style.margin='0 0 14px';
+          row.querySelectorAll('.vertex-b2-card').forEach(function(card){card.removeAttribute('style');});
+        }
+      });
+    }catch(e){console.warn('[Vertex] final progress carousel lock failed',e);}
+  };
+  var oldRender=window.renderProgressPage;
+  if(typeof oldRender==='function' && !oldRender.__vertexFinalCarouselWrapped){
+    window.renderProgressPage=function(){var out=oldRender.apply(this,arguments); setTimeout(window.vertexApplyProgressCarousels,0); setTimeout(window.vertexApplyProgressCarousels,250); return out;};
+    window.renderProgressPage.__vertexFinalCarouselWrapped=true;
+  }
+  window.addEventListener('resize',function(){setTimeout(window.vertexApplyProgressCarousels,80);});
+  document.addEventListener('click',function(e){if(e.target&&e.target.closest('[data-ptab],[data-nav]')) setTimeout(window.vertexApplyProgressCarousels,120);},true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(window.vertexApplyProgressCarousels,200);});
+  else setTimeout(window.vertexApplyProgressCarousels,200);
+})();
+</script>
+
 </body></html>`);
   w.document.close();
 }
@@ -18514,6 +18708,57 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 </script>
 
 
+
+
+<style id="vertex-final-progress-mobile-carousel-css">
+#vertexB2ProgressDeck .vertex-b2-row-one::before,#vertexB2ProgressDeck .vertex-b2-row-two::before{content:none!important;display:none!important;}
+#vertexB2ProgressDeck .vertex-b2-section-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin:16px 0 10px;}
+#vertexB2ProgressDeck .vertex-b2-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:0 0 14px!important;}
+#vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
+@media(max-width:900px){
+  #progressPage #vertexB2ProgressDeck{display:block!important;width:100%!important;max-width:100%!important;overflow:visible!important;margin:0 0 16px!important;}
+  #vertexB2ProgressDeck .vertex-b2-section-title{margin:18px 0 10px!important;padding-left:0!important;}
+  #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;grid-template-columns:none!important;gap:12px!important;width:auto!important;max-width:none!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 12px!important;margin:0 -14px 18px!important;scrollbar-width:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row > .vertex-b2-card{flex:0 0 84%!important;min-width:84%!important;max-width:84%!important;width:84%!important;scroll-snap-align:start!important;min-height:190px!important;margin:0!important;}
+}
+</style>
+<script id="vertex-final-progress-mobile-carousel-js">
+(function(){
+  if(window.__vertexFinalProgressCarouselLock) return;
+  window.__vertexFinalProgressCarouselLock=true;
+  window.vertexApplyProgressCarousels=function(){
+    try{
+      var deck=document.getElementById('vertexB2ProgressDeck');
+      if(!deck) return;
+      var mobile=window.matchMedia && window.matchMedia('(max-width:900px)').matches;
+      deck.querySelectorAll('.vertex-b2-full-stack').forEach(function(el){el.style.display='none';});
+      deck.querySelectorAll('.vertex-b2-row').forEach(function(row){
+        if(mobile){
+          row.style.display='flex'; row.style.flexDirection='row'; row.style.flexWrap='nowrap';
+          row.style.overflowX='auto'; row.style.overflowY='hidden'; row.style.webkitOverflowScrolling='touch';
+          row.style.scrollSnapType='x mandatory'; row.style.gap='12px'; row.style.padding='0 14px 12px'; row.style.margin='0 -14px 18px';
+          row.querySelectorAll('.vertex-b2-card').forEach(function(card){
+            card.style.flex='0 0 84%'; card.style.minWidth='84%'; card.style.maxWidth='84%'; card.style.width='84%'; card.style.scrollSnapAlign='start'; card.style.minHeight='190px';
+          });
+        }else{
+          row.style.display='grid'; row.style.gridTemplateColumns='repeat(4,minmax(0,1fr))'; row.style.overflowX='visible'; row.style.gap='12px'; row.style.padding='0'; row.style.margin='0 0 14px';
+          row.querySelectorAll('.vertex-b2-card').forEach(function(card){card.removeAttribute('style');});
+        }
+      });
+    }catch(e){console.warn('[Vertex] final progress carousel lock failed',e);}
+  };
+  var oldRender=window.renderProgressPage;
+  if(typeof oldRender==='function' && !oldRender.__vertexFinalCarouselWrapped){
+    window.renderProgressPage=function(){var out=oldRender.apply(this,arguments); setTimeout(window.vertexApplyProgressCarousels,0); setTimeout(window.vertexApplyProgressCarousels,250); return out;};
+    window.renderProgressPage.__vertexFinalCarouselWrapped=true;
+  }
+  window.addEventListener('resize',function(){setTimeout(window.vertexApplyProgressCarousels,80);});
+  document.addEventListener('click',function(e){if(e.target&&e.target.closest('[data-ptab],[data-nav]')) setTimeout(window.vertexApplyProgressCarousels,120);},true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(window.vertexApplyProgressCarousels,200);});
+  else setTimeout(window.vertexApplyProgressCarousels,200);
+})();
+</script>
 
 </body>
 </html>

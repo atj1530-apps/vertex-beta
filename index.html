@@ -3694,10 +3694,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 #progressPage #vertexPerformanceDecisionPanel,
 #progressPage #vertexWorkoutPersistencePanel{display:none!important;}
 #vertexB2ProgressDeck{margin:14px 0 18px;}
-.vertex-b2-group{margin-bottom:14px;}
-.vertex-b2-group-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:0 0 10px;}
-.vertex-b2-group-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);font-weight:800;}
-.vertex-b2-group-sub{color:var(--muted);font-size:12px;line-height:1.35;text-align:right;max-width:420px;}
 .vertex-b2-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px;}
 .vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin-top:2px;}
 .vertex-b2-card{border:1px solid var(--line);background:var(--panel2);border-radius:18px;padding:16px;min-height:132px;box-sizing:border-box;overflow:hidden;}
@@ -3711,14 +3707,11 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 body:not(.app-page-progress) #vertexB2ProgressDeck{display:none!important;}
 @media(max-width:900px){
   #vertexB2ProgressDeck{margin:12px 0 16px;}
-  #vertexB2ProgressDeck .vertex-b2-group{margin-bottom:16px!important;}
-  #vertexB2ProgressDeck .vertex-b2-group-head{display:block!important;margin:0 0 8px!important;}
-  #vertexB2ProgressDeck .vertex-b2-group-title{font-size:11px!important;letter-spacing:2px!important;}
-  #vertexB2ProgressDeck .vertex-b2-group-sub{text-align:left!important;max-width:none!important;margin-top:4px!important;font-size:11px!important;}
-  #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 10px!important;margin:0 -14px 0!important;scrollbar-width:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 10px!important;margin:0 -14px 14px!important;scrollbar-width:none!important;}
   #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
   #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{flex:0 0 82%!important;min-width:82%!important;max-width:82%!important;scroll-snap-align:start!important;min-height:178px!important;margin:0!important;}
-  #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
+  #vertexB2ProgressDeck .vertex-b2-full-stack{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;}
+  #vertexB2ProgressDeck .vertex-b2-full-stack .vertex-b2-card{min-height:unset!important;width:100%!important;}
 }
 @media(min-width:901px){
   #vertexB2ProgressDeck .vertex-b2-row{grid-template-columns:repeat(4,minmax(0,1fr));}
@@ -3854,6 +3847,112 @@ body.app-page-progress #progressPage #progressTabContent{order:5!important;}
 }
 @media(min-width:901px){
   body.app-page-home #plannerAcc::after{display:none!important;}
+}
+</style>
+
+
+<style id="vertex-phase1f-mobile-progress-groups-final">
+/* Phase 1F final: keep index(210) behavior, only group Progress overview cards on mobile. */
+body.app-page-progress #progressPage.progress-page{
+  display:flex!important;
+  flex-direction:column!important;
+}
+body.app-page-progress #progressPage .progress-head{order:1!important;}
+body.app-page-progress #progressPage #progressSummary{order:2!important;}
+body.app-page-progress #progressPage .progress-tabs{
+  order:3!important;
+  margin:12px 0 14px!important;
+  display:flex!important;
+  gap:10px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  flex-wrap:nowrap!important;
+}
+body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
+body.app-page-progress #progressPage .progress-tabs .progress-tab{
+  flex:0 0 auto!important;
+  border-radius:999px!important;
+  padding:10px 16px!important;
+}
+body.app-page-progress #progressPage #vertexB2ProgressDeck{
+  order:4!important;
+  margin:4px 0 16px!important;
+  width:100%!important;
+}
+body.app-page-progress #progressPage #progressTabContent{order:5!important;}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group{
+  margin:0 0 16px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:flex-end!important;
+  gap:12px!important;
+  margin:2px 0 10px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-title{
+  font-family:'DM Mono',monospace!important;
+  font-size:11px!important;
+  letter-spacing:2px!important;
+  text-transform:uppercase!important;
+  color:var(--acc)!important;
+  font-weight:800!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
+  color:var(--muted)!important;
+  font-size:12px!important;
+  line-height:1.35!important;
+  text-align:right!important;
+  max-width:420px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-row{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important;
+  margin:0!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
+#progressPage #vertexB2ProgressDeck .vertex-b2-card{
+  min-height:150px!important;
+}
+@media(max-width:900px){
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group{
+    margin:0 0 18px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
+    display:block!important;
+    padding:0 2px!important;
+    margin:4px 0 9px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
+    text-align:left!important;
+    max-width:none!important;
+    font-size:11px!important;
+    margin-top:4px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row{
+    display:flex!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x mandatory!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    scroll-snap-align:center!important;
+    min-height:178px!important;
+    margin:0!important;
+  }
 }
 </style>
 
@@ -6731,6 +6830,8 @@ function calcOneRM(){
 function setProgressTab(tab){
   document.querySelectorAll('.progress-tab').forEach(b=>b.classList.toggle('on',b.getAttribute('data-ptab')===tab));
   ['overview','volume','exercises','history'].forEach(t=>{const el=document.getElementById('ptab-'+t);if(el) el.style.display=t===tab?'block':'none';});
+  const deck=document.getElementById('vertexB2ProgressDeck');
+  if(deck) deck.style.display = tab==='overview' ? 'block' : 'none';
   if(tab==='volume') renderProgressVolumeCharts();
   if(tab==='exercises') renderProgressExercises();
   if(tab==='history') renderProgressHistoryTab();
@@ -6863,9 +6964,13 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
   }
   const cardio=cardioData();
   const consistencyLabel=sessions>prev?'Improving':sessions<prev?'Needs attention':'Stable';
+  const trainingStrain = readiness!==null ? (readiness>=75?'Moderate / Sustainable':readiness>=60?'Moderate–High':'Elevated') : (sessions>=4?'Moderate–High':sessions>=2?'Moderate':'Baseline');
   const adaptive = readiness!==null ? (readiness>=80?'Progression opportunity':readiness>=65?'Push with control':readiness>=50?'Maintain':'Recovery priority') : 'Build baseline';
   const longTrend = readiness!==null ? (readiness>=70?'Baseline building':readiness>=55?'Watch recovery':'Recovery constrained') : 'Baseline pending';
-  const recoveryTrend = readiness!==null ? (readiness>=70?'Stable':readiness>=55?'Watch':'Constrained') : 'Pending';
+  const hybrid = readiness!==null ? 'Apple Health + Vertex' : 'Vertex logs';
+  const progression = topMove ? 'Progression ready' : 'Progression baseline pending';
+  const performance = readiness!==null ? (readiness>=65?'Accumulated load watch':'Recovery-first decision') : 'Build baseline';
+  const recoveryTrend = readiness!==null ? (readiness>=70?'→ Stable':readiness>=55?'↘ Watch':'↓ Constrained') : 'Pending';
   const loadTolerance = readiness!==null && readiness<60 ? 'Reduce' : 'Stable';
   function sev(text){
     text=String(text||'').toLowerCase();
@@ -6875,26 +6980,54 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
     if(/ready|push|opportunity|good|sustainable|improving/.test(text)) return 'good';
     return 'moderate';
   }
-  function card(title,value,lines){
+  function card(title,value,lines,wide){
     const s=sev(value+' '+(lines||[]).join(' '));
-    return `<section class="vertex-b2-card vertex-b2-${s}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
+    return `<section class="vertex-b2-card vertex-b2-${s}${wide?' vertex-b2-wide':''}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
   }
-  function group(title,subtitle,cards,cls){
-    return `<section class="vertex-b2-group ${cls||''}"><div class="vertex-b2-group-head"><div class="vertex-b2-group-title">${esc(title)}</div><div class="vertex-b2-group-sub">${esc(subtitle)}</div></div><div class="vertex-b2-row">${cards.join('')}</div></section>`;
-  }
-  const recoveryCards=[
-    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', recoveryTrend==='Stable'?'Recovery signal supports normal training.':recoveryTrend==='Watch'?'Keep intensity selective today.':'Bias toward recovery and clean reps.']),
-    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Use recovery response to set today’s ceiling.']),
-    card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean movement quality.']),
-    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`])
-  ];
-  const intelligenceCards=[
-    card('Workout Memory', topMove?'Progression signal active':'Baseline pending', [topMove?`Repeat ${topMove.name}; add a rep or small load only if form is stable.`:'Log repeated movements to unlock progression guidance.', `Stored sets: ${totalSets||0}`]),
-    card('Weekly Intelligence', sessions?`${sessions} workout${sessions===1?'':'s'} this week`:'No workout logged this week', [topMuscle?`${topMuscle[0]} is leading volume; watch balance across the week.`:'Muscle balance appears after logs.', daysSince===null?'Last workout pending':daysSince===0?'You logged a workout today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`]),
-    card('Consistency', consistencyLabel, [sessions>prev?'Momentum is improving; protect recovery while building rhythm.':sessions<prev?'Rebuild rhythm with one lower-friction session.':'Maintain the current weekly rhythm.', `This week: ${sessions} · Previous: ${prev}`]),
+  const row1=[
+    card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Top movement: ${topMove.name} (${topMove.sets||0} sets)`:'Top movement pending']),
+    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`]),
+    card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean reps.']),
     card('Longitudinal Trend', longTrend, [readiness!==null?`Current readiness: ${readiness}`:'Recovery baseline pending', sessions?`${sessions} sessions this week`:'No sessions this week'])
   ];
-  deck.innerHTML=group('Recovery / Readiness','Today-state coaching from recovery, load, and cardio signals.',recoveryCards,'vertex-b2-recovery')+group('Training Intelligence','Pattern coaching from workouts, consistency, and progression history.',intelligenceCards,'vertex-b2-intelligence');
+  const row2=[
+    card('Training Strain', trainingStrain, [`${sessions} sessions this week`, topMuscle?`${topMuscle[0]} leads volume at ${topMuscle[1]} sets`:'Volume baseline pending']),
+    card('Consistency', consistencyLabel, [`This week: ${sessions} sessions`, `Previous week: ${prev} sessions`]),
+    card('Hybrid Routing', hybrid, ['Sleep / HRV / RHR from health data when available', 'Workout signal from Vertex logs']),
+    card('Readiness', readiness!==null?String(readiness):'Pending', [readiness!==null?'Recovery synthesis active':'More recovery data needed'])
+  ];
+  const full=[
+    card('Progression Engine', progression, [topMove?`Repeat ${topMove.name}; add a rep or small load only if form is stable.`:'Log repeated movements to unlock progression guidance.'], true),
+    card('Performance Decision', performance, [readiness!==null&&readiness>=65?'Keep progression conservative until recovery improves.':'Use today to reinforce movement quality and consistency.'], true),
+    card('Weekly Intelligence', sessions?`You logged ${sessions} workout${sessions===1?'':'s'} this week.`:'No workout logged this week', [topMuscle?`${topMuscle[0]} has the highest set volume this week at ${topMuscle[1]} sets.`:'Muscle volume will populate after logs.', daysSince===null?'Last workout pending':daysSince===0?'You logged a workout today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`], true),
+    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', 'Basis: recovery synthesis'], true),
+    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Continue tracking volume and recovery response.'], true)
+  ];
+  const recoveryCards=[
+    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', 'Basis: recovery synthesis']),
+    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Continue tracking volume and recovery response.']),
+    card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean reps.']),
+    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`])
+  ];
+  const trainingCards=[
+    card('Workout Memory', topMove?'Pattern ready':'Baseline pending', [topMove?`Repeat ${topMove.name}; progress only if form and recovery hold.`:'Log repeated movements to unlock memory.', `${perf.length||0} exercises tracked · ${totalSets||0} stored sets`]),
+    card('Weekly Intelligence', sessions?'Actionable trend':'No workout logged', [sessions?`${sessions} session${sessions===1?'':'s'} this week — use volume tab for raw totals.`:'Build your first weekly signal.', daysSince===null?'Last workout pending':daysSince===0?'You logged today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`]),
+    card('Consistency', consistencyLabel, [deltaText(sum.thisWeek?.length||0, sum.prevWeek?.length||0), sessions>=3?'Keep the rhythm; avoid chasing extra volume.':'Focus on repeatable schedule before intensity.']),
+    card('Longitudinal Trend', longTrend, [readiness!==null?`Current readiness: ${readiness}`:'Recovery baseline pending', sessions?`${sessions} sessions this week`:'No sessions this week'])
+  ];
+  function group(title,sub,cards,cls){
+    return `<section class="vertex-b2-group ${cls||''}"><div class="vertex-b2-group-head"><div class="vertex-b2-group-title">${esc(title)}</div><div class="vertex-b2-group-sub">${esc(sub)}</div></div><div class="vertex-b2-row">${cards.join('')}</div></section>`;
+  }
+  function deltaText(curr,prev){
+    const d=Number(curr||0)-Number(prev||0);
+    if(d>0) return `Consistency is up ${d} session${d===1?'':'s'} versus last week.`;
+    if(d<0) return `Consistency is down ${Math.abs(d)} session${Math.abs(d)===1?'':'s'} versus last week.`;
+    return 'Consistency matches last week.';
+  }
+  deck.innerHTML=[
+    group('Recovery / Readiness','Today-state coaching based on recovery, tolerance, strain, and cardio load.',recoveryCards,'vertex-b2-recovery-group'),
+    group('Training Intelligence','Pattern coaching from workout memory, consistency, and longer-term training behavior.',trainingCards,'vertex-b2-training-group')
+  ].join('');
 }
 
 function renderProgressPage(){
@@ -9104,7 +9237,113 @@ function protoSelectDate(dateStr){
         const pdfDateStr = new Date().toLocaleDateString([],{year:'numeric',month:'long',day:'numeric'});
         const html = `<!DOCTYPE html><html><head><title>Vertex Protocol Summary — ${initials||displayName}</title>
           <style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;color:#111}h1{color:#1a1a1a;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#1a1a1a;color:#fff;padding:8px 12px;text-align:left;font-size:12px}td{padding:8px 12px;border-bottom:1px solid #eee;font-size:13px}tr:nth-child(even){background:#f9f9f9}.meta{color:#666;font-size:13px;margin-bottom:24px}.patient{font-size:15px;font-weight:bold;color:#333;margin-bottom:4px}</style>
-          </head><body>
+          
+<style id="vertex-phase1f-mobile-progress-groups-final">
+/* Phase 1F final: keep index(210) behavior, only group Progress overview cards on mobile. */
+body.app-page-progress #progressPage.progress-page{
+  display:flex!important;
+  flex-direction:column!important;
+}
+body.app-page-progress #progressPage .progress-head{order:1!important;}
+body.app-page-progress #progressPage #progressSummary{order:2!important;}
+body.app-page-progress #progressPage .progress-tabs{
+  order:3!important;
+  margin:12px 0 14px!important;
+  display:flex!important;
+  gap:10px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  flex-wrap:nowrap!important;
+}
+body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
+body.app-page-progress #progressPage .progress-tabs .progress-tab{
+  flex:0 0 auto!important;
+  border-radius:999px!important;
+  padding:10px 16px!important;
+}
+body.app-page-progress #progressPage #vertexB2ProgressDeck{
+  order:4!important;
+  margin:4px 0 16px!important;
+  width:100%!important;
+}
+body.app-page-progress #progressPage #progressTabContent{order:5!important;}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group{
+  margin:0 0 16px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:flex-end!important;
+  gap:12px!important;
+  margin:2px 0 10px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-title{
+  font-family:'DM Mono',monospace!important;
+  font-size:11px!important;
+  letter-spacing:2px!important;
+  text-transform:uppercase!important;
+  color:var(--acc)!important;
+  font-weight:800!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
+  color:var(--muted)!important;
+  font-size:12px!important;
+  line-height:1.35!important;
+  text-align:right!important;
+  max-width:420px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-row{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important;
+  margin:0!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
+#progressPage #vertexB2ProgressDeck .vertex-b2-card{
+  min-height:150px!important;
+}
+@media(max-width:900px){
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group{
+    margin:0 0 18px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
+    display:block!important;
+    padding:0 2px!important;
+    margin:4px 0 9px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
+    text-align:left!important;
+    max-width:none!important;
+    font-size:11px!important;
+    margin-top:4px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row{
+    display:flex!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x mandatory!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    scroll-snap-align:center!important;
+    min-height:178px!important;
+    margin:0!important;
+  }
+}
+</style>
+
+</head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
           <div class="meta">Generated: ${pdfDateStr} · ${items.length} active compound${items.length===1?'':'s'}</div>
@@ -10692,6 +10931,112 @@ function generateVertexPDFReport(){
   .footer{margin-top:36px;padding-top:12px;border-top:1px solid #e8e8e8;font-size:11px;color:#aaa;text-align:center}
   @media print{body{padding:20px}h2{break-before:avoid}table{break-inside:auto}tr{break-inside:avoid}}
 </style>
+
+<style id="vertex-phase1f-mobile-progress-groups-final">
+/* Phase 1F final: keep index(210) behavior, only group Progress overview cards on mobile. */
+body.app-page-progress #progressPage.progress-page{
+  display:flex!important;
+  flex-direction:column!important;
+}
+body.app-page-progress #progressPage .progress-head{order:1!important;}
+body.app-page-progress #progressPage #progressSummary{order:2!important;}
+body.app-page-progress #progressPage .progress-tabs{
+  order:3!important;
+  margin:12px 0 14px!important;
+  display:flex!important;
+  gap:10px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  flex-wrap:nowrap!important;
+}
+body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
+body.app-page-progress #progressPage .progress-tabs .progress-tab{
+  flex:0 0 auto!important;
+  border-radius:999px!important;
+  padding:10px 16px!important;
+}
+body.app-page-progress #progressPage #vertexB2ProgressDeck{
+  order:4!important;
+  margin:4px 0 16px!important;
+  width:100%!important;
+}
+body.app-page-progress #progressPage #progressTabContent{order:5!important;}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group{
+  margin:0 0 16px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:flex-end!important;
+  gap:12px!important;
+  margin:2px 0 10px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-title{
+  font-family:'DM Mono',monospace!important;
+  font-size:11px!important;
+  letter-spacing:2px!important;
+  text-transform:uppercase!important;
+  color:var(--acc)!important;
+  font-weight:800!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
+  color:var(--muted)!important;
+  font-size:12px!important;
+  line-height:1.35!important;
+  text-align:right!important;
+  max-width:420px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-row{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important;
+  margin:0!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
+#progressPage #vertexB2ProgressDeck .vertex-b2-card{
+  min-height:150px!important;
+}
+@media(max-width:900px){
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group{
+    margin:0 0 18px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
+    display:block!important;
+    padding:0 2px!important;
+    margin:4px 0 9px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
+    text-align:left!important;
+    max-width:none!important;
+    font-size:11px!important;
+    margin-top:4px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row{
+    display:flex!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x mandatory!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    scroll-snap-align:center!important;
+    min-height:178px!important;
+    margin:0!important;
+  }
+}
+</style>
+
 </head><body>
 
 <h1>Vertex</h1>
@@ -11020,7 +11365,113 @@ window.renderSymmetry = renderSymmetry;
     const w = window.open('','_blank');
     if(!w) return;
     const rows = log.length ? log.map(e=>`<tr><td style="white-space:nowrap;color:#888;font-size:11px">${e.ts?.slice(0,19).replace('T',' ')||'—'}</td><td><span style="font-size:10px;background:${e.type==='error'?'#fee2e2':'#fef9c3'};padding:1px 6px;border-radius:3px;font-weight:700">${e.type}</span></td><td style="font-size:12px">${e.msg||''}</td><td style="font-size:11px;color:#999">${e.src||''}${e.line?':'+e.line:''}</td></tr>`).join('') : '<tr><td colspan="4" style="color:#888;text-align:center;padding:20px">No errors logged.</td></tr>';
-    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
+    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style>
+<style id="vertex-phase1f-mobile-progress-groups-final">
+/* Phase 1F final: keep index(210) behavior, only group Progress overview cards on mobile. */
+body.app-page-progress #progressPage.progress-page{
+  display:flex!important;
+  flex-direction:column!important;
+}
+body.app-page-progress #progressPage .progress-head{order:1!important;}
+body.app-page-progress #progressPage #progressSummary{order:2!important;}
+body.app-page-progress #progressPage .progress-tabs{
+  order:3!important;
+  margin:12px 0 14px!important;
+  display:flex!important;
+  gap:10px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  flex-wrap:nowrap!important;
+}
+body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
+body.app-page-progress #progressPage .progress-tabs .progress-tab{
+  flex:0 0 auto!important;
+  border-radius:999px!important;
+  padding:10px 16px!important;
+}
+body.app-page-progress #progressPage #vertexB2ProgressDeck{
+  order:4!important;
+  margin:4px 0 16px!important;
+  width:100%!important;
+}
+body.app-page-progress #progressPage #progressTabContent{order:5!important;}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group{
+  margin:0 0 16px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:flex-end!important;
+  gap:12px!important;
+  margin:2px 0 10px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-title{
+  font-family:'DM Mono',monospace!important;
+  font-size:11px!important;
+  letter-spacing:2px!important;
+  text-transform:uppercase!important;
+  color:var(--acc)!important;
+  font-weight:800!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
+  color:var(--muted)!important;
+  font-size:12px!important;
+  line-height:1.35!important;
+  text-align:right!important;
+  max-width:420px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-row{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important;
+  margin:0!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
+#progressPage #vertexB2ProgressDeck .vertex-b2-card{
+  min-height:150px!important;
+}
+@media(max-width:900px){
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group{
+    margin:0 0 18px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
+    display:block!important;
+    padding:0 2px!important;
+    margin:4px 0 9px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
+    text-align:left!important;
+    max-width:none!important;
+    font-size:11px!important;
+    margin-top:4px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row{
+    display:flex!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x mandatory!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    scroll-snap-align:center!important;
+    min-height:178px!important;
+    margin:0!important;
+  }
+}
+</style>
+
+</head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX
@@ -11248,7 +11699,113 @@ function vertexShowSyncDiag(){
   }).join('');
   const w=window.open('','_blank');
   if(!w) return;
-  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
+  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style>
+<style id="vertex-phase1f-mobile-progress-groups-final">
+/* Phase 1F final: keep index(210) behavior, only group Progress overview cards on mobile. */
+body.app-page-progress #progressPage.progress-page{
+  display:flex!important;
+  flex-direction:column!important;
+}
+body.app-page-progress #progressPage .progress-head{order:1!important;}
+body.app-page-progress #progressPage #progressSummary{order:2!important;}
+body.app-page-progress #progressPage .progress-tabs{
+  order:3!important;
+  margin:12px 0 14px!important;
+  display:flex!important;
+  gap:10px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:none!important;
+  flex-wrap:nowrap!important;
+}
+body.app-page-progress #progressPage .progress-tabs::-webkit-scrollbar{display:none!important;}
+body.app-page-progress #progressPage .progress-tabs .progress-tab{
+  flex:0 0 auto!important;
+  border-radius:999px!important;
+  padding:10px 16px!important;
+}
+body.app-page-progress #progressPage #vertexB2ProgressDeck{
+  order:4!important;
+  margin:4px 0 16px!important;
+  width:100%!important;
+}
+body.app-page-progress #progressPage #progressTabContent{order:5!important;}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group{
+  margin:0 0 16px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:flex-end!important;
+  gap:12px!important;
+  margin:2px 0 10px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-title{
+  font-family:'DM Mono',monospace!important;
+  font-size:11px!important;
+  letter-spacing:2px!important;
+  text-transform:uppercase!important;
+  color:var(--acc)!important;
+  font-weight:800!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
+  color:var(--muted)!important;
+  font-size:12px!important;
+  line-height:1.35!important;
+  text-align:right!important;
+  max-width:420px!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-row{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important;
+  margin:0!important;
+}
+#progressPage #vertexB2ProgressDeck .vertex-b2-full-stack{display:none!important;}
+#progressPage #vertexB2ProgressDeck .vertex-b2-card{
+  min-height:150px!important;
+}
+@media(max-width:900px){
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group{
+    margin:0 0 18px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group-head{
+    display:block!important;
+    padding:0 2px!important;
+    margin:4px 0 9px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-group-sub{
+    text-align:left!important;
+    max-width:none!important;
+    font-size:11px!important;
+    margin-top:4px!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row{
+    display:flex!important;
+    grid-template-columns:none!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x mandatory!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row::-webkit-scrollbar{display:none!important;}
+  #progressPage #vertexB2ProgressDeck .vertex-b2-row .vertex-b2-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    scroll-snap-align:center!important;
+    min-height:178px!important;
+    margin:0!important;
+  }
+}
+</style>
+
+</head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX

@@ -9266,138 +9266,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
-
-<style id="vertex-phase2d-adaptive-decision-css">
-/* Phase 2D — Adaptive Decision Engine. Isolated Progress intelligence layer only. */
-#progressPage .vertex-b2-card.vertex-phase2d-decision{
-  border-color:rgba(232,255,71,.42)!important;
-  background:linear-gradient(135deg,rgba(232,255,71,.075),rgba(24,24,24,.98))!important;
-}
-#progressPage .vertex-phase2d-chip{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  margin-top:8px;
-  padding:5px 8px;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:999px;
-  font-family:'DM Mono',monospace;
-  font-size:10px;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  color:var(--muted);
-}
-#progressPage .vertex-phase2d-chip strong{color:var(--acc);font-weight:800;}
-#progressPage .vertex-b2-card.vertex-phase2d-rec .vertex-b2-value{color:var(--orange)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-recover .vertex-b2-value{color:var(--red)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-train .vertex-b2-value{color:var(--green)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-maintain .vertex-b2-value{color:var(--acc)!important;}
-</style>
-
-<script id="vertex-phase2d-adaptive-decision-engine">
-(function(){
-  if(window.__vertexPhase2DAdaptiveDecision) return;
-  window.__vertexPhase2DAdaptiveDecision=true;
-  function esc(v){
-    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
-    return String(v==null?'':v).replace(/[&<>\"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]||m;});
-  }
-  function n(v,d){ v=Number(v); return Number.isFinite(v)?v:(d||0); }
-  function rows(){ try{ return typeof progressRows==='function' ? (progressRows()||[]) : []; }catch(e){ return []; } }
-  function sum(rs){ try{ return typeof progressSummary==='function' ? (progressSummary(rs)||{}) : {}; }catch(e){ return {}; } }
-  function perf(rs){ try{ return typeof performanceSummary==='function' ? (performanceSummary(rs)||[]) : []; }catch(e){ return []; } }
-  function ready(){
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        var r=window.VertexRecoveryInsights.build()||{};
-        var val=n(r.recovery,NaN);
-        if(Number.isFinite(val)) return Math.round(val);
-      }
-    }catch(e){}
-    return null;
-  }
-  function weekStartSafe(){
-    try{ if(typeof weekStart==='function') return weekStart(new Date()); }catch(e){}
-    var d=new Date(); var day=d.getDay(); d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d;
-  }
-  function muscleTotals(rs,start){
-    var out={};
-    try{
-      rs.forEach(function(r){
-        var dt=new Date(r.completed_at||r.created_at||0);
-        if(start && dt<start) return;
-        var m=(r.metrics&&r.metrics.muscles)||{};
-        Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+n(m[k]&&m[k].sets,0); });
-      });
-    }catch(e){}
-    return out;
-  }
-  function rank(obj){ return Object.keys(obj||{}).map(function(k){return {name:k,sets:n(obj[k],0)};}).sort(function(a,b){return b.sets-a.sets;}); }
-  function buildDecision(){
-    var rs=rows(), s=sum(rs), p=perf(rs), r=ready();
-    var sessions=n(s.thisWeek&&s.thisWeek.length,0), prev=n(s.prevWeek&&s.prevWeek.length,0);
-    var daysSince=(s.daysSince==null?null:n(s.daysSince,null));
-    var volume=n(s.totalVolume,0), sets=n(s.totalSets,0);
-    var delta=sessions-prev;
-    var top=rank(muscleTotals(rs,weekStartSafe()))[0]||null;
-    var second=rank(muscleTotals(rs,weekStartSafe()))[1]||null;
-    var topMove=p&&p[0];
-    var imbalance=!!(top&&second&&top.sets>=Math.max(6,second.sets*1.45));
-    var cnsLoad=(sessions>=5?35:0)+(delta>=2?18:0)+(imbalance?14:0)+(topMove&&n(topMove.sets,0)>=8?12:0)+(r!==null&&r<60?22:0);
-    cnsLoad=Math.max(0,Math.min(100,Math.round(cnsLoad)));
-    var state='MAINTAIN', tone='maintain', action='Train controlled';
-    var reason='Signals support work, but broad progression should stay selective.';
-    var guide='Progress one movement only if warm-ups feel strong.';
-    if(r!==null && r<50){ state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Readiness is below the safe push zone.'; guide='Use mobility, zone-2, or technique work. Avoid PR attempts.'; }
-    else if(cnsLoad>=70){ state='DELOAD'; tone='recover'; action='Deload today'; reason='Frequency, imbalance, repeat exposure, or readiness flags suggest accumulated fatigue.'; guide='Reduce working sets or load by 20–30%.'; }
-    else if(r!==null && r>=75 && cnsLoad<55 && sessions<=4){ state='TRAIN'; tone='train'; action='Push with intent'; reason='Readiness is supportive and fatigue flags are controlled.'; guide='Progress one priority lift or add one quality accessory set.'; }
-    else if(delta<0 || (daysSince!==null && daysSince>=4)){ state='REBUILD'; tone='rec'; action='Rebuild rhythm'; reason='Training cadence is behind the recent baseline.'; guide='Get a clean moderate session in before chasing load.'; }
-    return {
-      state:state,tone:tone,action:action,reason:reason,guide:guide,cns:cnsLoad,
-      meta:[r!==null?'Readiness '+r:'Readiness pending', sessions+' session'+(sessions===1?'':'s')+' this week', volume?Math.round(volume).toLocaleString()+' load volume':sets+' sets'].join(' · ')
-    };
-  }
-  function decisionCard(){
-    var d=buildDecision();
-    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Train / Maintain / Recover decision based on readiness, recent workload, CNS fatigue flags, imbalance, cadence, and progression tolerance.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>CNS</strong> '+esc(d.cns)+'/100</div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
-  }
-  function inject(){
-    try{
-      var row=document.querySelector('#vertexB2ProgressDeck .vertex-b2-row-intelligence');
-      if(!row || row.querySelector('.vertex-phase2d-decision')) return;
-      row.insertAdjacentHTML('afterbegin', decisionCard());
-      if(window.VertexPhase2BCoachIntelligence && typeof window.VertexPhase2BCoachIntelligence.sync==='function'){
-        setTimeout(function(){ try{ window.VertexPhase2BCoachIntelligence.sync(); }catch(e){} },80);
-      }
-    }catch(e){ console.warn('[Vertex Phase2D] decision card injection failed',e); }
-  }
-  function enhanceCoachFeed(){
-    try{
-      var el=document.getElementById('progressInsights'); if(!el) return;
-      var d=buildDecision();
-      if(el.querySelector('.vertex-phase2d-feed')) return;
-      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A plain-English explanation of today’s best training decision from the adaptive decision engine.">i</button></div><div class="vertex-phase2b-action">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.reason)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">CNS fatigue estimate: '+esc(d.cns)+'/100</div></div>';
-      el.insertAdjacentHTML('afterbegin',html);
-    }catch(e){}
-  }
-  var old=window.renderVertexB2ProgressDeck;
-  if(typeof old==='function' && !old.__vertexPhase2DWrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(inject,40); setTimeout(inject,220); return out; };
-    wrapped.__vertexPhase2DWrapped=true;
-    window.renderVertexB2ProgressDeck=wrapped;
-  }
-  var oldPage=window.renderProgressPage;
-  if(typeof oldPage==='function' && !oldPage.__vertexPhase2DWrapped){
-    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); setTimeout(function(){inject(); enhanceCoachFeed();},120); setTimeout(function(){inject(); enhanceCoachFeed();},620); return out; };
-    pageWrapped.__vertexPhase2DWrapped=true;
-    window.renderProgressPage=pageWrapped;
-  }
-  [120,520,1200,2400].forEach(function(ms){ setTimeout(function(){ inject(); enhanceCoachFeed(); },ms); });
-  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(function(){inject(); enhanceCoachFeed();},180); setTimeout(function(){inject(); enhanceCoachFeed();},700); } },true);
-  window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject};
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -11014,138 +10882,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-<style id="vertex-phase2d-adaptive-decision-css">
-/* Phase 2D — Adaptive Decision Engine. Isolated Progress intelligence layer only. */
-#progressPage .vertex-b2-card.vertex-phase2d-decision{
-  border-color:rgba(232,255,71,.42)!important;
-  background:linear-gradient(135deg,rgba(232,255,71,.075),rgba(24,24,24,.98))!important;
-}
-#progressPage .vertex-phase2d-chip{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  margin-top:8px;
-  padding:5px 8px;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:999px;
-  font-family:'DM Mono',monospace;
-  font-size:10px;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  color:var(--muted);
-}
-#progressPage .vertex-phase2d-chip strong{color:var(--acc);font-weight:800;}
-#progressPage .vertex-b2-card.vertex-phase2d-rec .vertex-b2-value{color:var(--orange)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-recover .vertex-b2-value{color:var(--red)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-train .vertex-b2-value{color:var(--green)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-maintain .vertex-b2-value{color:var(--acc)!important;}
-</style>
-
-<script id="vertex-phase2d-adaptive-decision-engine">
-(function(){
-  if(window.__vertexPhase2DAdaptiveDecision) return;
-  window.__vertexPhase2DAdaptiveDecision=true;
-  function esc(v){
-    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
-    return String(v==null?'':v).replace(/[&<>\"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]||m;});
-  }
-  function n(v,d){ v=Number(v); return Number.isFinite(v)?v:(d||0); }
-  function rows(){ try{ return typeof progressRows==='function' ? (progressRows()||[]) : []; }catch(e){ return []; } }
-  function sum(rs){ try{ return typeof progressSummary==='function' ? (progressSummary(rs)||{}) : {}; }catch(e){ return {}; } }
-  function perf(rs){ try{ return typeof performanceSummary==='function' ? (performanceSummary(rs)||[]) : []; }catch(e){ return []; } }
-  function ready(){
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        var r=window.VertexRecoveryInsights.build()||{};
-        var val=n(r.recovery,NaN);
-        if(Number.isFinite(val)) return Math.round(val);
-      }
-    }catch(e){}
-    return null;
-  }
-  function weekStartSafe(){
-    try{ if(typeof weekStart==='function') return weekStart(new Date()); }catch(e){}
-    var d=new Date(); var day=d.getDay(); d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d;
-  }
-  function muscleTotals(rs,start){
-    var out={};
-    try{
-      rs.forEach(function(r){
-        var dt=new Date(r.completed_at||r.created_at||0);
-        if(start && dt<start) return;
-        var m=(r.metrics&&r.metrics.muscles)||{};
-        Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+n(m[k]&&m[k].sets,0); });
-      });
-    }catch(e){}
-    return out;
-  }
-  function rank(obj){ return Object.keys(obj||{}).map(function(k){return {name:k,sets:n(obj[k],0)};}).sort(function(a,b){return b.sets-a.sets;}); }
-  function buildDecision(){
-    var rs=rows(), s=sum(rs), p=perf(rs), r=ready();
-    var sessions=n(s.thisWeek&&s.thisWeek.length,0), prev=n(s.prevWeek&&s.prevWeek.length,0);
-    var daysSince=(s.daysSince==null?null:n(s.daysSince,null));
-    var volume=n(s.totalVolume,0), sets=n(s.totalSets,0);
-    var delta=sessions-prev;
-    var top=rank(muscleTotals(rs,weekStartSafe()))[0]||null;
-    var second=rank(muscleTotals(rs,weekStartSafe()))[1]||null;
-    var topMove=p&&p[0];
-    var imbalance=!!(top&&second&&top.sets>=Math.max(6,second.sets*1.45));
-    var cnsLoad=(sessions>=5?35:0)+(delta>=2?18:0)+(imbalance?14:0)+(topMove&&n(topMove.sets,0)>=8?12:0)+(r!==null&&r<60?22:0);
-    cnsLoad=Math.max(0,Math.min(100,Math.round(cnsLoad)));
-    var state='MAINTAIN', tone='maintain', action='Train controlled';
-    var reason='Signals support work, but broad progression should stay selective.';
-    var guide='Progress one movement only if warm-ups feel strong.';
-    if(r!==null && r<50){ state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Readiness is below the safe push zone.'; guide='Use mobility, zone-2, or technique work. Avoid PR attempts.'; }
-    else if(cnsLoad>=70){ state='DELOAD'; tone='recover'; action='Deload today'; reason='Frequency, imbalance, repeat exposure, or readiness flags suggest accumulated fatigue.'; guide='Reduce working sets or load by 20–30%.'; }
-    else if(r!==null && r>=75 && cnsLoad<55 && sessions<=4){ state='TRAIN'; tone='train'; action='Push with intent'; reason='Readiness is supportive and fatigue flags are controlled.'; guide='Progress one priority lift or add one quality accessory set.'; }
-    else if(delta<0 || (daysSince!==null && daysSince>=4)){ state='REBUILD'; tone='rec'; action='Rebuild rhythm'; reason='Training cadence is behind the recent baseline.'; guide='Get a clean moderate session in before chasing load.'; }
-    return {
-      state:state,tone:tone,action:action,reason:reason,guide:guide,cns:cnsLoad,
-      meta:[r!==null?'Readiness '+r:'Readiness pending', sessions+' session'+(sessions===1?'':'s')+' this week', volume?Math.round(volume).toLocaleString()+' load volume':sets+' sets'].join(' · ')
-    };
-  }
-  function decisionCard(){
-    var d=buildDecision();
-    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Train / Maintain / Recover decision based on readiness, recent workload, CNS fatigue flags, imbalance, cadence, and progression tolerance.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>CNS</strong> '+esc(d.cns)+'/100</div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
-  }
-  function inject(){
-    try{
-      var row=document.querySelector('#vertexB2ProgressDeck .vertex-b2-row-intelligence');
-      if(!row || row.querySelector('.vertex-phase2d-decision')) return;
-      row.insertAdjacentHTML('afterbegin', decisionCard());
-      if(window.VertexPhase2BCoachIntelligence && typeof window.VertexPhase2BCoachIntelligence.sync==='function'){
-        setTimeout(function(){ try{ window.VertexPhase2BCoachIntelligence.sync(); }catch(e){} },80);
-      }
-    }catch(e){ console.warn('[Vertex Phase2D] decision card injection failed',e); }
-  }
-  function enhanceCoachFeed(){
-    try{
-      var el=document.getElementById('progressInsights'); if(!el) return;
-      var d=buildDecision();
-      if(el.querySelector('.vertex-phase2d-feed')) return;
-      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A plain-English explanation of today’s best training decision from the adaptive decision engine.">i</button></div><div class="vertex-phase2b-action">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.reason)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">CNS fatigue estimate: '+esc(d.cns)+'/100</div></div>';
-      el.insertAdjacentHTML('afterbegin',html);
-    }catch(e){}
-  }
-  var old=window.renderVertexB2ProgressDeck;
-  if(typeof old==='function' && !old.__vertexPhase2DWrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(inject,40); setTimeout(inject,220); return out; };
-    wrapped.__vertexPhase2DWrapped=true;
-    window.renderVertexB2ProgressDeck=wrapped;
-  }
-  var oldPage=window.renderProgressPage;
-  if(typeof oldPage==='function' && !oldPage.__vertexPhase2DWrapped){
-    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); setTimeout(function(){inject(); enhanceCoachFeed();},120); setTimeout(function(){inject(); enhanceCoachFeed();},620); return out; };
-    pageWrapped.__vertexPhase2DWrapped=true;
-    window.renderProgressPage=pageWrapped;
-  }
-  [120,520,1200,2400].forEach(function(ms){ setTimeout(function(){ inject(); enhanceCoachFeed(); },ms); });
-  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(function(){inject(); enhanceCoachFeed();},180); setTimeout(function(){inject(); enhanceCoachFeed();},700); } },true);
-  window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject};
-})();
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -11415,138 +11151,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-<style id="vertex-phase2d-adaptive-decision-css">
-/* Phase 2D — Adaptive Decision Engine. Isolated Progress intelligence layer only. */
-#progressPage .vertex-b2-card.vertex-phase2d-decision{
-  border-color:rgba(232,255,71,.42)!important;
-  background:linear-gradient(135deg,rgba(232,255,71,.075),rgba(24,24,24,.98))!important;
-}
-#progressPage .vertex-phase2d-chip{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  margin-top:8px;
-  padding:5px 8px;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:999px;
-  font-family:'DM Mono',monospace;
-  font-size:10px;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  color:var(--muted);
-}
-#progressPage .vertex-phase2d-chip strong{color:var(--acc);font-weight:800;}
-#progressPage .vertex-b2-card.vertex-phase2d-rec .vertex-b2-value{color:var(--orange)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-recover .vertex-b2-value{color:var(--red)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-train .vertex-b2-value{color:var(--green)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-maintain .vertex-b2-value{color:var(--acc)!important;}
-</style>
-
-<script id="vertex-phase2d-adaptive-decision-engine">
-(function(){
-  if(window.__vertexPhase2DAdaptiveDecision) return;
-  window.__vertexPhase2DAdaptiveDecision=true;
-  function esc(v){
-    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
-    return String(v==null?'':v).replace(/[&<>\"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]||m;});
-  }
-  function n(v,d){ v=Number(v); return Number.isFinite(v)?v:(d||0); }
-  function rows(){ try{ return typeof progressRows==='function' ? (progressRows()||[]) : []; }catch(e){ return []; } }
-  function sum(rs){ try{ return typeof progressSummary==='function' ? (progressSummary(rs)||{}) : {}; }catch(e){ return {}; } }
-  function perf(rs){ try{ return typeof performanceSummary==='function' ? (performanceSummary(rs)||[]) : []; }catch(e){ return []; } }
-  function ready(){
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        var r=window.VertexRecoveryInsights.build()||{};
-        var val=n(r.recovery,NaN);
-        if(Number.isFinite(val)) return Math.round(val);
-      }
-    }catch(e){}
-    return null;
-  }
-  function weekStartSafe(){
-    try{ if(typeof weekStart==='function') return weekStart(new Date()); }catch(e){}
-    var d=new Date(); var day=d.getDay(); d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d;
-  }
-  function muscleTotals(rs,start){
-    var out={};
-    try{
-      rs.forEach(function(r){
-        var dt=new Date(r.completed_at||r.created_at||0);
-        if(start && dt<start) return;
-        var m=(r.metrics&&r.metrics.muscles)||{};
-        Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+n(m[k]&&m[k].sets,0); });
-      });
-    }catch(e){}
-    return out;
-  }
-  function rank(obj){ return Object.keys(obj||{}).map(function(k){return {name:k,sets:n(obj[k],0)};}).sort(function(a,b){return b.sets-a.sets;}); }
-  function buildDecision(){
-    var rs=rows(), s=sum(rs), p=perf(rs), r=ready();
-    var sessions=n(s.thisWeek&&s.thisWeek.length,0), prev=n(s.prevWeek&&s.prevWeek.length,0);
-    var daysSince=(s.daysSince==null?null:n(s.daysSince,null));
-    var volume=n(s.totalVolume,0), sets=n(s.totalSets,0);
-    var delta=sessions-prev;
-    var top=rank(muscleTotals(rs,weekStartSafe()))[0]||null;
-    var second=rank(muscleTotals(rs,weekStartSafe()))[1]||null;
-    var topMove=p&&p[0];
-    var imbalance=!!(top&&second&&top.sets>=Math.max(6,second.sets*1.45));
-    var cnsLoad=(sessions>=5?35:0)+(delta>=2?18:0)+(imbalance?14:0)+(topMove&&n(topMove.sets,0)>=8?12:0)+(r!==null&&r<60?22:0);
-    cnsLoad=Math.max(0,Math.min(100,Math.round(cnsLoad)));
-    var state='MAINTAIN', tone='maintain', action='Train controlled';
-    var reason='Signals support work, but broad progression should stay selective.';
-    var guide='Progress one movement only if warm-ups feel strong.';
-    if(r!==null && r<50){ state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Readiness is below the safe push zone.'; guide='Use mobility, zone-2, or technique work. Avoid PR attempts.'; }
-    else if(cnsLoad>=70){ state='DELOAD'; tone='recover'; action='Deload today'; reason='Frequency, imbalance, repeat exposure, or readiness flags suggest accumulated fatigue.'; guide='Reduce working sets or load by 20–30%.'; }
-    else if(r!==null && r>=75 && cnsLoad<55 && sessions<=4){ state='TRAIN'; tone='train'; action='Push with intent'; reason='Readiness is supportive and fatigue flags are controlled.'; guide='Progress one priority lift or add one quality accessory set.'; }
-    else if(delta<0 || (daysSince!==null && daysSince>=4)){ state='REBUILD'; tone='rec'; action='Rebuild rhythm'; reason='Training cadence is behind the recent baseline.'; guide='Get a clean moderate session in before chasing load.'; }
-    return {
-      state:state,tone:tone,action:action,reason:reason,guide:guide,cns:cnsLoad,
-      meta:[r!==null?'Readiness '+r:'Readiness pending', sessions+' session'+(sessions===1?'':'s')+' this week', volume?Math.round(volume).toLocaleString()+' load volume':sets+' sets'].join(' · ')
-    };
-  }
-  function decisionCard(){
-    var d=buildDecision();
-    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Train / Maintain / Recover decision based on readiness, recent workload, CNS fatigue flags, imbalance, cadence, and progression tolerance.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>CNS</strong> '+esc(d.cns)+'/100</div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
-  }
-  function inject(){
-    try{
-      var row=document.querySelector('#vertexB2ProgressDeck .vertex-b2-row-intelligence');
-      if(!row || row.querySelector('.vertex-phase2d-decision')) return;
-      row.insertAdjacentHTML('afterbegin', decisionCard());
-      if(window.VertexPhase2BCoachIntelligence && typeof window.VertexPhase2BCoachIntelligence.sync==='function'){
-        setTimeout(function(){ try{ window.VertexPhase2BCoachIntelligence.sync(); }catch(e){} },80);
-      }
-    }catch(e){ console.warn('[Vertex Phase2D] decision card injection failed',e); }
-  }
-  function enhanceCoachFeed(){
-    try{
-      var el=document.getElementById('progressInsights'); if(!el) return;
-      var d=buildDecision();
-      if(el.querySelector('.vertex-phase2d-feed')) return;
-      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A plain-English explanation of today’s best training decision from the adaptive decision engine.">i</button></div><div class="vertex-phase2b-action">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.reason)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">CNS fatigue estimate: '+esc(d.cns)+'/100</div></div>';
-      el.insertAdjacentHTML('afterbegin',html);
-    }catch(e){}
-  }
-  var old=window.renderVertexB2ProgressDeck;
-  if(typeof old==='function' && !old.__vertexPhase2DWrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(inject,40); setTimeout(inject,220); return out; };
-    wrapped.__vertexPhase2DWrapped=true;
-    window.renderVertexB2ProgressDeck=wrapped;
-  }
-  var oldPage=window.renderProgressPage;
-  if(typeof oldPage==='function' && !oldPage.__vertexPhase2DWrapped){
-    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); setTimeout(function(){inject(); enhanceCoachFeed();},120); setTimeout(function(){inject(); enhanceCoachFeed();},620); return out; };
-    pageWrapped.__vertexPhase2DWrapped=true;
-    window.renderProgressPage=pageWrapped;
-  }
-  [120,520,1200,2400].forEach(function(ms){ setTimeout(function(){ inject(); enhanceCoachFeed(); },ms); });
-  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(function(){inject(); enhanceCoachFeed();},180); setTimeout(function(){inject(); enhanceCoachFeed();},700); } },true);
-  window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject};
-})();
-</script>
-
 </body></html>`);
     w.document.close();
   };
@@ -11782,138 +11386,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-<style id="vertex-phase2d-adaptive-decision-css">
-/* Phase 2D — Adaptive Decision Engine. Isolated Progress intelligence layer only. */
-#progressPage .vertex-b2-card.vertex-phase2d-decision{
-  border-color:rgba(232,255,71,.42)!important;
-  background:linear-gradient(135deg,rgba(232,255,71,.075),rgba(24,24,24,.98))!important;
-}
-#progressPage .vertex-phase2d-chip{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  margin-top:8px;
-  padding:5px 8px;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:999px;
-  font-family:'DM Mono',monospace;
-  font-size:10px;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  color:var(--muted);
-}
-#progressPage .vertex-phase2d-chip strong{color:var(--acc);font-weight:800;}
-#progressPage .vertex-b2-card.vertex-phase2d-rec .vertex-b2-value{color:var(--orange)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-recover .vertex-b2-value{color:var(--red)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-train .vertex-b2-value{color:var(--green)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-maintain .vertex-b2-value{color:var(--acc)!important;}
-</style>
-
-<script id="vertex-phase2d-adaptive-decision-engine">
-(function(){
-  if(window.__vertexPhase2DAdaptiveDecision) return;
-  window.__vertexPhase2DAdaptiveDecision=true;
-  function esc(v){
-    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
-    return String(v==null?'':v).replace(/[&<>\"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]||m;});
-  }
-  function n(v,d){ v=Number(v); return Number.isFinite(v)?v:(d||0); }
-  function rows(){ try{ return typeof progressRows==='function' ? (progressRows()||[]) : []; }catch(e){ return []; } }
-  function sum(rs){ try{ return typeof progressSummary==='function' ? (progressSummary(rs)||{}) : {}; }catch(e){ return {}; } }
-  function perf(rs){ try{ return typeof performanceSummary==='function' ? (performanceSummary(rs)||[]) : []; }catch(e){ return []; } }
-  function ready(){
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        var r=window.VertexRecoveryInsights.build()||{};
-        var val=n(r.recovery,NaN);
-        if(Number.isFinite(val)) return Math.round(val);
-      }
-    }catch(e){}
-    return null;
-  }
-  function weekStartSafe(){
-    try{ if(typeof weekStart==='function') return weekStart(new Date()); }catch(e){}
-    var d=new Date(); var day=d.getDay(); d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d;
-  }
-  function muscleTotals(rs,start){
-    var out={};
-    try{
-      rs.forEach(function(r){
-        var dt=new Date(r.completed_at||r.created_at||0);
-        if(start && dt<start) return;
-        var m=(r.metrics&&r.metrics.muscles)||{};
-        Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+n(m[k]&&m[k].sets,0); });
-      });
-    }catch(e){}
-    return out;
-  }
-  function rank(obj){ return Object.keys(obj||{}).map(function(k){return {name:k,sets:n(obj[k],0)};}).sort(function(a,b){return b.sets-a.sets;}); }
-  function buildDecision(){
-    var rs=rows(), s=sum(rs), p=perf(rs), r=ready();
-    var sessions=n(s.thisWeek&&s.thisWeek.length,0), prev=n(s.prevWeek&&s.prevWeek.length,0);
-    var daysSince=(s.daysSince==null?null:n(s.daysSince,null));
-    var volume=n(s.totalVolume,0), sets=n(s.totalSets,0);
-    var delta=sessions-prev;
-    var top=rank(muscleTotals(rs,weekStartSafe()))[0]||null;
-    var second=rank(muscleTotals(rs,weekStartSafe()))[1]||null;
-    var topMove=p&&p[0];
-    var imbalance=!!(top&&second&&top.sets>=Math.max(6,second.sets*1.45));
-    var cnsLoad=(sessions>=5?35:0)+(delta>=2?18:0)+(imbalance?14:0)+(topMove&&n(topMove.sets,0)>=8?12:0)+(r!==null&&r<60?22:0);
-    cnsLoad=Math.max(0,Math.min(100,Math.round(cnsLoad)));
-    var state='MAINTAIN', tone='maintain', action='Train controlled';
-    var reason='Signals support work, but broad progression should stay selective.';
-    var guide='Progress one movement only if warm-ups feel strong.';
-    if(r!==null && r<50){ state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Readiness is below the safe push zone.'; guide='Use mobility, zone-2, or technique work. Avoid PR attempts.'; }
-    else if(cnsLoad>=70){ state='DELOAD'; tone='recover'; action='Deload today'; reason='Frequency, imbalance, repeat exposure, or readiness flags suggest accumulated fatigue.'; guide='Reduce working sets or load by 20–30%.'; }
-    else if(r!==null && r>=75 && cnsLoad<55 && sessions<=4){ state='TRAIN'; tone='train'; action='Push with intent'; reason='Readiness is supportive and fatigue flags are controlled.'; guide='Progress one priority lift or add one quality accessory set.'; }
-    else if(delta<0 || (daysSince!==null && daysSince>=4)){ state='REBUILD'; tone='rec'; action='Rebuild rhythm'; reason='Training cadence is behind the recent baseline.'; guide='Get a clean moderate session in before chasing load.'; }
-    return {
-      state:state,tone:tone,action:action,reason:reason,guide:guide,cns:cnsLoad,
-      meta:[r!==null?'Readiness '+r:'Readiness pending', sessions+' session'+(sessions===1?'':'s')+' this week', volume?Math.round(volume).toLocaleString()+' load volume':sets+' sets'].join(' · ')
-    };
-  }
-  function decisionCard(){
-    var d=buildDecision();
-    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Train / Maintain / Recover decision based on readiness, recent workload, CNS fatigue flags, imbalance, cadence, and progression tolerance.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>CNS</strong> '+esc(d.cns)+'/100</div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
-  }
-  function inject(){
-    try{
-      var row=document.querySelector('#vertexB2ProgressDeck .vertex-b2-row-intelligence');
-      if(!row || row.querySelector('.vertex-phase2d-decision')) return;
-      row.insertAdjacentHTML('afterbegin', decisionCard());
-      if(window.VertexPhase2BCoachIntelligence && typeof window.VertexPhase2BCoachIntelligence.sync==='function'){
-        setTimeout(function(){ try{ window.VertexPhase2BCoachIntelligence.sync(); }catch(e){} },80);
-      }
-    }catch(e){ console.warn('[Vertex Phase2D] decision card injection failed',e); }
-  }
-  function enhanceCoachFeed(){
-    try{
-      var el=document.getElementById('progressInsights'); if(!el) return;
-      var d=buildDecision();
-      if(el.querySelector('.vertex-phase2d-feed')) return;
-      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A plain-English explanation of today’s best training decision from the adaptive decision engine.">i</button></div><div class="vertex-phase2b-action">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.reason)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">CNS fatigue estimate: '+esc(d.cns)+'/100</div></div>';
-      el.insertAdjacentHTML('afterbegin',html);
-    }catch(e){}
-  }
-  var old=window.renderVertexB2ProgressDeck;
-  if(typeof old==='function' && !old.__vertexPhase2DWrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(inject,40); setTimeout(inject,220); return out; };
-    wrapped.__vertexPhase2DWrapped=true;
-    window.renderVertexB2ProgressDeck=wrapped;
-  }
-  var oldPage=window.renderProgressPage;
-  if(typeof oldPage==='function' && !oldPage.__vertexPhase2DWrapped){
-    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); setTimeout(function(){inject(); enhanceCoachFeed();},120); setTimeout(function(){inject(); enhanceCoachFeed();},620); return out; };
-    pageWrapped.__vertexPhase2DWrapped=true;
-    window.renderProgressPage=pageWrapped;
-  }
-  [120,520,1200,2400].forEach(function(ms){ setTimeout(function(){ inject(); enhanceCoachFeed(); },ms); });
-  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(function(){inject(); enhanceCoachFeed();},180); setTimeout(function(){inject(); enhanceCoachFeed();},700); } },true);
-  window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject};
-})();
-</script>
-
 </body></html>`);
   w.document.close();
 }
@@ -19148,137 +18620,6 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 
-<style id="vertex-phase2d-adaptive-decision-css">
-/* Phase 2D — Adaptive Decision Engine. Isolated Progress intelligence layer only. */
-#progressPage .vertex-b2-card.vertex-phase2d-decision{
-  border-color:rgba(232,255,71,.42)!important;
-  background:linear-gradient(135deg,rgba(232,255,71,.075),rgba(24,24,24,.98))!important;
-}
-#progressPage .vertex-phase2d-chip{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  margin-top:8px;
-  padding:5px 8px;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:999px;
-  font-family:'DM Mono',monospace;
-  font-size:10px;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  color:var(--muted);
-}
-#progressPage .vertex-phase2d-chip strong{color:var(--acc);font-weight:800;}
-#progressPage .vertex-b2-card.vertex-phase2d-rec .vertex-b2-value{color:var(--orange)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-recover .vertex-b2-value{color:var(--red)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-train .vertex-b2-value{color:var(--green)!important;}
-#progressPage .vertex-b2-card.vertex-phase2d-maintain .vertex-b2-value{color:var(--acc)!important;}
-</style>
-
-<script id="vertex-phase2d-adaptive-decision-engine">
-(function(){
-  if(window.__vertexPhase2DAdaptiveDecision) return;
-  window.__vertexPhase2DAdaptiveDecision=true;
-  function esc(v){
-    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
-    return String(v==null?'':v).replace(/[&<>\"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]||m;});
-  }
-  function n(v,d){ v=Number(v); return Number.isFinite(v)?v:(d||0); }
-  function rows(){ try{ return typeof progressRows==='function' ? (progressRows()||[]) : []; }catch(e){ return []; } }
-  function sum(rs){ try{ return typeof progressSummary==='function' ? (progressSummary(rs)||{}) : {}; }catch(e){ return {}; } }
-  function perf(rs){ try{ return typeof performanceSummary==='function' ? (performanceSummary(rs)||[]) : []; }catch(e){ return []; } }
-  function ready(){
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        var r=window.VertexRecoveryInsights.build()||{};
-        var val=n(r.recovery,NaN);
-        if(Number.isFinite(val)) return Math.round(val);
-      }
-    }catch(e){}
-    return null;
-  }
-  function weekStartSafe(){
-    try{ if(typeof weekStart==='function') return weekStart(new Date()); }catch(e){}
-    var d=new Date(); var day=d.getDay(); d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d;
-  }
-  function muscleTotals(rs,start){
-    var out={};
-    try{
-      rs.forEach(function(r){
-        var dt=new Date(r.completed_at||r.created_at||0);
-        if(start && dt<start) return;
-        var m=(r.metrics&&r.metrics.muscles)||{};
-        Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+n(m[k]&&m[k].sets,0); });
-      });
-    }catch(e){}
-    return out;
-  }
-  function rank(obj){ return Object.keys(obj||{}).map(function(k){return {name:k,sets:n(obj[k],0)};}).sort(function(a,b){return b.sets-a.sets;}); }
-  function buildDecision(){
-    var rs=rows(), s=sum(rs), p=perf(rs), r=ready();
-    var sessions=n(s.thisWeek&&s.thisWeek.length,0), prev=n(s.prevWeek&&s.prevWeek.length,0);
-    var daysSince=(s.daysSince==null?null:n(s.daysSince,null));
-    var volume=n(s.totalVolume,0), sets=n(s.totalSets,0);
-    var delta=sessions-prev;
-    var top=rank(muscleTotals(rs,weekStartSafe()))[0]||null;
-    var second=rank(muscleTotals(rs,weekStartSafe()))[1]||null;
-    var topMove=p&&p[0];
-    var imbalance=!!(top&&second&&top.sets>=Math.max(6,second.sets*1.45));
-    var cnsLoad=(sessions>=5?35:0)+(delta>=2?18:0)+(imbalance?14:0)+(topMove&&n(topMove.sets,0)>=8?12:0)+(r!==null&&r<60?22:0);
-    cnsLoad=Math.max(0,Math.min(100,Math.round(cnsLoad)));
-    var state='MAINTAIN', tone='maintain', action='Train controlled';
-    var reason='Signals support work, but broad progression should stay selective.';
-    var guide='Progress one movement only if warm-ups feel strong.';
-    if(r!==null && r<50){ state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Readiness is below the safe push zone.'; guide='Use mobility, zone-2, or technique work. Avoid PR attempts.'; }
-    else if(cnsLoad>=70){ state='DELOAD'; tone='recover'; action='Deload today'; reason='Frequency, imbalance, repeat exposure, or readiness flags suggest accumulated fatigue.'; guide='Reduce working sets or load by 20–30%.'; }
-    else if(r!==null && r>=75 && cnsLoad<55 && sessions<=4){ state='TRAIN'; tone='train'; action='Push with intent'; reason='Readiness is supportive and fatigue flags are controlled.'; guide='Progress one priority lift or add one quality accessory set.'; }
-    else if(delta<0 || (daysSince!==null && daysSince>=4)){ state='REBUILD'; tone='rec'; action='Rebuild rhythm'; reason='Training cadence is behind the recent baseline.'; guide='Get a clean moderate session in before chasing load.'; }
-    return {
-      state:state,tone:tone,action:action,reason:reason,guide:guide,cns:cnsLoad,
-      meta:[r!==null?'Readiness '+r:'Readiness pending', sessions+' session'+(sessions===1?'':'s')+' this week', volume?Math.round(volume).toLocaleString()+' load volume':sets+' sets'].join(' · ')
-    };
-  }
-  function decisionCard(){
-    var d=buildDecision();
-    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Train / Maintain / Recover decision based on readiness, recent workload, CNS fatigue flags, imbalance, cadence, and progression tolerance.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>CNS</strong> '+esc(d.cns)+'/100</div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
-  }
-  function inject(){
-    try{
-      var row=document.querySelector('#vertexB2ProgressDeck .vertex-b2-row-intelligence');
-      if(!row || row.querySelector('.vertex-phase2d-decision')) return;
-      row.insertAdjacentHTML('afterbegin', decisionCard());
-      if(window.VertexPhase2BCoachIntelligence && typeof window.VertexPhase2BCoachIntelligence.sync==='function'){
-        setTimeout(function(){ try{ window.VertexPhase2BCoachIntelligence.sync(); }catch(e){} },80);
-      }
-    }catch(e){ console.warn('[Vertex Phase2D] decision card injection failed',e); }
-  }
-  function enhanceCoachFeed(){
-    try{
-      var el=document.getElementById('progressInsights'); if(!el) return;
-      var d=buildDecision();
-      if(el.querySelector('.vertex-phase2d-feed')) return;
-      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A plain-English explanation of today’s best training decision from the adaptive decision engine.">i</button></div><div class="vertex-phase2b-action">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.reason)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">CNS fatigue estimate: '+esc(d.cns)+'/100</div></div>';
-      el.insertAdjacentHTML('afterbegin',html);
-    }catch(e){}
-  }
-  var old=window.renderVertexB2ProgressDeck;
-  if(typeof old==='function' && !old.__vertexPhase2DWrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(inject,40); setTimeout(inject,220); return out; };
-    wrapped.__vertexPhase2DWrapped=true;
-    window.renderVertexB2ProgressDeck=wrapped;
-  }
-  var oldPage=window.renderProgressPage;
-  if(typeof oldPage==='function' && !oldPage.__vertexPhase2DWrapped){
-    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); setTimeout(function(){inject(); enhanceCoachFeed();},120); setTimeout(function(){inject(); enhanceCoachFeed();},620); return out; };
-    pageWrapped.__vertexPhase2DWrapped=true;
-    window.renderProgressPage=pageWrapped;
-  }
-  [120,520,1200,2400].forEach(function(ms){ setTimeout(function(){ inject(); enhanceCoachFeed(); },ms); });
-  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(function(){inject(); enhanceCoachFeed();},180); setTimeout(function(){inject(); enhanceCoachFeed();},700); } },true);
-  window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject};
-})();
-</script>
-
 </body>
 </html>
 
@@ -19975,4 +19316,151 @@ body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-pan
   window.VertexPhase2BCoachIntelligence={render:render,sync:sync,build:build};
 })();
 </script>
+<style id="vertex-phase2d-adaptive-decision-css">
+/* Phase 2D — Adaptive Decision Engine. Isolated Progress intelligence layer only. */
+#progressPage .vertex-b2-card.vertex-phase2d-decision{
+  border-color:rgba(232,255,71,.42)!important;
+  background:linear-gradient(135deg,rgba(232,255,71,.075),rgba(24,24,24,.98))!important;
+}
+#progressPage .vertex-phase2d-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:8px;
+  padding:5px 8px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+#progressPage .vertex-phase2d-chip strong{color:var(--acc);font-weight:800;}
+#progressPage .vertex-b2-card.vertex-phase2d-rec .vertex-b2-value{color:var(--orange)!important;}
+#progressPage .vertex-b2-card.vertex-phase2d-recover .vertex-b2-value{color:var(--red)!important;}
+#progressPage .vertex-b2-card.vertex-phase2d-train .vertex-b2-value{color:var(--green)!important;}
+#progressPage .vertex-b2-card.vertex-phase2d-maintain .vertex-b2-value{color:var(--acc)!important;}
+</style>
+
+<script id="vertex-phase2d-adaptive-decision-engine">
+(function(){
+  if(window.__vertexPhase2DAdaptiveDecision) return;
+  window.__vertexPhase2DAdaptiveDecision=true;
+  function esc(v){
+    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
+    return String(v==null?'':v).replace(/[&<>\"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]||m;});
+  }
+  function n(v,d){ v=Number(v); return Number.isFinite(v)?v:(d||0); }
+  function rows(){ try{ return typeof progressRows==='function' ? (progressRows()||[]) : []; }catch(e){ return []; } }
+  function sum(rs){ try{ return typeof progressSummary==='function' ? (progressSummary(rs)||{}) : {}; }catch(e){ return {}; } }
+  function perf(rs){ try{ return typeof performanceSummary==='function' ? (performanceSummary(rs)||[]) : []; }catch(e){ return []; } }
+  function ready(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
+        var r=window.VertexRecoveryInsights.build()||{};
+        var val=n(r.recovery,NaN);
+        if(Number.isFinite(val)) return Math.round(val);
+      }
+    }catch(e){}
+    return null;
+  }
+  function weekStartSafe(){
+    try{ if(typeof weekStart==='function') return weekStart(new Date()); }catch(e){}
+    var d=new Date(); var day=d.getDay(); d.setHours(0,0,0,0); d.setDate(d.getDate()-day); return d;
+  }
+  function muscleTotals(rs,start){
+    var out={};
+    try{
+      (rs||[]).forEach(function(r){
+        var dt=new Date(r.created_at||r.logged_at||r.date||0);
+        if(start && dt<start) return;
+        var key=(r.muscle||r.primary_muscle||r.group||'General').toString();
+        if(!out[key]) out[key]={sets:0,volume:0};
+        out[key].sets+=n(r.sets||r.totalSets||1,1);
+        out[key].volume+=n(r.volume||r.totalVolume||r.load,0);
+      });
+    }catch(e){}
+    return out;
+  }
+  function rank(obj){
+    return Object.keys(obj||{}).map(function(k){ return {name:k,sets:n(obj[k].sets,0),volume:n(obj[k].volume,0)}; }).sort(function(a,b){ return b.sets-a.sets; });
+  }
+  function lastSessionDays(rs){
+    try{
+      var times=(rs||[]).map(function(r){ return new Date(r.created_at||r.logged_at||r.date||0).getTime(); }).filter(Boolean).sort(function(a,b){return b-a;});
+      if(!times.length) return null;
+      return Math.floor((Date.now()-times[0])/86400000);
+    }catch(e){ return null; }
+  }
+  function buildDecision(){
+    var rs=rows();
+    var s=sum(rs)||{};
+    var p=perf(rs)||[];
+    var r=ready();
+    var daysSince=lastSessionDays(rs);
+    var sessions=n(s.weekSessions||s.sessionsThisWeek||s.sessions,0);
+    var prev=n(s.prevWeekSessions||s.previousSessions||Math.max(0,sessions-1),0);
+    var volume=n(s.totalVolume,0), sets=n(s.totalSets,0);
+    var delta=sessions-prev;
+    var ranked=rank(muscleTotals(rs,weekStartSafe()));
+    var top=ranked[0]||null;
+    var second=ranked[1]||null;
+    var topMove=p&&p[0];
+    var imbalance=!!(top&&second&&top.sets>=Math.max(6,second.sets*1.45));
+    var cnsLoad=(sessions>=5?35:0)+(delta>=2?18:0)+(imbalance?14:0)+(topMove&&n(topMove.sets,0)>=8?12:0)+(r!==null&&r<60?22:0);
+    cnsLoad=Math.max(0,Math.min(100,Math.round(cnsLoad)));
+    var state='MAINTAIN', tone='maintain', action='Train controlled';
+    var reason='Signals support work, but broad progression should stay selective.';
+    var guide='Progress one movement only if warm-ups feel strong.';
+    if(r!==null && r<50){ state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Readiness is below the safe push zone.'; guide='Use mobility, zone-2, or technique work. Avoid PR attempts.'; }
+    else if(cnsLoad>=70){ state='DELOAD'; tone='recover'; action='Deload today'; reason='Frequency, imbalance, repeat exposure, or readiness flags suggest accumulated fatigue.'; guide='Reduce working sets or load by 20–30%.'; }
+    else if(r!==null && r>=75 && cnsLoad<55 && sessions<=4){ state='TRAIN'; tone='train'; action='Push with intent'; reason='Readiness is supportive and fatigue flags are controlled.'; guide='Progress one priority lift or add one quality accessory set.'; }
+    else if(delta<0 || (daysSince!==null && daysSince>=4)){ state='REBUILD'; tone='rec'; action='Rebuild rhythm'; reason='Training cadence is behind the recent baseline.'; guide='Get a clean moderate session in before chasing load.'; }
+    return {
+      state:state,tone:tone,action:action,reason:reason,guide:guide,cns:cnsLoad,
+      meta:[r!==null?'Readiness '+r:'Readiness pending', sessions+' session'+(sessions===1?'':'s')+' this week', volume?Math.round(volume).toLocaleString()+' load volume':sets+' sets'].join(' · ')
+    };
+  }
+  function decisionCard(){
+    var d=buildDecision();
+    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Train / Maintain / Recover decision based on readiness, recent workload, CNS fatigue flags, imbalance, cadence, and progression tolerance.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>CNS</strong> '+esc(d.cns)+'/100</div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
+  }
+  function inject(){
+    try{
+      var row=document.querySelector('#vertexB2ProgressDeck .vertex-b2-row-intelligence');
+      if(!row || row.querySelector('.vertex-phase2d-decision')) return;
+      row.insertAdjacentHTML('afterbegin', decisionCard());
+      if(window.VertexPhase2BCoachIntelligence && typeof window.VertexPhase2BCoachIntelligence.sync==='function'){
+        setTimeout(function(){ try{ window.VertexPhase2BCoachIntelligence.sync(); }catch(e){} },80);
+      }
+    }catch(e){ console.warn('[Vertex Phase2D] decision card injection failed',e); }
+  }
+  function enhanceCoachFeed(){
+    try{
+      var el=document.getElementById('progressInsights'); if(!el) return;
+      var d=buildDecision();
+      if(el.querySelector('.vertex-phase2d-feed')) return;
+      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A plain-English explanation of today’s best training decision from the adaptive decision engine.">i</button></div><div class="vertex-phase2b-action">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.reason)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">CNS fatigue estimate: '+esc(d.cns)+'/100</div></div>';
+      el.insertAdjacentHTML('afterbegin',html);
+    }catch(e){}
+  }
+  var old=window.renderVertexB2ProgressDeck;
+  if(typeof old==='function' && !old.__vertexPhase2DWrapped){
+    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(inject,40); setTimeout(inject,220); return out; };
+    wrapped.__vertexPhase2DWrapped=true;
+    window.renderVertexB2ProgressDeck=wrapped;
+  }
+  var oldPage=window.renderProgressPage;
+  if(typeof oldPage==='function' && !oldPage.__vertexPhase2DWrapped){
+    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); setTimeout(function(){inject(); enhanceCoachFeed();},120); setTimeout(function(){inject(); enhanceCoachFeed();},620); return out; };
+    pageWrapped.__vertexPhase2DWrapped=true;
+    window.renderProgressPage=pageWrapped;
+  }
+  [120,520,1200,2400].forEach(function(ms){ setTimeout(function(){ inject(); enhanceCoachFeed(); },ms); });
+  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(function(){inject(); enhanceCoachFeed();},180); setTimeout(function(){inject(); enhanceCoachFeed();},700); } },true);
+  window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject};
+})();
+</script>
+
 

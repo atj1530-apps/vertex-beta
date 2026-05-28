@@ -37,6 +37,7 @@
 <!-- Phase 2E: adaptive coaching polish; approachable coach tone; no architecture changes -->
 <!-- Phase 2E.1: duplicate progress section header + click flicker cleanup; legacy category rail mover disabled; SW/cache untouched -->
 <!-- Phase 2E.2: progress hierarchy CSS-only refinement; SW/cache untouched -->
+<!-- Phase 2E.3A: trend memory foundation; adaptive coaching escalation; SW/cache untouched -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -19406,6 +19407,72 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     try{ (rs||[]).forEach(function(r){ var t=rowTime(r); if(t){ var x=new Date(t); d[x.getFullYear()+'-'+x.getMonth()+'-'+x.getDate()]=1; } }); }catch(e){}
     return Object.keys(d).length;
   }
+
+  function recentRows(rs, days){
+    var cutoff=Date.now()-(days||21)*86400000;
+    try{ return (rs||[]).filter(function(r){ var t=rowTime(r); return t && t>=cutoff; }).sort(function(a,b){ return rowTime(b)-rowTime(a); }); }catch(e){ return []; }
+  }
+  function sessionBuckets(rs){
+    var buckets={};
+    try{
+      (rs||[]).forEach(function(r){
+        var t=rowTime(r); if(!t) return;
+        var d=new Date(t); var key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+        if(!buckets[key]) buckets[key]={key:key,time:t,sets:0,volume:0,count:0};
+        buckets[key].sets+=n(r.sets||r.totalSets||1,1);
+        buckets[key].volume+=n(r.volume||r.totalVolume||r.load||0,0);
+        buckets[key].count+=1;
+        if(t>buckets[key].time) buckets[key].time=t;
+      });
+    }catch(e){}
+    return Object.keys(buckets).map(function(k){return buckets[k];}).sort(function(a,b){return b.time-a.time;});
+  }
+  function trendDirection(vals){
+    vals=(vals||[]).filter(function(v){ return Number.isFinite(v); });
+    if(vals.length<3) return {label:'Baseline building', delta:0, strength:'low'};
+    var recent=vals.slice(0,Math.ceil(vals.length/2)).reduce(function(a,b){return a+b;},0)/Math.ceil(vals.length/2);
+    var older=vals.slice(Math.ceil(vals.length/2)).reduce(function(a,b){return a+b;},0)/Math.max(1,vals.length-Math.ceil(vals.length/2));
+    var delta=Math.round(recent-older);
+    if(delta>=8) return {label:'Improving', delta:delta, strength:'high'};
+    if(delta>=3) return {label:'Slightly improving', delta:delta, strength:'medium'};
+    if(delta<=-8) return {label:'Declining', delta:delta, strength:'high'};
+    if(delta<=-3) return {label:'Slightly declining', delta:delta, strength:'medium'};
+    return {label:'Stable', delta:delta, strength:'medium'};
+  }
+  function buildTrendMemory(rs, readiness, sessions, prev, cnsLoad){
+    var recent=recentRows(rs,28);
+    var buckets=sessionBuckets(recent);
+    var recVals=[];
+    try{
+      recent.forEach(function(row){
+        var v=null;
+        if(row && row.metrics){ v=n(row.metrics.readiness||row.metrics.recovery||row.metrics.recoveryScore,NaN); }
+        if(Number.isFinite(v)) recVals.push(v);
+      });
+    }catch(e){}
+    if(!recVals.length && readiness!==null) recVals=[readiness, readiness, readiness];
+    var recoveryTrend=trendDirection(recVals.slice(0,7));
+    var last3=buckets.slice(0,3), prior3=buckets.slice(3,6);
+    var avg=function(arr,key){ return arr.length?arr.reduce(function(a,b){return a+n(b[key],0);},0)/arr.length:0; };
+    var recentLoad=avg(last3,'sets')+(avg(last3,'volume')/10000);
+    var priorLoad=avg(prior3,'sets')+(avg(prior3,'volume')/10000);
+    var loadDelta=prior3.length?Math.round((recentLoad-priorLoad)*10)/10:0;
+    var trendState='Stable Adaptation';
+    var opportunity=false;
+    var concern='low';
+    var memoryLine='Recent pattern is stable. Keep the plan controlled and repeatable.';
+    if((readiness!==null && readiness>=74) && cnsLoad<48 && recoveryTrend.label!=='Declining' && sessions>=2){
+      trendState='Progression Opportunity'; opportunity=true; memoryLine='Recovery is holding while fatigue is manageable. This is a good window for one controlled progression.';
+    }
+    if(recoveryTrend.label==='Improving' && cnsLoad<58){ trendState='Momentum Building'; opportunity=true; memoryLine='Recent recovery direction is improving. Build momentum without turning this into an all-out session.'; }
+    if(recoveryTrend.label==='Declining' || (readiness!==null && readiness<55 && loadDelta>0)){ trendState='Recovery Drift'; concern='medium'; memoryLine='Recovery is drifting down while workload remains present. Hold intensity until readiness steadies.'; }
+    if(cnsLoad>=70 || (loadDelta>=4 && recoveryTrend.label.indexOf('declining')>=0)){ trendState='Accumulated Fatigue'; concern='high'; memoryLine='Workload is starting to stack up. Reduce the hard work today and protect the next session.'; }
+    if(sessions<prev || (sessions<=1 && prev>=3)){ trendState='Consistency Regression'; concern='medium'; memoryLine='Training rhythm has dipped. Prioritize a clean moderate session before chasing load.'; }
+    if(sessions>=3 && Math.abs(loadDelta)<=2 && recoveryTrend.label==='Stable'){ trendState='Stable Adaptation'; memoryLine='Consistency and recovery look steady. Keep progression selective and repeat the behaviors that are working.'; }
+    var dataLevel=(rs||[]).length>=24 && sessions>=4?'Strong dataset':((rs||[]).length>=12 || sessions>=3?'Usable dataset':((rs||[]).length>=4?'Emerging dataset':'Limited dataset'));
+    var confidence=dataLevel==='Strong dataset'?'High confidence':dataLevel==='Usable dataset'?'Moderate confidence':dataLevel==='Emerging dataset'?'Emerging trend':'Limited dataset';
+    return {state:trendState, opportunity:opportunity, concern:concern, memoryLine:memoryLine, recoveryTrend:recoveryTrend.label, loadDelta:loadDelta, recentSessions:buckets.length, dataLevel:dataLevel, confidence:confidence};
+  }
   function buildDecision(){
     var rs=rows();
     var s=sum(rs)||{};
@@ -19431,19 +19498,20 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     var repeatPenalty=repeatExposure?10:0;
     var stalePenalty=(daysSince!==null&&daysSince>=4)?8:0;
     var cnsLoad=Math.max(0,Math.min(100,Math.round(density+ramp+recPenalty+imbalancePenalty+repeatPenalty+stalePenalty)));
-    var confidence='Limited dataset';
-    if(rs.length>=24 && sessions>=4) confidence='High confidence';
-    else if(rs.length>=12 || sessions>=3) confidence='Moderate confidence';
-    else if(rs.length>=4) confidence='Emerging trend';
+    var trend=buildTrendMemory(rs,r,sessions,prev,cnsLoad);
+    var confidence=trend.confidence;
     var state='MAINTAIN', tone='maintain', action='Train controlled';
     var reason='You can train today, but keep progression selective.';
     var guide='Progress one movement only if warm-ups feel good.';
     var deload='Not indicated';
-    if(r!==null && r<50){ state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Recovery looks low, so forcing a hard session is not the best move today.'; guide='Keep it light: mobility, easy cardio, or technique work. Skip PR attempts.'; deload='Reduce intensity today'; }
+    if(trend.state==='Accumulated Fatigue'){ state='DELOAD'; tone='recover'; action='Protect recovery'; reason='Recent trend memory shows fatigue accumulating, not just one low metric.'; guide='Trim hard sets by 20–30% and leave the gym feeling better than when you started.'; deload='Recommended'; }
+    else if(r!==null && r<50){ state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Recovery looks low, so forcing a hard session is not the best move today.'; guide='Keep it light: mobility, easy cardio, or technique work. Skip PR attempts.'; deload='Reduce intensity today'; }
     else if(cnsLoad>=75){ state='DELOAD'; tone='recover'; action='Easier day recommended'; reason='Recent workload is starting to pile up, and your body may need an easier day.'; guide='Cut working sets or load by 20–30% and keep every rep clean.'; deload='Recommended'; }
+    else if(trend.state==='Recovery Drift'){ state='MAINTAIN'; tone='maintain'; action='Hold intensity'; reason='Recovery is drifting down, so today is better for quality work than aggressive progression.'; guide='Hold load steady and stop before form or speed fades.'; deload='Watch'; }
     else if(cnsLoad>=58){ state='MAINTAIN'; tone='maintain'; action='Fatigue watch'; reason='Fatigue is building, but you do not need a full deload yet.'; guide='Hold load steady and avoid adding extra hard sets.'; deload='Watch'; }
+    else if(trend.state==='Momentum Building' || trend.state==='Progression Opportunity'){ state='TRAIN'; tone='train'; action='Push one priority'; reason=trend.memoryLine; guide='Progress one priority lift or add one quality accessory set. Keep the rest controlled.'; deload='Not indicated'; }
     else if(r!==null && r>=76 && cnsLoad<50 && sessions<=4){ state='TRAIN'; tone='train'; action='Push one priority'; reason='You have enough recovery room to push one priority area.'; guide='Progress one priority lift or add one quality accessory set.'; deload='Not indicated'; }
-    else if(delta<0 || (daysSince!==null && daysSince>=4)){ state='REBUILD'; tone='rec'; action='Rebuild rhythm'; reason='Your training rhythm has dipped recently.'; guide='Get one clean moderate session in before chasing load.'; deload='Not indicated'; }
+    else if(trend.state==='Consistency Regression' || delta<0 || (daysSince!==null && daysSince>=4)){ state='REBUILD'; tone='rec'; action='Rebuild rhythm'; reason='Your training rhythm has dipped recently.'; guide='Get one clean moderate session in before chasing load.'; deload='Not indicated'; }
     var progression='Hold';
     if(state==='TRAIN') progression='Progress one priority movement';
     else if(state==='MAINTAIN' && cnsLoad<45) progression='Small bump only if warm-ups feel good';
@@ -19452,16 +19520,16 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     else progression='No progression target today';
     return {
       state:state,tone:tone,action:action,reason:reason,guide:guide,cns:cnsLoad,confidence:confidence,progression:progression,deload:deload,
-      sessions:sessions,prev:prev,sets:sets,volume:volume,readiness:r,imbalance:imbalance,top:top,second:second,
-      meta:[r!==null?'Readiness '+r:'Readiness pending', sessions+' session'+(sessions===1?'':'s')+' this week', sets?sets+' sets':'baseline building'].join(' · ')
+      sessions:sessions,prev:prev,sets:sets,volume:volume,readiness:r,imbalance:imbalance,top:top,second:second,trend:trend,
+      meta:[r!==null?'Readiness '+r:'Readiness pending', sessions+' session'+(sessions===1?'':'s')+' this week', sets?sets+' sets':'baseline building', trend.state].join(' · ')
     };
   }
   function decisionCard(){
     var d=buildDecision();
-    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Vertex turns recovery, recent workload, fatigue, and balance into a simple training call.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>Fatigue</strong> '+esc(d.cns)+'/100</div><div class="vertex-phase2d-chip"><strong>'+esc(d.confidence)+'</strong></div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
+    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Vertex turns recovery, recent workload, fatigue, and balance into a simple training call.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>Fatigue</strong> '+esc(d.cns)+'/100</div><div class="vertex-phase2d-chip"><strong>'+esc(d.confidence)+'</strong></div><div class="vertex-phase2d-chip"><strong>Memory</strong> '+esc(d.trend.state)+'</div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
   }
   function progressionInsight(d){
-    return '<div class="insight vertex-phase2d-feed vertex-phase2d1-progression"><div class="vertex-phase2b-title"><b>Progression Prescription</b><button class="vertex-i" type="button" aria-label="Info" data-tip="This turns today’s recovery and fatigue picture into a simple loading decision.">i</button></div><div class="vertex-phase2b-action">'+esc(d.progression)+'</div><div class="vertex-phase2b-why">Deload status: '+esc(d.deload)+'. Confidence: '+esc(d.confidence)+'.</div><div class="vertex-phase2b-meta">Phase 2E · coaching polish</div></div>';
+    return '<div class="insight vertex-phase2d-feed vertex-phase2d1-progression"><div class="vertex-phase2b-title"><b>Progression Prescription</b><button class="vertex-i" type="button" aria-label="Info" data-tip="This turns today’s recovery and fatigue picture into a simple loading decision.">i</button></div><div class="vertex-phase2b-action">'+esc(d.progression)+'</div><div class="vertex-phase2b-why">'+esc(d.trend.memoryLine)+' Deload status: '+esc(d.deload)+'.</div><div class="vertex-phase2b-meta">'+esc(d.trend.state)+' · '+esc(d.confidence)+' · recovery '+esc(d.trend.recoveryTrend)+'</div></div>';
   }
   function inject(){
     try{
@@ -19485,7 +19553,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
           if(/Build the baseline/i.test(x.textContent||'')) x.remove();
         });
       }
-      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A simple explanation of today’s best training move.">i</button></div><div class="vertex-phase2b-action">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.reason)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">Fatigue estimate: '+esc(d.cns)+'/100 · '+esc(d.confidence)+'</div></div>';
+      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A simple explanation of today’s best training move.">i</button></div><div class="vertex-phase2b-action">'+esc(d.trend.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.trend.memoryLine)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">Fatigue estimate: '+esc(d.cns)+'/100 · '+esc(d.confidence)+' · '+esc(d.trend.dataLevel)+'</div></div>';
       el.insertAdjacentHTML('afterbegin',progressionInsight(d));
       el.insertAdjacentHTML('afterbegin',html);
     }catch(e){ console.warn('[Vertex Phase2D.1] coach feed enhancement failed',e); }

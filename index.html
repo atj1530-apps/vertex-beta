@@ -18747,133 +18747,126 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 </script>
 
 
-
-
-<style id="vertex-phase2e3c-language-refinement-css">
-/* Phase 2E.3C — intelligence language refinement; language-only layer, no auth/SW/rail edits. */
-#progressPage .vertex-phase2e3c-narrative{
-  border-color:rgba(232,255,71,.34)!important;
-  background:linear-gradient(135deg,rgba(232,255,71,.055),rgba(24,24,24,.98))!important;
+<style id="vertex-phase3a-predictive-intelligence-css">
+/* Phase 3A — predictive intelligence layer; DOM-safe overlay, no auth/SW/cache/rail rewrites. */
+#progressPage .vertex-phase3a-narrative{
+  border-color:rgba(232,255,71,.36)!important;
+  background:linear-gradient(135deg,rgba(232,255,71,.06),rgba(24,24,24,.98))!important;
 }
-#progressPage .vertex-phase2e3c-narrative .vertex-phase2b-action{
-  color:var(--text);
-  font-size:14px;
-}
-
-/* Phase 2E.3C.1 — Adaptive Decision density polish */
-#vertexB2ProgressDeck .vertex-b2-card .vertex-b2-line[style]{font-size:12px!important;line-height:1.35!important;color:rgba(242,242,242,.62)!important;}
 #vertexB2ProgressDeck .vertex-phase2d-chip{font-size:9px!important;padding:5px 8px!important;margin-top:2px!important;}
+#vertexB2ProgressDeck .vertex-b2-card .vertex-b2-line[style]{font-size:12px!important;line-height:1.35!important;color:rgba(242,242,242,.62)!important;}
 #vertexB2ProgressDeck .vertex-b2-card .vertex-b2-value{line-height:1.08!important;}
 </style>
-<script id="vertex-phase2e3c-language-refinement">
+<script id="vertex-phase3a-predictive-intelligence">
 (function(){
   'use strict';
-  if(window.__vertexPhase2E3CLanguageRefinement) return;
-  window.__vertexPhase2E3CLanguageRefinement=true;
+  if(window.__vertexPhase3APredictiveIntelligence) return;
+  window.__vertexPhase3APredictiveIntelligence=true;
   function esc(v){try{if(typeof escapeHtml==='function')return escapeHtml(String(v==null?'':v));}catch(e){}return String(v==null?'':v).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]||c;});}
   function labelText(card){try{var l=card&&card.querySelector('.label'); if(!l)return ''; return String(l.childNodes[0]&&l.childNodes[0].textContent||l.textContent||'').replace(/i$/,'').trim();}catch(e){return '';}}
-  function confidenceLens(lens,d){var raw=String((d&&d.confidence)||''); if(!raw||/limited dataset/i.test(raw)){var map={load:'Confidence building',coach:'Early signal',long:'Developing signal',meta:'baseline phase',general:'Confidence building'}; return map[lens]||map.general;} if(/emerging/i.test(raw)) return lens==='meta'?'emerging signal':raw; return raw;}
   function findCard(name){var out=null; try{document.querySelectorAll('#vertexB2ProgressDeck .vertex-b2-card').forEach(function(c){if(labelText(c).toLowerCase()===String(name).toLowerCase())out=c;});}catch(e){} return out;}
-  function setCard(name,title,lines){
-    var c=findCard(name); if(!c)return;
-    var v=c.querySelector('.vertex-b2-value'); if(v&&title)v.textContent=title;
-    var existing=c.querySelectorAll('.vertex-b2-line');
-    (lines||[]).forEach(function(txt,i){ if(existing[i]) existing[i].innerHTML=txt; });
-  }
+  function setCard(name,title,lines){var c=findCard(name); if(!c)return; var v=c.querySelector('.vertex-b2-value'); if(v&&title)v.textContent=title; var existing=c.querySelectorAll('.vertex-b2-line'); (lines||[]).forEach(function(txt,i){ if(existing[i]) existing[i].innerHTML=txt; });}
   function safeDecision(){try{if(window.VertexPhase2DAdaptiveDecision&&typeof window.VertexPhase2DAdaptiveDecision.build==='function')return window.VertexPhase2DAdaptiveDecision.build()||{};}catch(e){}return {};}
-  function phrasePack(d){
-    var sessions=Number(d.sessions||0), prev=Number(d.prev||0), r=(d.readiness==null?null:Number(d.readiness));
-    var limited=/limited/i.test(String(d.confidence||''));
+  function maturity(d){
+    var sessions=Number(d.sessions||0), prev=Number(d.prev||0), sets=Number(d.sets||0), volume=Number(d.volume||0);
+    var history=Math.max(sessions+prev, Math.floor(sets/6));
+    var level='baseline';
+    if(history>=12||sets>=80||volume>=12000) level='established';
+    else if(history>=6||sets>=35||volume>=5000) level='building';
+    else if(history>=2||sets>=12||sessions>=2) level='early';
+    var label={baseline:'Baseline Phase',early:'Early Signal',building:'Confidence Building',established:'Established Pattern'}[level];
+    var authority={baseline:'Signal strength: Early',early:'Signal strength: Forming',building:'Signal strength: Building',established:'Signal strength: Strong'}[level];
+    var directive={baseline:'Keep training repeatable while Vertex learns your normal response.',early:'Repeat the plan cleanly so the signal can confirm.',building:'Pattern strength is improving; progress selectively.',established:'Pattern is reliable enough for more specific coaching.'}[level];
+    return {level:level,label:label,authority:authority,directive:directive,history:history};
+  }
+  function forecast(d,m){
+    var sessions=Number(d.sessions||0), prev=Number(d.prev||0), r=(d.readiness==null?null:Number(d.readiness)), fatigue=Number(d.cns||0);
     var state=String((d.trend&&d.trend.state)||d.state||'Stable');
-    var recoveryTitle='Recovery Holding';
-    if(/drift/i.test(state)) recoveryTitle='Recovery Softening';
-    else if(/fatigue/i.test(state)) recoveryTitle='Recovery Watch';
-    else if(/opportunity|momentum/i.test(state)) recoveryTitle='Recovery Supportive';
-    else if(r!==null&&r>=75) recoveryTitle='Recovery Supportive';
-    else if(r!==null&&r<60) recoveryTitle='Recovery Watch';
-    var memoryTitle=limited?'Movement Familiarity':(/momentum|opportunity/i.test(state)?'Momentum Forming':/fatigue/i.test(state)?'Fatigue Pattern': 'Execution Pattern');
-    var weeklyTitle=(sessions>prev?'Rhythm Building':sessions<prev?'Rhythm Rebuild':'Rhythm Holding');
-    if(sessions===0&&prev===0) weeklyTitle='Training Rhythm Incomplete';
-    var longTitle=limited?'Adaptation Signal Building':(/momentum|opportunity/i.test(state)?'Adaptation Favorable':/drift|fatigue/i.test(state)?'Trend Watch':'Trend Stabilizing');
-    var consistencyTitle=(sessions>prev?'Improving Rhythm':sessions<prev?'Rhythm Drift':'Pattern Steady');
-    if(sessions===0&&prev===0) consistencyTitle='Weekly Rhythm Incomplete';
-    var loadTitle=(/recover|deload/i.test(String(d.tone||d.state||''))?'Load Watch':(/train/i.test(String(d.state||''))?'Load Tolerant':'Load Manageable'));
-    return {recoveryTitle:recoveryTitle,memoryTitle:memoryTitle,weeklyTitle:weeklyTitle,longTitle:longTitle,consistencyTitle:consistencyTitle,loadTitle:loadTitle,limited:limited,state:state};
+    var risk='Low';
+    if(fatigue>=70 || /fatigue|drift/i.test(state) || (r!==null&&r<60)) risk='Elevated';
+    else if(fatigue>=55 || sessions>prev+1) risk='Watch';
+    var progression='Hold progression';
+    if(risk==='Low' && m.level!=='baseline' && sessions>=1) progression='Progress one priority';
+    if(risk==='Elevated') progression='Delay progression';
+    var recovery='Recovery likely stable';
+    if(risk==='Elevated') recovery='Recovery debt may rise';
+    else if(risk==='Watch') recovery='Recovery should be monitored';
+    else if(m.level==='baseline') recovery='Recovery baseline still forming';
+    return {risk:risk,progression:progression,recovery:recovery,state:state};
+  }
+  function titles(d,m,f){
+    var sessions=Number(d.sessions||0), prev=Number(d.prev||0), r=(d.readiness==null?null:Number(d.readiness));
+    var recoveryTitle=f.risk==='Elevated'?'Recovery Watch':(r!==null&&r>=75?'Recovery Supportive':'Recovery Holding');
+    if(m.level==='established' && f.risk==='Low') recoveryTitle='Recovery Pattern Stable';
+    var loadTitle=f.risk==='Elevated'?'Load Pressure Rising':(m.level==='established'?'Load Tolerance Confirmed':'Load Manageable');
+    var coachTitle=f.risk==='Elevated'?'Hold progression':(f.progression==='Progress one priority'?'Progress selectively':'Train controlled');
+    var weeklyTitle=sessions===0?'Rhythm Incomplete':(sessions>prev?'Frequency Building':sessions<prev?'Rhythm Rebuild':'Weekly Rhythm Stable');
+    var consistencyTitle=sessions===0?'Consistency Still Forming':sessions>=3?'Consistency Holding':'Routine Signal Early';
+    var longTitle=m.level==='established'?'Adaptation Pattern Established':m.level==='building'?'Adaptation Confidence Building':'Adaptation Signal Building';
+    return {recoveryTitle:recoveryTitle,loadTitle:loadTitle,coachTitle:coachTitle,weeklyTitle:weeklyTitle,consistencyTitle:consistencyTitle,longTitle:longTitle};
   }
   function refineCards(){
-    var d=safeDecision(); var p=phrasePack(d); var r=(d.readiness==null?'pending':d.readiness); var sessions=Number(d.sessions||0), prev=Number(d.prev||0);
-    setCard('Recovery Trend',p.recoveryTitle,[
+    var d=safeDecision(), m=maturity(d), f=forecast(d,m), t=titles(d,m,f);
+    var r=(d.readiness==null?'pending':d.readiness), sessions=Number(d.sessions||0), prev=Number(d.prev||0);
+    setCard('Recovery Trend',t.recoveryTitle,[
       'Readiness score: '+esc(r),
-      p.limited?'Recovery baseline is forming. Keep execution clean while Vertex builds confidence.':'Recent recovery pattern supports controlled, repeatable training.'
+      f.risk==='Elevated'?'Recovery trend may soften if load keeps rising. Keep today controlled.':(m.level==='baseline'?'Recovery baseline is forming. Keep execution clean while Vertex builds confidence.':'Recovery signal is stable enough for selective training decisions.')
     ]);
-    setCard('Load Tolerance',p.loadTitle,[
-      'Confidence: '+esc(confidenceLens('load',d)),
-      /watch/i.test(p.loadTitle)?'Current load needs restraint until recovery confirms tolerance.':'Current load appears manageable; progress selectively.'
+    setCard('Load Tolerance',t.loadTitle,[
+      esc(m.authority),
+      f.risk==='Elevated'?'Current load is creating pressure; hold added volume until recovery confirms.':'Current load appears manageable; progress selectively.'
     ]);
-    setCard('Adaptive Coach','Train controlled',[
-      esc(d.reason||'You can train today, but keep progression selective.'),
-      'Confidence: '+esc(confidenceLens('coach',d))
+    setCard('Adaptive Coach',t.coachTitle,[
+      f.progression+' based on today’s signal.',
+      'Forecast: '+esc(f.recovery)
     ]);
-    setCard('Workout Memory',p.memoryTitle,[
-      'Behavior: '+(p.limited?'exercise history forming':'repeatable training pattern'),
-      p.limited?'Vertex is learning your movement mix and normal workload.':'Recent logs are beginning to support stronger coaching calls.'
+    setCard('Workout Memory',m.level==='established'?'Training Memory Established':'Movement Familiarity',[
+      'Behavior: '+(m.level==='baseline'?'movement mix forming':'pattern learning'),
+      m.level==='established'?'Training memory can now support more specific recommendations.':'Vertex is learning your movement mix and normal workload.'
     ]);
-    setCard('Weekly Intelligence',p.weeklyTitle,[
+    setCard('Weekly Intelligence',t.weeklyTitle,[
       sessions+' this week vs '+prev+' previous',
-      sessions>prev?'Frequency is building. Keep progression controlled.':sessions<prev?'Rebuild rhythm before adding load.':(sessions===0?'Training rhythm is incomplete; log the next session to refresh the signal.':'Weekly pattern is steady; keep execution consistent.')
+      sessions===0?'Log the next session to refresh the weekly workload signal.':(sessions>prev?'Frequency is building; keep progression controlled.':sessions<prev?'Rebuild rhythm before adding load.':'Weekly workload pattern is steady.')
     ]);
-    setCard('Consistency',p.consistencyTitle,[
-      sessions===0?'No current-week rhythm yet; log the next workout to refresh the signal.':(sessions>=3?'Keep the rhythm and avoid unnecessary extra volume.':'Build rhythm with one clean, repeatable session.'),
+    setCard('Consistency',t.consistencyTitle,[
+      sessions===0?'No current-week routine signal yet; log the next workout to refresh the pattern.':(sessions>=3?'Attendance rhythm is holding; avoid unnecessary extra volume.':'Build routine with one clean, repeatable session.'),
       'This week: '+sessions+'; previous: '+prev
     ]);
-    setCard('Longitudinal Trend',p.longTitle,[
-      'Signal: '+esc(confidenceLens('long',d)),
-      p.limited?'Longer-term adaptation signal is still forming; keep the plan controlled and repeatable.':'Adaptation signal is becoming more reliable across repeated logs.'
+    setCard('Longitudinal Trend',t.longTitle,[
+      esc(m.authority),
+      m.directive
     ]);
     try{
-      var decision=findCard('Adaptive Decision');
-      if(decision){
+      var decision=findCard('Adaptive Decision'); if(decision){
+        var lines=decision.querySelectorAll('.vertex-b2-line');
+        if(lines&&lines.length>2){ lines[lines.length-1].textContent='Signal: '+m.label+' · '+f.progression+' · readiness '+r; }
         decision.querySelectorAll('.vertex-phase2d-chip').forEach(function(ch){
-          var t=ch.textContent||'';
-          if(/Escalation/i.test(t)) ch.innerHTML='<strong>Escalation</strong> '+(p.limited?'Controlled':'Adaptive');
-          if(/Memory/i.test(t)) ch.innerHTML='<strong>Memory</strong> '+esc(p.longTitle);
-          if(/Behavior/i.test(t)) ch.innerHTML='<strong>Behavior</strong> '+esc(p.consistencyTitle);
+          var txt=ch.textContent||'';
+          if(/Limited Dataset|Confidence|Authority|Baseline Phase/i.test(txt)) ch.innerHTML='<strong>'+esc(m.label)+'</strong>';
+          if(/Memory|Signal/i.test(txt)) ch.innerHTML='<strong>Forecast</strong> '+esc(f.risk)+' risk';
         });
-        var meta=decision.querySelector('.vertex-b2-line[style]');
-        if(meta) meta.textContent=['Readiness '+esc(r), sessions+' session'+(sessions===1?'':'s')+' this week', d.sets?d.sets+' sets':'baseline building', p.longTitle].join(' · ');
       }
     }catch(e){}
   }
   function narrativeHtml(){
-    var d=safeDecision(); var p=phrasePack(d); var sessions=Number(d.sessions||0); var r=(d.readiness==null?'pending':d.readiness);
-    var title='Coach Narrative';
-    var action=p.limited?'Controlled baseline build':(/Watch|Softening/i.test(p.recoveryTitle+p.loadTitle)?'Hold progression pressure':'Controlled progression window');
-    var why=p.limited?
-      'Vertex is still learning your normal rhythm. Keep today repeatable: clean execution, steady volume, and one controlled progression target at most.':
-      'Recent training and recovery are aligned enough to support productive work, but the best signal still favors selective progression over chasing volume everywhere.';
-    var meta='Readiness '+esc(r)+' · '+sessions+' session'+(sessions===1?'':'s')+' this week · '+esc(confidenceLens('meta',d));
-    return '<div class="insight vertex-coach-feed-card vertex-phase2b-card vertex-phase2e3c-narrative"><div class="vertex-phase2b-title"><b>'+esc(title)+'</b><button class="vertex-i" type="button" aria-label="Info" data-tip="Narrative synthesis translates today’s recovery, workload, confidence, and behavior pattern into plain coaching language.">i</button></div><div class="vertex-phase2b-action">'+esc(action)+'</div><div class="vertex-phase2b-why">'+esc(why)+'</div><div class="vertex-phase2b-meta">'+esc(meta)+'</div></div>';
+    var d=safeDecision(), m=maturity(d), f=forecast(d,m), sessions=Number(d.sessions||0), r=(d.readiness==null?'pending':d.readiness);
+    var action=f.risk==='Elevated'?'Recovery debt watch':(f.progression==='Progress one priority'?'Progression window forming':'Controlled baseline build');
+    var why=f.risk==='Elevated'?
+      'Load pressure is starting to outpace the current recovery signal. Hold progression and prioritize clean execution today.':
+      (m.level==='baseline'?'Vertex is still learning your normal rhythm. Focus on repeatable execution before adding volume or intensity.':'Current signals support controlled progression. Keep changes selective so recovery response stays clear.');
+    var meta='Readiness '+esc(r)+' · '+sessions+' session'+(sessions===1?'':'s')+' this week · '+esc(m.label)+' · '+esc(f.recovery);
+    return '<div class="insight vertex-coach-feed-card vertex-phase2b-card vertex-phase3a-narrative"><div class="vertex-phase2b-title"><b>Predictive Coach Narrative</b><button class="vertex-i" type="button" aria-label="Info" data-tip="Predictive coaching estimates where recovery, load, and progression risk are likely to move next based on current signals.">i</button></div><div class="vertex-phase2b-action">'+esc(action)+'</div><div class="vertex-phase2b-why">'+esc(why)+'</div><div class="vertex-phase2b-meta">'+esc(meta)+'</div></div>';
   }
-  function refineInsights(){
-    try{
-      var el=document.getElementById('progressInsights'); if(!el)return;
-      var old=el.querySelector('.vertex-phase2e3c-narrative'); if(old)old.remove();
-      Array.prototype.slice.call(el.querySelectorAll('.insight,.vertex-phase2b-card')).forEach(function(x){
-        var txt=x.textContent||'';
-        if(/Build the baseline/i.test(txt) || /Coach Decision Summary/i.test(txt)) x.remove();
-      });
-      el.insertAdjacentHTML('afterbegin',narrativeHtml());
-    }catch(e){}
-  }
+  function refineInsights(){try{var el=document.getElementById('progressInsights'); if(!el)return; Array.prototype.slice.call(el.querySelectorAll('.vertex-phase2e3c-narrative,.vertex-phase2f-narrative,.vertex-phase3a-narrative,.vertex-phase2d-feed,.vertex-phase2d1-progression')).forEach(function(x){x.remove();}); el.insertAdjacentHTML('afterbegin',narrativeHtml());}catch(e){}}
   function sync(){refineCards(); refineInsights();}
   var old=window.renderProgressPage;
-  if(typeof old==='function'&&!old.__vertexPhase2E3CWrapped){
-    var wrapped=function(){var out=old.apply(this,arguments); [160,520,1100].forEach(function(ms){setTimeout(sync,ms);}); return out;};
-    wrapped.__vertexPhase2E3CWrapped=true; window.renderProgressPage=wrapped;
+  if(typeof old==='function'&&!old.__vertexPhase3AWrapped){
+    var wrapped=function(){var out=old.apply(this,arguments); [180,560,1200].forEach(function(ms){setTimeout(sync,ms);}); return out;};
+    wrapped.__vertexPhase3AWrapped=true; window.renderProgressPage=wrapped;
   }
-  [200,800,1600,3200].forEach(function(ms){setTimeout(sync,ms);});
-  document.addEventListener('click',function(e){if(e.target&&(e.target.closest('[data-nav]')||e.target.closest('[data-ptab]')||e.target.closest('#btn-refresh-progress'))){setTimeout(sync,220);setTimeout(sync,900);}},true);
-  window.VertexPhase2E3CLanguageRefinement={sync:sync,phrasePack:phrasePack};
+  [220,850,1700,3400].forEach(function(ms){setTimeout(sync,ms);});
+  document.addEventListener('click',function(e){if(e.target&&(e.target.closest('[data-nav]')||e.target.closest('[data-ptab]')||e.target.closest('#btn-refresh-progress'))){setTimeout(sync,240);setTimeout(sync,900);}},true);
+  window.VertexPhase3APredictiveIntelligence={sync:sync,maturity:maturity,forecast:forecast};
 })();
 </script>
 
@@ -19702,118 +19695,5 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   [120,520,1200,2400].forEach(function(ms){ setTimeout(function(){ inject(); enhanceCoachFeed(); },ms); });
   document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(function(){inject(); enhanceCoachFeed();},180); setTimeout(function(){inject(); enhanceCoachFeed();},700); } },true);
   window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject,enhanceCoachFeed:enhanceCoachFeed};
-})();
-</script>
-
-
-
-
-<script id="vertex-phase2f-confidence-signal-evolution">
-(function(){
-  'use strict';
-  if(window.__vertexPhase2FConfidenceSignalEvolution) return;
-  window.__vertexPhase2FConfidenceSignalEvolution=true;
-  function esc(v){try{if(typeof escapeHtml==='function')return escapeHtml(String(v==null?'':v));}catch(e){}return String(v==null?'':v).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]||c;});}
-  function labelText(card){try{var l=card&&card.querySelector('.label'); if(!l)return ''; return String(l.childNodes[0]&&l.childNodes[0].textContent||l.textContent||'').replace(/i$/,'').trim();}catch(e){return '';}}
-  function findCard(name){var out=null; try{document.querySelectorAll('#vertexB2ProgressDeck .vertex-b2-card').forEach(function(c){if(labelText(c).toLowerCase()===String(name).toLowerCase())out=c;});}catch(e){} return out;}
-  function setCard(name,title,lines){var c=findCard(name); if(!c)return; var v=c.querySelector('.vertex-b2-value'); if(v&&title)v.textContent=title; var existing=c.querySelectorAll('.vertex-b2-line'); (lines||[]).forEach(function(txt,i){ if(existing[i]) existing[i].innerHTML=txt; });}
-  function safeDecision(){try{if(window.VertexPhase2DAdaptiveDecision&&typeof window.VertexPhase2DAdaptiveDecision.build==='function')return window.VertexPhase2DAdaptiveDecision.build()||{};}catch(e){}return {};}
-  function maturity(d){
-    var sessions=Number(d.sessions||0), prev=Number(d.prev||0), sets=Number(d.sets||0), volume=Number(d.volume||0);
-    var history=Math.max(sessions+prev, Math.floor(sets/6));
-    var level='baseline';
-    if(history>=12||sets>=80||volume>=12000) level='established';
-    else if(history>=6||sets>=35||volume>=5000) level='building';
-    else if(history>=2||sets>=12||sessions>=2) level='early';
-    var label={baseline:'Baseline Phase',early:'Early Signal',building:'Confidence Building',established:'Established Pattern'}[level];
-    var authority={baseline:'Low authority',early:'Early authority',building:'Moderate authority',established:'High authority'}[level];
-    var directive={baseline:'Keep the plan repeatable while Vertex learns your normal response.',early:'Repeat the plan cleanly so the signal can confirm.',building:'Pattern strength is improving; progress selectively.',established:'Pattern is reliable enough for more specific coaching.'}[level];
-    return {level:level,label:label,authority:authority,directive:directive,history:history};
-  }
-  function statePack(d,m){
-    var sessions=Number(d.sessions||0), prev=Number(d.prev||0), r=(d.readiness==null?null:Number(d.readiness));
-    var state=String((d.trend&&d.trend.state)||d.state||'Stable');
-    var fatigue=Number(d.cns||0);
-    var recoveryTitle='Recovery Baseline';
-    if(m.level==='established') recoveryTitle='Recovery Pattern';
-    if(/drift/i.test(state)) recoveryTitle='Recovery Softening';
-    else if(/fatigue/i.test(state)||fatigue>=65||(r!==null&&r<60)) recoveryTitle='Recovery Watch';
-    else if(/opportunity|momentum/i.test(state)||(r!==null&&r>=75)) recoveryTitle='Recovery Supportive';
-    else if(m.level==='baseline'||m.level==='early') recoveryTitle='Recovery Holding';
-    var loadTitle=(/recover|deload/i.test(String(d.tone||d.state||''))?'Load Watch':(m.level==='established'?'Load Tolerance Confirmed':m.level==='building'?'Load Tolerance Building':'Load Manageable'));
-    var coachTitle=(m.level==='established'?'Progress selectively':m.level==='building'?'Controlled progression':'Train controlled');
-    var memoryTitle=(m.level==='baseline'?'Movement Familiarity':m.level==='early'?'Movement Pattern Forming':m.level==='building'?'Pattern Confidence Building':'Training Memory Established');
-    var weeklyTitle='Rhythm Holding';
-    if(sessions===0&&prev===0) weeklyTitle='Rhythm Incomplete';
-    else if(sessions>prev) weeklyTitle='Frequency Building';
-    else if(sessions<prev) weeklyTitle='Rhythm Rebuild';
-    else if(m.level==='established') weeklyTitle='Weekly Pattern Stable';
-    var consistencyTitle=(sessions===0?'Adherence Signal Low':sessions>=3?'Adherence Holding':'Adherence Building');
-    var longTitle=(m.level==='baseline'?'Adaptation Signal Building':m.level==='early'?'Adaptation Signal Forming':m.level==='building'?'Adaptation Confidence Building':'Adaptation Pattern Established');
-    return {recoveryTitle:recoveryTitle,loadTitle:loadTitle,coachTitle:coachTitle,memoryTitle:memoryTitle,weeklyTitle:weeklyTitle,consistencyTitle:consistencyTitle,longTitle:longTitle,state:state};
-  }
-  function reduceDecisionDensity(d,m,p){
-    try{
-      var decision=findCard('Adaptive Decision'); if(!decision)return;
-      var lines=decision.querySelectorAll('.vertex-b2-line');
-      if(lines&&lines.length>2){ lines[lines.length-1].textContent='Signal: '+m.label+' · Readiness '+(d.readiness==null?'pending':d.readiness)+' · '+(Number(d.sessions||0))+' this week'; }
-      decision.querySelectorAll('.vertex-phase2d-chip').forEach(function(ch){
-        var t=ch.textContent||'';
-        if(/Limited Dataset|Confidence|Authority/i.test(t)) ch.innerHTML='<strong>'+esc(m.label)+'</strong>';
-        if(/Memory/i.test(t)) ch.innerHTML='<strong>Signal</strong> '+esc(p.longTitle);
-      });
-    }catch(e){}
-  }
-  function refineCards(){
-    var d=safeDecision(); var m=maturity(d); var p=statePack(d,m); var r=(d.readiness==null?'pending':d.readiness); var sessions=Number(d.sessions||0), prev=Number(d.prev||0);
-    setCard('Recovery Trend',p.recoveryTitle,[
-      'Readiness score: '+esc(r),
-      m.level==='baseline'?'Recovery baseline is forming. Keep execution clean while Vertex builds confidence.':(m.level==='established'?'Recovery response is reliable enough for stronger training calls.':'Recovery signal is developing; keep progression controlled until the pattern confirms.')
-    ]);
-    setCard('Load Tolerance',p.loadTitle,[
-      'Authority: '+esc(m.authority),
-      /watch/i.test(p.loadTitle)?'Current load needs restraint until recovery confirms tolerance.':'Current load appears manageable; progress selectively.'
-    ]);
-    setCard('Adaptive Coach',p.coachTitle,[
-      esc(d.reason||m.directive),
-      'Signal confidence: '+esc(m.label)
-    ]);
-    setCard('Workout Memory',p.memoryTitle,[
-      'Behavior: '+(m.level==='baseline'?'movement mix forming':m.level==='established'?'repeatable pattern detected':'pattern learning'),
-      m.level==='baseline'?'Vertex is learning your movement mix and normal workload.':(m.level==='established'?'Training memory can now support more specific recommendations.':'Recent logs are beginning to improve recommendation quality.')
-    ]);
-    setCard('Weekly Intelligence',p.weeklyTitle,[
-      sessions+' this week vs '+prev+' previous',
-      sessions===0?'Log the next session to refresh the weekly workload signal.':(sessions>prev?'Frequency is building; keep progression controlled.':sessions<prev?'Rebuild rhythm before adding load.':'Weekly workload pattern is steady.')
-    ]);
-    setCard('Consistency',p.consistencyTitle,[
-      sessions===0?'No current-week adherence signal yet; log the next workout to refresh the pattern.':(sessions>=3?'Attendance rhythm is holding; avoid unnecessary extra volume.':'Build adherence with one clean, repeatable session.'),
-      'This week: '+sessions+'; previous: '+prev
-    ]);
-    setCard('Longitudinal Trend',p.longTitle,[
-      'Signal authority: '+esc(m.authority),
-      m.directive
-    ]);
-    reduceDecisionDensity(d,m,p);
-  }
-  function narrativeHtml(){
-    var d=safeDecision(); var m=maturity(d); var p=statePack(d,m); var sessions=Number(d.sessions||0); var r=(d.readiness==null?'pending':d.readiness);
-    var action=m.level==='baseline'?'Baseline learning phase':m.level==='early'?'Early signal forming':m.level==='building'?'Confidence building phase':'Established pattern phase';
-    var why=m.level==='baseline'?
-      'Vertex is still learning your normal rhythm. Focus on repeatable execution before adding volume or intensity.':
-      (m.level==='established'?'Your training signal is strong enough for more specific progression calls. Keep changes deliberate and tied to recovery response.':'Your pattern is getting clearer. Keep the next session controlled so Vertex can separate real adaptation from normal week-to-week noise.');
-    var meta='Readiness '+esc(r)+' · '+sessions+' session'+(sessions===1?'':'s')+' this week · '+esc(m.label)+' · '+esc(m.authority);
-    return '<div class="insight vertex-coach-feed-card vertex-phase2b-card vertex-phase2e3c-narrative vertex-phase2f-narrative"><div class="vertex-phase2b-title"><b>Coach Narrative</b><button class="vertex-i" type="button" aria-label="Info" data-tip="Signal evolution shows how much authority Vertex has to make personalized coaching calls based on your logged history.">i</button></div><div class="vertex-phase2b-action">'+esc(action)+'</div><div class="vertex-phase2b-why">'+esc(why)+'</div><div class="vertex-phase2b-meta">'+esc(meta)+'</div></div>';
-  }
-  function refineInsights(){try{var el=document.getElementById('progressInsights'); if(!el)return; Array.prototype.slice.call(el.querySelectorAll('.vertex-phase2e3c-narrative,.vertex-phase2d-feed,.vertex-phase2d1-progression')).forEach(function(x){x.remove();}); el.insertAdjacentHTML('afterbegin',narrativeHtml());}catch(e){}}
-  function sync(){refineCards(); refineInsights();}
-  var old=window.renderProgressPage;
-  if(typeof old==='function'&&!old.__vertexPhase2FWrapped){
-    var wrapped=function(){var out=old.apply(this,arguments); [180,560,1200].forEach(function(ms){setTimeout(sync,ms);}); return out;};
-    wrapped.__vertexPhase2FWrapped=true; window.renderProgressPage=wrapped;
-  }
-  [220,850,1700,3400].forEach(function(ms){setTimeout(sync,ms);});
-  document.addEventListener('click',function(e){if(e.target&&(e.target.closest('[data-nav]')||e.target.closest('[data-ptab]')||e.target.closest('#btn-refresh-progress'))){setTimeout(sync,240);setTimeout(sync,900);}},true);
-  window.VertexPhase2FConfidenceSignalEvolution={sync:sync,maturity:maturity,statePack:statePack};
 })();
 </script>

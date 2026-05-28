@@ -36,6 +36,7 @@
 <!-- Phase 2C.1: spark SVG cleanup; no auth/boot/SW architecture changes -->
 <!-- Phase 2E: adaptive coaching polish; approachable coach tone; no architecture changes -->
 <!-- Phase 2E.1: duplicate progress section header + click flicker cleanup; legacy category rail mover disabled; SW/cache untouched -->
+<!-- Phase 2E.2: progress hierarchy CSS-only refinement; SW/cache untouched -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -3951,6 +3952,109 @@ body.app-page-progress #vertexTolerancePanel{
   display:none!important;
 }
 </style>
+
+
+<style id="vertex-phase2e2-progress-hierarchy-css">
+/* Phase 2E.2 — Progress hierarchy refinement only.
+   CSS-only: no DOM removals, no render-path edits, no auth/boot/SW changes. */
+body.app-page-progress #progressPage.progress-page{
+  background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.006))!important;
+}
+
+/* Keep the intelligence rails visually primary. */
+body.app-page-progress #progressPage #vertexB2ProgressDeck{
+  margin-top:10px!important;
+  margin-bottom:20px!important;
+}
+body.app-page-progress #progressPage .vertex-b2-section-label{
+  margin-top:18px!important;
+  margin-bottom:12px!important;
+}
+body.app-page-progress #progressPage .vertex-b2-card{
+  border-color:rgba(255,255,255,.12)!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.015) inset!important;
+}
+body.app-page-progress #progressPage .vertex-b2-card.vertex-phase2d-decision{
+  box-shadow:0 0 0 1px rgba(232,255,71,.18) inset!important;
+}
+
+/* Make the lower Overview area read as supporting analytics, not a second dashboard. */
+body.app-page-progress #progressPage #progressTabContent{
+  order:5!important;
+  margin-top:4px!important;
+  padding-top:18px!important;
+  border-top:1px solid rgba(255,255,255,.075)!important;
+}
+body.app-page-progress #progressPage #ptab-overview::before{
+  content:'SUPPORTING ANALYTICS';
+  display:block;
+  margin:0 0 12px!important;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:2.8px;
+  text-transform:uppercase;
+  color:rgba(232,255,71,.68);
+}
+body.app-page-progress #progressPage #ptab-overview .progress-layout{
+  gap:10px!important;
+}
+body.app-page-progress #progressPage #ptab-overview .progress-card{
+  background:rgba(255,255,255,.025)!important;
+  border-color:rgba(255,255,255,.075)!important;
+  border-radius:14px!important;
+  min-height:auto!important;
+  padding:14px!important;
+}
+body.app-page-progress #progressPage #ptab-overview .progress-card .label{
+  color:rgba(255,255,255,.52)!important;
+  letter-spacing:3px!important;
+}
+body.app-page-progress #progressPage #ptab-overview .insight{
+  background:rgba(232,255,71,.028)!important;
+  border-color:rgba(232,255,71,.32)!important;
+}
+body.app-page-progress #progressPage #progressWeeks .empty-note,
+body.app-page-progress #progressPage #progressMuscles .empty-note{
+  background:rgba(0,0,0,.12)!important;
+  border-color:rgba(255,255,255,.08)!important;
+  color:rgba(255,255,255,.56)!important;
+}
+
+/* KPI strip stays visible, but becomes secondary telemetry. */
+body.app-page-progress #progressPage #progressSummary{
+  order:6!important;
+  margin:14px 0 0!important;
+  gap:10px!important;
+}
+body.app-page-progress #progressPage #progressSummary .progress-kpi{
+  background:rgba(255,255,255,.022)!important;
+  border-color:rgba(255,255,255,.07)!important;
+  border-radius:12px!important;
+  padding:12px 14px!important;
+  min-height:88px!important;
+}
+body.app-page-progress #progressPage #progressSummary .progress-kpi b{
+  font-size:32px!important;
+  color:rgba(232,255,71,.82)!important;
+}
+body.app-page-progress #progressPage #progressSummary .progress-kpi span{
+  color:rgba(255,255,255,.46)!important;
+  letter-spacing:2.4px!important;
+}
+
+@media(max-width:900px){
+  body.app-page-progress #progressPage #progressTabContent{
+    padding-top:14px!important;
+  }
+  body.app-page-progress #progressPage #progressSummary{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  body.app-page-progress #progressPage #progressSummary .progress-kpi{
+    min-height:82px!important;
+  }
+}
+</style>
+
 </head>
 <body class="auth-resolving">
 

@@ -9420,6 +9420,262 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
+
+<style>
+/* Phase 4C — intelligence consolidation */
+.vertex-phase4c-dominant{
+  border:1px solid rgba(232,255,71,.52)!important;
+  background:linear-gradient(135deg,rgba(232,255,71,.08),rgba(232,255,71,.025) 55%,rgba(72,255,138,.025))!important;
+  border-radius:12px!important;
+  padding:18px 20px!important;
+  box-shadow:0 0 0 1px rgba(232,255,71,.08),0 18px 44px rgba(0,0,0,.18);
+}
+.vertex-phase4c-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:12px;
+}
+.vertex-phase4c-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+.vertex-phase4c-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:38px;
+  letter-spacing:3px;
+  line-height:1;
+  color:var(--text);
+}
+.vertex-phase4c-confidence{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:1.5px;
+  color:var(--acc);
+  border:1px solid rgba(232,255,71,.45);
+  border-radius:999px;
+  padding:7px 10px;
+  white-space:nowrap;
+  text-transform:uppercase;
+}
+.vertex-phase4c-copy{
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.5;
+  max-width:980px;
+}
+.vertex-phase4c-action{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+  font-weight:800;
+}
+.vertex-phase4c-meta{
+  margin-top:12px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:var(--dim);
+}
+.vertex-phase4c-signalrail{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin:16px 0 18px;
+}
+.vertex-phase4c-signal{
+  border:1px solid rgba(255,255,255,.07);
+  background:#121212;
+  border-radius:10px;
+  padding:12px;
+  min-height:86px;
+}
+.vertex-phase4c-signal .k{
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+.vertex-phase4c-signal .v{
+  font-size:18px;
+  font-weight:800;
+  color:var(--acc);
+  line-height:1.15;
+}
+.vertex-phase4c-signal .s{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:5px;
+}
+@media(max-width:900px){
+  .vertex-phase4c-signalrail{
+    display:flex;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    margin-left:-2px;
+    margin-right:-2px;
+    padding:0 2px 4px;
+  }
+  .vertex-phase4c-signalrail::-webkit-scrollbar{display:none}
+  .vertex-phase4c-signal{min-width:170px}
+  .vertex-phase4c-title{font-size:32px}
+}
+</style>
+
+
+<script>
+/* Phase 4C — one system speaking: dominant insight + silent signal rail */
+(function(){
+  function esc(v){
+    try{
+      if(typeof escapeHtml === 'function') return escapeHtml(String(v == null ? '' : v));
+    }catch(e){}
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function safeRows(){ try{return typeof progressRows==='function' ? (progressRows()||[]) : [];}catch(e){return [];} }
+  function safeSummary(rows){ try{return typeof progressSummary==='function' ? (progressSummary(rows)||{}) : {};}catch(e){return {};} }
+  function safePerf(rows){ try{return typeof performanceSummary==='function' ? (performanceSummary(rows)||[]) : [];}catch(e){return [];} }
+  function readiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var x = window.VertexRecoveryInsights.build() || {};
+        var n = Number(x.recovery);
+        if(Number.isFinite(n)) return Math.round(n);
+      }
+    }catch(e){}
+    return null;
+  }
+  function thisWeekStart(){
+    try{ if(typeof weekStart === 'function') return weekStart(); }catch(e){}
+    var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d;
+  }
+  function muscleRank(rows){
+    var totals={}, start=thisWeekStart();
+    try{
+      rows.filter(function(r){return new Date(r.completed_at)>=start;}).forEach(function(r){
+        Object.entries((r.metrics&&r.metrics.muscles)||{}).forEach(function(pair){
+          var m=pair[0], v=pair[1];
+          totals[m]=(totals[m]||0)+(Number((v&&v.sets)||v)||0);
+        });
+      });
+    }catch(e){}
+    return Object.entries(totals).sort(function(a,b){return b[1]-a[1];});
+  }
+  function buildInsight(){
+    var rows=safeRows(), sum=safeSummary(rows), perf=safePerf(rows), r=readiness();
+    var sessions=Number((sum.thisWeek&&sum.thisWeek.length)||0);
+    var prev=Number((sum.prevWeek&&sum.prevWeek.length)||0);
+    var sets=Number(sum.totalSets||0);
+    var volume=Number(sum.totalVolume||0);
+    var ranked=muscleRank(rows), top=ranked[0]||null, second=ranked[1]||null;
+    var imbalance=!!(top && second && top[1]>=Math.max(6,second[1]*1.45));
+    var confidence=Math.max(45,Math.min(100,Math.round((r==null?62:r) + Math.min(15,sessions*4) + Math.min(8,sets/10))));
+    var state='Controlled Baseline';
+    var body='Vertex is learning your normal rhythm. Keep execution repeatable before adding volume or intensity.';
+    var action='Train normally today. Progress only one movement if warm-ups feel strong.';
+    var priority='Baseline';
+    if(imbalance){
+      state='Imbalance Priority';
+      body=top[0]+' volume is dominating this week’s workload, reducing balance quality.';
+      action='Add complementary work or cap extra '+top[0]+' sets next session.';
+      priority='Imbalance';
+      confidence=Math.max(confidence,88);
+    }else if(r!==null && r<58){
+      state='Recovery Priority';
+      body='Recovery is not giving enough room for aggressive progression.';
+      action='Keep the next session lighter and protect clean execution.';
+      priority='Recovery';
+      confidence=Math.max(confidence,82);
+    }else if(sessions>=3 && r!==null && r>=72){
+      state='Progression Window';
+      body='Recovery and training rhythm support a controlled push.';
+      action='Progress one priority lift or add one quality accessory set.';
+      priority='Progression';
+      confidence=Math.max(confidence,86);
+    }else if(sessions>prev){
+      state='Performance Momentum';
+      body='Training rhythm is improving, but extra volume should stay selective.';
+      action='Keep the rhythm; avoid chasing volume across every movement.';
+      priority='Momentum';
+      confidence=Math.max(confidence,78);
+    }
+    return {
+      state:state, body:body, action:action, confidence:confidence, priority:priority,
+      sessions:sessions, prev:prev, sets:sets, volume:Math.round(volume), readiness:r,
+      top:top, imbalance:imbalance
+    };
+  }
+  function renderDominantInsight(){
+    var el=document.getElementById('progressInsights');
+    if(!el) return false;
+    var x=buildInsight();
+    el.innerHTML =
+      '<div class="insight vertex-phase4c-dominant">' +
+        '<div class="vertex-phase4c-head">' +
+          '<div><div class="vertex-phase4c-label">'+esc(x.priority)+' Intelligence</div><div class="vertex-phase4c-title">'+esc(x.state)+'</div></div>' +
+          '<div class="vertex-phase4c-confidence">Confidence '+esc(x.confidence)+'%</div>' +
+        '</div>' +
+        '<div class="vertex-phase4c-copy">'+esc(x.body)+'</div>' +
+        '<div class="vertex-phase4c-action">'+esc(x.action)+'</div>' +
+        '<div class="vertex-phase4c-meta">Readiness '+esc(x.readiness==null?'pending':x.readiness)+' · '+esc(x.sessions)+' sessions this week · '+esc(x.sets)+' strength sets · '+esc(x.volume||'—')+' load volume</div>' +
+      '</div>';
+    return true;
+  }
+  function renderSignalRail(){
+    var deck=document.getElementById('vertexB2ProgressDeck');
+    if(!deck) return false;
+    var x=buildInsight();
+    var recovery=x.readiness==null?'Pending':(x.readiness>=72?'Ready':x.readiness>=58?'Manage':'Recover');
+    var load=x.volume?String(x.volume):'—';
+    var rhythm=x.sessions>x.prev?'Improving':x.sessions<x.prev?'Rebuild':'Stable';
+    var balance=x.imbalance?'Priority':'Acceptable';
+    var top=x.top?x.top[0]+' '+x.top[1]+' sets':'Pending';
+    deck.innerHTML =
+      '<div class="vertex-phase4c-signalrail" aria-label="Intelligence signal contributors">' +
+        '<div class="vertex-phase4c-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Load</div><div class="v">'+esc(load)+'</div><div class="s">'+esc(x.sets)+' strength sets</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Rhythm</div><div class="v">'+esc(rhythm)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(top)+'</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">Signal quality</div></div>' +
+      '</div>';
+    return true;
+  }
+  function normalize(){
+    try{
+      renderSignalRail();
+      renderDominantInsight();
+    }catch(e){ console.warn('[Vertex Phase4C] normalize failed', e); }
+  }
+  var old=window.renderProgressPage;
+  if(typeof old==='function' && !old.__vertexPhase4CWrapped){
+    var wrapped=function(){
+      var out=old.apply(this,arguments);
+      [0,80,240,700,1400].forEach(function(ms){setTimeout(normalize,ms);});
+      return out;
+    };
+    wrapped.__vertexPhase4CWrapped=true;
+    window.renderProgressPage=wrapped;
+  }
+  [250,900,1800,3600].forEach(function(ms){setTimeout(normalize,ms);});
+  document.addEventListener('click',function(e){
+    if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){
+      [80,260,900].forEach(function(ms){setTimeout(normalize,ms);});
+    }
+  },true);
+  window.VertexPhase4CUnifiedIntelligence={normalize:normalize,build:buildInsight};
+})();
+</script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -11037,6 +11293,262 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 }
 </style>
 
+
+<style>
+/* Phase 4C — intelligence consolidation */
+.vertex-phase4c-dominant{
+  border:1px solid rgba(232,255,71,.52)!important;
+  background:linear-gradient(135deg,rgba(232,255,71,.08),rgba(232,255,71,.025) 55%,rgba(72,255,138,.025))!important;
+  border-radius:12px!important;
+  padding:18px 20px!important;
+  box-shadow:0 0 0 1px rgba(232,255,71,.08),0 18px 44px rgba(0,0,0,.18);
+}
+.vertex-phase4c-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:12px;
+}
+.vertex-phase4c-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+.vertex-phase4c-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:38px;
+  letter-spacing:3px;
+  line-height:1;
+  color:var(--text);
+}
+.vertex-phase4c-confidence{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:1.5px;
+  color:var(--acc);
+  border:1px solid rgba(232,255,71,.45);
+  border-radius:999px;
+  padding:7px 10px;
+  white-space:nowrap;
+  text-transform:uppercase;
+}
+.vertex-phase4c-copy{
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.5;
+  max-width:980px;
+}
+.vertex-phase4c-action{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+  font-weight:800;
+}
+.vertex-phase4c-meta{
+  margin-top:12px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:var(--dim);
+}
+.vertex-phase4c-signalrail{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin:16px 0 18px;
+}
+.vertex-phase4c-signal{
+  border:1px solid rgba(255,255,255,.07);
+  background:#121212;
+  border-radius:10px;
+  padding:12px;
+  min-height:86px;
+}
+.vertex-phase4c-signal .k{
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+.vertex-phase4c-signal .v{
+  font-size:18px;
+  font-weight:800;
+  color:var(--acc);
+  line-height:1.15;
+}
+.vertex-phase4c-signal .s{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:5px;
+}
+@media(max-width:900px){
+  .vertex-phase4c-signalrail{
+    display:flex;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    margin-left:-2px;
+    margin-right:-2px;
+    padding:0 2px 4px;
+  }
+  .vertex-phase4c-signalrail::-webkit-scrollbar{display:none}
+  .vertex-phase4c-signal{min-width:170px}
+  .vertex-phase4c-title{font-size:32px}
+}
+</style>
+
+
+<script>
+/* Phase 4C — one system speaking: dominant insight + silent signal rail */
+(function(){
+  function esc(v){
+    try{
+      if(typeof escapeHtml === 'function') return escapeHtml(String(v == null ? '' : v));
+    }catch(e){}
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function safeRows(){ try{return typeof progressRows==='function' ? (progressRows()||[]) : [];}catch(e){return [];} }
+  function safeSummary(rows){ try{return typeof progressSummary==='function' ? (progressSummary(rows)||{}) : {};}catch(e){return {};} }
+  function safePerf(rows){ try{return typeof performanceSummary==='function' ? (performanceSummary(rows)||[]) : [];}catch(e){return [];} }
+  function readiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var x = window.VertexRecoveryInsights.build() || {};
+        var n = Number(x.recovery);
+        if(Number.isFinite(n)) return Math.round(n);
+      }
+    }catch(e){}
+    return null;
+  }
+  function thisWeekStart(){
+    try{ if(typeof weekStart === 'function') return weekStart(); }catch(e){}
+    var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d;
+  }
+  function muscleRank(rows){
+    var totals={}, start=thisWeekStart();
+    try{
+      rows.filter(function(r){return new Date(r.completed_at)>=start;}).forEach(function(r){
+        Object.entries((r.metrics&&r.metrics.muscles)||{}).forEach(function(pair){
+          var m=pair[0], v=pair[1];
+          totals[m]=(totals[m]||0)+(Number((v&&v.sets)||v)||0);
+        });
+      });
+    }catch(e){}
+    return Object.entries(totals).sort(function(a,b){return b[1]-a[1];});
+  }
+  function buildInsight(){
+    var rows=safeRows(), sum=safeSummary(rows), perf=safePerf(rows), r=readiness();
+    var sessions=Number((sum.thisWeek&&sum.thisWeek.length)||0);
+    var prev=Number((sum.prevWeek&&sum.prevWeek.length)||0);
+    var sets=Number(sum.totalSets||0);
+    var volume=Number(sum.totalVolume||0);
+    var ranked=muscleRank(rows), top=ranked[0]||null, second=ranked[1]||null;
+    var imbalance=!!(top && second && top[1]>=Math.max(6,second[1]*1.45));
+    var confidence=Math.max(45,Math.min(100,Math.round((r==null?62:r) + Math.min(15,sessions*4) + Math.min(8,sets/10))));
+    var state='Controlled Baseline';
+    var body='Vertex is learning your normal rhythm. Keep execution repeatable before adding volume or intensity.';
+    var action='Train normally today. Progress only one movement if warm-ups feel strong.';
+    var priority='Baseline';
+    if(imbalance){
+      state='Imbalance Priority';
+      body=top[0]+' volume is dominating this week’s workload, reducing balance quality.';
+      action='Add complementary work or cap extra '+top[0]+' sets next session.';
+      priority='Imbalance';
+      confidence=Math.max(confidence,88);
+    }else if(r!==null && r<58){
+      state='Recovery Priority';
+      body='Recovery is not giving enough room for aggressive progression.';
+      action='Keep the next session lighter and protect clean execution.';
+      priority='Recovery';
+      confidence=Math.max(confidence,82);
+    }else if(sessions>=3 && r!==null && r>=72){
+      state='Progression Window';
+      body='Recovery and training rhythm support a controlled push.';
+      action='Progress one priority lift or add one quality accessory set.';
+      priority='Progression';
+      confidence=Math.max(confidence,86);
+    }else if(sessions>prev){
+      state='Performance Momentum';
+      body='Training rhythm is improving, but extra volume should stay selective.';
+      action='Keep the rhythm; avoid chasing volume across every movement.';
+      priority='Momentum';
+      confidence=Math.max(confidence,78);
+    }
+    return {
+      state:state, body:body, action:action, confidence:confidence, priority:priority,
+      sessions:sessions, prev:prev, sets:sets, volume:Math.round(volume), readiness:r,
+      top:top, imbalance:imbalance
+    };
+  }
+  function renderDominantInsight(){
+    var el=document.getElementById('progressInsights');
+    if(!el) return false;
+    var x=buildInsight();
+    el.innerHTML =
+      '<div class="insight vertex-phase4c-dominant">' +
+        '<div class="vertex-phase4c-head">' +
+          '<div><div class="vertex-phase4c-label">'+esc(x.priority)+' Intelligence</div><div class="vertex-phase4c-title">'+esc(x.state)+'</div></div>' +
+          '<div class="vertex-phase4c-confidence">Confidence '+esc(x.confidence)+'%</div>' +
+        '</div>' +
+        '<div class="vertex-phase4c-copy">'+esc(x.body)+'</div>' +
+        '<div class="vertex-phase4c-action">'+esc(x.action)+'</div>' +
+        '<div class="vertex-phase4c-meta">Readiness '+esc(x.readiness==null?'pending':x.readiness)+' · '+esc(x.sessions)+' sessions this week · '+esc(x.sets)+' strength sets · '+esc(x.volume||'—')+' load volume</div>' +
+      '</div>';
+    return true;
+  }
+  function renderSignalRail(){
+    var deck=document.getElementById('vertexB2ProgressDeck');
+    if(!deck) return false;
+    var x=buildInsight();
+    var recovery=x.readiness==null?'Pending':(x.readiness>=72?'Ready':x.readiness>=58?'Manage':'Recover');
+    var load=x.volume?String(x.volume):'—';
+    var rhythm=x.sessions>x.prev?'Improving':x.sessions<x.prev?'Rebuild':'Stable';
+    var balance=x.imbalance?'Priority':'Acceptable';
+    var top=x.top?x.top[0]+' '+x.top[1]+' sets':'Pending';
+    deck.innerHTML =
+      '<div class="vertex-phase4c-signalrail" aria-label="Intelligence signal contributors">' +
+        '<div class="vertex-phase4c-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Load</div><div class="v">'+esc(load)+'</div><div class="s">'+esc(x.sets)+' strength sets</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Rhythm</div><div class="v">'+esc(rhythm)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(top)+'</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">Signal quality</div></div>' +
+      '</div>';
+    return true;
+  }
+  function normalize(){
+    try{
+      renderSignalRail();
+      renderDominantInsight();
+    }catch(e){ console.warn('[Vertex Phase4C] normalize failed', e); }
+  }
+  var old=window.renderProgressPage;
+  if(typeof old==='function' && !old.__vertexPhase4CWrapped){
+    var wrapped=function(){
+      var out=old.apply(this,arguments);
+      [0,80,240,700,1400].forEach(function(ms){setTimeout(normalize,ms);});
+      return out;
+    };
+    wrapped.__vertexPhase4CWrapped=true;
+    window.renderProgressPage=wrapped;
+  }
+  [250,900,1800,3600].forEach(function(ms){setTimeout(normalize,ms);});
+  document.addEventListener('click',function(e){
+    if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){
+      [80,260,900].forEach(function(ms){setTimeout(normalize,ms);});
+    }
+  },true);
+  window.VertexPhase4CUnifiedIntelligence={normalize:normalize,build:buildInsight};
+})();
+</script>
+
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -11306,6 +11818,262 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 }
 </style>
 
+
+<style>
+/* Phase 4C — intelligence consolidation */
+.vertex-phase4c-dominant{
+  border:1px solid rgba(232,255,71,.52)!important;
+  background:linear-gradient(135deg,rgba(232,255,71,.08),rgba(232,255,71,.025) 55%,rgba(72,255,138,.025))!important;
+  border-radius:12px!important;
+  padding:18px 20px!important;
+  box-shadow:0 0 0 1px rgba(232,255,71,.08),0 18px 44px rgba(0,0,0,.18);
+}
+.vertex-phase4c-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:12px;
+}
+.vertex-phase4c-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+.vertex-phase4c-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:38px;
+  letter-spacing:3px;
+  line-height:1;
+  color:var(--text);
+}
+.vertex-phase4c-confidence{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:1.5px;
+  color:var(--acc);
+  border:1px solid rgba(232,255,71,.45);
+  border-radius:999px;
+  padding:7px 10px;
+  white-space:nowrap;
+  text-transform:uppercase;
+}
+.vertex-phase4c-copy{
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.5;
+  max-width:980px;
+}
+.vertex-phase4c-action{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+  font-weight:800;
+}
+.vertex-phase4c-meta{
+  margin-top:12px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:var(--dim);
+}
+.vertex-phase4c-signalrail{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin:16px 0 18px;
+}
+.vertex-phase4c-signal{
+  border:1px solid rgba(255,255,255,.07);
+  background:#121212;
+  border-radius:10px;
+  padding:12px;
+  min-height:86px;
+}
+.vertex-phase4c-signal .k{
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+.vertex-phase4c-signal .v{
+  font-size:18px;
+  font-weight:800;
+  color:var(--acc);
+  line-height:1.15;
+}
+.vertex-phase4c-signal .s{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:5px;
+}
+@media(max-width:900px){
+  .vertex-phase4c-signalrail{
+    display:flex;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    margin-left:-2px;
+    margin-right:-2px;
+    padding:0 2px 4px;
+  }
+  .vertex-phase4c-signalrail::-webkit-scrollbar{display:none}
+  .vertex-phase4c-signal{min-width:170px}
+  .vertex-phase4c-title{font-size:32px}
+}
+</style>
+
+
+<script>
+/* Phase 4C — one system speaking: dominant insight + silent signal rail */
+(function(){
+  function esc(v){
+    try{
+      if(typeof escapeHtml === 'function') return escapeHtml(String(v == null ? '' : v));
+    }catch(e){}
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function safeRows(){ try{return typeof progressRows==='function' ? (progressRows()||[]) : [];}catch(e){return [];} }
+  function safeSummary(rows){ try{return typeof progressSummary==='function' ? (progressSummary(rows)||{}) : {};}catch(e){return {};} }
+  function safePerf(rows){ try{return typeof performanceSummary==='function' ? (performanceSummary(rows)||[]) : [];}catch(e){return [];} }
+  function readiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var x = window.VertexRecoveryInsights.build() || {};
+        var n = Number(x.recovery);
+        if(Number.isFinite(n)) return Math.round(n);
+      }
+    }catch(e){}
+    return null;
+  }
+  function thisWeekStart(){
+    try{ if(typeof weekStart === 'function') return weekStart(); }catch(e){}
+    var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d;
+  }
+  function muscleRank(rows){
+    var totals={}, start=thisWeekStart();
+    try{
+      rows.filter(function(r){return new Date(r.completed_at)>=start;}).forEach(function(r){
+        Object.entries((r.metrics&&r.metrics.muscles)||{}).forEach(function(pair){
+          var m=pair[0], v=pair[1];
+          totals[m]=(totals[m]||0)+(Number((v&&v.sets)||v)||0);
+        });
+      });
+    }catch(e){}
+    return Object.entries(totals).sort(function(a,b){return b[1]-a[1];});
+  }
+  function buildInsight(){
+    var rows=safeRows(), sum=safeSummary(rows), perf=safePerf(rows), r=readiness();
+    var sessions=Number((sum.thisWeek&&sum.thisWeek.length)||0);
+    var prev=Number((sum.prevWeek&&sum.prevWeek.length)||0);
+    var sets=Number(sum.totalSets||0);
+    var volume=Number(sum.totalVolume||0);
+    var ranked=muscleRank(rows), top=ranked[0]||null, second=ranked[1]||null;
+    var imbalance=!!(top && second && top[1]>=Math.max(6,second[1]*1.45));
+    var confidence=Math.max(45,Math.min(100,Math.round((r==null?62:r) + Math.min(15,sessions*4) + Math.min(8,sets/10))));
+    var state='Controlled Baseline';
+    var body='Vertex is learning your normal rhythm. Keep execution repeatable before adding volume or intensity.';
+    var action='Train normally today. Progress only one movement if warm-ups feel strong.';
+    var priority='Baseline';
+    if(imbalance){
+      state='Imbalance Priority';
+      body=top[0]+' volume is dominating this week’s workload, reducing balance quality.';
+      action='Add complementary work or cap extra '+top[0]+' sets next session.';
+      priority='Imbalance';
+      confidence=Math.max(confidence,88);
+    }else if(r!==null && r<58){
+      state='Recovery Priority';
+      body='Recovery is not giving enough room for aggressive progression.';
+      action='Keep the next session lighter and protect clean execution.';
+      priority='Recovery';
+      confidence=Math.max(confidence,82);
+    }else if(sessions>=3 && r!==null && r>=72){
+      state='Progression Window';
+      body='Recovery and training rhythm support a controlled push.';
+      action='Progress one priority lift or add one quality accessory set.';
+      priority='Progression';
+      confidence=Math.max(confidence,86);
+    }else if(sessions>prev){
+      state='Performance Momentum';
+      body='Training rhythm is improving, but extra volume should stay selective.';
+      action='Keep the rhythm; avoid chasing volume across every movement.';
+      priority='Momentum';
+      confidence=Math.max(confidence,78);
+    }
+    return {
+      state:state, body:body, action:action, confidence:confidence, priority:priority,
+      sessions:sessions, prev:prev, sets:sets, volume:Math.round(volume), readiness:r,
+      top:top, imbalance:imbalance
+    };
+  }
+  function renderDominantInsight(){
+    var el=document.getElementById('progressInsights');
+    if(!el) return false;
+    var x=buildInsight();
+    el.innerHTML =
+      '<div class="insight vertex-phase4c-dominant">' +
+        '<div class="vertex-phase4c-head">' +
+          '<div><div class="vertex-phase4c-label">'+esc(x.priority)+' Intelligence</div><div class="vertex-phase4c-title">'+esc(x.state)+'</div></div>' +
+          '<div class="vertex-phase4c-confidence">Confidence '+esc(x.confidence)+'%</div>' +
+        '</div>' +
+        '<div class="vertex-phase4c-copy">'+esc(x.body)+'</div>' +
+        '<div class="vertex-phase4c-action">'+esc(x.action)+'</div>' +
+        '<div class="vertex-phase4c-meta">Readiness '+esc(x.readiness==null?'pending':x.readiness)+' · '+esc(x.sessions)+' sessions this week · '+esc(x.sets)+' strength sets · '+esc(x.volume||'—')+' load volume</div>' +
+      '</div>';
+    return true;
+  }
+  function renderSignalRail(){
+    var deck=document.getElementById('vertexB2ProgressDeck');
+    if(!deck) return false;
+    var x=buildInsight();
+    var recovery=x.readiness==null?'Pending':(x.readiness>=72?'Ready':x.readiness>=58?'Manage':'Recover');
+    var load=x.volume?String(x.volume):'—';
+    var rhythm=x.sessions>x.prev?'Improving':x.sessions<x.prev?'Rebuild':'Stable';
+    var balance=x.imbalance?'Priority':'Acceptable';
+    var top=x.top?x.top[0]+' '+x.top[1]+' sets':'Pending';
+    deck.innerHTML =
+      '<div class="vertex-phase4c-signalrail" aria-label="Intelligence signal contributors">' +
+        '<div class="vertex-phase4c-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Load</div><div class="v">'+esc(load)+'</div><div class="s">'+esc(x.sets)+' strength sets</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Rhythm</div><div class="v">'+esc(rhythm)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(top)+'</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">Signal quality</div></div>' +
+      '</div>';
+    return true;
+  }
+  function normalize(){
+    try{
+      renderSignalRail();
+      renderDominantInsight();
+    }catch(e){ console.warn('[Vertex Phase4C] normalize failed', e); }
+  }
+  var old=window.renderProgressPage;
+  if(typeof old==='function' && !old.__vertexPhase4CWrapped){
+    var wrapped=function(){
+      var out=old.apply(this,arguments);
+      [0,80,240,700,1400].forEach(function(ms){setTimeout(normalize,ms);});
+      return out;
+    };
+    wrapped.__vertexPhase4CWrapped=true;
+    window.renderProgressPage=wrapped;
+  }
+  [250,900,1800,3600].forEach(function(ms){setTimeout(normalize,ms);});
+  document.addEventListener('click',function(e){
+    if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){
+      [80,260,900].forEach(function(ms){setTimeout(normalize,ms);});
+    }
+  },true);
+  window.VertexPhase4CUnifiedIntelligence={normalize:normalize,build:buildInsight};
+})();
+</script>
+
 </body></html>`);
     w.document.close();
   };
@@ -11534,6 +12302,262 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
+
+
+<style>
+/* Phase 4C — intelligence consolidation */
+.vertex-phase4c-dominant{
+  border:1px solid rgba(232,255,71,.52)!important;
+  background:linear-gradient(135deg,rgba(232,255,71,.08),rgba(232,255,71,.025) 55%,rgba(72,255,138,.025))!important;
+  border-radius:12px!important;
+  padding:18px 20px!important;
+  box-shadow:0 0 0 1px rgba(232,255,71,.08),0 18px 44px rgba(0,0,0,.18);
+}
+.vertex-phase4c-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:12px;
+}
+.vertex-phase4c-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+.vertex-phase4c-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:38px;
+  letter-spacing:3px;
+  line-height:1;
+  color:var(--text);
+}
+.vertex-phase4c-confidence{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:1.5px;
+  color:var(--acc);
+  border:1px solid rgba(232,255,71,.45);
+  border-radius:999px;
+  padding:7px 10px;
+  white-space:nowrap;
+  text-transform:uppercase;
+}
+.vertex-phase4c-copy{
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.5;
+  max-width:980px;
+}
+.vertex-phase4c-action{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+  font-weight:800;
+}
+.vertex-phase4c-meta{
+  margin-top:12px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:var(--dim);
+}
+.vertex-phase4c-signalrail{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin:16px 0 18px;
+}
+.vertex-phase4c-signal{
+  border:1px solid rgba(255,255,255,.07);
+  background:#121212;
+  border-radius:10px;
+  padding:12px;
+  min-height:86px;
+}
+.vertex-phase4c-signal .k{
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+.vertex-phase4c-signal .v{
+  font-size:18px;
+  font-weight:800;
+  color:var(--acc);
+  line-height:1.15;
+}
+.vertex-phase4c-signal .s{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:5px;
+}
+@media(max-width:900px){
+  .vertex-phase4c-signalrail{
+    display:flex;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    margin-left:-2px;
+    margin-right:-2px;
+    padding:0 2px 4px;
+  }
+  .vertex-phase4c-signalrail::-webkit-scrollbar{display:none}
+  .vertex-phase4c-signal{min-width:170px}
+  .vertex-phase4c-title{font-size:32px}
+}
+</style>
+
+
+<script>
+/* Phase 4C — one system speaking: dominant insight + silent signal rail */
+(function(){
+  function esc(v){
+    try{
+      if(typeof escapeHtml === 'function') return escapeHtml(String(v == null ? '' : v));
+    }catch(e){}
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function safeRows(){ try{return typeof progressRows==='function' ? (progressRows()||[]) : [];}catch(e){return [];} }
+  function safeSummary(rows){ try{return typeof progressSummary==='function' ? (progressSummary(rows)||{}) : {};}catch(e){return {};} }
+  function safePerf(rows){ try{return typeof performanceSummary==='function' ? (performanceSummary(rows)||[]) : [];}catch(e){return [];} }
+  function readiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var x = window.VertexRecoveryInsights.build() || {};
+        var n = Number(x.recovery);
+        if(Number.isFinite(n)) return Math.round(n);
+      }
+    }catch(e){}
+    return null;
+  }
+  function thisWeekStart(){
+    try{ if(typeof weekStart === 'function') return weekStart(); }catch(e){}
+    var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d;
+  }
+  function muscleRank(rows){
+    var totals={}, start=thisWeekStart();
+    try{
+      rows.filter(function(r){return new Date(r.completed_at)>=start;}).forEach(function(r){
+        Object.entries((r.metrics&&r.metrics.muscles)||{}).forEach(function(pair){
+          var m=pair[0], v=pair[1];
+          totals[m]=(totals[m]||0)+(Number((v&&v.sets)||v)||0);
+        });
+      });
+    }catch(e){}
+    return Object.entries(totals).sort(function(a,b){return b[1]-a[1];});
+  }
+  function buildInsight(){
+    var rows=safeRows(), sum=safeSummary(rows), perf=safePerf(rows), r=readiness();
+    var sessions=Number((sum.thisWeek&&sum.thisWeek.length)||0);
+    var prev=Number((sum.prevWeek&&sum.prevWeek.length)||0);
+    var sets=Number(sum.totalSets||0);
+    var volume=Number(sum.totalVolume||0);
+    var ranked=muscleRank(rows), top=ranked[0]||null, second=ranked[1]||null;
+    var imbalance=!!(top && second && top[1]>=Math.max(6,second[1]*1.45));
+    var confidence=Math.max(45,Math.min(100,Math.round((r==null?62:r) + Math.min(15,sessions*4) + Math.min(8,sets/10))));
+    var state='Controlled Baseline';
+    var body='Vertex is learning your normal rhythm. Keep execution repeatable before adding volume or intensity.';
+    var action='Train normally today. Progress only one movement if warm-ups feel strong.';
+    var priority='Baseline';
+    if(imbalance){
+      state='Imbalance Priority';
+      body=top[0]+' volume is dominating this week’s workload, reducing balance quality.';
+      action='Add complementary work or cap extra '+top[0]+' sets next session.';
+      priority='Imbalance';
+      confidence=Math.max(confidence,88);
+    }else if(r!==null && r<58){
+      state='Recovery Priority';
+      body='Recovery is not giving enough room for aggressive progression.';
+      action='Keep the next session lighter and protect clean execution.';
+      priority='Recovery';
+      confidence=Math.max(confidence,82);
+    }else if(sessions>=3 && r!==null && r>=72){
+      state='Progression Window';
+      body='Recovery and training rhythm support a controlled push.';
+      action='Progress one priority lift or add one quality accessory set.';
+      priority='Progression';
+      confidence=Math.max(confidence,86);
+    }else if(sessions>prev){
+      state='Performance Momentum';
+      body='Training rhythm is improving, but extra volume should stay selective.';
+      action='Keep the rhythm; avoid chasing volume across every movement.';
+      priority='Momentum';
+      confidence=Math.max(confidence,78);
+    }
+    return {
+      state:state, body:body, action:action, confidence:confidence, priority:priority,
+      sessions:sessions, prev:prev, sets:sets, volume:Math.round(volume), readiness:r,
+      top:top, imbalance:imbalance
+    };
+  }
+  function renderDominantInsight(){
+    var el=document.getElementById('progressInsights');
+    if(!el) return false;
+    var x=buildInsight();
+    el.innerHTML =
+      '<div class="insight vertex-phase4c-dominant">' +
+        '<div class="vertex-phase4c-head">' +
+          '<div><div class="vertex-phase4c-label">'+esc(x.priority)+' Intelligence</div><div class="vertex-phase4c-title">'+esc(x.state)+'</div></div>' +
+          '<div class="vertex-phase4c-confidence">Confidence '+esc(x.confidence)+'%</div>' +
+        '</div>' +
+        '<div class="vertex-phase4c-copy">'+esc(x.body)+'</div>' +
+        '<div class="vertex-phase4c-action">'+esc(x.action)+'</div>' +
+        '<div class="vertex-phase4c-meta">Readiness '+esc(x.readiness==null?'pending':x.readiness)+' · '+esc(x.sessions)+' sessions this week · '+esc(x.sets)+' strength sets · '+esc(x.volume||'—')+' load volume</div>' +
+      '</div>';
+    return true;
+  }
+  function renderSignalRail(){
+    var deck=document.getElementById('vertexB2ProgressDeck');
+    if(!deck) return false;
+    var x=buildInsight();
+    var recovery=x.readiness==null?'Pending':(x.readiness>=72?'Ready':x.readiness>=58?'Manage':'Recover');
+    var load=x.volume?String(x.volume):'—';
+    var rhythm=x.sessions>x.prev?'Improving':x.sessions<x.prev?'Rebuild':'Stable';
+    var balance=x.imbalance?'Priority':'Acceptable';
+    var top=x.top?x.top[0]+' '+x.top[1]+' sets':'Pending';
+    deck.innerHTML =
+      '<div class="vertex-phase4c-signalrail" aria-label="Intelligence signal contributors">' +
+        '<div class="vertex-phase4c-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Load</div><div class="v">'+esc(load)+'</div><div class="s">'+esc(x.sets)+' strength sets</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Rhythm</div><div class="v">'+esc(rhythm)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(top)+'</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">Signal quality</div></div>' +
+      '</div>';
+    return true;
+  }
+  function normalize(){
+    try{
+      renderSignalRail();
+      renderDominantInsight();
+    }catch(e){ console.warn('[Vertex Phase4C] normalize failed', e); }
+  }
+  var old=window.renderProgressPage;
+  if(typeof old==='function' && !old.__vertexPhase4CWrapped){
+    var wrapped=function(){
+      var out=old.apply(this,arguments);
+      [0,80,240,700,1400].forEach(function(ms){setTimeout(normalize,ms);});
+      return out;
+    };
+    wrapped.__vertexPhase4CWrapped=true;
+    window.renderProgressPage=wrapped;
+  }
+  [250,900,1800,3600].forEach(function(ms){setTimeout(normalize,ms);});
+  document.addEventListener('click',function(e){
+    if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){
+      [80,260,900].forEach(function(ms){setTimeout(normalize,ms);});
+    }
+  },true);
+  window.VertexPhase4CUnifiedIntelligence={normalize:normalize,build:buildInsight};
+})();
+</script>
 
 </body></html>`);
   w.document.close();
@@ -18889,6 +19913,262 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   [220,850,1700,3400].forEach(function(ms){setTimeout(sync,ms);});
   document.addEventListener('click',function(e){if(e.target&&(e.target.closest('[data-nav]')||e.target.closest('[data-ptab]')||e.target.closest('#btn-refresh-progress'))){setTimeout(sync,240);setTimeout(sync,900);}},true);
   window.VertexPhase3APredictiveIntelligence={sync:sync,maturity:maturity,forecast:forecast};
+})();
+</script>
+
+
+<style>
+/* Phase 4C — intelligence consolidation */
+.vertex-phase4c-dominant{
+  border:1px solid rgba(232,255,71,.52)!important;
+  background:linear-gradient(135deg,rgba(232,255,71,.08),rgba(232,255,71,.025) 55%,rgba(72,255,138,.025))!important;
+  border-radius:12px!important;
+  padding:18px 20px!important;
+  box-shadow:0 0 0 1px rgba(232,255,71,.08),0 18px 44px rgba(0,0,0,.18);
+}
+.vertex-phase4c-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:12px;
+}
+.vertex-phase4c-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+.vertex-phase4c-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:38px;
+  letter-spacing:3px;
+  line-height:1;
+  color:var(--text);
+}
+.vertex-phase4c-confidence{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:1.5px;
+  color:var(--acc);
+  border:1px solid rgba(232,255,71,.45);
+  border-radius:999px;
+  padding:7px 10px;
+  white-space:nowrap;
+  text-transform:uppercase;
+}
+.vertex-phase4c-copy{
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.5;
+  max-width:980px;
+}
+.vertex-phase4c-action{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+  font-weight:800;
+}
+.vertex-phase4c-meta{
+  margin-top:12px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:var(--dim);
+}
+.vertex-phase4c-signalrail{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin:16px 0 18px;
+}
+.vertex-phase4c-signal{
+  border:1px solid rgba(255,255,255,.07);
+  background:#121212;
+  border-radius:10px;
+  padding:12px;
+  min-height:86px;
+}
+.vertex-phase4c-signal .k{
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+.vertex-phase4c-signal .v{
+  font-size:18px;
+  font-weight:800;
+  color:var(--acc);
+  line-height:1.15;
+}
+.vertex-phase4c-signal .s{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:5px;
+}
+@media(max-width:900px){
+  .vertex-phase4c-signalrail{
+    display:flex;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    margin-left:-2px;
+    margin-right:-2px;
+    padding:0 2px 4px;
+  }
+  .vertex-phase4c-signalrail::-webkit-scrollbar{display:none}
+  .vertex-phase4c-signal{min-width:170px}
+  .vertex-phase4c-title{font-size:32px}
+}
+</style>
+
+
+<script>
+/* Phase 4C — one system speaking: dominant insight + silent signal rail */
+(function(){
+  function esc(v){
+    try{
+      if(typeof escapeHtml === 'function') return escapeHtml(String(v == null ? '' : v));
+    }catch(e){}
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function safeRows(){ try{return typeof progressRows==='function' ? (progressRows()||[]) : [];}catch(e){return [];} }
+  function safeSummary(rows){ try{return typeof progressSummary==='function' ? (progressSummary(rows)||{}) : {};}catch(e){return {};} }
+  function safePerf(rows){ try{return typeof performanceSummary==='function' ? (performanceSummary(rows)||[]) : [];}catch(e){return [];} }
+  function readiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var x = window.VertexRecoveryInsights.build() || {};
+        var n = Number(x.recovery);
+        if(Number.isFinite(n)) return Math.round(n);
+      }
+    }catch(e){}
+    return null;
+  }
+  function thisWeekStart(){
+    try{ if(typeof weekStart === 'function') return weekStart(); }catch(e){}
+    var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d;
+  }
+  function muscleRank(rows){
+    var totals={}, start=thisWeekStart();
+    try{
+      rows.filter(function(r){return new Date(r.completed_at)>=start;}).forEach(function(r){
+        Object.entries((r.metrics&&r.metrics.muscles)||{}).forEach(function(pair){
+          var m=pair[0], v=pair[1];
+          totals[m]=(totals[m]||0)+(Number((v&&v.sets)||v)||0);
+        });
+      });
+    }catch(e){}
+    return Object.entries(totals).sort(function(a,b){return b[1]-a[1];});
+  }
+  function buildInsight(){
+    var rows=safeRows(), sum=safeSummary(rows), perf=safePerf(rows), r=readiness();
+    var sessions=Number((sum.thisWeek&&sum.thisWeek.length)||0);
+    var prev=Number((sum.prevWeek&&sum.prevWeek.length)||0);
+    var sets=Number(sum.totalSets||0);
+    var volume=Number(sum.totalVolume||0);
+    var ranked=muscleRank(rows), top=ranked[0]||null, second=ranked[1]||null;
+    var imbalance=!!(top && second && top[1]>=Math.max(6,second[1]*1.45));
+    var confidence=Math.max(45,Math.min(100,Math.round((r==null?62:r) + Math.min(15,sessions*4) + Math.min(8,sets/10))));
+    var state='Controlled Baseline';
+    var body='Vertex is learning your normal rhythm. Keep execution repeatable before adding volume or intensity.';
+    var action='Train normally today. Progress only one movement if warm-ups feel strong.';
+    var priority='Baseline';
+    if(imbalance){
+      state='Imbalance Priority';
+      body=top[0]+' volume is dominating this week’s workload, reducing balance quality.';
+      action='Add complementary work or cap extra '+top[0]+' sets next session.';
+      priority='Imbalance';
+      confidence=Math.max(confidence,88);
+    }else if(r!==null && r<58){
+      state='Recovery Priority';
+      body='Recovery is not giving enough room for aggressive progression.';
+      action='Keep the next session lighter and protect clean execution.';
+      priority='Recovery';
+      confidence=Math.max(confidence,82);
+    }else if(sessions>=3 && r!==null && r>=72){
+      state='Progression Window';
+      body='Recovery and training rhythm support a controlled push.';
+      action='Progress one priority lift or add one quality accessory set.';
+      priority='Progression';
+      confidence=Math.max(confidence,86);
+    }else if(sessions>prev){
+      state='Performance Momentum';
+      body='Training rhythm is improving, but extra volume should stay selective.';
+      action='Keep the rhythm; avoid chasing volume across every movement.';
+      priority='Momentum';
+      confidence=Math.max(confidence,78);
+    }
+    return {
+      state:state, body:body, action:action, confidence:confidence, priority:priority,
+      sessions:sessions, prev:prev, sets:sets, volume:Math.round(volume), readiness:r,
+      top:top, imbalance:imbalance
+    };
+  }
+  function renderDominantInsight(){
+    var el=document.getElementById('progressInsights');
+    if(!el) return false;
+    var x=buildInsight();
+    el.innerHTML =
+      '<div class="insight vertex-phase4c-dominant">' +
+        '<div class="vertex-phase4c-head">' +
+          '<div><div class="vertex-phase4c-label">'+esc(x.priority)+' Intelligence</div><div class="vertex-phase4c-title">'+esc(x.state)+'</div></div>' +
+          '<div class="vertex-phase4c-confidence">Confidence '+esc(x.confidence)+'%</div>' +
+        '</div>' +
+        '<div class="vertex-phase4c-copy">'+esc(x.body)+'</div>' +
+        '<div class="vertex-phase4c-action">'+esc(x.action)+'</div>' +
+        '<div class="vertex-phase4c-meta">Readiness '+esc(x.readiness==null?'pending':x.readiness)+' · '+esc(x.sessions)+' sessions this week · '+esc(x.sets)+' strength sets · '+esc(x.volume||'—')+' load volume</div>' +
+      '</div>';
+    return true;
+  }
+  function renderSignalRail(){
+    var deck=document.getElementById('vertexB2ProgressDeck');
+    if(!deck) return false;
+    var x=buildInsight();
+    var recovery=x.readiness==null?'Pending':(x.readiness>=72?'Ready':x.readiness>=58?'Manage':'Recover');
+    var load=x.volume?String(x.volume):'—';
+    var rhythm=x.sessions>x.prev?'Improving':x.sessions<x.prev?'Rebuild':'Stable';
+    var balance=x.imbalance?'Priority':'Acceptable';
+    var top=x.top?x.top[0]+' '+x.top[1]+' sets':'Pending';
+    deck.innerHTML =
+      '<div class="vertex-phase4c-signalrail" aria-label="Intelligence signal contributors">' +
+        '<div class="vertex-phase4c-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Load</div><div class="v">'+esc(load)+'</div><div class="s">'+esc(x.sets)+' strength sets</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Rhythm</div><div class="v">'+esc(rhythm)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(top)+'</div></div>' +
+        '<div class="vertex-phase4c-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">Signal quality</div></div>' +
+      '</div>';
+    return true;
+  }
+  function normalize(){
+    try{
+      renderSignalRail();
+      renderDominantInsight();
+    }catch(e){ console.warn('[Vertex Phase4C] normalize failed', e); }
+  }
+  var old=window.renderProgressPage;
+  if(typeof old==='function' && !old.__vertexPhase4CWrapped){
+    var wrapped=function(){
+      var out=old.apply(this,arguments);
+      [0,80,240,700,1400].forEach(function(ms){setTimeout(normalize,ms);});
+      return out;
+    };
+    wrapped.__vertexPhase4CWrapped=true;
+    window.renderProgressPage=wrapped;
+  }
+  [250,900,1800,3600].forEach(function(ms){setTimeout(normalize,ms);});
+  document.addEventListener('click',function(e){
+    if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){
+      [80,260,900].forEach(function(ms){setTimeout(normalize,ms);});
+    }
+  },true);
+  window.VertexPhase4CUnifiedIntelligence={normalize:normalize,build:buildInsight};
 })();
 </script>
 

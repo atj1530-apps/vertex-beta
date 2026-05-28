@@ -3928,6 +3928,27 @@ body.app-page-progress #progressPage #progressTabContent{order:5!important;}
 
 </style>
 
+
+<style id="vertex-phase2d2-surgical-legacy-panel-hide">
+/* Phase 2D.2 surgical fix: hide legacy Progress intelligence holder/cards that duplicate the new B2 rails.
+   Preserves current Adaptive Decision, Coach Summary, Imbalance, CNS, service worker, auth, boot, and rail architecture. */
+body.app-page-progress #vertexProgressIntelligenceHolder,
+#progressPage #vertexProgressIntelligenceHolder{
+  display:none!important;
+  visibility:hidden!important;
+  height:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+body.app-page-progress #vertexRecoveryTrendPanel,
+body.app-page-progress #vertexStrainPanel,
+body.app-page-progress #vertexConsistencyPanel,
+body.app-page-progress #vertexTolerancePanel{
+  display:none!important;
+}
+</style>
 </head>
 <body class="auth-resolving">
 

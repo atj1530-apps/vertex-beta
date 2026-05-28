@@ -39,6 +39,7 @@
 <!-- Phase 2E.2: progress hierarchy CSS-only refinement; SW/cache untouched -->
 <!-- Phase 2E.3A: trend memory foundation; adaptive coaching escalation; SW/cache untouched -->
 <!-- Phase 2E.3C.1: intelligence language refinement repair; semantic differentiation + density polish; SW/cache untouched -->
+<!-- Phase 2E.3C.2: SVG/time binding console stabilization; visual language preserved; SW/cache untouched -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -11320,10 +11321,9 @@ function renderSegmentTrends(){
       + '</div>'
       + '<div style="font-size:10px;color:var(--muted);margin-top:2px">'+vals.length+' scans · '+fmtDate(first.date)+' → '+fmtDate(last.date)+'</div>'
       + '</div>'
-      + '<svg width="'+W+'" height="'+H+'" style="flex-shrink:0;overflow:visible">'
-      + '<polyline points="'+points+'" fill="none" stroke="'+seg.color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>'
-      + circles
-      + '</svg></div>';
+      + '<div style="width:'+W+'px;height:'+H+'px;display:flex;align-items:flex-end;gap:3px;flex-shrink:0;overflow:hidden">'
+      + vals.map(v=>'<span style="display:block;flex:1;min-width:3px;height:'+Math.max(3, Math.round(((v.val-minVal)/range)*(H-6)+3))+'px;border-radius:999px;background:'+seg.color+';opacity:.85"></span>').join('')
+      + '</div></div>';
   }).join('');
 }
 window.renderSegmentTrends = renderSegmentTrends;
@@ -11740,18 +11740,11 @@ function renderHomeSparklines(){
   const safeNum=(v,fallback)=>{const n=Number(v);return Number.isFinite(n)?n:fallback;};
   const sparkSVG=(vals,color)=>{
     const clean=vals.map(v=>safeNum(v,NaN)).filter(v=>Number.isFinite(v));
-    if(clean.length<2) return '<svg width="80" height="28"><text x="4" y="18" font-size="9" fill="var(--muted)">—</text></svg>';
+    if(clean.length<2) return '<div style="width:80px;height:28px;display:flex;align-items:center;color:var(--muted);font-size:10px">—</div>';
     const mn=Math.min.apply(null,clean), mx=Math.max.apply(null,clean), rng=(mx-mn)||1;
-    const W=80,H=28,pad=3;
-    const coords=clean.map((v,i)=>{
-      const denom=Math.max(clean.length-1,1);
-      const x=pad+(i/denom)*(W-pad*2);
-      const y=H-pad-((v-mn)/rng)*(H-pad*2);
-      return {x:safeNum(x,pad),y:safeNum(y,H-pad)};
-    });
-    const pts=coords.map(pt=>pt.x.toFixed(1)+','+pt.y.toFixed(1)).join(' ');
-    const last=coords[coords.length-1]||{x:pad,y:H-pad};
-    return '<svg width="'+W+'" height="'+H+'" style="overflow:visible"><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="'+last.x.toFixed(1)+'" cy="'+last.y.toFixed(1)+'" r="2.5" fill="'+color+'"/></svg>';
+    return '<div style="width:80px;height:28px;display:flex;align-items:flex-end;gap:3px;overflow:hidden">'
+      + clean.map(v=>'<span style="display:block;flex:1;min-width:3px;height:'+Math.max(3, Math.round(((v-mn)/rng)*24+3))+'px;border-radius:999px;background:'+color+';opacity:.85"></span>').join('')
+      + '</div>';
   };
   const cards=[
     {label:'Weight',unit:'lb',color:'var(--acc)',vals:wRows.map(r=>r[1]),latest:wRows.length?Number(wRows[wRows.length-1][1]).toFixed(1):null},
@@ -12537,11 +12530,11 @@ function vertexShowNotifSettings(){
     <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Active while Vertex is open in your browser. Background push on mobile requires APNs setup.</p>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
       <div><div style="font-weight:700">Workout Reminder</div><div style="font-size:12px;color:var(--muted)">Daily reminder to train</div></div>
-      <input type="time" id="vn-wt" value="${workoutTime}" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
+      <input type="time" id="vn-wt" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-bottom:16px">
       <div><div style="font-weight:700">Check-In Reminder</div><div style="font-size:12px;color:var(--muted)">Evening wellness check-in</div></div>
-      <input type="time" id="vn-ct" value="${checkinTime}" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
+      <input type="time" id="vn-ct" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px;border-radius:6px">
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn acc" id="vn-save" style="flex:1">Save</button>
@@ -12550,6 +12543,8 @@ function vertexShowNotifSettings(){
     </div>
   </div>`;
   document.body.appendChild(m);
+  const vnWt=m.querySelector('#vn-wt'); if(vnWt) vnWt.value=workoutTime;
+  const vnCt=m.querySelector('#vn-ct'); if(vnCt) vnCt.value=checkinTime;
   m.querySelector('#vn-close').onclick=()=>m.remove();
   m.querySelector('#vn-test').onclick=()=>{ if(Notification.permission==='granted') new Notification('Vertex',{body:'Notifications working!',icon:'/icons/icon-192.png'}); };
   m.querySelector('#vn-save').onclick=()=>{

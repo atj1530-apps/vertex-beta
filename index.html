@@ -18898,146 +18898,45 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 
-<style id="vertex-phase4-final-css">
-/* Phase 4 Final — Coaching Authority Pass */
-.vertex-p4f-rail{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:8px;
-  margin:14px 0 16px;
-}
-.vertex-p4f-signal{
-  border:1px solid rgba(255,255,255,.065);
-  background:#111;
-  border-radius:9px;
-  padding:9px 10px;
-  min-height:58px;
-}
-.vertex-p4f-signal .k{
-  font-family:'DM Mono',monospace;
-  font-size:8px;
-  letter-spacing:1.9px;
-  text-transform:uppercase;
-  color:var(--muted);
-  margin-bottom:5px;
-}
-.vertex-p4f-signal .v{
-  font-size:15px;
-  font-weight:800;
-  color:var(--acc);
-  line-height:1.1;
-}
-.vertex-p4f-signal .s{
-  color:var(--muted);
-  font-size:11px;
-  margin-top:4px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.vertex-p4f-card{
-  border:1px solid rgba(232,255,71,.48)!important;
-  background:linear-gradient(135deg,rgba(232,255,71,.065),rgba(232,255,71,.018) 60%,rgba(72,255,138,.018))!important;
-  border-radius:12px!important;
-  padding:18px 20px!important;
-  margin-top:8px!important;
-  box-shadow:0 0 0 1px rgba(232,255,71,.06),0 14px 36px rgba(0,0,0,.16);
-}
-.vertex-p4f-head{
-  display:flex;
-  justify-content:space-between;
-  gap:14px;
-  align-items:flex-start;
-  margin-bottom:13px;
-}
-.vertex-p4f-label{
-  font-family:'DM Mono',monospace;
-  font-size:10px;
-  letter-spacing:3px;
-  text-transform:uppercase;
-  color:var(--muted);
-  margin-bottom:5px;
-}
-.vertex-p4f-title{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:38px;
-  letter-spacing:3.5px;
-  line-height:.98;
-  color:var(--text);
-}
-.vertex-p4f-confidence{
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:1.4px;
-  color:var(--acc);
-  border:1px solid rgba(232,255,71,.34);
-  border-radius:999px;
-  padding:6px 9px;
-  white-space:nowrap;
-  text-transform:uppercase;
-  opacity:.9;
-}
-.vertex-p4f-copy{
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.48;
-  max-width:940px;
-}
-.vertex-p4f-action-label{
-  font-family:'DM Mono',monospace;
-  color:var(--acc);
-  font-size:9px;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  margin-bottom:6px;
-}
-.vertex-p4f-action{
-  margin-top:14px;
-  padding-top:12px;
-  border-top:1px solid rgba(255,255,255,.08);
-  color:var(--text);
-  font-weight:800;
-  line-height:1.42;
-}
-.vertex-p4f-meta{
-  margin-top:12px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-  color:var(--dim);
-}
-.vertex-p4f-hide-card{
-  display:none!important;
-}
+<style id="vertex-phase5a-css">
+/* Phase 5A.1 — Adaptive Progression Intelligence */
+.vertex-p5a-rail{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0 16px}
+.vertex-p5a-signal{border:1px solid rgba(255,255,255,.065);background:#111;border-radius:9px;padding:9px 10px;min-height:58px}
+.vertex-p5a-signal .k{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.9px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.vertex-p5a-signal .v{font-size:15px;font-weight:800;color:var(--acc);line-height:1.1}
+.vertex-p5a-signal .s{color:var(--muted);font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vertex-p5a-card{border:1px solid rgba(232,255,71,.48)!important;background:linear-gradient(135deg,rgba(232,255,71,.065),rgba(232,255,71,.018) 60%,rgba(72,255,138,.018))!important;border-radius:12px!important;padding:18px 20px!important;margin-top:8px!important;box-shadow:0 0 0 1px rgba(232,255,71,.06),0 14px 36px rgba(0,0,0,.16)}
+.vertex-p5a-card.recovery,.vertex-p5a-card.deload{border-color:rgba(255,176,71,.48)!important;background:linear-gradient(135deg,rgba(255,176,71,.07),rgba(255,176,71,.018) 62%,rgba(232,255,71,.012))!important}
+.vertex-p5a-card.progression{border-color:rgba(72,255,138,.44)!important;background:linear-gradient(135deg,rgba(72,255,138,.065),rgba(72,255,138,.018) 60%,rgba(232,255,71,.016))!important}
+.vertex-p5a-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:13px}
+.vertex-p5a-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.vertex-p5a-title{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3.5px;line-height:.98;color:var(--text)}
+.vertex-p5a-confidence{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.4px;color:var(--acc);border:1px solid rgba(232,255,71,.34);border-radius:999px;padding:6px 9px;white-space:nowrap;text-transform:uppercase;opacity:.9}
+.vertex-p5a-copy{color:var(--muted);font-size:14px;line-height:1.48;max-width:940px}
+.vertex-p5a-action-label{font-family:'DM Mono',monospace;color:var(--acc);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.vertex-p5a-action{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);color:var(--text);font-weight:800;line-height:1.42}
+.vertex-p5a-meta{margin-top:12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+.vertex-p5a-hide-card{display:none!important}
 @media(max-width:900px){
-  .vertex-p4f-rail{
-    display:flex;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
-    margin-left:-2px;
-    margin-right:-2px;
-    padding:0 2px 4px;
-  }
-  .vertex-p4f-rail::-webkit-scrollbar{display:none}
-  .vertex-p4f-signal{min-width:142px;min-height:56px}
-  .vertex-p4f-title{font-size:32px}
-  .vertex-p4f-head{display:block}
-  .vertex-p4f-confidence{display:inline-flex;margin-top:10px}
+  .vertex-p5a-rail{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-left:-2px;margin-right:-2px;padding:0 2px 4px}
+  .vertex-p5a-rail::-webkit-scrollbar{display:none}
+  .vertex-p5a-signal{min-width:142px;min-height:56px}
+  .vertex-p5a-title{font-size:32px}
+  .vertex-p5a-head{display:block}
+  .vertex-p5a-confidence{display:inline-flex;margin-top:10px}
 }
 </style>
 
 
-<script id="vertex-phase4-final-js">
+<script id="vertex-phase5a-js">
 (function(){
   function esc(v){
     try{ if(typeof escapeHtml === 'function') return escapeHtml(String(v == null ? '' : v)); }catch(e){}
     return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
   }
-  function rows(){ try{return typeof progressRows==='function' ? (progressRows()||[]) : [];}catch(e){return [];} }
-  function summary(r){ try{return typeof progressSummary==='function' ? (progressSummary(r)||{}) : {};}catch(e){return {};} }
-  function ready(){
+  function getRows(){ try{return typeof progressRows==='function' ? (progressRows()||[]) : [];}catch(e){return [];} }
+  function getSummary(r){ try{return typeof progressSummary==='function' ? (progressSummary(r)||{}) : {};}catch(e){return {};} }
+  function getReadiness(){
     try{
       if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
         var x=window.VertexRecoveryInsights.build()||{};
@@ -19047,14 +18946,28 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     }catch(e){}
     return null;
   }
+  function avg(arr){
+    arr=(arr||[]).map(Number).filter(function(n){return Number.isFinite(n);});
+    if(!arr.length) return 0;
+    return arr.reduce(function(a,b){return a+b;},0)/arr.length;
+  }
   function weekStartSafe(){
     try{ if(typeof weekStart === 'function') return weekStart(); }catch(e){}
     var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d;
   }
-  function muscleRank(r){
+  function dayDiff(a,b){
+    try{
+      var A=new Date(a); A.setHours(0,0,0,0);
+      var B=new Date(b); B.setHours(0,0,0,0);
+      return Math.round((B-A)/86400000);
+    }catch(e){return 999;}
+  }
+  function volumeOf(row){ return Number((row&&row.metrics&&row.metrics.volume)||0); }
+  function setCountOf(row){ return Number((row&&row.metrics&&row.metrics.sets)||0); }
+  function muscleRank(rows){
     var totals={}, start=weekStartSafe();
     try{
-      r.filter(function(row){return new Date(row.completed_at)>=start;}).forEach(function(row){
+      rows.filter(function(row){return new Date(row.completed_at)>=start;}).forEach(function(row){
         Object.entries((row.metrics&&row.metrics.muscles)||{}).forEach(function(pair){
           var m=pair[0], v=pair[1];
           totals[m]=(totals[m]||0)+(Number((v&&v.sets)||v)||0);
@@ -19071,77 +18984,127 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     return 'Learning Mode';
   }
   function build(){
-    var rws=rows(), sum=summary(rws), r=ready();
-    var sessions=Number((sum.thisWeek&&sum.thisWeek.length)||0);
-    var prev=Number((sum.prevWeek&&sum.prevWeek.length)||0);
+    var rows=getRows().slice().sort(function(a,b){return new Date(a.completed_at)-new Date(b.completed_at);});
+    var sum=getSummary(rows);
+    var readiness=getReadiness();
+    var thisWeek=sum.thisWeek||[];
+    var prevWeek=sum.prevWeek||[];
+    var sessions=Number(thisWeek.length||0);
+    var prev=Number(prevWeek.length||0);
     var sets=Number(sum.totalSets||0);
     var volume=Number(sum.totalVolume||0);
-    var ranked=muscleRank(rws), top=ranked[0]||null, second=ranked[1]||null;
+
+    var recent=rows.slice(-6), older=rows.slice(-12,-6);
+    var recentVol=avg(recent.map(volumeOf)), olderVol=avg(older.map(volumeOf));
+    var recentSets=avg(recent.map(setCountOf)), olderSets=avg(older.map(setCountOf));
+    var volumeTrend=olderVol>0 ? ((recentVol-olderVol)/olderVol)*100 : 0;
+    var setTrend=olderSets>0 ? ((recentSets-olderSets)/olderSets)*100 : 0;
+    var lastDate=rows.length ? rows[rows.length-1].completed_at : null;
+    var daysSinceLast=lastDate ? dayDiff(lastDate,new Date()) : 99;
+
+    var ranked=muscleRank(rows), top=ranked[0]||null, second=ranked[1]||null;
     var imbalance=!!(top && second && top[1]>=Math.max(6,second[1]*1.45));
-    var confidence=Math.max(45,Math.min(100,Math.round((r==null?62:r) + Math.min(15,sessions*4) + Math.min(8,sets/10))));
     var consistency=sessions>prev?'Improving':(sessions<prev?'Rebuilding':(sessions>0?'Stable':'Early'));
 
-    var state='Controlled Baseline';
-    var label='Baseline Intelligence';
-    var interpretation='Training baseline still forming.';
-    var action='Maintain current workload. Delay progression until rhythm stabilizes.';
+    var recoveryScore=(readiness==null?62:readiness);
+    var consistencyScore=Math.max(30,Math.min(100,50 + (sessions*10) + ((sessions-prev)*8)));
+    var balanceScore=imbalance?45:78;
+    var momentumScore=Math.max(30,Math.min(100,50 + ((sessions-prev)*12) + (volumeTrend>5?12:0) + (setTrend>5?8:0) - (daysSinceLast>5?12:0)));
+    var fatigueScore=Math.max(0,Math.min(100,(readiness==null?35:(100-readiness)) + (volumeTrend>25?18:0) + (sessions>=5?12:0)));
+    var progressionScore=Math.round(Math.max(0,Math.min(100,
+      (recoveryScore*.36) + (consistencyScore*.26) + (balanceScore*.18) + (momentumScore*.14) - (fatigueScore*.18) + 18
+    )));
+    var confidence=Math.max(45,Math.min(100,Math.round((readiness==null?62:readiness) + Math.min(14,sessions*4) + Math.min(8,rows.length))));
 
-    if(imbalance){
-      state='Imbalance Priority';
-      label='Balance Intelligence';
-      interpretation=top[0]+' volume is dominating this week’s workload.';
-      action='Cap extra '+top[0]+' sets next session. Add complementary work to restore balance.';
-      confidence=Math.max(confidence,88);
-    }else if(r!==null && r<58){
-      state='Recovery Priority';
-      label='Recovery Intelligence';
-      interpretation='Recovery is not ready for aggressive progression.';
-      action='Reduce training strain today. Keep execution clean and leave capacity in reserve.';
-      confidence=Math.max(confidence,82);
-    }else if(sessions>=3 && r!==null && r>=72){
-      state='Progression Window';
-      label='Progression Intelligence';
-      interpretation='Recovery and rhythm support a controlled push.';
-      action='Progress one priority lift. Keep accessory volume steady.';
-      confidence=Math.max(confidence,86);
-    }else if(sessions>prev){
-      state='Performance Momentum';
-      label='Momentum Intelligence';
-      interpretation='Training rhythm is improving.';
-      action='Keep the rhythm. Add progression selectively, not across the full session.';
+    var state='Controlled Baseline';
+    var label='Adaptive Decision';
+    var interpretation='Vertex is still learning your training pattern.';
+    var action='Keep training consistently. Build a few more workouts before pushing progression.';
+    var type='baseline';
+
+    var enoughData=rows.length>=3 || sessions>=2;
+    var recoveryLow=readiness!==null && readiness<58;
+    var recoveryVeryLow=readiness!==null && readiness<48;
+    var heavyRecent=volumeTrend>28 || sessions>=5;
+    var inactive=daysSinceLast>7;
+
+    if(enoughData && recoveryVeryLow && heavyRecent){
+      state='Deload Recommended';
+      label='Recovery Decision';
+      interpretation='You have been pushing hard and recovery needs more room.';
+      action='Reduce volume for the next 5–7 days. Keep movement quality high.';
+      type='deload';
+      confidence=Math.max(confidence,84);
+    }else if(enoughData && recoveryLow){
+      state='Recovery Constrained';
+      label='Recovery Decision';
+      interpretation='Your body needs a little more recovery before pushing harder.';
+      action='Keep today’s session lighter. Do not add weight or extra sets.';
+      type='recovery';
       confidence=Math.max(confidence,78);
+    }else if(enoughData && imbalance){
+      state='Imbalance Priority';
+      label='Balance Decision';
+      interpretation='One area is getting more work than the rest.';
+      action='Balance your next session before adding more volume.';
+      type='baseline';
+      confidence=Math.max(confidence,84);
+    }else if(enoughData && progressionScore>=76 && sessions>=2 && !inactive){
+      state='Progression Window Open';
+      label='Progression Decision';
+      interpretation='You are recovering well and training consistently.';
+      action='Increase one primary lift next session. Keep everything else steady.';
+      type='progression';
+      confidence=Math.max(confidence,82);
+    }else if(enoughData && momentumScore>=72 && sessions>=2 && !inactive){
+      state='Momentum Building';
+      label='Progression Decision';
+      interpretation='You are stacking good workouts together.';
+      action='Stay on your current plan and keep the momentum going.';
+      type='progression';
+      confidence=Math.max(confidence,76);
+    }else if(enoughData){
+      state='Maintain Load';
+      label='Progression Decision';
+      interpretation='Your training rhythm is improving, but not enough to push harder yet.';
+      action='Repeat your current workload next session.';
+      type='baseline';
+      confidence=Math.max(confidence,68);
     }
 
+    var loadLabel=volume?String(Math.round(volume)):'Pending';
+    var loadSub=volume?sets+' strength sets':'Need 2–3 sessions';
+
     return {
-      state:state,label:label,interpretation:interpretation,action:action,
-      confidence:confidence,confText:confLabel(confidence),consistency:consistency,
-      readiness:r,sessions:sessions,prev:prev,sets:sets,volume:Math.round(volume),
-      top:top,imbalance:imbalance
+      state:state,label:label,interpretation:interpretation,action:action,type:type,
+      confidence:confidence,confText:confLabel(confidence),progressionScore:progressionScore,
+      recoveryScore:Math.round(recoveryScore),momentumScore:Math.round(momentumScore),balanceScore:Math.round(balanceScore),
+      consistency:consistency,readiness:readiness,sessions:sessions,prev:prev,sets:sets,volume:Math.round(volume),
+      loadLabel:loadLabel,loadSub:loadSub,top:top,imbalance:imbalance
     };
   }
   function railHTML(x){
     var recovery=x.readiness==null?'Pending':(x.readiness>=72?'Ready':x.readiness>=58?'Manage':'Recover');
-    var load=x.volume?String(x.volume):'—';
     var balance=x.imbalance?'Priority':'Acceptable';
     return ''+
-      '<div class="vertex-p4f-rail" aria-label="Coaching telemetry">'+
-        '<div class="vertex-p4f-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>'+
-        '<div class="vertex-p4f-signal"><div class="k">Consistency</div><div class="v">'+esc(x.consistency)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>'+
-        '<div class="vertex-p4f-signal"><div class="k">Load</div><div class="v">'+esc(load)+'</div><div class="s">'+esc(x.sets)+' strength sets</div></div>'+
-        '<div class="vertex-p4f-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(x.top?x.top[0]+' '+x.top[1]+' sets':'Pending')+'</div></div>'+
-        '<div class="vertex-p4f-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">'+esc(x.confText)+'</div></div>'+
+      '<div class="vertex-p5a-rail" aria-label="Adaptive coaching telemetry">'+
+        '<div class="vertex-p5a-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>'+
+        '<div class="vertex-p5a-signal"><div class="k">Consistency</div><div class="v">'+esc(x.consistency)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>'+
+        '<div class="vertex-p5a-signal"><div class="k">Load</div><div class="v">'+esc(x.loadLabel)+'</div><div class="s">'+esc(x.loadSub)+'</div></div>'+
+        '<div class="vertex-p5a-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(x.top?x.top[0]+' '+x.top[1]+' sets':'Pending')+'</div></div>'+
+        '<div class="vertex-p5a-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">'+esc(x.confText)+'</div></div>'+
       '</div>';
   }
   function cardHTML(x){
     return ''+
-      '<div class="insight vertex-p4f-card">'+
-        '<div class="vertex-p4f-head">'+
-          '<div><div class="vertex-p4f-label">'+esc(x.label)+'</div><div class="vertex-p4f-title">'+esc(x.state)+'</div></div>'+
-          '<div class="vertex-p4f-confidence">'+esc(x.confidence)+'% · '+esc(x.confText)+'</div>'+
+      '<div class="insight vertex-p5a-card '+esc(x.type)+'">'+
+        '<div class="vertex-p5a-head">'+
+          '<div><div class="vertex-p5a-label">'+esc(x.label)+'</div><div class="vertex-p5a-title">'+esc(x.state)+'</div></div>'+
+          '<div class="vertex-p5a-confidence">'+esc(x.confidence)+'% · '+esc(x.confText)+'</div>'+
         '</div>'+
-        '<div class="vertex-p4f-copy">'+esc(x.interpretation)+'</div>'+
-        '<div class="vertex-p4f-action"><div class="vertex-p4f-action-label">Action</div>'+esc(x.action)+'</div>'+
-        '<div class="vertex-p4f-meta">Readiness '+esc(x.readiness==null?'pending':x.readiness)+' · '+esc(x.sessions)+' sessions this week · '+esc(x.sets)+' strength sets · '+esc(x.volume||'—')+' load volume</div>'+
+        '<div class="vertex-p5a-copy">'+esc(x.interpretation)+'</div>'+
+        '<div class="vertex-p5a-action"><div class="vertex-p5a-action-label">Action</div>'+esc(x.action)+'</div>'+
+        '<div class="vertex-p5a-meta">Progression '+esc(x.progressionScore)+' · Recovery '+esc(x.recoveryScore)+' · Momentum '+esc(x.momentumScore)+' · Balance '+esc(x.balanceScore)+'</div>'+
       '</div>';
   }
   function findInsightsPanel(){
@@ -19157,7 +19120,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     cards.forEach(function(card){
       var label=card.querySelector('.label');
       if(label && String(label.textContent||'').trim().toLowerCase()==='consistency'){
-        card.classList.add('vertex-p4f-hide-card');
+        card.classList.add('vertex-p5a-hide-card');
       }
     });
   }
@@ -19179,17 +19142,17 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
       }
       hideSeparateConsistency();
     }catch(e){
-      console.warn('[Vertex Phase 4 Final] normalize failed', e);
+      console.warn('[Vertex Phase 5A] normalize failed', e);
     }
   }
   var old=window.renderProgressPage;
-  if(typeof old==='function' && !old.__vertexPhase4FinalWrapped){
+  if(typeof old==='function' && !old.__vertexPhase5AWrapped){
     var wrapped=function(){
       var out=old.apply(this,arguments);
       [0,80,220,600,1200,2400].forEach(function(ms){setTimeout(normalize,ms);});
       return out;
     };
-    wrapped.__vertexPhase4FinalWrapped=true;
+    wrapped.__vertexPhase5AWrapped=true;
     window.renderProgressPage=wrapped;
   }
   [250,900,1800,3600].forEach(function(ms){setTimeout(normalize,ms);});
@@ -19198,7 +19161,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
       [80,260,800,1500].forEach(function(ms){setTimeout(normalize,ms);});
     }
   },true);
-  window.VertexPhase4Final={normalize:normalize,build:build};
+  window.VertexPhase5A={normalize:normalize,build:build};
 })();
 </script>
 

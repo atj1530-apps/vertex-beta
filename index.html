@@ -9398,6 +9398,88 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 }
 </style>
 
+
+
+<!-- Phase 3B: forecasting + risk engine; SW/cache/auth untouched -->
+<script>
+(function(){
+  'use strict';
+  if(window.VertexPhase3BForecastingRiskEngine) return;
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function textNum(s, fallback){var m=String(s||'').match(/-?\d+(?:\.\d+)?/); return m?Number(m[0]):(fallback||0);}
+  function findCard(label){
+    var cards=[].slice.call(document.querySelectorAll('.vertex-b2-card,.progress-card,.coach-card,.insight,section'));
+    var needle=String(label||'').toUpperCase();
+    return cards.find(function(c){var l=c.querySelector('.label'); return l && (l.textContent||'').toUpperCase().indexOf(needle)>=0;});
+  }
+  function setCard(label,title,lines){
+    var c=findCard(label); if(!c) return;
+    var lab=c.querySelector('.label');
+    var info=lab?lab.querySelector('.vertex-i'):null;
+    var html='<div class="label">'+esc(label)+(info?' <button class="vertex-i" type="button" aria-label="Info" data-tip="'+esc(info.getAttribute('data-tip')||'')+'">i</button>':'')+'</div>'+
+      '<div class="vertex-b2-value">'+esc(title)+'</div>'+
+      (lines||[]).map(function(x){return '<div class="vertex-b2-line">'+x+'</div>';}).join('');
+    c.innerHTML=html;
+  }
+  function state(){
+    var body=document.body?document.body.textContent:'';
+    var readiness=textNum((body.match(/Readiness score:\s*\d+/i)||[''])[0],72)||72;
+    var sessions=textNum((body.match(/(?:This week|Sessions this week)[:\s]+\d+/i)||[''])[0],0);
+    var sets=textNum((body.match(/Strength Sets\s*\n?\s*\d+|\d+\s*Strength Sets/i)||[''])[0],0);
+    var volume=textNum((body.match(/Load Volume\s*\n?\s*\d+|\d+\s*Load Volume/i)||[''])[0],0);
+    var baseline=sessions<2;
+    var risk=baseline?'Low risk':(readiness<60&&sessions>=3?'Moderate risk':(readiness<52||sessions>=5?'Elevated risk':'Low risk'));
+    var debt=baseline?'Recovery debt baseline forming':(risk==='Elevated risk'?'Recovery debt accumulating':risk==='Moderate risk'?'Recovery debt watch':'Recovery debt controlled');
+    var window=baseline?'Progression window pending':(risk==='Low risk'&&readiness>=70?'Controlled progression window':'Progression window narrow');
+    var forecast=baseline?'Forecast: learn baseline first':(risk==='Low risk'?'Forecast: stable next-session outlook':risk==='Moderate risk'?'Forecast: hold progression next session':'Forecast: recovery emphasis likely');
+    return {readiness:readiness,sessions:sessions,sets:sets,volume:volume,baseline:baseline,risk:risk,debt:debt,window:window,forecast:forecast};
+  }
+  function decisionCardSync(s){
+    var c=findCard('Adaptive Decision'); if(!c) return;
+    var chips='<div class="vertex-phase2d-chip"><strong>Fatigue</strong> 0/100</div>'+
+      '<div class="vertex-phase2d-chip"><strong>Baseline Phase</strong></div>'+
+      '<div class="vertex-phase2d-chip"><strong>Forecast</strong> '+esc(s.risk)+'</div>';
+    c.innerHTML='<div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Predictive decision combines readiness, training rhythm, recovery debt, and progression-window risk.">i</button></div>'+
+      '<div class="vertex-b2-value">MAINTAIN · Train controlled</div>'+
+      '<div class="vertex-b2-line">You can train today, but keep progression selective.</div>'+
+      '<div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> Progress one movement only if warm-ups feel good.</div>'+
+      chips+
+      '<div class="vertex-b2-line" style="margin-top:8px">'+esc(s.debt)+' · '+esc(s.window)+' · readiness '+esc(s.readiness)+'</div>';
+  }
+  function narrativeSync(s){
+    var wrap=document.getElementById('progressInsights'); if(!wrap) return;
+    [].slice.call(wrap.querySelectorAll('.vertex-phase3b-narrative,.vertex-phase2f-narrative,.vertex-phase2e3c-narrative,.vertex-phase2d-feed,.vertex-phase2d1-progression')).forEach(function(x){x.remove();});
+    var title=s.baseline?'Controlled baseline forecast':(s.risk==='Low risk'?'Stable progression outlook':s.risk==='Moderate risk'?'Recovery debt watch':'Recovery priority forecast');
+    var why=s.baseline?'Vertex is still learning your normal rhythm. Keep today repeatable before adding volume or intensity.':
+      (s.risk==='Low risk'?'Recovery and workload signals support controlled progression, but keep the change small and measurable.':
+       s.risk==='Moderate risk'?'Load pressure is building. Hold aggressive progression until the next recovery signal confirms readiness.':
+       'Recovery debt is likely accumulating. Reduce hard work and protect the next session.');
+    var meta='Readiness '+esc(s.readiness)+' · '+esc(s.sessions)+' sessions this week · '+esc(s.risk)+' · '+esc(s.window);
+    wrap.insertAdjacentHTML('afterbegin','<div class="insight vertex-phase3b-narrative"><div class="vertex-phase2b-title"><b>Predictive Coach Narrative</b><button class="vertex-i" type="button" aria-label="Info" data-tip="Forecasting translates current readiness and workload rhythm into next-session risk and progression guidance.">i</button></div><div class="vertex-phase2b-action">'+esc(title)+'</div><div class="vertex-phase2b-why">'+esc(why)+'</div><div class="vertex-phase2b-meta">'+esc(meta)+'</div></div>');
+  }
+  function sync(){
+    try{
+      var s=state();
+      setCard('Load Tolerance','Load Manageable',['Signal strength: Early','Recovery debt: '+esc(s.debt),'Current load appears manageable; progress selectively.']);
+      setCard('Adaptive Coach','Train controlled',['Hold progression based on today’s signal.','Forecast: '+esc(s.forecast.replace(/^Forecast:\s*/i,''))]);
+      setCard('Weekly Intelligence',s.baseline?'Weekly Rhythm Forming':'Workload Forecast',[''+esc(s.sessions)+' this week vs 0 previous',s.baseline?'Log the next session to refresh the weekly workload signal.':'Load pressure is being tracked against recovery response.']);
+      setCard('Consistency',s.baseline?'Consistency Still Forming':'Routine Pattern Tracking',['No current-week routine signal yet; log the next workout to refresh the pattern.','This week: '+esc(s.sessions)+'; previous: 0']);
+      setCard('Longitudinal Trend',s.baseline?'Adaptation Signal Building':'Trajectory Watch',['Signal strength: Early','Forecast: '+esc(s.window)+'. Keep training repeatable while Vertex learns your normal response.']);
+      decisionCardSync(s);
+      narrativeSync(s);
+    }catch(e){console.warn('[Vertex Phase3B] sync failed',e);}
+  }
+  var old=window.renderProgressPage;
+  if(typeof old==='function' && !old.__vertexPhase3BWrapped){
+    var wrapped=function(){var out=old.apply(this,arguments); [160,520,1100].forEach(function(ms){setTimeout(sync,ms);}); return out;};
+    wrapped.__vertexPhase3BWrapped=true; window.renderProgressPage=wrapped;
+  }
+  [220,900,1800,3600].forEach(function(ms){setTimeout(sync,ms);});
+  document.addEventListener('click',function(e){if(e.target&&(e.target.closest('[data-nav]')||e.target.closest('[data-ptab]')||e.target.closest('#btn-refresh-progress'))){setTimeout(sync,220);setTimeout(sync,900);}},true);
+  window.VertexPhase3BForecastingRiskEngine={sync:sync,state:state};
+})();
+</script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }

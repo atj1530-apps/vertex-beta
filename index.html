@@ -38,6 +38,7 @@
 <!-- Phase 2E.1: duplicate progress section header + click flicker cleanup; legacy category rail mover disabled; SW/cache untouched -->
 <!-- Phase 2E.2: progress hierarchy CSS-only refinement; SW/cache untouched -->
 <!-- Phase 2E.3A: trend memory foundation; adaptive coaching escalation; SW/cache untouched -->
+<!-- Phase 2E.3B: intelligence escalation layer; cross-card coaching state sync; SW/cache untouched -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -19470,8 +19471,29 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     if(sessions<prev || (sessions<=1 && prev>=3)){ trendState='Consistency Regression'; concern='medium'; memoryLine='Training rhythm has dipped. Prioritize a clean moderate session before chasing load.'; }
     if(sessions>=3 && Math.abs(loadDelta)<=2 && recoveryTrend.label==='Stable'){ trendState='Stable Adaptation'; memoryLine='Consistency and recovery look steady. Keep progression selective and repeat the behaviors that are working.'; }
     var dataLevel=(rs||[]).length>=24 && sessions>=4?'Strong dataset':((rs||[]).length>=12 || sessions>=3?'Usable dataset':((rs||[]).length>=4?'Emerging dataset':'Limited dataset'));
-    var confidence=dataLevel==='Strong dataset'?'High confidence':dataLevel==='Usable dataset'?'Moderate confidence':dataLevel==='Emerging dataset'?'Emerging trend':'Limited dataset';
-    return {state:trendState, opportunity:opportunity, concern:concern, memoryLine:memoryLine, recoveryTrend:recoveryTrend.label, loadDelta:loadDelta, recentSessions:buckets.length, dataLevel:dataLevel, confidence:confidence};
+    var confidence=dataLevel==='Strong dataset'?'High confidence':dataLevel==='Usable dataset'?'Moderate confidence':dataLevel==='Emerging trend'?'Emerging trend':(dataLevel==='Emerging dataset'?'Emerging trend':'Limited dataset');
+    var escalation='Stable';
+    var authority='Normal';
+    var behavior='Pattern steady';
+    if(trendState==='Progression Opportunity' || trendState==='Momentum Building') escalation='Controlled Push';
+    if(trendState==='Stable Adaptation') escalation='Productive';
+    if(trendState==='Recovery Drift' || concern==='medium') escalation='Accumulating Fatigue';
+    if(trendState==='Accumulated Fatigue') escalation='Deload Suggested';
+    if(readiness!==null && readiness<50) escalation='Recovery Priority';
+    if(confidence==='High confidence') authority='High authority';
+    else if(confidence==='Moderate confidence') authority='Moderate authority';
+    else authority='Low authority';
+    if(sessions<prev) behavior='Frequency slipped';
+    else if(sessions>prev && cnsLoad<60) behavior='Consistency improving';
+    else if(loadDelta>=3) behavior='Load climbing';
+    else if(recoveryTrend.label==='Improving') behavior='Recovery rebound';
+    else if(recoveryTrend.label==='Declining' || recoveryTrend.label==='Slightly declining') behavior='Recovery softening';
+    var weeklyNarrative='Weekly pattern is steady. Keep execution clean and progression selective.';
+    if(escalation==='Controlled Push') weeklyNarrative='Recovery and workload are aligned enough for one controlled progression, not a full-board push.';
+    if(escalation==='Accumulating Fatigue') weeklyNarrative='Training pressure is rising relative to recovery. Hold intensity and protect the next session.';
+    if(escalation==='Deload Suggested' || escalation==='Recovery Priority') weeklyNarrative='Recovery now has priority. The best move is to reduce hard work and rebuild freshness.';
+    if(behavior==='Frequency slipped') weeklyNarrative='Cadence has slipped. Rebuild rhythm with a clean moderate session before adding load.';
+    return {state:trendState, opportunity:opportunity, concern:concern, memoryLine:memoryLine, recoveryTrend:recoveryTrend.label, loadDelta:loadDelta, recentSessions:buckets.length, dataLevel:dataLevel, confidence:confidence, escalation:escalation, authority:authority, behavior:behavior, weeklyNarrative:weeklyNarrative};
   }
   function buildDecision(){
     var rs=rows();
@@ -19512,6 +19534,18 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     else if(trend.state==='Momentum Building' || trend.state==='Progression Opportunity'){ state='TRAIN'; tone='train'; action='Push one priority'; reason=trend.memoryLine; guide='Progress one priority lift or add one quality accessory set. Keep the rest controlled.'; deload='Not indicated'; }
     else if(r!==null && r>=76 && cnsLoad<50 && sessions<=4){ state='TRAIN'; tone='train'; action='Push one priority'; reason='You have enough recovery room to push one priority area.'; guide='Progress one priority lift or add one quality accessory set.'; deload='Not indicated'; }
     else if(trend.state==='Consistency Regression' || delta<0 || (daysSince!==null && daysSince>=4)){ state='REBUILD'; tone='rec'; action='Rebuild rhythm'; reason='Your training rhythm has dipped recently.'; guide='Get one clean moderate session in before chasing load.'; deload='Not indicated'; }
+    /* Phase 2E.3B — authority gate: one central coaching state controls how aggressive the call can be. */
+    if(trend.escalation==='Recovery Priority'){
+      state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Recovery is the limiting factor today. The smart move is to restore freshness before pushing load.'; guide='Use easy movement, mobility, or technique work. Keep effort deliberately low.'; deload='Reduce intensity today';
+    }else if(trend.escalation==='Deload Suggested'){
+      state='DELOAD'; tone='recover'; action='Deload suggested'; reason='Fatigue is stacking faster than recovery adaptation. Pushing harder would add risk without much upside.'; guide='Reduce hard sets by 20–30%, keep reps clean, and leave room for the next session.'; deload='Recommended';
+    }else if(trend.escalation==='Accumulating Fatigue' && state==='TRAIN'){
+      state='MAINTAIN'; tone='maintain'; action='Hold progression'; reason='There is some training momentum, but fatigue signals are rising. Keep today productive, not aggressive.'; guide='Hold load steady and focus on crisp execution.'; deload='Watch';
+    }else if((confidence==='Limited dataset' || confidence==='Emerging trend') && state==='TRAIN'){
+      state='MAINTAIN'; tone='maintain'; action='Controlled build'; reason='The trend is promising, but the dataset is not strong enough for an aggressive push yet.'; guide='Make one small progression only if warm-ups feel unusually strong.'; deload='Not indicated';
+    }else if(trend.escalation==='Controlled Push' && state!=='RECOVER' && state!=='DELOAD'){
+      state='TRAIN'; tone='train'; action='Controlled push'; reason=trend.weeklyNarrative; guide='Progress one priority movement. Do not stack extra hard work across the session.'; deload='Not indicated';
+    }
     var progression='Hold';
     if(state==='TRAIN') progression='Progress one priority movement';
     else if(state==='MAINTAIN' && cnsLoad<45) progression='Small bump only if warm-ups feel good';
@@ -19521,22 +19555,51 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     return {
       state:state,tone:tone,action:action,reason:reason,guide:guide,cns:cnsLoad,confidence:confidence,progression:progression,deload:deload,
       sessions:sessions,prev:prev,sets:sets,volume:volume,readiness:r,imbalance:imbalance,top:top,second:second,trend:trend,
-      meta:[r!==null?'Readiness '+r:'Readiness pending', sessions+' session'+(sessions===1?'':'s')+' this week', sets?sets+' sets':'baseline building', trend.state].join(' · ')
+      escalation:trend.escalation,authority:trend.authority,behavior:trend.behavior,weeklyNarrative:trend.weeklyNarrative,
+      meta:[r!==null?'Readiness '+r:'Readiness pending', sessions+' session'+(sessions===1?'':'s')+' this week', sets?sets+' sets':'baseline building', trend.escalation].join(' · ')
     };
   }
   function decisionCard(){
     var d=buildDecision();
-    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Vertex turns recovery, recent workload, fatigue, and balance into a simple training call.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>Fatigue</strong> '+esc(d.cns)+'/100</div><div class="vertex-phase2d-chip"><strong>'+esc(d.confidence)+'</strong></div><div class="vertex-phase2d-chip"><strong>Memory</strong> '+esc(d.trend.state)+'</div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
+    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Vertex turns recovery, recent workload, fatigue, behavior, and confidence into one training call.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>Escalation</strong> '+esc(d.escalation)+'</div><div class="vertex-phase2d-chip"><strong>Fatigue</strong> '+esc(d.cns)+'/100</div><div class="vertex-phase2d-chip"><strong>'+esc(d.confidence)+'</strong></div><div class="vertex-phase2d-chip"><strong>Behavior</strong> '+esc(d.behavior)+'</div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
   }
   function progressionInsight(d){
-    return '<div class="insight vertex-phase2d-feed vertex-phase2d1-progression"><div class="vertex-phase2b-title"><b>Progression Prescription</b><button class="vertex-i" type="button" aria-label="Info" data-tip="This turns today’s recovery and fatigue picture into a simple loading decision.">i</button></div><div class="vertex-phase2b-action">'+esc(d.progression)+'</div><div class="vertex-phase2b-why">'+esc(d.trend.memoryLine)+' Deload status: '+esc(d.deload)+'.</div><div class="vertex-phase2b-meta">'+esc(d.trend.state)+' · '+esc(d.confidence)+' · recovery '+esc(d.trend.recoveryTrend)+'</div></div>';
+    return '<div class="insight vertex-phase2d-feed vertex-phase2d1-progression"><div class="vertex-phase2b-title"><b>Progression Prescription</b><button class="vertex-i" type="button" aria-label="Info" data-tip="This turns today’s recovery and fatigue picture into a simple loading decision.">i</button></div><div class="vertex-phase2b-action">'+esc(d.progression)+'</div><div class="vertex-phase2b-why">'+esc(d.weeklyNarrative)+' Deload status: '+esc(d.deload)+'.</div><div class="vertex-phase2b-meta">'+esc(d.escalation)+' · '+esc(d.confidence)+' · '+esc(d.authority)+' · recovery '+esc(d.trend.recoveryTrend)+'</div></div>';
+  }
+  function setRailCard(title,value,lines,sevClass){
+    try{
+      var cards=document.querySelectorAll('#vertexB2ProgressDeck .vertex-b2-card');
+      for(var i=0;i<cards.length;i++){
+        var lab=cards[i].querySelector('.label');
+        if(!lab || String(lab.textContent||'').trim()!==title) continue;
+        cards[i].classList.remove('vertex-b2-high','vertex-b2-watch','vertex-b2-moderate','vertex-b2-good');
+        cards[i].classList.add('vertex-b2-'+(sevClass||'moderate'));
+        var html='<div class="label">'+esc(title)+'</div><div class="vertex-b2-value">'+esc(value)+'</div>'+(lines||[]).map(function(x){return '<div class="vertex-b2-line">'+esc(x)+'</div>';}).join('');
+        cards[i].innerHTML=html;
+        return;
+      }
+    }catch(e){}
+  }
+  function syncRailCards(d){
+    try{
+      var sev=d.tone==='recover'?'high':(d.escalation==='Accumulating Fatigue'?'watch':(d.tone==='train'?'good':'moderate'));
+      setRailCard('Recovery Trend', d.trend.recoveryTrend, [d.readiness!==null?'Readiness score: '+d.readiness:'Readiness score pending', d.weeklyNarrative], sev);
+      setRailCard('Load Tolerance', d.escalation, ['Authority: '+d.authority, d.escalation==='Controlled Push'?'Load can support one priority push.':d.escalation==='Productive'?'Current load appears manageable.':'Load should be managed before adding intensity.'], sev);
+      setRailCard('Adaptive Coach', d.action, [d.reason, 'Confidence: '+d.confidence], sev);
+      setRailCard('Workout Memory', d.trend.state, ['Behavior: '+d.behavior, d.sets?('Stored weekly sets: '+d.sets):'Baseline still building'], sev);
+      setRailCard('Weekly Intelligence', d.escalation, [d.weeklyNarrative, d.sessions+' this week vs '+d.prev+' previous'], sev);
+      setRailCard('Consistency', d.behavior, [d.behavior==='Frequency slipped'?'Rebuild cadence before adding load.':'Keep the rhythm and avoid unnecessary extra volume.', 'This week: '+d.sessions+'; previous: '+d.prev], d.behavior==='Frequency slipped'?'watch':sev);
+      setRailCard('Longitudinal Trend', d.trend.state, [d.confidence+' · '+d.trend.dataLevel, d.trend.memoryLine], sev);
+    }catch(e){ console.warn('[Vertex Phase2E.3B] rail sync failed',e); }
   }
   function inject(){
     try{
       var row=document.querySelector('#vertexB2ProgressDeck .vertex-b2-row-intelligence');
       if(!row) return;
+      var d=buildDecision();
       var existing=row.querySelector('.vertex-phase2d-decision');
       if(existing) existing.outerHTML=decisionCard(); else row.insertAdjacentHTML('afterbegin',decisionCard());
+      syncRailCards(d);
       if(window.VertexPhase2BCoachIntelligence && typeof window.VertexPhase2BCoachIntelligence.sync==='function'){
         setTimeout(function(){ try{ window.VertexPhase2BCoachIntelligence.sync(); }catch(e){} },80);
       }
@@ -19553,7 +19616,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
           if(/Build the baseline/i.test(x.textContent||'')) x.remove();
         });
       }
-      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A simple explanation of today’s best training move.">i</button></div><div class="vertex-phase2b-action">'+esc(d.trend.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.trend.memoryLine)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">Fatigue estimate: '+esc(d.cns)+'/100 · '+esc(d.confidence)+' · '+esc(d.trend.dataLevel)+'</div></div>';
+      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A simple explanation of today’s best training move.">i</button></div><div class="vertex-phase2b-action">'+esc(d.escalation)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.weeklyNarrative)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">Fatigue estimate: '+esc(d.cns)+'/100 · '+esc(d.confidence)+' · '+esc(d.authority)+' · '+esc(d.behavior)+'</div></div>';
       el.insertAdjacentHTML('afterbegin',progressionInsight(d));
       el.insertAdjacentHTML('afterbegin',html);
     }catch(e){ console.warn('[Vertex Phase2D.1] coach feed enhancement failed',e); }
@@ -19572,7 +19635,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   }
   [120,520,1200,2400].forEach(function(ms){ setTimeout(function(){ inject(); enhanceCoachFeed(); },ms); });
   document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(function(){inject(); enhanceCoachFeed();},180); setTimeout(function(){inject(); enhanceCoachFeed();},700); } },true);
-  window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject,enhanceCoachFeed:enhanceCoachFeed};
+  window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject,enhanceCoachFeed:enhanceCoachFeed,syncRailCards:syncRailCards};
 })();
 </script>
 

@@ -34,6 +34,7 @@
 <title>Vertex — Build · Track · Improve</title>
 <!-- v20260526-ac: recovery intelligence engine v2; service worker/cache locked -->
 <!-- Phase 2C.1: spark SVG cleanup; no auth/boot/SW architecture changes -->
+<!-- Phase 2E: adaptive coaching polish; approachable coach tone; no architecture changes -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -19256,38 +19257,38 @@ body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-pan
     var topMove=pf&&pf[0];
     var out=[];
     if(!rs.length){
-      return [card('Build the baseline','Log 3–4 workouts before Vertex makes aggressive recommendations.','Once Vertex has repeated sessions, it can compare frequency, muscle balance, load, and recovery response instead of giving generic guidance.','','Why baseline matters','Phase 2B')];
+      return [card('Build the baseline','Log 3–4 workouts so Vertex can learn your normal rhythm.','After a few sessions, Vertex can spot what is normal for you and make better coaching calls.','','Why Vertex needs a baseline','Phase 2B')];
     }
     if(score!==null && score<60){
-      out.push(card('Recovery-first training','Keep today at technique, mobility, or controlled volume.','Readiness is below the push zone, so the goal is to protect consistency without forcing adaptation through fatigue.','warn','Readiness combines recovery signals with recent training context.', 'Readiness '+score));
+      out.push(card('Recovery-first day','Keep today lighter: technique work, mobility, or controlled volume.','Recovery looks low, so the win today is staying consistent without forcing a hard session.','warn','Readiness tells Vertex how much room you likely have to train hard today.', 'Readiness '+score));
     } else if(score!==null && score>=75 && strainScore<70){
-      out.push(card('Selective progression window','Progress one priority lift or one quality set — not the whole workout.','Recovery is supportive and strain is not excessive, so the safest move is targeted progression rather than broad volume expansion.','green','A progression window appears when readiness is strong and strain is manageable.', 'Readiness '+score));
+      out.push(card('Good window to build','Progress one priority lift or add one quality set — not everything at once.','Recovery looks supportive, but the smartest move is a targeted push instead of adding volume everywhere.','green','Vertex shows this when your recovery looks strong enough for a smart push.', 'Readiness '+score));
     } else {
-      out.push(card('Controlled training day','Train as planned, but keep effort honest and stop short of sloppy reps.','Current signals support work, but not a blank check for max-effort loading across every movement.','','Vertex balances readiness, strain, and recent workload before recommending intensity.', score!==null?'Readiness '+score:'Readiness pending'));
+      out.push(card('Controlled training day','Train as planned, but keep reps clean and stop before form breaks down.','Your signals support training, but not an all-out day across every movement.','','Vertex weighs recovery, workload, and recent training before suggesting how hard to push.', score!==null?'Readiness '+score:'Readiness pending'));
     }
     if(delta>0){
-      out.push(card('Ramp-up guardrail','Hold load jumps conservative while frequency is rising.','You are training more than last week; tissue tolerance usually lags behind motivation and calendar momentum.','warn','Compares this week’s sessions against the previous week.', sessions+' vs '+prev+' sessions'));
+      out.push(card('Ramp-up guardrail','Keep load jumps conservative while training frequency is rising.','You are training more than last week, so give your body time to catch up before chasing big jumps.','warn','Compares this week’s workout rhythm against last week.', sessions+' vs '+prev+' sessions'));
     } else if(delta<0){
-      out.push(card('Rhythm rebuild','Prioritize one clean session before adding volume.','Frequency dipped versus last week, so the best next move is restoring cadence before chasing heavier work.','warn','Compares current weekly frequency against the prior week.', sessions+' vs '+prev+' sessions'));
+      out.push(card('Rhythm rebuild','Get one clean session in before adding more volume.','Training rhythm dipped, so rebuild consistency first before chasing heavier work.','warn','Compares current weekly frequency against the prior week.', sessions+' vs '+prev+' sessions'));
     } else {
-      out.push(card('Stable cadence','Use the next session to improve execution quality or one key lift.','Frequency is steady, which means progression can come from better reps, not necessarily more total work.','green','Stable cadence means weekly frequency is holding.', sessions+' sessions this week'));
+      out.push(card('Stable rhythm','Use the next session to sharpen form or progress one key lift.','Your rhythm is steady, so progress can come from better reps — not just more work.','green','Stable rhythm means weekly frequency is holding.', sessions+' sessions this week'));
     }
     if(top && second && top.sets>=Math.max(6,second.sets*1.45)){
-      out.push(card('Imbalance detected','Balance '+top.name+' with complementary work or keep the next '+top.name+' block submaximal.','This week’s volume is concentrated in one muscle group, which can raise local fatigue even when total readiness looks acceptable.','warn','Flags a muscle group when it materially outpaces the next highest group.', top.name+' '+top.sets+' sets'));
+      out.push(card('Imbalance detected','Balance '+top.name+' with complementary work or keep the next '+top.name+' block submaximal.','One muscle group is getting most of the work this week, which can create fatigue even if overall readiness looks fine.','warn','Flags when one muscle group is starting to pull ahead of the rest.', top.name+' '+top.sets+' sets'));
     } else if(top){
-      out.push(card('Volume balance acceptable','Progress one priority movement if warm-ups feel strong.','No single muscle group is dominating the week, so the current distribution is reasonable for continued training.','green','Reviews this week’s muscle-group set distribution.', top.name+' leads'));
+      out.push(card('Volume balance looks good','Progress one priority movement if warm-ups feel strong.','No single muscle group is taking over the week, so your training balance looks reasonable.','green','Reviews how your weekly sets are spread across muscle groups.', top.name+' leads'));
     }
     if(score!==null && strainScore>=70){
-      out.push(card('Recovery-performance conflict','Reduce intensity or total hard sets for the next session.','Training strain is high relative to recovery; this is where performance can look fine briefly while fatigue accumulates underneath.','warn','Looks for a mismatch between readiness and accumulated training strain.', 'Strain '+Math.round(strainScore)));
+      out.push(card('Recovery and workload mismatch','Reduce intensity or trim hard sets in the next session.','Workload is running ahead of recovery. You may still feel okay, but fatigue can build underneath.','warn','Looks for signs that workload is getting ahead of recovery.', 'Strain '+Math.round(strainScore)));
     } else if(score!==null && score>=70 && load>0){
-      out.push(card('Recovery supporting output','Keep the session productive, but cap progression to one main target.','Recovery and recent output are aligned enough to train, while still avoiding unnecessary total-volume creep.','green','Connects recovery status with recent load volume.', Math.round(load)+' load volume'));
+      out.push(card('Recovery is supporting output','Keep the session productive, but limit progression to one main target.','Recovery and recent output look aligned enough to train, but extra volume still needs to be earned.','green','Connects recovery status with recent training volume.', Math.round(load)+' load volume'));
     }
     if(topMove && n(topMove.sets,0)>=8){
-      out.push(card('Repeat-movement fatigue watch','Hold load on '+topMove.name+' if bar speed or form drops.','High repeat exposure on the same movement can limit performance before overall weekly volume looks excessive.','','Uses repeated exercise exposure from workout memory.', n(topMove.sets,0)+' tracked sets'));
+      out.push(card('Repeat-movement fatigue watch','Hold load on '+topMove.name+' if speed or form drops.','Repeating the same movement often can create fatigue before your overall week looks heavy.','','Uses workout history to watch repeat exposure.', n(topMove.sets,0)+' tracked sets'));
     }
     if(daysSince!==null){
-      if(daysSince===0) out.push(card('Same-day intensity cap','Treat any second session as low-strain conditioning, mobility, or skill work.','Stacking hard sessions on the same day can distort recovery signals and increase fatigue without much added benefit.','warn','Uses the timing of your most recent logged workout.', 'Trained today'));
-      else if(daysSince>=4) out.push(card('Re-entry protocol','Start moderate and earn intensity during warm-up sets.','After several days off, connective tissue and coordination need a controlled ramp before max effort.','warn','Uses days since last logged workout.', daysSince+' days since last'));
+      if(daysSince===0) out.push(card('Same-day intensity cap','Keep any second session easy: conditioning, mobility, or skill work.','Stacking hard sessions in one day can add fatigue faster than it adds progress.','warn','Uses when your last workout was logged.', 'Trained today'));
+      else if(daysSince>=4) out.push(card('Re-entry protocol','Start moderate and earn intensity during warm-up sets.','After several days off, ease back in before pushing hard.','warn','Uses days since your last logged workout.', daysSince+' days since last'));
     }
     return out.slice(0,5);
   }
@@ -19338,7 +19339,7 @@ body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-pan
 })();
 </script>
 <style id="vertex-phase2d-adaptive-decision-css">
-/* Phase 2D.1 — Adaptive Decision Engine refinement. Isolated Progress intelligence layer only. */
+/* Phase 2E — Adaptive Coaching Polish. Tone refinement only; architecture locked. */
 #progressPage .vertex-b2-card.vertex-phase2d-decision{
   border-color:rgba(232,255,71,.42)!important;
   background:linear-gradient(135deg,rgba(232,255,71,.075),rgba(24,24,24,.98))!important;
@@ -19466,18 +19467,18 @@ body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-pan
     else if(rs.length>=12 || sessions>=3) confidence='Moderate confidence';
     else if(rs.length>=4) confidence='Emerging trend';
     var state='MAINTAIN', tone='maintain', action='Train controlled';
-    var reason='Signals support work, but broad progression should stay selective.';
-    var guide='Progress one movement only if warm-ups feel strong.';
+    var reason='You can train today, but keep progression selective.';
+    var guide='Progress one movement only if warm-ups feel good.';
     var deload='Not indicated';
-    if(r!==null && r<50){ state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Readiness is below the safe push zone and training stress should not be forced.'; guide='Use mobility, zone-2, or technique work. Avoid PR attempts.'; deload='Reduce intensity today'; }
-    else if(cnsLoad>=75){ state='DELOAD'; tone='recover'; action='Deload recommended'; reason='Session density, imbalance, repeat exposure, or readiness flags suggest accumulated fatigue.'; guide='Reduce working sets or load by 20–30% and keep reps clean.'; deload='Recommended'; }
-    else if(cnsLoad>=58){ state='MAINTAIN'; tone='maintain'; action='Fatigue watch'; reason='Fatigue indicators are rising, but not high enough to require a full deload.'; guide='Hold load steady and avoid adding extra hard sets.'; deload='Watch'; }
-    else if(r!==null && r>=76 && cnsLoad<50 && sessions<=4){ state='TRAIN'; tone='train'; action='Push with intent'; reason='Readiness is supportive and fatigue flags are controlled.'; guide='Progress one priority lift or add one quality accessory set.'; deload='Not indicated'; }
-    else if(delta<0 || (daysSince!==null && daysSince>=4)){ state='REBUILD'; tone='rec'; action='Rebuild rhythm'; reason='Training cadence is behind the recent baseline.'; guide='Get a clean moderate session in before chasing load.'; deload='Not indicated'; }
+    if(r!==null && r<50){ state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Recovery looks low, so forcing a hard session is not the best move today.'; guide='Keep it light: mobility, easy cardio, or technique work. Skip PR attempts.'; deload='Reduce intensity today'; }
+    else if(cnsLoad>=75){ state='DELOAD'; tone='recover'; action='Easier day recommended'; reason='Recent workload is starting to pile up, and your body may need an easier day.'; guide='Cut working sets or load by 20–30% and keep every rep clean.'; deload='Recommended'; }
+    else if(cnsLoad>=58){ state='MAINTAIN'; tone='maintain'; action='Fatigue watch'; reason='Fatigue is building, but you do not need a full deload yet.'; guide='Hold load steady and avoid adding extra hard sets.'; deload='Watch'; }
+    else if(r!==null && r>=76 && cnsLoad<50 && sessions<=4){ state='TRAIN'; tone='train'; action='Push one priority'; reason='You have enough recovery room to push one priority area.'; guide='Progress one priority lift or add one quality accessory set.'; deload='Not indicated'; }
+    else if(delta<0 || (daysSince!==null && daysSince>=4)){ state='REBUILD'; tone='rec'; action='Rebuild rhythm'; reason='Your training rhythm has dipped recently.'; guide='Get one clean moderate session in before chasing load.'; deload='Not indicated'; }
     var progression='Hold';
-    if(state==='TRAIN') progression='Add load/reps to one priority movement';
-    else if(state==='MAINTAIN' && cnsLoad<45) progression='Small progression only if warmups are strong';
-    else if(state==='MAINTAIN') progression='Hold load; improve execution quality';
+    if(state==='TRAIN') progression='Progress one priority movement';
+    else if(state==='MAINTAIN' && cnsLoad<45) progression='Small bump only if warm-ups feel good';
+    else if(state==='MAINTAIN') progression='Hold load and sharpen execution';
     else if(state==='REBUILD') progression='Moderate re-entry session';
     else progression='No progression target today';
     return {
@@ -19488,10 +19489,10 @@ body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-pan
   }
   function decisionCard(){
     var d=buildDecision();
-    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Train / Maintain / Recover decision based on readiness, session density, CNS fatigue estimate, imbalance, cadence, and progression tolerance.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>CNS</strong> '+esc(d.cns)+'/100</div><div class="vertex-phase2d-chip"><strong>'+esc(d.confidence)+'</strong></div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
+    return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Vertex turns recovery, recent workload, fatigue, and balance into a simple training call.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>Fatigue</strong> '+esc(d.cns)+'/100</div><div class="vertex-phase2d-chip"><strong>'+esc(d.confidence)+'</strong></div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
   }
   function progressionInsight(d){
-    return '<div class="insight vertex-phase2d-feed vertex-phase2d1-progression"><div class="vertex-phase2b-title"><b>Progression Prescription</b><button class="vertex-i" type="button" aria-label="Info" data-tip="This translates today’s fatigue and readiness state into a simple loading decision.">i</button></div><div class="vertex-phase2b-action">'+esc(d.progression)+'</div><div class="vertex-phase2b-why">Deload status: '+esc(d.deload)+'. Confidence: '+esc(d.confidence)+'.</div><div class="vertex-phase2b-meta">Phase 2D.1 · adaptive refinement</div></div>';
+    return '<div class="insight vertex-phase2d-feed vertex-phase2d1-progression"><div class="vertex-phase2b-title"><b>Progression Prescription</b><button class="vertex-i" type="button" aria-label="Info" data-tip="This turns today’s recovery and fatigue picture into a simple loading decision.">i</button></div><div class="vertex-phase2b-action">'+esc(d.progression)+'</div><div class="vertex-phase2b-why">Deload status: '+esc(d.deload)+'. Confidence: '+esc(d.confidence)+'.</div><div class="vertex-phase2b-meta">Phase 2E · coaching polish</div></div>';
   }
   function inject(){
     try{
@@ -19515,7 +19516,7 @@ body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-pan
           if(/Build the baseline/i.test(x.textContent||'')) x.remove();
         });
       }
-      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A plain-English explanation of today’s best training decision from the adaptive decision engine.">i</button></div><div class="vertex-phase2b-action">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.reason)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">CNS fatigue estimate: '+esc(d.cns)+'/100 · '+esc(d.confidence)+'</div></div>';
+      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A simple explanation of today’s best training move.">i</button></div><div class="vertex-phase2b-action">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.reason)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">Fatigue estimate: '+esc(d.cns)+'/100 · '+esc(d.confidence)+'</div></div>';
       el.insertAdjacentHTML('afterbegin',progressionInsight(d));
       el.insertAdjacentHTML('afterbegin',html);
     }catch(e){ console.warn('[Vertex Phase2D.1] coach feed enhancement failed',e); }

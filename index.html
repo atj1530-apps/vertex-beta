@@ -35,6 +35,7 @@
 <!-- v20260526-ac: recovery intelligence engine v2; service worker/cache locked -->
 <!-- Phase 2C.1: spark SVG cleanup; no auth/boot/SW architecture changes -->
 <!-- Phase 2E: adaptive coaching polish; approachable coach tone; no architecture changes -->
+<!-- Phase 2E.1: duplicate progress section header + click flicker cleanup; legacy category rail mover disabled; SW/cache untouched -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -19023,181 +19024,45 @@ body.app-page-home #plannerAcc::after,body.app-page-home #plannerAcc.planner-pan
 
 
 <style id="vertex-phase2a-category-rails-css">
-/* Phase 2A category rails lock: desktop grouped grids, mobile grouped horizontal rails */
-#vertexProgressIntelligenceHolder.vertex-category-rails-ready{
-  display:block!important;
-  margin-top:18px!important;
-}
-.vertex-progress-category{
-  margin:18px 0 0!important;
-}
-.vertex-progress-category-title{
-  font-family:'DM Mono',monospace;
-  font-size:11px;
-  letter-spacing:.35em;
-  text-transform:uppercase;
-  color:var(--acc);
-  margin:0 0 10px!important;
-  padding-left:2px;
-}
-.vertex-progress-category-rail{
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:12px!important;
-  width:100%!important;
-}
-.vertex-progress-category-rail > div{
+/* Phase 2E.1 surgical cleanup: disable legacy category rail shell.
+   The active progress intelligence renderer is vertexB2ProgressDeck.
+   This prevents duplicate Recovery/Readiness + Training Intelligence headers and click-triggered repaint flicker.
+   No auth, boot, service-worker, cache, spark, or B2 rail architecture changes. */
+#vertexProgressIntelligenceHolder,
+#progressPage #vertexProgressIntelligenceHolder,
+body.app-page-progress #vertexProgressIntelligenceHolder,
+#vertexProgressCategory_recovery,
+#vertexProgressCategory_training{
+  display:none!important;
+  visibility:hidden!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:0!important;
   margin:0!important;
-  min-height:132px!important;
-  width:auto!important;
-  max-width:none!important;
-}
-@media(max-width:900px){
-  #vertexProgressIntelligenceHolder.vertex-category-rails-ready{
-    overflow:hidden!important;
-  }
-  .vertex-progress-category{
-    margin:18px -2px 0!important;
-  }
-  .vertex-progress-category-title{
-    margin-left:2px!important;
-    margin-bottom:10px!important;
-  }
-  .vertex-progress-category-rail{
-    display:flex!important;
-    flex-direction:row!important;
-    flex-wrap:nowrap!important;
-    gap:12px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch!important;
-    scroll-snap-type:x mandatory!important;
-    scrollbar-width:none!important;
-    padding:0 18px 4px 0!important;
-  }
-  .vertex-progress-category-rail::-webkit-scrollbar{display:none!important;}
-  .vertex-progress-category-rail > div{
-    flex:0 0 min(82vw, 390px)!important;
-    width:min(82vw, 390px)!important;
-    max-width:min(82vw, 390px)!important;
-    scroll-snap-align:start!important;
-  }
-}
-@media(min-width:1200px){
-  .vertex-progress-category-rail{
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  }
+  padding:0!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
 }
 </style>
 <script id="vertex-phase2a-category-rails-js">
+/* Phase 2E.1 surgical cleanup: legacy category rail mover disabled.
+   Reason: B2 progress deck now owns Recovery/Readiness and Training Intelligence rails.
+   Keeping this as a no-op prevents duplicate headers and header-click flicker without touching boot/auth/SW. */
 (function(){
-  var categories = [
-    {
-      key:'recovery',
-      title:'RECOVERY / READINESS',
-      ids:[
-        'vertexRecoveryTrendPanel',
-        'vertexTolerancePanel',
-        'vertexStrainPanel',
-        'vertexCardioStrainPanel'
-      ]
-    },
-    {
-      key:'training',
-      title:'TRAINING INTELLIGENCE',
-      ids:[
-        'vertexWorkoutPersistencePanel',
-        'vertexAdaptiveCoachPanel',
-        'vertexLongTrendPanel',
-        'vertexProgressionPanel',
-        'vertexPerformanceDecisionPanel',
-        'vertexHybridRoutingPanel',
-        'vertexConsistencyPanel'
-      ]
-    }
-  ];
-
-  function isProgressPage(){
+  function sync(){
     try{
-      var bodyText = document.body ? String(document.body.textContent || '') : '';
-      if(document.body && document.body.classList && document.body.classList.contains('app-page-progress')) return true;
-      return /\bPROGRESS\b/.test(bodyText) && /training history|volume trends|performance over time/i.test(bodyText);
-    }catch(e){ return false; }
+      var holder=document.getElementById('vertexProgressIntelligenceHolder');
+      if(holder){
+        holder.style.display='none';
+        holder.style.visibility='hidden';
+        holder.setAttribute('aria-hidden','true');
+      }
+    }catch(e){}
+    return false;
   }
-
-  function getHolder(){
-    return document.getElementById('vertexProgressIntelligenceHolder');
-  }
-
-  function ensureCategory(holder, cat){
-    var section = document.getElementById('vertexProgressCategory_' + cat.key);
-    if(!section){
-      section = document.createElement('section');
-      section.id = 'vertexProgressCategory_' + cat.key;
-      section.className = 'vertex-progress-category';
-      section.setAttribute('data-progress-category', cat.key);
-      section.innerHTML =
-        '<div class="vertex-progress-category-title">' + cat.title + '</div>' +
-        '<div class="vertex-progress-category-rail" id="vertexProgressRail_' + cat.key + '"></div>';
-      holder.appendChild(section);
-    }
-    return section.querySelector('.vertex-progress-category-rail');
-  }
-
-  function moveCards(){
-    try{
-      var holder = getHolder();
-      if(!holder) return false;
-
-      holder.classList.add('vertex-category-rails-ready');
-      holder.style.display = isProgressPage() ? 'block' : 'none';
-      holder.style.gridTemplateColumns = 'none';
-      holder.style.gap = '0';
-
-      categories.forEach(function(cat){
-        var rail = ensureCategory(holder, cat);
-        var count = 0;
-        cat.ids.forEach(function(id){
-          var card = document.getElementById(id);
-          if(!card) return;
-          card.style.display = isProgressPage() ? '' : 'none';
-          card.style.marginBottom = '0';
-          card.style.width = '';
-          rail.appendChild(card);
-          count++;
-        });
-        var section = document.getElementById('vertexProgressCategory_' + cat.key);
-        if(section) section.style.display = count ? '' : 'none';
-      });
-
-      return true;
-    }catch(e){
-      console.error('Progress category rails lock failed', e);
-      return false;
-    }
-  }
-
-  function schedule(){
-    [80,250,600,1200,2200,3600].forEach(function(ms){
-      setTimeout(moveCards, ms);
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  document.addEventListener('click', function(){ setTimeout(moveCards, 150); }, true);
-
-  try{
-    var mo = new MutationObserver(function(){
-      clearTimeout(window.__vertexProgressRailsTimer);
-      window.__vertexProgressRailsTimer = setTimeout(moveCards, 80);
-    });
-    document.addEventListener('DOMContentLoaded', function(){
-      if(document.body) mo.observe(document.body, {childList:true, subtree:true});
-    });
-  }catch(e){}
-
-  window.VertexProgressCategoryRails = { sync: moveCards };
+  document.addEventListener('DOMContentLoaded', sync);
+  window.addEventListener('load', sync);
+  window.VertexProgressCategoryRails={sync:sync, disabled:true, phase:'2E.1'};
 })();
 </script>
 <style id="vertex-phase2b-coach-intelligence-css">

@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260526-ac: recovery intelligence engine v2; service worker/cache locked -->
+<!-- v20260529-6a2b-fix: recovery intelligence engine v2; service worker/cache locked -->
 <!-- Phase 2C.1: spark SVG cleanup; no auth/boot/SW architecture changes -->
 <!-- Phase 2E: adaptive coaching polish; approachable coach tone; no architecture changes -->
 <!-- Phase 2E.1: duplicate progress section header + click flicker cleanup; legacy category rail mover disabled; SW/cache untouched -->
@@ -4151,24 +4151,6 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   }
 }
 </style>
-
-<style id="phase6A2b-workout-start-guide-css">
-  #workoutStartGuide{display:none;border-color:rgba(232,255,71,.24);background:linear-gradient(180deg,rgba(232,255,71,.07),rgba(255,255,255,.025));}
-  body.app-page-workout.workout-guide-active #workoutStartGuide{display:block;}
-  body.app-page-workout.workout-guide-active #today,
-  body.app-page-workout.workout-guide-active #plannerAcc,
-  body.app-page-workout.workout-guide-active #coachBar,
-  body.app-page-workout.workout-guide-active #autoCoachAcc,
-  body.app-page-workout.workout-guide-active .wkt-name-row,
-  body.app-page-workout.workout-guide-active #wkt-meta,
-  body.app-page-workout.workout-guide-active #builder{display:none!important;}
-  .start-guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 12px;}
-  .start-guide-step{border:1px solid var(--line2);background:var(--panel2);border-radius:12px;padding:14px;min-height:92px;}
-  .start-guide-step b{display:block;color:var(--acc);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
-  .start-guide-step span{display:block;color:var(--text);font-size:14px;line-height:1.35;}
-  .start-guide-note{color:var(--muted);font-size:13px;line-height:1.45;margin:8px 0 0;}
-  @media(max-width:900px){.start-guide-grid{grid-template-columns:1fr}.start-guide-step{min-height:auto}.workout-start-guide .title{font-size:34px!important;}}
-</style>
 </head>
 <body class="auth-resolving">
 
@@ -4662,19 +4644,20 @@ window.vertexFinishBootstrap=function(){
 </div>
 
 </section><section id="aiPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">AI Coach</h1><p class="page-copy">Coaching from your training history, recovery data, and Apple Health metrics.</p></div><button id="btn-refresh-ai" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh Coach</button></div><div id="aiCoachSummary" class="progress-summary"></div><div class="coach-grid"><section class="coach-card"><div class="label">Daily Recommendation</div><div id="aiDailyCoach"></div></section><section class="coach-card"><div class="label">Training Warnings</div><div id="aiWarnings"></div></section><section class="coach-card"><div class="label">Smart Suggestions</div><div id="aiSuggestions"></div></section><section class="coach-card"><div class="label">Weekly Focus</div><div id="aiWeeklyFocus"></div></section></div></section>
-
-    <section id="workoutStartGuide" class="panel workout-start-guide" aria-label="Workout start guide">
-      <div class="label">Ready to Start a Workout</div>
-      <h1 class="title" style="margin:6px 0 10px">Build your session in three steps.</h1>
-      <div class="start-guide-grid">
-        <div class="start-guide-step"><b>Step 1</b><span>Choose Gym or Home.</span></div>
-        <div class="start-guide-step"><b>Step 2</b><span>Pick a Program, Template, or Training Focus.</span></div>
-        <div class="start-guide-step"><b>Step 3</b><span>Add exercises, then start training.</span></div>
-      </div>
-      <p class="start-guide-note">Start on the left. Once you make a selection, this guide will move out of the way.</p>
-    </section>
     <section id="today" class="panel hl today-card"></section>
     <section id="plannerAcc" class="panel planner-panel open"><div class="acc-body" style="display:block"><div class="label">Weekly Planner v2 · Start Today Flow</div><p style="color:var(--muted);margin:8px 0 14px">Build custom workouts from the library for each day, then start <b style="color:var(--acc)">today’s workout.</b></p><div style="overflow-x:auto;margin:0 -8px;padding:0 8px 0 8px;box-sizing:border-box"><div id="planner" class="planner-grid"></div></div></div></section>
+
+
+    <section id="workoutStartGuide" class="panel hl today-card" style="display:block;padding:24px 26px;margin-bottom:16px">
+      <div class="label" style="color:var(--acc);margin-bottom:10px">Workout Setup</div>
+      <h2 style="margin:0 0 10px;font-size:30px;letter-spacing:.3px">Ready to Start a Workout?</h2>
+      <p style="color:var(--muted);margin:0 0 18px;font-size:15px;line-height:1.45">Use the left panel to choose how you want to train today.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+        <div class="panel" style="margin:0"><b>Step 1</b><br><span style="color:var(--muted)">Choose Gym or Home.</span></div>
+        <div class="panel" style="margin:0"><b>Step 2</b><br><span style="color:var(--muted)">Pick a program, template, or training focus.</span></div>
+        <div class="panel" style="margin:0"><b>Step 3</b><br><span style="color:var(--muted)">Build the workout and start training.</span></div>
+      </div>
+    </section>
 
     <div id="coachBar" class="coachbar">Ready: Push intensity today.</div>
     <section id="autoCoachAcc" class="accordion open"><div class="acc-head"><span class="acc-title">Auto Coach</span><span class="acc-hint">▼ COLLAPSE</span></div><div class="acc-body"><div id="autoCoachBody"><div class="label" style="color:var(--acc)">Auto Coach</div><p style="color:var(--muted);margin:4px 0 12px">Optional plan guidance based on recovery, workout type, and live performance signals.</p><div class="panel" style="margin:0"><b>Recovery signal is favorable.</b><br><span style="color:var(--muted)">Add a small load or rep increase where form is stable.</span></div></div></div></section>
@@ -5070,7 +5053,7 @@ function getSupa(){
   return _supa;
 }
 function defaultPage(){return 'home';}
-const state={page:defaultPage(),env:'home',muscle:'',search:'',program:'Manual',training:'Strength',current:{name:'Name Your Workout',type:'strength',exercises:[],source:'manual',assignedDay:null},tracking:false,activePhase:0,planner:emptyPlanner(),pendingTemplate:null,session:{steps:[],idx:0},savedWorkouts:[],progressLogs:[],equipment:loadEquipmentProfile(),restTimerDefault:60};
+const state={page:defaultPage(),env:'home',muscle:'All',search:'',program:'Manual',training:'Strength',current:{name:'Name Your Workout',type:'strength',exercises:[],source:'manual',assignedDay:null},tracking:false,activePhase:0,planner:emptyPlanner(),pendingTemplate:null,session:{steps:[],idx:0},savedWorkouts:[],progressLogs:[],equipment:loadEquipmentProfile(),restTimerDefault:60};
 function setSyncStatus(status,label){state.syncStatus=status; state.syncLabel=label; const pill=document.getElementById('syncStatus'); const text=document.getElementById('syncStatusText'); if(!pill||!text) return; pill.className='sync-pill '+status; text.textContent=label;}
 function refreshSyncStatus(){ if(!authUser) setSyncStatus('local','Local mode'); else setSyncStatus(state.syncStatus||'synced', state.syncLabel||'Supabase synced'); }
 function markUnsaved(){ if(!hasWorkout()){ refreshSyncStatus(); return; } if(authUser) setSyncStatus('unsaved','Unsaved changes'); else setSyncStatus('local','Local mode'); }
@@ -6120,13 +6103,13 @@ function closeEquipmentModal(){document.getElementById('equipmentModal')?.classL
 // v13.54.0 home strength completion END
 
 const FILTER_GROUPS={
-  'Strength':['Legs','Chest','Back','Shoulders','Arms','Triceps','Core'],
-  'Kettlebell':['Full Body','Lower Body','Upper Body','Power','Core','Mobility'],
-  'Yoga / Pilates':['Flow','Balance','Core','Mobility'],
-  'Cardio':['Low Impact','HIIT','Conditioning'],
-  'Recovery / Mobility':['Breathwork','Spine','Hips','Hamstrings','Shoulders','Chest','Full Body','Legs','Back','Recovery'],
-  'Recovery':['Breathwork','Spine','Hips','Hamstrings','Shoulders','Chest','Full Body','Legs','Back','Recovery'],
-  'Stretching':['Hips','Hamstrings','Spine','Shoulders','Chest']
+  'Strength':['All','Legs','Chest','Back','Shoulders','Arms','Triceps','Core'],
+  'Kettlebell':['All','Full Body','Lower Body','Upper Body','Power','Core','Mobility'],
+  'Yoga / Pilates':['All','Flow','Balance','Core','Mobility'],
+  'Cardio':['All','Low Impact','HIIT','Conditioning'],
+  'Recovery / Mobility':['All','Breathwork','Spine','Hips','Hamstrings','Shoulders','Chest','Full Body','Legs','Back','Recovery'],
+  'Recovery':['All','Breathwork','Spine','Hips','Hamstrings','Shoulders','Chest','Full Body','Legs','Back','Recovery'],
+  'Stretching':['All','Hips','Hamstrings','Spine','Shoulders','Chest']
 };
 const TRAINING_HELP={
   'Strength':'',
@@ -9629,25 +9612,7 @@ function protoSelectDate(dateStr){
         const pdfDateStr = new Date().toLocaleDateString([],{year:'numeric',month:'long',day:'numeric'});
         const html = `<!DOCTYPE html><html><head><title>Vertex Protocol Summary — ${initials||displayName}</title>
           <style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;color:#111}h1{color:#1a1a1a;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#1a1a1a;color:#fff;padding:8px 12px;text-align:left;font-size:12px}td{padding:8px 12px;border-bottom:1px solid #eee;font-size:13px}tr:nth-child(even){background:#f9f9f9}.meta{color:#666;font-size:13px;margin-bottom:24px}.patient{font-size:15px;font-weight:bold;color:#333;margin-bottom:4px}</style>
-          
-<style id="phase6A2b-workout-start-guide-css">
-  #workoutStartGuide{display:none;border-color:rgba(232,255,71,.24);background:linear-gradient(180deg,rgba(232,255,71,.07),rgba(255,255,255,.025));}
-  body.app-page-workout.workout-guide-active #workoutStartGuide{display:block;}
-  body.app-page-workout.workout-guide-active #today,
-  body.app-page-workout.workout-guide-active #plannerAcc,
-  body.app-page-workout.workout-guide-active #coachBar,
-  body.app-page-workout.workout-guide-active #autoCoachAcc,
-  body.app-page-workout.workout-guide-active .wkt-name-row,
-  body.app-page-workout.workout-guide-active #wkt-meta,
-  body.app-page-workout.workout-guide-active #builder{display:none!important;}
-  .start-guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 12px;}
-  .start-guide-step{border:1px solid var(--line2);background:var(--panel2);border-radius:12px;padding:14px;min-height:92px;}
-  .start-guide-step b{display:block;color:var(--acc);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
-  .start-guide-step span{display:block;color:var(--text);font-size:14px;line-height:1.35;}
-  .start-guide-note{color:var(--muted);font-size:13px;line-height:1.45;margin:8px 0 0;}
-  @media(max-width:900px){.start-guide-grid{grid-template-columns:1fr}.start-guide-step{min-height:auto}.workout-start-guide .title{font-size:34px!important;}}
-</style>
-</head><body>
+          </head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
           <div class="meta">Generated: ${pdfDateStr} · ${items.length} active compound${items.length===1?'':'s'}</div>
@@ -9729,32 +9694,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-
-<script id="phase6A2b-workout-start-guide-js">
-(function(){
-  function hasWorkoutContent(){
-    try{return !!(window.state && state.current && Array.isArray(state.current.exercises) && state.current.exercises.length);}catch(e){return false;}
-  }
-  function showGuide(){
-    if(hasWorkoutContent()) return;
-    document.body.classList.add('workout-guide-active');
-  }
-  function hideGuide(){document.body.classList.remove('workout-guide-active');}
-  function bind(){
-    showGuide();
-    var side=document.querySelector('.sidebar');
-    if(!side) return;
-    side.addEventListener('click',function(e){
-      if(e.target && e.target.closest('button,[data-env],[data-program],[data-load-tpl],[data-training],[data-muscle]')) hideGuide();
-    },true);
-    side.addEventListener('input',function(){hideGuide();},true);
-    document.addEventListener('click',function(e){
-      if(e.target && e.target.closest('#savedWorkoutsPanel button,#planner button,#tplActionModal button,#assignModal button')) hideGuide();
-    },true);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
-})();
-</script>
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -10560,7 +10499,7 @@ function renderSidebar(){
   const mediaTrain=(train==='Recovery'||train==='Stretching')?'Recovery / Mobility':train;
   const groups=FILTER_GROUPS[mediaTrain]||FILTER_GROUPS.Strength;
   if(!groups.includes(state.muscle)) state.muscle='';
-  document.getElementById('muscles').innerHTML=groups.map(m=>{const on=state.muscle===m; return `<button class="chip ${on?'on active':''}" data-muscle="${m}" aria-selected="${on?'true':'false'}">${m}</button>`;}).join('');
+  document.getElementById('muscles').innerHTML=groups.filter(m=>m!=='All').map(m=>{const on=state.muscle===m; return `<button class="chip ${on?'on active':''}" data-muscle="${m}" aria-selected="${on?'true':'false'}">${m}</button>`;}).join('');
   const q=String(state.search||'').toLowerCase();
   let list=EXERCISES.filter(e=>{
     const exTrain=(e.training||'Strength');
@@ -11271,24 +11210,6 @@ function generateVertexPDFReport(){
   .footer{margin-top:36px;padding-top:12px;border-top:1px solid #e8e8e8;font-size:11px;color:#aaa;text-align:center}
   @media print{body{padding:20px}h2{break-before:avoid}table{break-inside:auto}tr{break-inside:avoid}}
 </style>
-
-<style id="phase6A2b-workout-start-guide-css">
-  #workoutStartGuide{display:none;border-color:rgba(232,255,71,.24);background:linear-gradient(180deg,rgba(232,255,71,.07),rgba(255,255,255,.025));}
-  body.app-page-workout.workout-guide-active #workoutStartGuide{display:block;}
-  body.app-page-workout.workout-guide-active #today,
-  body.app-page-workout.workout-guide-active #plannerAcc,
-  body.app-page-workout.workout-guide-active #coachBar,
-  body.app-page-workout.workout-guide-active #autoCoachAcc,
-  body.app-page-workout.workout-guide-active .wkt-name-row,
-  body.app-page-workout.workout-guide-active #wkt-meta,
-  body.app-page-workout.workout-guide-active #builder{display:none!important;}
-  .start-guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 12px;}
-  .start-guide-step{border:1px solid var(--line2);background:var(--panel2);border-radius:12px;padding:14px;min-height:92px;}
-  .start-guide-step b{display:block;color:var(--acc);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
-  .start-guide-step span{display:block;color:var(--text);font-size:14px;line-height:1.35;}
-  .start-guide-note{color:var(--muted);font-size:13px;line-height:1.45;margin:8px 0 0;}
-  @media(max-width:900px){.start-guide-grid{grid-template-columns:1fr}.start-guide-step{min-height:auto}.workout-start-guide .title{font-size:34px!important;}}
-</style>
 </head><body>
 
 <h1>Vertex</h1>
@@ -11395,32 +11316,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-
-<script id="phase6A2b-workout-start-guide-js">
-(function(){
-  function hasWorkoutContent(){
-    try{return !!(window.state && state.current && Array.isArray(state.current.exercises) && state.current.exercises.length);}catch(e){return false;}
-  }
-  function showGuide(){
-    if(hasWorkoutContent()) return;
-    document.body.classList.add('workout-guide-active');
-  }
-  function hideGuide(){document.body.classList.remove('workout-guide-active');}
-  function bind(){
-    showGuide();
-    var side=document.querySelector('.sidebar');
-    if(!side) return;
-    side.addEventListener('click',function(e){
-      if(e.target && e.target.closest('button,[data-env],[data-program],[data-load-tpl],[data-training],[data-muscle]')) hideGuide();
-    },true);
-    side.addEventListener('input',function(){hideGuide();},true);
-    document.addEventListener('click',function(e){
-      if(e.target && e.target.closest('#savedWorkoutsPanel button,#planner button,#tplActionModal button,#assignModal button')) hideGuide();
-    },true);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
-})();
-</script>
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -11648,25 +11543,7 @@ window.renderSymmetry = renderSymmetry;
     const w = window.open('','_blank');
     if(!w) return;
     const rows = log.length ? log.map(e=>`<tr><td style="white-space:nowrap;color:#888;font-size:11px">${e.ts?.slice(0,19).replace('T',' ')||'—'}</td><td><span style="font-size:10px;background:${e.type==='error'?'#fee2e2':'#fef9c3'};padding:1px 6px;border-radius:3px;font-weight:700">${e.type}</span></td><td style="font-size:12px">${e.msg||''}</td><td style="font-size:11px;color:#999">${e.src||''}${e.line?':'+e.line:''}</td></tr>`).join('') : '<tr><td colspan="4" style="color:#888;text-align:center;padding:20px">No errors logged.</td></tr>';
-    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style>
-<style id="phase6A2b-workout-start-guide-css">
-  #workoutStartGuide{display:none;border-color:rgba(232,255,71,.24);background:linear-gradient(180deg,rgba(232,255,71,.07),rgba(255,255,255,.025));}
-  body.app-page-workout.workout-guide-active #workoutStartGuide{display:block;}
-  body.app-page-workout.workout-guide-active #today,
-  body.app-page-workout.workout-guide-active #plannerAcc,
-  body.app-page-workout.workout-guide-active #coachBar,
-  body.app-page-workout.workout-guide-active #autoCoachAcc,
-  body.app-page-workout.workout-guide-active .wkt-name-row,
-  body.app-page-workout.workout-guide-active #wkt-meta,
-  body.app-page-workout.workout-guide-active #builder{display:none!important;}
-  .start-guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 12px;}
-  .start-guide-step{border:1px solid var(--line2);background:var(--panel2);border-radius:12px;padding:14px;min-height:92px;}
-  .start-guide-step b{display:block;color:var(--acc);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
-  .start-guide-step span{display:block;color:var(--text);font-size:14px;line-height:1.35;}
-  .start-guide-note{color:var(--muted);font-size:13px;line-height:1.45;margin:8px 0 0;}
-  @media(max-width:900px){.start-guide-grid{grid-template-columns:1fr}.start-guide-step{min-height:auto}.workout-start-guide .title{font-size:34px!important;}}
-</style>
-</head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
+    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX
@@ -11709,32 +11586,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-
-<script id="phase6A2b-workout-start-guide-js">
-(function(){
-  function hasWorkoutContent(){
-    try{return !!(window.state && state.current && Array.isArray(state.current.exercises) && state.current.exercises.length);}catch(e){return false;}
-  }
-  function showGuide(){
-    if(hasWorkoutContent()) return;
-    document.body.classList.add('workout-guide-active');
-  }
-  function hideGuide(){document.body.classList.remove('workout-guide-active');}
-  function bind(){
-    showGuide();
-    var side=document.querySelector('.sidebar');
-    if(!side) return;
-    side.addEventListener('click',function(e){
-      if(e.target && e.target.closest('button,[data-env],[data-program],[data-load-tpl],[data-training],[data-muscle]')) hideGuide();
-    },true);
-    side.addEventListener('input',function(){hideGuide();},true);
-    document.addEventListener('click',function(e){
-      if(e.target && e.target.closest('#savedWorkoutsPanel button,#planner button,#tplActionModal button,#assignModal button')) hideGuide();
-    },true);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
-})();
-</script>
 </body></html>`);
     w.document.close();
   };
@@ -11922,25 +11773,7 @@ function vertexShowSyncDiag(){
   }).join('');
   const w=window.open('','_blank');
   if(!w) return;
-  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style>
-<style id="phase6A2b-workout-start-guide-css">
-  #workoutStartGuide{display:none;border-color:rgba(232,255,71,.24);background:linear-gradient(180deg,rgba(232,255,71,.07),rgba(255,255,255,.025));}
-  body.app-page-workout.workout-guide-active #workoutStartGuide{display:block;}
-  body.app-page-workout.workout-guide-active #today,
-  body.app-page-workout.workout-guide-active #plannerAcc,
-  body.app-page-workout.workout-guide-active #coachBar,
-  body.app-page-workout.workout-guide-active #autoCoachAcc,
-  body.app-page-workout.workout-guide-active .wkt-name-row,
-  body.app-page-workout.workout-guide-active #wkt-meta,
-  body.app-page-workout.workout-guide-active #builder{display:none!important;}
-  .start-guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 12px;}
-  .start-guide-step{border:1px solid var(--line2);background:var(--panel2);border-radius:12px;padding:14px;min-height:92px;}
-  .start-guide-step b{display:block;color:var(--acc);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
-  .start-guide-step span{display:block;color:var(--text);font-size:14px;line-height:1.35;}
-  .start-guide-note{color:var(--muted);font-size:13px;line-height:1.45;margin:8px 0 0;}
-  @media(max-width:900px){.start-guide-grid{grid-template-columns:1fr}.start-guide-step{min-height:auto}.workout-start-guide .title{font-size:34px!important;}}
-</style>
-</head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
+  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX
@@ -11983,32 +11816,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-
-<script id="phase6A2b-workout-start-guide-js">
-(function(){
-  function hasWorkoutContent(){
-    try{return !!(window.state && state.current && Array.isArray(state.current.exercises) && state.current.exercises.length);}catch(e){return false;}
-  }
-  function showGuide(){
-    if(hasWorkoutContent()) return;
-    document.body.classList.add('workout-guide-active');
-  }
-  function hideGuide(){document.body.classList.remove('workout-guide-active');}
-  function bind(){
-    showGuide();
-    var side=document.querySelector('.sidebar');
-    if(!side) return;
-    side.addEventListener('click',function(e){
-      if(e.target && e.target.closest('button,[data-env],[data-program],[data-load-tpl],[data-training],[data-muscle]')) hideGuide();
-    },true);
-    side.addEventListener('input',function(){hideGuide();},true);
-    document.addEventListener('click',function(e){
-      if(e.target && e.target.closest('#savedWorkoutsPanel button,#planner button,#tplActionModal button,#assignModal button')) hideGuide();
-    },true);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
-})();
-</script>
 </body></html>`);
   w.document.close();
 }
@@ -12307,10 +12114,9 @@ document.addEventListener('input',e=>{if(e.target.id==='search'){state.search=e.
   if(muscleBtn){
     const m=muscleBtn.getAttribute('data-muscle');
     if(m){
-      state.muscle=(state.muscle===m)?'':m;
-      const selected=state.muscle;
+      state.muscle = (state.muscle===m) ? '' : m;
       document.querySelectorAll('#muscles .chip').forEach(btn=>{
-        const on=!!selected && btn.getAttribute('data-muscle')===selected;
+        const on=btn.getAttribute('data-muscle')===state.muscle;
         btn.classList.toggle('on',on);
         btn.classList.toggle('active',on);
         btn.setAttribute('aria-selected',on?'true':'false');
@@ -12929,7 +12735,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
   <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260526-ac';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260529-6a2b-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -15934,7 +15740,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 </style>
 
 <script>
-/* v20260526-ac final-safe readiness side-card sync */
+/* v20260529-6a2b-fix final-safe readiness side-card sync */
 (function(){
   function statusFromReadiness(score){
     score = Number(score);
@@ -15985,7 +15791,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac readiness scoring refinement */
+/* v20260529-6a2b-fix readiness scoring refinement */
 (function(){
   function readinessStatus(score){
     score = Number(score);
@@ -16098,7 +15904,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac readiness driver refinement */
+/* v20260529-6a2b-fix readiness driver refinement */
 (function(){
   function statusFromScore(score){
     score = Number(score);
@@ -16248,7 +16054,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac recovery insights engine */
+/* v20260529-6a2b-fix recovery insights engine */
 (function(){
   function readinessStatus(score){
     score = Number(score);
@@ -16411,7 +16217,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac progress intelligence panels */
+/* v20260529-6a2b-fix progress intelligence panels */
 (function(){
   function ensurePanel(id, title){
     if(document.getElementById(id)) return document.getElementById(id);
@@ -16522,7 +16328,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac progress panel scope repair */
+/* v20260529-6a2b-fix progress panel scope repair */
 (function(){
   function currentTabName(){
     try{
@@ -16578,7 +16384,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac progress panel placement repair */
+/* v20260529-6a2b-fix progress panel placement repair */
 (function(){
   function isProgressPage(){
     try{
@@ -16675,7 +16481,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac data integrity pass */
+/* v20260529-6a2b-fix data integrity pass */
 (function(){
   function getBodyText(){
     return document.body && document.body.textContent ? document.body.textContent : '';
@@ -16834,7 +16640,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac hybrid source routing engine */
+/* v20260529-6a2b-fix hybrid source routing engine */
 (function(){
   function hasValue(v){
     return v !== undefined && v !== null && v !== '' && Number.isFinite(Number(v));
@@ -17115,7 +16921,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac apple health routing bridge */
+/* v20260529-6a2b-fix apple health routing bridge */
 (function(){
   function bodyText(){
     return document.body && document.body.textContent ? document.body.textContent : '';
@@ -17226,7 +17032,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac unified health signal routing */
+/* v20260529-6a2b-fix unified health signal routing */
 (function(){
   function getRecoveryIntel(){
     try{
@@ -17367,7 +17173,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac healthkit summary routing repair */
+/* v20260529-6a2b-fix healthkit summary routing repair */
 (function(){
   function hasHealthKitSummary(kind){
     try{
@@ -17486,7 +17292,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac progress hybrid routing hard sync */
+/* v20260529-6a2b-fix progress hybrid routing hard sync */
 (function(){
   function recoveryIntel(){
     try{
@@ -17610,7 +17416,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac settings integrations cleanup */
+/* v20260529-6a2b-fix settings integrations cleanup */
 (function(){
   function tokenExists(keys){
     try{
@@ -17775,7 +17581,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac settings integration layout anchor repair */
+/* v20260529-6a2b-fix settings integration layout anchor repair */
 (function(){
   function hasToken(keys){
     try{
@@ -17964,7 +17770,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac training strain engine */
+/* v20260529-6a2b-fix training strain engine */
 (function(){
   function text(){
     return document.body && document.body.textContent ? document.body.textContent : '';
@@ -18179,7 +17985,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac workout persistence intelligence layer */
+/* v20260529-6a2b-fix workout persistence intelligence layer */
 (function(){
   function safeJson(key, fallback){
     try{
@@ -18454,7 +18260,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac adaptive training intelligence foundation */
+/* v20260529-6a2b-fix adaptive training intelligence foundation */
 (function(){
   function safeJson(key, fallback){
     try{
@@ -18746,7 +18552,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac adaptive performance engine */
+/* v20260529-6a2b-fix adaptive performance engine */
 (function(){
   function safeJson(key, fallback){
     try{
@@ -19063,7 +18869,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac safe wellness-only warning cleanup */
+/* v20260529-6a2b-fix safe wellness-only warning cleanup */
 (function(){
   function activeTab(){
     try{
@@ -19125,7 +18931,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 <script>
-/* v20260526-ac home metric row correct final */
+/* v20260529-6a2b-fix home metric row correct final */
 (function(){
   function activeTab(){
     try{
@@ -20244,32 +20050,6 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
 </script>
-
-<script id="phase6A2b-workout-start-guide-js">
-(function(){
-  function hasWorkoutContent(){
-    try{return !!(window.state && state.current && Array.isArray(state.current.exercises) && state.current.exercises.length);}catch(e){return false;}
-  }
-  function showGuide(){
-    if(hasWorkoutContent()) return;
-    document.body.classList.add('workout-guide-active');
-  }
-  function hideGuide(){document.body.classList.remove('workout-guide-active');}
-  function bind(){
-    showGuide();
-    var side=document.querySelector('.sidebar');
-    if(!side) return;
-    side.addEventListener('click',function(e){
-      if(e.target && e.target.closest('button,[data-env],[data-program],[data-load-tpl],[data-training],[data-muscle]')) hideGuide();
-    },true);
-    side.addEventListener('input',function(){hideGuide();},true);
-    document.addEventListener('click',function(e){
-      if(e.target && e.target.closest('#savedWorkoutsPanel button,#planner button,#tplActionModal button,#assignModal button')) hideGuide();
-    },true);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
-})();
-</script>
 </body>
 </html>
 
@@ -21169,3 +20949,37 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
 </script>
 
 <!-- Phase 6A.1b: Recovery and Stretching combined into Recovery / Mobility in workout filters; legacy exercise records remain matched. -->
+
+
+<script>
+(function(){
+  function qs(sel){ return document.querySelector(sel); }
+  function setDisplay(sel, value){ var el=qs(sel); if(el) el.style.display=value; }
+  function applyWorkoutStartState(started){
+    var guide=qs('#workoutStartGuide');
+    if(guide) guide.style.display = started ? 'none' : 'block';
+    setDisplay('#coachBar', started ? '' : 'none');
+    setDisplay('#autoCoachAcc', started ? '' : 'none');
+    setDisplay('.wkt-name-row', started ? '' : 'none');
+    setDisplay('#wkt-meta', started ? '' : 'none');
+    setDisplay('#builder', started ? '' : 'none');
+  }
+  function startWorkoutPane(){
+    document.body.classList.add('vertex-workout-pane-started');
+    applyWorkoutStartState(true);
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    applyWorkoutStartState(false);
+    var sidebar=qs('.sidebar');
+    if(sidebar){
+      sidebar.addEventListener('click', function(e){
+        if(e.target && e.target.closest && e.target.closest('button')) startWorkoutPane();
+      }, true);
+      sidebar.addEventListener('input', function(){ startWorkoutPane(); }, true);
+      sidebar.addEventListener('focusin', function(e){
+        if(e.target && e.target.id==='search') startWorkoutPane();
+      }, true);
+    }
+  });
+})();
+</script>

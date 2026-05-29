@@ -19526,6 +19526,42 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   },true);
 })();
 </script>
+
+<script id="vertex-phase5a4-stabilization-013">
+(function(){
+ if(window.__vertexP5013)return; window.__vertexP5013=true;
+ function fix(){
+  try{
+   var deck=document.getElementById('vertexB2ProgressDeck');
+   if(!deck) return;
+   var html=deck.innerHTML;
+
+   var m=html.match(/(\d+)\s+sessions?\s+this\s+week/i);
+   var sessions=m?m[1]:null;
+
+   var r=document.body.innerText.match(/Readiness\s*(?:score\s*)?(\d+)/i);
+   var readiness=r?r[1]:null;
+
+   if(readiness){
+     html=html.replace(/Readiness score pending/gi,'Readiness score: '+readiness);
+   }
+   if(sessions){
+     html=html.replace(/This week:\s*0; previous:\s*0/gi,'This week: '+sessions+'; previous: 0');
+   }
+   deck.innerHTML=html;
+
+   var cards=deck.querySelectorAll('.vertex-b2-row-intelligence .vertex-b2-card');
+   if(cards.length) cards[0].classList.add('vertex-p5013-hero');
+  }catch(e){}
+ }
+ document.addEventListener('DOMContentLoaded',()=>{setTimeout(fix,300);setTimeout(fix,1200);});
+ document.addEventListener('click',()=>{setTimeout(fix,400);},true);
+})();
+</script>
+<style id="vertex-phase5a4-stabilization-013-css">
+.vertex-p5013-hero{grid-column:span 2!important}
+@media(max-width:900px){.vertex-p5013-hero{grid-column:auto!important}}
+</style>
 </body>
 </html>
 

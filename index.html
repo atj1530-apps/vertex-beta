@@ -19562,6 +19562,141 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 .vertex-p5013-hero{grid-column:span 2!important}
 @media(max-width:900px){.vertex-p5013-hero{grid-column:auto!important}}
 </style>
+
+<style id="vertex-phase5a4-completion-014-css">
+/* Phase 5A4.14 — Progress completion: hierarchy + data cleanup */
+#progressPage .vertex-b2-row-intelligence .vertex-phase2d-decision,
+#progressPage .vertex-b2-row-intelligence .vertex-b2-card:first-child{
+  grid-column:span 2!important;
+  min-height:240px!important;
+}
+#progressPage .vertex-b2-row-intelligence .vertex-phase2d-decision .vertex-b2-value,
+#progressPage .vertex-b2-row-intelligence .vertex-b2-card:first-child .vertex-b2-value{
+  font-size:26px!important;
+  line-height:1.08!important;
+}
+#progressPage .vertex-b2-row-decision .vertex-b2-card{
+  min-height:150px!important;
+}
+#progressPage .vertex-b2-card{
+  transition:none!important;
+}
+@media(max-width:1100px){
+  #progressPage .vertex-b2-row-intelligence .vertex-phase2d-decision,
+  #progressPage .vertex-b2-row-intelligence .vertex-b2-card:first-child{
+    grid-column:span 2!important;
+  }
+}
+@media(max-width:900px){
+  #progressPage .vertex-b2-row-intelligence .vertex-phase2d-decision,
+  #progressPage .vertex-b2-row-intelligence .vertex-b2-card:first-child{
+    grid-column:auto!important;
+    min-height:210px!important;
+  }
+}
+</style>
+
+<script id="vertex-phase5a4-completion-014-js">
+(function(){
+  if(window.__vertexPhase5A4Completion014) return;
+  window.__vertexPhase5A4Completion014 = true;
+
+  function progressVisible(){
+    try{
+      var page=document.getElementById('progressPage');
+      return !!page && getComputedStyle(page).display !== 'none';
+    }catch(e){ return false; }
+  }
+
+  function getDeck(){
+    return document.getElementById('vertexB2ProgressDeck');
+  }
+
+  function textSessionCount(deck){
+    try{
+      var txt = deck ? deck.innerText : '';
+      var m = txt.match(/(\d+)\s+sessions?\s+this\s+week/i);
+      return m ? Number(m[1]) : null;
+    }catch(e){ return null; }
+  }
+
+  function textReadiness(deck){
+    try{
+      var txt = deck ? deck.innerText : '';
+      var matches = Array.from(txt.matchAll(/readiness(?:\s+score)?[:\s]+(\d{1,3})/ig)).map(function(m){ return Number(m[1]); });
+      matches = matches.filter(function(n){ return n >= 0 && n <= 100; });
+      if(matches.length) return matches[0];
+    }catch(e){}
+    return null;
+  }
+
+  function eachCard(deck, cb){
+    if(!deck) return;
+    deck.querySelectorAll('.vertex-b2-card').forEach(cb);
+  }
+
+  function cardLabel(card){
+    var el = card && card.querySelector('.label');
+    return el ? String(el.textContent || '').trim().toLowerCase() : '';
+  }
+
+  function fixLine(card, find, replace){
+    if(!card) return;
+    card.querySelectorAll('.vertex-b2-line, .vertex-phase2d-chip, div').forEach(function(el){
+      if(find.test(String(el.textContent || ''))){
+        el.textContent = String(el.textContent || '').replace(find, replace);
+      }
+    });
+  }
+
+  function stabilize(){
+    var deck = getDeck();
+    if(!deck) return;
+
+    var sessions = textSessionCount(deck);
+    var readiness = textReadiness(deck);
+
+    eachCard(deck, function(card){
+      var label = cardLabel(card);
+
+      if(readiness !== null){
+        fixLine(card, /Readiness score pending/ig, 'Readiness score: ' + readiness);
+        fixLine(card, /readiness\s+(\d{3,})/ig, function(match, n){
+          var s = String(n);
+          return 'readiness ' + s.slice(0, 2);
+        });
+        fixLine(card, /readiness\s+72\d+/ig, 'readiness 72');
+      }
+
+      if(label === 'consistency' || label === 'consistency trend'){
+        card.querySelectorAll('.vertex-b2-line, div').forEach(function(el){
+          var t = String(el.textContent || '');
+          if(/This week:\s*0;\s*previous:\s*0/i.test(t) && sessions !== null){
+            el.textContent = 'This week: ' + sessions + '; previous: 0';
+          }
+        });
+      }
+    });
+  }
+
+  function run(){
+    try{
+      if(progressVisible()) stabilize();
+    }catch(e){}
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(run, 150);
+    setTimeout(run, 500);
+  });
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('[data-nav],#btn-refresh-progress')){
+      setTimeout(run, 120);
+      setTimeout(run, 500);
+    }
+  }, true);
+})();
+</script>
 </body>
 </html>
 

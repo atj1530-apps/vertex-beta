@@ -5832,6 +5832,151 @@ function getExerciseDemo(name){
   const key=Object.keys(EXERCISE_DEMOS).find(k=>k.toLowerCase()===lower);
   return key?EXERCISE_DEMOS[key]:null;
 }
+
+
+// Phase 6A.1 — Exercise Library Normalization
+// Purpose: add stable IDs, Bunny-ready paths, thumbnail paths, media category mapping, movement patterns,
+// and demo lookup support without changing the Progress module or visible UI.
+const VERTEX_LIBRARY_PHASE='6A.1';
+function vertexSlug(value){
+  return String(value||'')
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[’']/g,'')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-+|-+$/g,'') || 'exercise';
+}
+function vertexId(value){return vertexSlug(value).replace(/-/g,'_');}
+function vertexMediaCategory(training){
+  const t=String(training||'').trim().toLowerCase();
+  if(t==='strength') return 'strength';
+  if(t==='kettlebell') return 'kettlebell';
+  if(t==='yoga / pilates' || t==='yoga' || t==='pilates') return 'yoga-pilates';
+  if(t==='recovery' || t==='stretching' || t==='mobility') return 'recovery-mobility';
+  if(t==='cardio') return 'cardio';
+  return vertexSlug(training||'general');
+}
+function vertexEquipmentType(equip){
+  const e=String(equip||'').toLowerCase();
+  if(e.includes('barbell')||e.includes('ez')) return 'Barbell';
+  if(e.includes('dumbbell')) return 'Dumbbells';
+  if(e.includes('kettlebell')) return 'Kettlebell';
+  if(e.includes('cable')) return 'Cable';
+  if(e.includes('machine')) return 'Machine';
+  if(e.includes('band')) return 'Band';
+  if(e.includes('mat')) return 'Mat';
+  if(e.includes('bodyweight')||e==='none') return 'Bodyweight';
+  if(e.includes('bike')||e.includes('treadmill')||e.includes('rower')||e.includes('elliptical')) return 'Cardio Machine';
+  return equip||'Other';
+}
+function vertexMovementPattern(ex){
+  const name=String(ex.name||'').toLowerCase();
+  const kind=String(ex.kind||'').toLowerCase();
+  const muscle=String(ex.muscle||'').toLowerCase();
+  const training=String(ex.training||'').toLowerCase();
+  if(training==='cardio') return name.includes('interval')||name.includes('sprint')||name.includes('hiit')?'HIIT':'Conditioning';
+  if(training==='kettlebell'){
+    if(name.includes('swing')) return 'Hinge / Power';
+    if(name.includes('clean')) return 'Clean';
+    if(name.includes('snatch')) return 'Snatch';
+    if(name.includes('press')) return 'Vertical Push';
+    if(name.includes('squat')) return 'Squat';
+    if(name.includes('deadlift')) return 'Hinge';
+    if(name.includes('lunge')||name.includes('step-up')) return 'Lunge';
+    if(name.includes('carry')) return 'Carry';
+    if(name.includes('turkish')||name.includes('get-up')) return 'Get-Up';
+    if(name.includes('halo')||name.includes('arm bar')||name.includes('windmill')) return 'Mobility';
+    if(name.includes('row')) return 'Horizontal Pull';
+    return 'Kettlebell Skill';
+  }
+  if(training==='yoga / pilates'){
+    if(name.includes('balance')||name.includes('tree')||name.includes('warrior iii')||name.includes('half moon')) return 'Balance';
+    if(name.includes('flow')||name.includes('salutation')||name.includes('vinyasa')) return 'Flow';
+    if(name.includes('plank')||name.includes('hundred')||name.includes('boat')||name.includes('roll')||name.includes('circle')) return 'Core';
+    return 'Mobility';
+  }
+  if(training==='recovery'||training==='stretching'){
+    if(name.includes('breath')) return 'Breathwork';
+    if(name.includes('foam')) return 'Soft Tissue';
+    if(name.includes('stretch')||kind.includes('stretch')) return 'Stretching';
+    if(name.includes('mobility')||kind.includes('mobility')||name.includes('car')||name.includes('cat-cow')) return 'Mobility';
+    return 'Recovery / Mobility';
+  }
+  if(name.includes('squat')||name.includes('leg press')||name.includes('wall sit')) return 'Squat';
+  if(name.includes('deadlift')||name.includes('rdl')||name.includes('hinge')||name.includes('good morning')||name.includes('glute bridge')||name.includes('hip thrust')) return 'Hinge';
+  if(name.includes('lunge')||name.includes('split squat')||name.includes('step-up')||name.includes('cossack')) return 'Lunge';
+  if(name.includes('carry')) return 'Carry';
+  if(name.includes('row')) return 'Horizontal Pull';
+  if(name.includes('pulldown')||name.includes('pull-up')||name.includes('chin-up')||name.includes('pullover')) return 'Vertical Pull';
+  if(name.includes('bench')||name.includes('press')||name.includes('push-up')||name.includes('fly')||kind==='push'){
+    if(muscle.includes('shoulder')||name.includes('overhead')||name.includes('shoulder')||name.includes('handstand')) return 'Vertical Push';
+    return 'Horizontal Push';
+  }
+  if(name.includes('curl')) return 'Elbow Flexion';
+  if(name.includes('tricep')||name.includes('skull crusher')||name.includes('extension')||name.includes('pushdown')||name.includes('dip')) return 'Elbow Extension';
+  if(name.includes('plank')||name.includes('dead bug')||name.includes('hollow')) return 'Anti-Extension';
+  if(name.includes('twist')||name.includes('rotation')||name.includes('woodchop')||name.includes('pallof')) return 'Rotation / Anti-Rotation';
+  if(kind==='core'||muscle.includes('core')) return 'Core';
+  if(muscle.includes('calf')) return 'Calves';
+  return kind ? kind.charAt(0).toUpperCase()+kind.slice(1) : 'General';
+}
+const VERTEX_DEMO_ALIASES={
+  'Barbell Row':['Bent-Over Barbell Row','Bent Over Barbell Row','Meadows Row'],
+  'Cable Row':['Seated Cable Row','Close-Grip Seated Row'],
+  'Calf Raise':['Standing Calf Raise','Seated Calf Raise'],
+  'Deadlift':['Dumbbell Deadlift','Kettlebell Deadlift'],
+  'Romanian Deadlift':['RDL','Dumbbell Romanian Deadlift'],
+  'Sumo Deadlift':['Sumo Squat Deadlift'],
+  'Box Jump':['Box Step Overs']
+};
+function vertexResolveDemoName(ex){
+  if(EXERCISE_DEMOS[ex.name]) return ex.name;
+  const lower=String(ex.name||'').toLowerCase();
+  const exactKey=Object.keys(EXERCISE_DEMOS).find(k=>k.toLowerCase()===lower);
+  if(exactKey) return exactKey;
+  const aliasKey=Object.keys(VERTEX_DEMO_ALIASES).find(k => (VERTEX_DEMO_ALIASES[k]||[]).some(a=>String(a).toLowerCase()===lower));
+  return aliasKey || null;
+}
+function normalizeVertexExerciseLibrary(){
+  const seenIds={};
+  EXERCISES.forEach((ex)=>{
+    const baseId=vertexId(ex.id||ex.name);
+    seenIds[baseId]=(seenIds[baseId]||0)+1;
+    const id=seenIds[baseId]===1 ? baseId : baseId+'_'+seenIds[baseId];
+    const mediaCategory=vertexMediaCategory(ex.training);
+    const fileSlug=vertexSlug(ex.name);
+    const demoName=vertexResolveDemoName(ex);
+    ex.id=ex.id||id;
+    ex.media_category=mediaCategory;
+    ex.bunny_path=ex.bunny_path||`exercises/${mediaCategory}/${fileSlug}.mp4`;
+    ex.thumbnail_path=ex.thumbnail_path||`thumbnails/${mediaCategory}/${fileSlug}.jpg`;
+    ex.video_provider=ex.video_provider||'bunny';
+    ex.legacy_demo_key=ex.legacy_demo_key||demoName||'';
+    ex.legacy_demo_url=ex.legacy_demo_url||(demoName&&EXERCISE_DEMOS[demoName]?EXERCISE_DEMOS[demoName].demoUrl:'');
+    ex.has_video=Boolean(ex.has_video||ex.legacy_demo_url);
+    ex.movement_pattern=ex.movement_pattern||vertexMovementPattern(ex);
+    ex.equipment_type=ex.equipment_type||vertexEquipmentType(ex.equip);
+    ex.primary_muscle=ex.primary_muscle||ex.muscle||'';
+    ex.secondary_muscles=Array.isArray(ex.secondary_muscles)?ex.secondary_muscles:[];
+    ex.difficulty=ex.difficulty||'';
+    ex.coach_cues=Array.isArray(ex.coach_cues)?ex.coach_cues:[];
+    ex.common_mistakes=Array.isArray(ex.common_mistakes)?ex.common_mistakes:[];
+    ex.substitutions=Array.isArray(ex.substitutions)?ex.substitutions:[];
+  });
+  const videoIndex={};
+  EXERCISES.forEach(ex=>{ if(ex.legacy_demo_url) videoIndex[ex.id]=ex.legacy_demo_url; });
+  window.VERTEX_VIDEO_INDEX=videoIndex;
+  window.VERTEX_LIBRARY_AUDIT={
+    phase:VERTEX_LIBRARY_PHASE,
+    total:EXERCISES.length,
+    withVideos:EXERCISES.filter(ex=>ex.has_video).length,
+    withoutVideos:EXERCISES.filter(ex=>!ex.has_video).length,
+    categories:EXERCISES.reduce((a,ex)=>{const k=ex.training||'Uncategorized'; a[k]=(a[k]||0)+1; return a;},{}),
+    mediaCategories:EXERCISES.reduce((a,ex)=>{const k=ex.media_category||'uncategorized'; a[k]=(a[k]||0)+1; return a;},{})
+  };
+}
+normalizeVertexExerciseLibrary();
+
 // Expose on window so the demo modal controller (separate script block) can access it
 window._EXERCISE_DEMOS=EXERCISE_DEMOS;
 window._getExerciseDemo=getExerciseDemo;

@@ -19287,182 +19287,140 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 </script>
 
 
-<script id="vertex-phase5a4-hard-progress-js">
+
+<script id="vertex-phase5a4-fast-progress-js">
 (function(){
-  if(window.__vertexPhase5A4HardProgress007) return;
-  window.__vertexPhase5A4HardProgress007 = true;
+  if(window.__vertexPhase5A4FastProgress008) return;
+  window.__vertexPhase5A4FastProgress008 = true;
 
   function esc(v){
     return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
-
-  function safeJson(raw, fallback){
-    try{ return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; }
-  }
-
-  function collectRows(){
-    var rows = [];
-    try{
-      if(window.state && Array.isArray(window.state.progressLogs)) rows = rows.concat(window.state.progressLogs);
-    }catch(e){}
-    try{
-      for(var i=0;i<localStorage.length;i++){
-        var k = localStorage.key(i) || '';
-        if(!/progress|workout|session|history|log/i.test(k)) continue;
-        var v = safeJson(localStorage.getItem(k), null);
-        if(Array.isArray(v)) rows = rows.concat(v);
-        else if(v && Array.isArray(v.rows)) rows = rows.concat(v.rows);
-        else if(v && Array.isArray(v.logs)) rows = rows.concat(v.logs);
-        else if(v && Array.isArray(v.sessions)) rows = rows.concat(v.sessions);
-      }
-    }catch(e){}
-    var seen = {};
-    return rows.filter(function(r){
-      if(!r || typeof r !== 'object') return false;
-      var id = r.id || r.completed_at || r.completedAt || r.date || r.created_at || JSON.stringify(r).slice(0,100);
-      if(seen[id]) return false;
-      seen[id] = true;
-      return true;
-    });
-  }
-
+  function safeJson(raw, fallback){ try{ return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; } }
   function rowDate(r){
     var raw = r.completed_at || r.completedAt || r.date || r.created_at || r.timestamp || r.time;
     var d = raw ? new Date(raw) : null;
     return d && !isNaN(d.getTime()) ? d : null;
   }
-
   function num(r, keys){
     for(var i=0;i<keys.length;i++){
-      var k = keys[i];
+      var k=keys[i];
       if(r[k] != null && r[k] !== '') return Number(r[k]) || 0;
       if(r.metrics && r.metrics[k] != null && r.metrics[k] !== '') return Number(r.metrics[k]) || 0;
     }
     return 0;
   }
-
   function weekStart(){
-    var d = new Date();
-    d.setHours(0,0,0,0);
-    var day = d.getDay();
-    d.setDate(d.getDate() - ((day + 6) % 7));
+    var d=new Date(); d.setHours(0,0,0,0);
+    d.setDate(d.getDate()-((d.getDay()+6)%7));
     return d;
   }
-
-  function card(title,value,lines){
-    var h = '<section class="vertex-p5a-hard-card">';
-    h += '<div class="vertex-p5a-hard-label">' + esc(title) + '</div>';
-    h += '<div class="vertex-p5a-hard-value">' + esc(value) + '</div>';
-    (lines || []).forEach(function(line){ h += '<div class="vertex-p5a-hard-line">' + esc(line) + '</div>'; });
-    h += '</section>';
-    return h;
-  }
-
-  function mount(){
-    var page = document.getElementById('progressPage');
-    if(!page) return;
-
-    var head = page.querySelector('.progress-head');
-    var deck = document.getElementById('vertexB2ProgressDeck');
-    if(!deck){
-      deck = document.createElement('div');
-      deck.id = 'vertexB2ProgressDeck';
-      deck.className = 'vertex-b2-progress-deck';
-    }
-    if(head && deck.previousElementSibling !== head){
-      head.insertAdjacentElement('afterend', deck);
-    }else if(!deck.parentNode){
-      page.appendChild(deck);
-    }
-
-    var rows = collectRows();
-    var start = weekStart();
-    var week = rows.filter(function(r){ var d = rowDate(r); return d && d >= start; });
-    var sessions = week.length;
-    var sets = week.reduce(function(a,r){ return a + num(r,['sets','totalSets','strength_sets']); },0);
-    var volume = week.reduce(function(a,r){ return a + num(r,['load_volume','loadVolume','volume','totalVolume']); },0);
-
-    var readiness = null;
+  function collectRows(){
+    var rows=[];
     try{
-      var raw = localStorage.getItem('vertex_readiness_score') || localStorage.getItem('readinessScore') || localStorage.getItem('vertex_readiness');
-      if(raw != null && raw !== '') readiness = Number(raw);
-      if(isNaN(readiness)) readiness = null;
+      var keys=['vertex_progress_logs','vertex_workout_history','vertex_completed_workouts','workoutHistory','progressLogs'];
+      keys.forEach(function(k){
+        var v=safeJson(localStorage.getItem(k),null);
+        if(Array.isArray(v)) rows=rows.concat(v);
+        else if(v && Array.isArray(v.rows)) rows=rows.concat(v.rows);
+        else if(v && Array.isArray(v.logs)) rows=rows.concat(v.logs);
+        else if(v && Array.isArray(v.sessions)) rows=rows.concat(v.sessions);
+      });
+    }catch(e){}
+    var seen={};
+    return rows.filter(function(r){
+      if(!r || typeof r!=='object') return false;
+      var id=r.id||r.completed_at||r.completedAt||r.date||r.created_at||JSON.stringify(r).slice(0,80);
+      if(seen[id]) return false;
+      seen[id]=true;
+      return true;
+    });
+  }
+  function card(title,value,lines){
+    var h='<section class="vertex-p5a-hard-card"><div class="vertex-p5a-hard-label">'+esc(title)+'</div><div class="vertex-p5a-hard-value">'+esc(value)+'</div>';
+    (lines||[]).forEach(function(line){ h+='<div class="vertex-p5a-hard-line">'+esc(line)+'</div>'; });
+    return h+'</section>';
+  }
+  function mountProgress(){
+    var page=document.getElementById('progressPage');
+    if(!page) return;
+    var head=page.querySelector('.progress-head');
+    var deck=document.getElementById('vertexB2ProgressDeck');
+    if(!deck){
+      deck=document.createElement('div');
+      deck.id='vertexB2ProgressDeck';
+      deck.className='vertex-b2-progress-deck';
+    }
+    if(head && deck.previousElementSibling!==head) head.insertAdjacentElement('afterend',deck);
+    else if(!deck.parentNode) page.appendChild(deck);
+
+    var rows=collectRows();
+    var start=weekStart();
+    var week=rows.filter(function(r){ var d=rowDate(r); return d && d>=start; });
+    var sessions=week.length;
+    var sets=week.reduce(function(a,r){ return a+num(r,['sets','totalSets','strength_sets']); },0);
+    var volume=week.reduce(function(a,r){ return a+num(r,['load_volume','loadVolume','volume','totalVolume']); },0);
+
+    var readiness=null;
+    try{
+      var raw=localStorage.getItem('vertex_readiness_score')||localStorage.getItem('readinessScore')||localStorage.getItem('vertex_readiness');
+      if(raw!=null && raw!=='') readiness=Number(raw);
+      if(isNaN(readiness)) readiness=null;
     }catch(e){}
 
-    var decision = 'Build the baseline';
-    var rx = 'Log 3 to 4 clean sessions';
-    if(sessions >= 3){
-      decision = readiness !== null && readiness < 60 ? 'Recover with control' : 'Progress selectively';
-      rx = readiness !== null && readiness < 60 ? 'Reduce intensity today' : 'Advance one priority lift';
-    }else if(sessions > 0){
-      decision = 'Baseline forming';
-      rx = 'Keep sessions consistent';
+    var decision='Build the baseline', rx='Log 3 to 4 clean sessions';
+    if(sessions>=3){
+      decision=(readiness!==null && readiness<60)?'Recover with control':'Progress selectively';
+      rx=(readiness!==null && readiness<60)?'Reduce intensity today':'Advance one priority lift';
+    }else if(sessions>0){
+      decision='Baseline forming';
+      rx='Keep sessions consistent';
     }
 
-    var recovery = readiness !== null ? (readiness >= 70 ? 'Ready' : readiness >= 55 ? 'Watch' : 'Constrained') : 'Pending';
-    var strain = sessions >= 4 ? 'Moderate' : sessions >= 2 ? 'Building' : 'Pending';
-    var consistency = sessions >= 4 ? 'Strong' : sessions >= 2 ? 'Early' : 'Low';
-    var tolerance = sessions >= 3 ? 'Stable' : 'Pending';
+    var recovery=readiness!==null?(readiness>=70?'Ready':readiness>=55?'Watch':'Constrained'):'Pending';
+    var strain=sessions>=4?'Moderate':sessions>=2?'Building':'Pending';
+    var consistency=sessions>=4?'Strong':sessions>=2?'Early':'Low';
+    var tolerance=sessions>=3?'Stable':'Pending';
 
-    deck.innerHTML =
-      '<div class="vertex-p5a-hard-wrap">' +
-        '<div class="vertex-p5a-hard-row">' +
-          card('Coach Decision Summary', decision, [
-            readiness !== null ? 'Readiness score: ' + readiness : 'Readiness score pending',
-            sessions + ' session' + (sessions === 1 ? '' : 's') + ' this week'
-          ]) +
-          card('Progression Prescription', rx, [
-            sets ? sets + ' strength sets captured this week' : 'Strength baseline pending',
-            volume ? Math.round(volume) + ' load volume captured' : 'Load volume pending'
-          ]) +
-        '</div>' +
-        '<div class="vertex-p5a-hard-row">' +
-          card('Recovery Trend', recovery, ['Controls today intensity call','Updates as recovery data improves']) +
-          card('Training Strain', strain, ['Recent workload signal','Avoid volume jumps before consistency']) +
-          card('Consistency', consistency, ['Weekly rhythm signal','Frequency first, progression second']) +
-          card('Load Tolerance', tolerance, ['Recent load response','Refines with repeated logs']) +
-        '</div>' +
-      '</div>';
+    deck.innerHTML='<div class="vertex-p5a-hard-wrap">'+
+      '<div class="vertex-p5a-hard-row">'+
+      card('Coach Decision Summary',decision,[readiness!==null?'Readiness score: '+readiness:'Readiness score pending',sessions+' session'+(sessions===1?'':'s')+' this week'])+
+      card('Progression Prescription',rx,[sets?sets+' strength sets captured this week':'Strength baseline pending',volume?Math.round(volume)+' load volume captured':'Load volume pending'])+
+      '</div><div class="vertex-p5a-hard-row">'+
+      card('Recovery Trend',recovery,['Controls today intensity call','Updates as recovery data improves'])+
+      card('Training Strain',strain,['Recent workload signal','Avoid volume jumps before consistency'])+
+      card('Consistency',consistency,['Weekly rhythm signal','Frequency first, progression second'])+
+      card('Load Tolerance',tolerance,['Recent load response','Refines with repeated logs'])+
+      '</div></div>';
 
-    page.classList.add('vertex-phase5a4-progress-hard-mounted');
-
-    var legacy = ['progressSummary','progressTabContent','ptab-overview','ptab-volume','ptab-exercises','ptab-history'];
-    legacy.forEach(function(id){
-      var el = document.getElementById(id);
-      if(el){ el.style.display='none'; el.style.visibility='hidden'; el.style.height='0'; el.style.overflow='hidden'; }
+    ['progressSummary','progressTabContent','ptab-overview','ptab-volume','ptab-exercises','ptab-history'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.style.display='none';
     });
-    var tabs = page.querySelector('.progress-tabs');
-    if(tabs){ tabs.style.display='none'; tabs.style.visibility='hidden'; tabs.style.height='0'; tabs.style.overflow='hidden'; }
+    var tabs=page.querySelector('.progress-tabs');
+    if(tabs) tabs.style.display='none';
   }
 
-  function schedule(){
-    setTimeout(mount,0);
-    setTimeout(mount,60);
-    setTimeout(mount,250);
-    setTimeout(mount,800);
+  var originalRender=window.renderProgressPage;
+  if(typeof originalRender==='function' && !originalRender.__vertexP5A4Fast008){
+    window.renderProgressPage=function(){
+      var out;
+      try{ out=originalRender.apply(this,arguments); }catch(e){}
+      mountProgress();
+      return out;
+    };
+    window.renderProgressPage.__vertexP5A4Fast008=true;
   }
 
-  document.addEventListener('DOMContentLoaded', schedule);
-  window.addEventListener('load', schedule);
-  window.addEventListener('hashchange', schedule);
-  window.addEventListener('popstate', schedule);
-  document.addEventListener('click', function(e){
-    if(e.target && e.target.closest && e.target.closest('[data-page="progress"],[data-nav="progress"],a,button')){
-      schedule();
+  document.addEventListener('DOMContentLoaded',function(){ setTimeout(mountProgress,120); });
+  document.addEventListener('click',function(e){
+    if(e.target && e.target.closest && e.target.closest('[data-page="progress"],[data-nav="progress"],a[href*="progress"],#btn-refresh-progress')){
+      setTimeout(mountProgress,80);
     }
-  }, true);
-
-  try{
-    var mo = new MutationObserver(function(){ schedule(); });
-    document.addEventListener('DOMContentLoaded', function(){
-      var page = document.getElementById('progressPage');
-      if(page) mo.observe(page,{childList:true,subtree:true});
-    });
-  }catch(e){}
-
-  schedule();
+  },true);
+  window.addEventListener('hashchange',function(){ setTimeout(mountProgress,80); });
 })();
 </script>
 </body>

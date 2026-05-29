@@ -4077,6 +4077,18 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
 }
 </style>
 
+
+<style id="vertex-settings-scroll-fix">
+.settings-modal,
+.settings-panel,
+.modal-panel,
+.modal-content{
+max-height:90vh !important;
+overflow-y:auto !important;
+-webkit-overflow-scrolling:touch !important;
+}
+</style>
+
 </head>
 <body class="auth-resolving">
 
@@ -9479,7 +9491,19 @@ function protoSelectDate(dateStr){
         const pdfDateStr = new Date().toLocaleDateString([],{year:'numeric',month:'long',day:'numeric'});
         const html = `<!DOCTYPE html><html><head><title>Vertex Protocol Summary — ${initials||displayName}</title>
           <style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;color:#111}h1{color:#1a1a1a;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#1a1a1a;color:#fff;padding:8px 12px;text-align:left;font-size:12px}td{padding:8px 12px;border-bottom:1px solid #eee;font-size:13px}tr:nth-child(even){background:#f9f9f9}.meta{color:#666;font-size:13px;margin-bottom:24px}.patient{font-size:15px;font-weight:bold;color:#333;margin-bottom:4px}</style>
-          </head><body>
+          
+<style id="vertex-settings-scroll-fix">
+.settings-modal,
+.settings-panel,
+.modal-panel,
+.modal-content{
+max-height:90vh !important;
+overflow-y:auto !important;
+-webkit-overflow-scrolling:touch !important;
+}
+</style>
+
+</head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
           <div class="meta">Generated: ${pdfDateStr} · ${items.length} active compound${items.length===1?'':'s'}</div>
@@ -11073,6 +11097,18 @@ function generateVertexPDFReport(){
   .footer{margin-top:36px;padding-top:12px;border-top:1px solid #e8e8e8;font-size:11px;color:#aaa;text-align:center}
   @media print{body{padding:20px}h2{break-before:avoid}table{break-inside:auto}tr{break-inside:avoid}}
 </style>
+
+<style id="vertex-settings-scroll-fix">
+.settings-modal,
+.settings-panel,
+.modal-panel,
+.modal-content{
+max-height:90vh !important;
+overflow-y:auto !important;
+-webkit-overflow-scrolling:touch !important;
+}
+</style>
+
 </head><body>
 
 <h1>Vertex</h1>
@@ -11406,7 +11442,19 @@ window.renderSymmetry = renderSymmetry;
     const w = window.open('','_blank');
     if(!w) return;
     const rows = log.length ? log.map(e=>`<tr><td style="white-space:nowrap;color:#888;font-size:11px">${e.ts?.slice(0,19).replace('T',' ')||'—'}</td><td><span style="font-size:10px;background:${e.type==='error'?'#fee2e2':'#fef9c3'};padding:1px 6px;border-radius:3px;font-weight:700">${e.type}</span></td><td style="font-size:12px">${e.msg||''}</td><td style="font-size:11px;color:#999">${e.src||''}${e.line?':'+e.line:''}</td></tr>`).join('') : '<tr><td colspan="4" style="color:#888;text-align:center;padding:20px">No errors logged.</td></tr>';
-    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
+    w.document.write(`<!DOCTYPE html><html><head><title>Vertex Error Log</title><style>body{font-family:monospace;padding:24px;max-width:900px;margin:0 auto;background:#0a0a0a;color:#ddd}h1{font-size:18px;margin-bottom:16px;color:#e8ff47}table{width:100%;border-collapse:collapse}th{background:#1a1a1a;padding:8px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}td{padding:8px;border-bottom:1px solid #1e1e1e;vertical-align:top}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-bottom:16px}</style>
+<style id="vertex-settings-scroll-fix">
+.settings-modal,
+.settings-panel,
+.modal-panel,
+.modal-content{
+max-height:90vh !important;
+overflow-y:auto !important;
+-webkit-overflow-scrolling:touch !important;
+}
+</style>
+
+</head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX
@@ -11636,7 +11684,19 @@ function vertexShowSyncDiag(){
   }).join('');
   const w=window.open('','_blank');
   if(!w) return;
-  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
+  w.document.write(`<!DOCTYPE html><html><head><title>Sync Diagnostics</title><style>body{font-family:Arial,sans-serif;background:#0a0a0a;color:#ddd;padding:24px;max-width:480px;margin:0 auto}h1{font-size:18px;color:#e8ff47;margin-bottom:4px}p{font-size:12px;color:#888;margin-bottom:20px}.vertex-sync-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}.vertex-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.footer{margin-top:20px;font-size:11px;color:#555}button{background:#e8ff47;border:none;color:#000;padding:8px 16px;font-weight:700;border-radius:4px;cursor:pointer;margin-top:16px;display:block}</style>
+<style id="vertex-settings-scroll-fix">
+.settings-modal,
+.settings-panel,
+.modal-panel,
+.modal-content{
+max-height:90vh !important;
+overflow-y:auto !important;
+-webkit-overflow-scrolling:touch !important;
+}
+</style>
+
+</head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX

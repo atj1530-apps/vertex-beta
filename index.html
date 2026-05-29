@@ -19368,6 +19368,164 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   },true);
 })();
 </script>
+
+<style id="vertex-phase5a4-progress-polish-012-css">
+/* Phase 5A4.12 — Progress final polish: single intelligence experience, no legacy rail/tabs. */
+#progressPage #progressSummary,
+#progressPage .progress-tabs,
+#progressPage #progressTabContent,
+#progressPage #ptab-overview,
+#progressPage #ptab-volume,
+#progressPage #ptab-exercises,
+#progressPage #ptab-history,
+#progressPage #vertexProgressIntelligenceHolder,
+#progressPage #vertexRecoveryTrendPanel,
+#progressPage #vertexStrainPanel,
+#progressPage #vertexConsistencyPanel,
+#progressPage #vertexTolerancePanel{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:0!important;
+  overflow:hidden!important;
+  margin:0!important;
+  padding:0!important;
+}
+#progressPage #vertexB2ProgressDeck{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  margin:20px 0 0!important;
+}
+#progressPage .vertex-b2-section-label{
+  margin:22px 0 12px!important;
+  color:var(--acc)!important;
+  letter-spacing:4px!important;
+}
+#progressPage .vertex-b2-row-decision{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:14px!important;
+  margin-bottom:18px!important;
+}
+#progressPage .vertex-b2-row-intelligence{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:14px!important;
+}
+#progressPage .vertex-b2-card{
+  border-radius:18px!important;
+  min-height:150px!important;
+}
+#progressPage .vertex-b2-row-intelligence .vertex-b2-card{
+  min-height:210px!important;
+}
+#progressPage .vertex-b2-card .label{
+  letter-spacing:4px!important;
+}
+#progressPage .vertex-b2-value{
+  font-size:22px!important;
+}
+#progressPage .vertex-b2-row-decision .vertex-b2-value{
+  font-size:24px!important;
+}
+@media(max-width:1100px){
+  #progressPage .vertex-b2-row-intelligence{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:900px){
+  #progressPage #vertexB2ProgressDeck{
+    margin-top:16px!important;
+  }
+  #progressPage .vertex-b2-row-decision,
+  #progressPage .vertex-b2-row-intelligence{
+    display:flex!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x mandatory!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px 14px!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage .vertex-b2-row-decision::-webkit-scrollbar,
+  #progressPage .vertex-b2-row-intelligence::-webkit-scrollbar{
+    display:none!important;
+  }
+  #progressPage .vertex-b2-row-decision .vertex-b2-card,
+  #progressPage .vertex-b2-row-intelligence .vertex-b2-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    min-height:185px!important;
+    scroll-snap-align:start!important;
+  }
+}
+</style>
+
+<script id="vertex-phase5a4-progress-polish-012-js">
+(function(){
+  if(window.__vertexPhase5A4ProgressPolish012) return;
+  window.__vertexPhase5A4ProgressPolish012=true;
+
+  function progressVisible(){
+    try{
+      var page=document.getElementById('progressPage');
+      return !!page && getComputedStyle(page).display!=='none';
+    }catch(e){ return false; }
+  }
+
+  function cleanLegacyProgress(){
+    try{
+      var page=document.getElementById('progressPage');
+      if(!page) return;
+      page.classList.add('vertex-phase5a4-progress-single-intel');
+
+      ['progressSummary','progressTabContent','ptab-overview','ptab-volume','ptab-exercises','ptab-history',
+       'vertexProgressIntelligenceHolder','vertexRecoveryTrendPanel','vertexStrainPanel','vertexConsistencyPanel','vertexTolerancePanel'
+      ].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el){ el.style.display='none'; el.setAttribute('aria-hidden','true'); }
+      });
+
+      var tabs=page.querySelector('.progress-tabs');
+      if(tabs){ tabs.style.display='none'; tabs.setAttribute('aria-hidden','true'); }
+
+      var deck=document.getElementById('vertexB2ProgressDeck');
+      if(deck){
+        deck.style.display='block';
+        deck.style.visibility='visible';
+        deck.style.opacity='1';
+      }
+    }catch(e){}
+  }
+
+  function rerender(){
+    try{
+      cleanLegacyProgress();
+      if(progressVisible() && typeof renderProgressPage==='function'){
+        renderProgressPage();
+        cleanLegacyProgress();
+      }
+    }catch(e){}
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    cleanLegacyProgress();
+  });
+
+  document.addEventListener('click',function(e){
+    if(e.target && e.target.closest && e.target.closest('[data-nav],#btn-refresh-progress')){
+      setTimeout(rerender,80);
+      setTimeout(cleanLegacyProgress,350);
+    }
+  },true);
+})();
+</script>
 </body>
 </html>
 

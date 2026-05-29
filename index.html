@@ -4101,22 +4101,25 @@ body.app-page-progress #progressPage #vertexB2ProgressDeck{display:block!importa
 </style>
 
 
+
 <style id="vertex-phase5a4-progress-intel-mount-css">
-body.app-page-progress #progressPage #progressSummary,
-body.app-page-progress #progressPage .progress-tabs,
-body.app-page-progress #progressPage #progressTabContent,
-body.app-page-progress #progressPage #ptab-overview,
-body.app-page-progress #progressPage #ptab-volume,
-body.app-page-progress #progressPage #ptab-exercises,
-body.app-page-progress #progressPage #ptab-history{
+#progressPage #progressSummary,
+#progressPage .progress-tabs,
+#progressPage #progressTabContent,
+#progressPage #ptab-overview,
+#progressPage #ptab-volume,
+#progressPage #ptab-exercises,
+#progressPage #ptab-history{
   display:none!important;
 }
-body.app-page-progress #progressPage #vertexB2ProgressDeck,
-#progressPage.vertex-progress-intel-owned #vertexB2ProgressDeck{
+#progressPage #vertexB2ProgressDeck{
   display:block!important;
   visibility:visible!important;
   opacity:1!important;
   margin:18px 0 0!important;
+}
+#progressPage.vertex-progress-intel-mounted #vertexB2ProgressDeck{
+  display:block!important;
 }
 .vertex-p5a-single-intel{
   display:grid!important;
@@ -20096,10 +20099,11 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
 })();
 </script>
 
+
 <script id="vertex-phase5a4-progress-intel-mount-js">
 (function(){
-  if(window.__vertexPhase5A4ProgressIntelMount004) return;
-  window.__vertexPhase5A4ProgressIntelMount004 = true;
+  if(window.__vertexPhase5A4ProgressIntelMount005) return;
+  window.__vertexPhase5A4ProgressIntelMount005 = true;
 
   function esc(v){
     return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){
@@ -20109,15 +20113,21 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
 
   function readJson(key, fallback){
     try{
-      var v = localStorage.getItem(key);
-      if(!v) return fallback;
-      var parsed = JSON.parse(v);
+      var raw = localStorage.getItem(key);
+      if(!raw) return fallback;
+      var parsed = JSON.parse(raw);
       return parsed == null ? fallback : parsed;
     }catch(e){ return fallback; }
   }
 
-  function allStorageRows(){
+  function collectRows(){
     var out = [];
+    try{
+      if(typeof window.progressRows === 'function'){
+        var r = window.progressRows();
+        if(Array.isArray(r)) out = out.concat(r);
+      }
+    }catch(e){}
     try{
       for(var i=0;i<localStorage.length;i++){
         var k = localStorage.key(i) || '';
@@ -20126,9 +20136,17 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
         if(Array.isArray(v)) out = out.concat(v);
         else if(v && Array.isArray(v.rows)) out = out.concat(v.rows);
         else if(v && Array.isArray(v.logs)) out = out.concat(v.logs);
+        else if(v && Array.isArray(v.sessions)) out = out.concat(v.sessions);
       }
     }catch(e){}
-    return out.filter(function(r){ return r && typeof r === 'object'; });
+    var seen = {};
+    return out.filter(function(r){
+      if(!r || typeof r !== 'object') return false;
+      var id = r.id || r.completed_at || r.completedAt || r.date || r.created_at || JSON.stringify(r).slice(0,120);
+      if(seen[id]) return false;
+      seen[id] = true;
+      return true;
+    });
   }
 
   function dateOf(r){
@@ -20159,14 +20177,12 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     var html = '<section class="vertex-p5a-intel-card">';
     html += '<div class="vertex-p5a-intel-label">' + esc(title) + '</div>';
     html += '<div class="vertex-p5a-intel-value">' + esc(value) + '</div>';
-    for(var i=0;i<(lines || []).length;i++){
-      html += '<div class="vertex-p5a-intel-line">' + esc(lines[i]) + '</div>';
-    }
+    (lines || []).forEach(function(x){ html += '<div class="vertex-p5a-intel-line">' + esc(x) + '</div>'; });
     html += '</section>';
     return html;
   }
 
-  function render(){
+  function renderProgressIntelligence(){
     var page = document.getElementById('progressPage');
     if(!page) return false;
 
@@ -20175,45 +20191,51 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
       deck = document.createElement('div');
       deck.id = 'vertexB2ProgressDeck';
       deck.className = 'vertex-b2-progress-deck';
-      var head = page.querySelector('.progress-head');
-      if(head && head.parentNode) head.parentNode.insertBefore(deck, head.nextSibling);
-      else page.appendChild(deck);
     }
 
-    page.classList.add('vertex-progress-intel-owned');
-    document.body.classList.add('app-page-progress');
+    var head = page.querySelector('.progress-head');
+    if(head && deck.parentElement !== page){
+      head.insertAdjacentElement('afterend', deck);
+    }else if(!deck.parentElement){
+      page.appendChild(deck);
+    }
 
-    var rows = allStorageRows();
+    page.classList.add('vertex-progress-intel-mounted');
+
+    var rows = collectRows();
     var start = weekStart();
     var thisWeek = rows.filter(function(r){ var d = dateOf(r); return d && d >= start; });
     var sessions = thisWeek.length;
     var sets = thisWeek.reduce(function(a,r){ return a + metric(r, ['sets','totalSets','strength_sets']); }, 0);
     var volume = thisWeek.reduce(function(a,r){ return a + metric(r, ['load_volume','loadVolume','volume','totalVolume']); }, 0);
-    var readiness = null;
+
+    var readinessRaw = null;
     try{
-      readiness = localStorage.getItem('vertex_readiness_score') || localStorage.getItem('readinessScore') || null;
+      readinessRaw = localStorage.getItem('vertex_readiness_score') || localStorage.getItem('readinessScore') || localStorage.getItem('vertex_readiness');
     }catch(e){}
-    var readinessNum = readiness == null ? null : Number(readiness);
+    var readiness = readinessRaw == null ? null : Number(readinessRaw);
+    if(isNaN(readiness)) readiness = null;
 
     var decision = 'Build the baseline';
     var prescription = 'Log 3–4 clean sessions';
     if(sessions >= 3){
-      decision = readinessNum != null && readinessNum < 60 ? 'Recover with control' : 'Progress selectively';
-      prescription = readinessNum != null && readinessNum < 60 ? 'Reduce intensity today' : 'Advance one priority lift';
-    } else if(sessions > 0){
+      decision = readiness != null && readiness < 60 ? 'Recover with control' : 'Progress selectively';
+      prescription = readiness != null && readiness < 60 ? 'Reduce intensity today' : 'Advance one priority lift';
+    }else if(sessions > 0){
       decision = 'Baseline forming';
       prescription = 'Keep sessions consistent';
     }
 
-    var recovery = readinessNum != null ? (readinessNum >= 70 ? 'Ready' : readinessNum >= 55 ? 'Watch' : 'Constrained') : 'Pending';
-    var load = sessions >= 3 ? 'Sustainable' : 'Need 2–3 sessions';
-    var confidence = sessions >= 4 ? 'High' : sessions >= 2 ? 'Early' : 'Low';
+    var recovery = readiness != null ? (readiness >= 70 ? 'Ready' : readiness >= 55 ? 'Watch' : 'Constrained') : 'Pending';
+    var strain = sessions >= 4 ? 'Moderate' : sessions >= 2 ? 'Building' : 'Pending';
+    var consistency = sessions >= 4 ? 'Strong' : sessions >= 2 ? 'Early' : 'Low';
+    var tolerance = sessions >= 3 ? 'Stable' : 'Pending';
 
     deck.innerHTML =
       '<div class="vertex-p5a-single-intel">' +
         '<div class="vertex-p5a-intel-row">' +
           card('Coach Decision Summary', decision, [
-            readinessNum != null ? 'Readiness score: ' + readinessNum : 'Readiness score pending',
+            readiness != null ? 'Readiness score: ' + readiness : 'Readiness score pending',
             sessions + ' session' + (sessions === 1 ? '' : 's') + ' this week'
           ]) +
           card('Progression Prescription', prescription, [
@@ -20223,44 +20245,73 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
         '</div>' +
         '<div class="vertex-p5a-intel-row">' +
           card('Recovery Trend', recovery, [
-            readinessNum != null ? 'Recovery signal available' : 'Connect or log recovery data',
-            'Use this to control daily intensity'
+            readiness != null ? 'Recovery signal available' : 'Connect or log recovery data',
+            'Use recovery to control daily intensity'
           ]) +
-          card('Training Strain', load, [
-            sessions ? 'Frequency is now visible' : 'Log a session to start the signal',
-            'Avoid chasing volume before consistency'
+          card('Training Strain', strain, [
+            sessions ? 'Frequency is visible' : 'Log a session to start the signal',
+            'Avoid adding volume before consistency'
           ]) +
-          card('Consistency', confidence, [
+          card('Consistency', consistency, [
             sessions >= 3 ? 'Weekly rhythm is forming' : 'Build frequency first',
-            'This page is now single-renderer owned'
+            'Single Progress intelligence renderer'
           ]) +
-          card('Load Tolerance', sessions >= 3 ? 'Stable' : 'Pending', [
+          card('Load Tolerance', tolerance, [
             'Based on recent sessions and load trend',
             'Refines as more workouts are logged'
           ]) +
         '</div>' +
       '</div>';
+
     return true;
   }
 
+  window.renderProgressIntelligenceSingle = renderProgressIntelligence;
+
+  var originalRender = window.renderProgressPage;
+  if(typeof originalRender === 'function' && !originalRender.__vertexP5A4Intel005){
+    var wrapped = function(){
+      var result;
+      try{ result = originalRender.apply(this, arguments); }catch(e){ console.warn('[Vertex] original progress render failed', e); }
+      try{ renderProgressIntelligence(); }catch(x){ console.warn('[Vertex] intelligence render failed', x); }
+      setTimeout(renderProgressIntelligence, 40);
+      return result;
+    };
+    wrapped.__vertexP5A4Intel005 = true;
+    window.renderProgressPage = wrapped;
+  }
+
   function run(){
-    try{ render(); }catch(e){ console.warn('[Vertex Phase5A4] progress intelligence mount failed', e); }
+    try{
+      var page = document.getElementById('progressPage');
+      if(!page) return;
+      var visible = page.offsetParent !== null || getComputedStyle(page).display !== 'none';
+      if(visible || document.querySelector('.nav-btn.active[data-page="progress"], .nav-btn.on[data-page="progress"], [data-page="progress"].active, [data-page="progress"].on')){
+        renderProgressIntelligence();
+      }else{
+        renderProgressIntelligence();
+      }
+    }catch(e){ console.warn('[Vertex Phase5A4] progress intelligence mount failed', e); }
   }
 
   document.addEventListener('DOMContentLoaded', run);
+  window.addEventListener('load', run);
   window.addEventListener('hashchange', function(){ setTimeout(run, 40); setTimeout(run, 250); });
   window.addEventListener('popstate', function(){ setTimeout(run, 40); setTimeout(run, 250); });
   document.addEventListener('click', function(e){
     try{
       if(e.target && e.target.closest && e.target.closest('[data-page="progress"],[data-nav="progress"],a[href*="progress"],button')){
-        setTimeout(run, 80);
-        setTimeout(run, 350);
+        setTimeout(run, 40);
+        setTimeout(run, 180);
+        setTimeout(run, 500);
       }
     }catch(x){}
   }, true);
+
   setTimeout(run, 50);
   setTimeout(run, 250);
   setTimeout(run, 800);
+  setTimeout(run, 1500);
 })();
 </script>
 </body>

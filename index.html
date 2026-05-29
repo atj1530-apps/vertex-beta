@@ -7132,175 +7132,35 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
   ].join('');
 }
 
-
 function renderProgressPage(){
   const page=document.getElementById('progressPage'); if(!page) return;
   const rows=progressRows(); const sum=progressSummary(rows); const perf=performanceSummary(rows);
-
-  const avg=(arr)=>{arr=(arr||[]).map(Number).filter(n=>Number.isFinite(n)); return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;};
-  const getReadiness=()=>{
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        const x=window.VertexRecoveryInsights.build()||{};
-        const n=Number(x.recovery);
-        if(Number.isFinite(n)) return Math.round(n);
-      }
-    }catch(e){}
-    return null;
-  };
-  const confLabel=(n)=>n>=90?'High Confidence':n>=75?'Moderate Confidence':n>=60?'Early Confidence':'Building Confidence';
-  const dayDiff=(a,b)=>{
-    try{
-      const A=new Date(a); A.setHours(0,0,0,0);
-      const B=new Date(b); B.setHours(0,0,0,0);
-      return Math.round((B-A)/86400000);
-    }catch(e){return 999;}
-  };
-  const volumeOf=(r)=>Number((r&&r.metrics&&(r.metrics.volume||r.metrics.load_volume))||0);
-  const setCountOf=(r)=>Number((r&&r.metrics&&r.metrics.sets)||0);
-
-  const readiness=getReadiness();
-  const sortedRows=rows.slice().sort((a,b)=>new Date(a.completed_at)-new Date(b.completed_at));
-  const recent=sortedRows.slice(-6), older=sortedRows.slice(-12,-6);
-  const recentVol=avg(recent.map(volumeOf)), olderVol=avg(older.map(volumeOf));
-  const recentSets=avg(recent.map(setCountOf)), olderSets=avg(older.map(setCountOf));
-  const volumeTrend=olderVol>0?((recentVol-olderVol)/olderVol)*100:0;
-  const setTrend=olderSets>0?((recentSets-olderSets)/olderSets)*100:0;
-  const lastDate=sortedRows.length?sortedRows[sortedRows.length-1].completed_at:null;
-  const daysSinceLast=lastDate?dayDiff(lastDate,new Date()):999;
-
-  const muscleTotals={};
-  rows.filter(r=>new Date(r.completed_at)>=weekStart()).forEach(r=>{
-    Object.entries(r.metrics?.muscles||{}).forEach(([m,v])=>{muscleTotals[m]=(muscleTotals[m]||0)+(v.sets||0);});
-  });
-  const rankedMuscles=Object.entries(muscleTotals).sort((a,b)=>b[1]-a[1]);
-  const top=rankedMuscles[0]||null, second=rankedMuscles[1]||null;
-  const imbalance=!!(top && second && top[1]>=Math.max(6,second[1]*1.45));
-
-  const sessions=sum.thisWeek.length;
-  const prev=sum.prevWeek.length;
-  const consistency=sessions>prev?'Improving':sessions<prev?'Rebuilding':sessions>0?'Stable':'Developing';
-  const recoveryScore=(readiness==null?62:readiness);
-  const consistencyScore=Math.max(30,Math.min(100,50+(sessions*10)+((sessions-prev)*8)));
-  const balanceScore=imbalance?45:78;
-  const momentumScore=Math.max(30,Math.min(100,50+((sessions-prev)*12)+(volumeTrend>5?12:0)+(setTrend>5?8:0)-(daysSinceLast>5?12:0)));
-  const fatigueScore=Math.max(0,Math.min(100,(readiness==null?35:(100-readiness))+(volumeTrend>25?18:0)+(sessions>=5?12:0)));
-  const progressionScore=Math.round(Math.max(0,Math.min(100,(recoveryScore*.36)+(consistencyScore*.26)+(balanceScore*.18)+(momentumScore*.14)-(fatigueScore*.18)+18)));
-  let confidence=Math.max(45,Math.min(100,Math.round((readiness==null?62:readiness)+Math.min(14,sessions*4)+Math.min(8,rows.length))));
-
-  let title='Maintain Current Plan';
-  let interpretation='Keep doing what you are doing. Your recent training looks steady, but Vertex does not see a reason to increase workload yet.';
-  let action='Train normally today. Avoid adding extra weight or extra sets for the next few workouts.';
-  let type='baseline';
-
-  const enoughData=rows.length>=3 || sessions>=2;
-  const recoveryLow=readiness!==null && readiness<58;
-  const recoveryVeryLow=readiness!==null && readiness<48;
-  const heavyRecent=volumeTrend>28 || sessions>=5;
-  const inactive=daysSinceLast>7;
-
-  if(enoughData && recoveryVeryLow && heavyRecent){
-    title='Recovery Week Recommended';
-    interpretation='You have been pushing hard and your body needs more room to recover.';
-    action='Reduce volume for the next 5–7 days. Keep movement quality high.';
-    type='deload';
-    confidence=Math.max(confidence,84);
-  }else if(enoughData && recoveryLow){
-    title='Prioritize Recovery';
-    interpretation='Your body needs a little more recovery before pushing harder.';
-    action='Keep today’s session lighter. Do not add weight or extra sets.';
-    type='recovery';
-    confidence=Math.max(confidence,78);
-  }else if(enoughData && imbalance){
-    title='Restore Balance';
-    interpretation='One area is getting more work than the rest.';
-    action='Balance your next session before adding more volume.';
-    type='baseline';
-    confidence=Math.max(confidence,84);
-  }else if(enoughData && progressionScore>=76 && sessions>=2 && !inactive){
-    title='Ready to Progress';
-    interpretation='Recovery and consistency are lining up.';
-    action='Increase one primary lift next session. Keep the rest of your training unchanged.';
-    type='progression';
-    confidence=Math.max(confidence,82);
-  }else if(enoughData && momentumScore>=72 && sessions>=2 && !inactive){
-    title='Keep the Momentum Going';
-    interpretation='You are stacking good workouts together.';
-    action='Stay on your current plan and keep the rhythm going.';
-    type='progression';
-    confidence=Math.max(confidence,76);
-  }
-
-  const recoveryLabel=readiness==null?'Collecting Data':readiness>=72?'Ready':readiness>=58?'Stable':'Recovery Focus';
-  const loadLabel=sum.totalVolume?String(Math.round(sum.totalVolume)):'Collecting Data';
-  const loadSub=sum.totalVolume?`${sum.totalSets} strength sets`:'Need 2–3 sessions';
-  const balanceLabel=imbalance?'Needs Balance':'Acceptable';
-  const confText=confLabel(confidence);
-
-  const deck=document.getElementById('vertexB2ProgressDeck');
-  if(deck){
-    deck.innerHTML=`<div class="vertex-p5native-rail" aria-label="Coaching telemetry">
-      <div class="vertex-p5native-signal"><div class="k">Recovery</div><div class="v">${escapeHtml(recoveryLabel)}</div><div class="s">Readiness ${readiness==null?'collecting':readiness}</div></div>
-      <div class="vertex-p5native-signal"><div class="k">Consistency</div><div class="v">${escapeHtml(consistency)}</div><div class="s">${sessions} vs ${prev} sessions</div></div>
-      <div class="vertex-p5native-signal"><div class="k">Load</div><div class="v">${escapeHtml(loadLabel)}</div><div class="s">${escapeHtml(loadSub)}</div></div>
-      <div class="vertex-p5native-signal"><div class="k">Balance</div><div class="v">${escapeHtml(balanceLabel)}</div><div class="s">${top?escapeHtml(top[0]+' '+top[1]+' sets'):'Collecting'}</div></div>
-      <div class="vertex-p5native-signal"><div class="k">Confidence</div><div class="v">${confidence}%</div><div class="s">${escapeHtml(confText)}</div></div>
-    </div>`;
-  }
-
+  const summary=document.getElementById('progressSummary');
+  if(summary){summary.innerHTML=`<div class="progress-kpi"><b>${sum.thisWeek.length}</b><span>Sessions This Week</span></div><div class="progress-kpi"><b>${Math.round((sum.thisWeek.length/5)*100)}%</b><span>5-Day Consistency</span></div><div class="progress-kpi"><b>${sum.totalSets}</b><span>Strength Sets</span></div><div class="progress-kpi"><b>${sum.totalVolume?Math.round(sum.totalVolume):'—'}</b><span>Load Volume</span></div>`;}
   const insights=document.getElementById('progressInsights');
   if(insights){
-    if(!rows.length){
-      insights.innerHTML=`<div class="insight vertex-p5native-card">
-        <div class="vertex-p5native-head">
-          <div><div class="vertex-p5native-label">Today's Coaching</div><div class="vertex-p5native-title">Start Tracking</div></div>
-          <div class="vertex-p5native-confidence">Building Confidence</div>
-        </div>
-        <div class="vertex-p5native-copy">Log your first workout so Vertex can start building your training picture.</div>
-        <div class="vertex-p5native-action"><div class="vertex-p5native-action-label">Action</div>Build or load a workout, then hit Log Workout when you finish.</div>
-      </div>`;
-    }else{
-      insights.innerHTML=`<div class="insight vertex-p5native-card ${escapeHtml(type)}">
-        <div class="vertex-p5native-head">
-          <div><div class="vertex-p5native-label">Today's Coaching</div><div class="vertex-p5native-title">${escapeHtml(title)}</div></div>
-          <div class="vertex-p5native-confidence">${confidence}% · ${escapeHtml(confText)}</div>
-        </div>
-        <div class="vertex-p5native-copy">${escapeHtml(interpretation)}</div>
-        <div class="vertex-p5native-action"><div class="vertex-p5native-action-label">Action</div>${escapeHtml(action)}</div>
-        <div class="vertex-p5native-meta">Readiness ${readiness==null?'collecting':readiness} · Consistency ${escapeHtml(consistency)} · Balance ${imbalance?'needs work':'acceptable'}</div>
-      </div>`;
+    if(!rows.length){insights.innerHTML=`<div class="empty-note" style="padding:28px;line-height:1.7"><div style="font-size:22px;margin-bottom:8px">💪</div><b style="display:block;margin-bottom:6px;color:var(--text)">No workouts logged yet</b><span style="color:var(--muted);font-size:13px">Head to the <b style="color:var(--acc)">Workout</b> tab, build or load a session, then hit <b style="color:var(--acc)">Log Workout</b>. Your stats, volume trends, and exercise history will appear here.</span></div>`;} else {
+      const delta=sum.thisWeek.length-sum.prevWeek.length;
+      const muscleTotals={}; rows.filter(r=>new Date(r.completed_at)>=weekStart()).forEach(r=>Object.entries(r.metrics?.muscles||{}).forEach(([m,v])=>{muscleTotals[m]=(muscleTotals[m]||0)+(v.sets||0)}));
+      const top=Object.entries(muscleTotals).sort((a,b)=>b[1]-a[1])[0];
+      const topMove=perf[0];
+      const notes=[`You logged ${sum.thisWeek.length} workout${sum.thisWeek.length===1?'':'s'} this week.`, delta>0?`Consistency is up ${delta} session${delta===1?'':'s'} versus last week.`:delta<0?`Consistency is down ${Math.abs(delta)} session${Math.abs(delta)===1?'':'s'} versus last week.`:'Consistency matches last week.', top?`${top[0]} has the highest set volume this week at ${top[1]} sets.`:'No strength volume logged this week.', topMove?`${topMove.name} is your most logged exercise (${topMove.sets} sets).`:'Exercise history will appear after strength logs.', sum.daysSince===0?'You logged a workout today.':`Last workout was ${sum.daysSince} day${sum.daysSince===1?'':'s'} ago.`];
+      insights.innerHTML=notes.map(n=>`<div class="insight" insight-confidence-high>${escapeHtml(n)}</div>`).join('');
     }
   }
-
-  const summary=document.getElementById('progressSummary');
-  if(summary){
-    summary.innerHTML=`<div class="progress-kpi"><b>${sum.thisWeek.length}</b><span>Sessions This Week</span></div><div class="progress-kpi"><b>${Math.round((sum.thisWeek.length/5)*100)}%</b><span>5-Day Consistency</span></div><div class="progress-kpi"><b>${sum.totalSets}</b><span>Strength Sets</span></div><div class="progress-kpi"><b>${sum.totalVolume?Math.round(sum.totalVolume):'—'}</b><span>Load Volume</span></div>`;
-  }
-
   const weeks=document.getElementById('progressWeeks');
-  if(weeks){
-    const starts=[0,1,2,3].map(i=>{const d=weekStart(); d.setDate(d.getDate()-(i*7)); return d;});
-    const weekData=starts.map(st=>{const end=new Date(st); end.setDate(end.getDate()+7); const count=rows.filter(r=>{const dt=new Date(r.completed_at); if(dt<st||dt>=end) return false; return r.workout_type!=='hk_dismissed'&&r.workout_type!=='hk_imported_dismissed';}).length; return {st,count};});
-    const withData=weekData.filter(w=>w.count>0); const max=Math.max(1,...withData.map(w=>w.count));
-    weeks.innerHTML=withData.length?withData.map(({st,count})=>`<div class="week-row"><div class="week-line"><span>${st.toLocaleDateString([],{month:'short',day:'numeric'})}</span><b>${count} session${count===1?'':'s'}</b></div><div class="bar"><div class="fill" style="width:${Math.round(count/max*100)}%"></div></div></div>`).join(''):'<div class="empty-note">Log your first workout to see weekly consistency.</div>';
-  }
-
+  if(weeks){const starts=[0,1,2,3].map(i=>{const d=weekStart(); d.setDate(d.getDate()-(i*7)); return d;}); const weekData=starts.map(st=>{const end=new Date(st); end.setDate(end.getDate()+7); const count=rows.filter(r=>{const dt=new Date(r.completed_at); if(dt<st||dt>=end) return false; return r.workout_type!=='hk_dismissed'&&r.workout_type!=='hk_imported_dismissed';}).length; return {st,count};}); const withData=weekData.filter(w=>w.count>0); const max=Math.max(1,...withData.map(w=>w.count)); weeks.innerHTML=withData.length?withData.map(({st,count})=>`<div class="week-row"><div class="week-line"><span>${st.toLocaleDateString([],{month:'short',day:'numeric'})}</span><b>${count} session${count===1?'':'s'}</b></div><div class="bar"><div class="fill" style="width:${Math.round(count/max*100)}%"></div></div></div>`).join(''):'<div class="empty-note">Log your first workout to see weekly consistency.</div>';}
   const muscles=document.getElementById('progressMuscles');
-  if(muscles){
-    const max=Math.max(1,...Object.values(muscleTotals));
-    muscles.innerHTML=Object.keys(muscleTotals).length?Object.entries(muscleTotals).sort((a,b)=>b[1]-a[1]).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${escapeHtml(m)}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<div class="empty-note">Strength muscle volume appears after logging strength workouts.</div>';
-  }
-
+  if(muscles){const totals={}; sum.thisWeek.forEach(r=>Object.entries(r.metrics?.muscles||{}).forEach(([m,v])=>{totals[m]=(totals[m]||0)+(v.sets||0)})); const max=Math.max(1,...Object.values(totals)); muscles.innerHTML=Object.keys(totals).length?Object.entries(totals).sort((a,b)=>b[1]-a[1]).map(([m,v])=>`<div class="vol-row"><div class="vol-label"><span>${escapeHtml(m)}</span><span>${v} sets</span></div><div class="bar"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div></div>`).join(''):'<div class="empty-note">Strength muscle volume appears after logging strength workouts.</div>';}
   const history=document.getElementById('progressHistory');
   if(history){
     const topExercises=perf.slice(0,5).map(x=>`<div class="history-row"><div class="history-date">Exercise</div><div><div class="history-name">${escapeHtml(x.name)}</div><div class="history-meta">Best weight ${Math.round(x.bestWeight||0)} lb · ${Math.round(x.volume||0)} total volume</div></div><div class="mono">${x.sets} sets</div><div class="mono">Top move</div></div>`).join('');
     const workoutRows=rows.length?rows.slice(0,14).map(r=>`<div class="history-row"><div class="history-date">${new Date(r.completed_at).toLocaleDateString()}<br>${new Date(r.completed_at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</div><div><div class="history-name">${escapeHtml(r.workout_name||'Workout')}</div><div class="history-meta">${escapeHtml(String(r.workout_type||'strength').toUpperCase())} · ${r.metrics?.moves||0} moves · ${r.metrics?.est_minutes||0} min est.</div></div><div class="mono">${r.metrics?.sets||0} sets</div><div class="mono">${r.metrics?.load_volume?Math.round(r.metrics.load_volume):'—'} vol</div></div>`).join(''):'<div class="empty-note">Workout history is empty.</div>';
     history.innerHTML=(topExercises?`<div style="margin-bottom:12px"><div class="label">Top Exercises</div>${topExercises}</div>`:'')+`<div class="label">Recent Logs</div>`+workoutRows;
   }
-
+  renderVertexB2ProgressDeck(rows,sum,perf);
   renderProgressSparklines(rows);
 }
-
 
 const _sparkCharts={};
 function renderProgressSparklines(rows){
@@ -19038,34 +18898,272 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 
-
-<style id="vertex-phase5a4-native-css">
-/* Phase 5A.4 — Native Progress Renderer */
-.vertex-p5native-rail{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0 16px}
-.vertex-p5native-signal{border:1px solid rgba(255,255,255,.065);background:#111;border-radius:9px;padding:9px 10px;min-height:58px}
-.vertex-p5native-signal .k{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.9px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
-.vertex-p5native-signal .v{font-size:15px;font-weight:800;color:var(--acc);line-height:1.1}
-.vertex-p5native-signal .s{color:var(--muted);font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vertex-p5native-card{border:1px solid rgba(232,255,71,.48)!important;background:linear-gradient(135deg,rgba(232,255,71,.065),rgba(232,255,71,.018) 60%,rgba(72,255,138,.018))!important;border-radius:12px!important;padding:18px 20px!important;margin-top:8px!important;box-shadow:0 0 0 1px rgba(232,255,71,.06),0 14px 36px rgba(0,0,0,.16)}
-.vertex-p5native-card.recovery,.vertex-p5native-card.deload{border-color:rgba(255,176,71,.48)!important;background:linear-gradient(135deg,rgba(255,176,71,.07),rgba(255,176,71,.018) 62%,rgba(232,255,71,.012))!important}
-.vertex-p5native-card.progression{border-color:rgba(72,255,138,.44)!important;background:linear-gradient(135deg,rgba(72,255,138,.065),rgba(72,255,138,.018) 60%,rgba(232,255,71,.016))!important}
-.vertex-p5native-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:13px}
-.vertex-p5native-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
-.vertex-p5native-title{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3.5px;line-height:.98;color:var(--text)}
-.vertex-p5native-confidence{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.4px;color:var(--acc);border:1px solid rgba(232,255,71,.34);border-radius:999px;padding:6px 9px;white-space:nowrap;text-transform:uppercase;opacity:.9}
-.vertex-p5native-copy{color:var(--muted);font-size:14px;line-height:1.48;max-width:940px}
-.vertex-p5native-action-label{font-family:'DM Mono',monospace;color:var(--acc);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.vertex-p5native-action{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);color:var(--text);font-weight:800;line-height:1.42}
-.vertex-p5native-meta{margin-top:12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+<style id="vertex-phase5a-css">
+/* Phase 5A.1 — Adaptive Progression Intelligence */
+.vertex-p5a-rail{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0 16px}
+.vertex-p5a-signal{border:1px solid rgba(255,255,255,.065);background:#111;border-radius:9px;padding:9px 10px;min-height:58px}
+.vertex-p5a-signal .k{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.9px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.vertex-p5a-signal .v{font-size:15px;font-weight:800;color:var(--acc);line-height:1.1}
+.vertex-p5a-signal .s{color:var(--muted);font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vertex-p5a-card{border:1px solid rgba(232,255,71,.48)!important;background:linear-gradient(135deg,rgba(232,255,71,.065),rgba(232,255,71,.018) 60%,rgba(72,255,138,.018))!important;border-radius:12px!important;padding:18px 20px!important;margin-top:8px!important;box-shadow:0 0 0 1px rgba(232,255,71,.06),0 14px 36px rgba(0,0,0,.16)}
+.vertex-p5a-card.recovery,.vertex-p5a-card.deload{border-color:rgba(255,176,71,.48)!important;background:linear-gradient(135deg,rgba(255,176,71,.07),rgba(255,176,71,.018) 62%,rgba(232,255,71,.012))!important}
+.vertex-p5a-card.progression{border-color:rgba(72,255,138,.44)!important;background:linear-gradient(135deg,rgba(72,255,138,.065),rgba(72,255,138,.018) 60%,rgba(232,255,71,.016))!important}
+.vertex-p5a-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:13px}
+.vertex-p5a-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.vertex-p5a-title{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3.5px;line-height:.98;color:var(--text)}
+.vertex-p5a-confidence{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.4px;color:var(--acc);border:1px solid rgba(232,255,71,.34);border-radius:999px;padding:6px 9px;white-space:nowrap;text-transform:uppercase;opacity:.9}
+.vertex-p5a-copy{color:var(--muted);font-size:14px;line-height:1.48;max-width:940px}
+.vertex-p5a-action-label{font-family:'DM Mono',monospace;color:var(--acc);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.vertex-p5a-action{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);color:var(--text);font-weight:800;line-height:1.42}
+.vertex-p5a-meta{margin-top:12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+.vertex-p5a-hide-card{display:none!important}
 @media(max-width:900px){
-  .vertex-p5native-rail{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-left:-2px;margin-right:-2px;padding:0 2px 4px}
-  .vertex-p5native-rail::-webkit-scrollbar{display:none}
-  .vertex-p5native-signal{min-width:142px;min-height:56px}
-  .vertex-p5native-title{font-size:32px}
-  .vertex-p5native-head{display:block}
-  .vertex-p5native-confidence{display:inline-flex;margin-top:10px}
+  .vertex-p5a-rail{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-left:-2px;margin-right:-2px;padding:0 2px 4px}
+  .vertex-p5a-rail::-webkit-scrollbar{display:none}
+  .vertex-p5a-signal{min-width:142px;min-height:56px}
+  .vertex-p5a-title{font-size:32px}
+  .vertex-p5a-head{display:block}
+  .vertex-p5a-confidence{display:inline-flex;margin-top:10px}
 }
 </style>
+
+
+<script id="vertex-phase5a-js">
+(function(){
+  function esc(v){
+    try{ if(typeof escapeHtml === 'function') return escapeHtml(String(v == null ? '' : v)); }catch(e){}
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function getRows(){ try{return typeof progressRows==='function' ? (progressRows()||[]) : [];}catch(e){return [];} }
+  function getSummary(r){ try{return typeof progressSummary==='function' ? (progressSummary(r)||{}) : {};}catch(e){return {};} }
+  function getReadiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
+        var x=window.VertexRecoveryInsights.build()||{};
+        var n=Number(x.recovery);
+        if(Number.isFinite(n)) return Math.round(n);
+      }
+    }catch(e){}
+    return null;
+  }
+  function avg(arr){
+    arr=(arr||[]).map(Number).filter(function(n){return Number.isFinite(n);});
+    if(!arr.length) return 0;
+    return arr.reduce(function(a,b){return a+b;},0)/arr.length;
+  }
+  function weekStartSafe(){
+    try{ if(typeof weekStart === 'function') return weekStart(); }catch(e){}
+    var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d;
+  }
+  function dayDiff(a,b){
+    try{
+      var A=new Date(a); A.setHours(0,0,0,0);
+      var B=new Date(b); B.setHours(0,0,0,0);
+      return Math.round((B-A)/86400000);
+    }catch(e){return 999;}
+  }
+  function volumeOf(row){ return Number((row&&row.metrics&&row.metrics.volume)||0); }
+  function setCountOf(row){ return Number((row&&row.metrics&&row.metrics.sets)||0); }
+  function muscleRank(rows){
+    var totals={}, start=weekStartSafe();
+    try{
+      rows.filter(function(row){return new Date(row.completed_at)>=start;}).forEach(function(row){
+        Object.entries((row.metrics&&row.metrics.muscles)||{}).forEach(function(pair){
+          var m=pair[0], v=pair[1];
+          totals[m]=(totals[m]||0)+(Number((v&&v.sets)||v)||0);
+        });
+      });
+    }catch(e){}
+    return Object.entries(totals).sort(function(a,b){return b[1]-a[1];});
+  }
+  function confLabel(n){
+    n=Number(n)||0;
+    if(n>=90) return 'High Confidence';
+    if(n>=75) return 'Moderate Confidence';
+    if(n>=60) return 'Early Confidence';
+    return 'Learning Mode';
+  }
+  function build(){
+    var rows=getRows().slice().sort(function(a,b){return new Date(a.completed_at)-new Date(b.completed_at);});
+    var sum=getSummary(rows);
+    var readiness=getReadiness();
+    var thisWeek=sum.thisWeek||[];
+    var prevWeek=sum.prevWeek||[];
+    var sessions=Number(thisWeek.length||0);
+    var prev=Number(prevWeek.length||0);
+    var sets=Number(sum.totalSets||0);
+    var volume=Number(sum.totalVolume||0);
+
+    var recent=rows.slice(-6), older=rows.slice(-12,-6);
+    var recentVol=avg(recent.map(volumeOf)), olderVol=avg(older.map(volumeOf));
+    var recentSets=avg(recent.map(setCountOf)), olderSets=avg(older.map(setCountOf));
+    var volumeTrend=olderVol>0 ? ((recentVol-olderVol)/olderVol)*100 : 0;
+    var setTrend=olderSets>0 ? ((recentSets-olderSets)/olderSets)*100 : 0;
+    var lastDate=rows.length ? rows[rows.length-1].completed_at : null;
+    var daysSinceLast=lastDate ? dayDiff(lastDate,new Date()) : 99;
+
+    var ranked=muscleRank(rows), top=ranked[0]||null, second=ranked[1]||null;
+    var imbalance=!!(top && second && top[1]>=Math.max(6,second[1]*1.45));
+    var consistency=sessions>prev?'Improving':(sessions<prev?'Rebuilding':(sessions>0?'Stable':'Early'));
+
+    var recoveryScore=(readiness==null?62:readiness);
+    var consistencyScore=Math.max(30,Math.min(100,50 + (sessions*10) + ((sessions-prev)*8)));
+    var balanceScore=imbalance?45:78;
+    var momentumScore=Math.max(30,Math.min(100,50 + ((sessions-prev)*12) + (volumeTrend>5?12:0) + (setTrend>5?8:0) - (daysSinceLast>5?12:0)));
+    var fatigueScore=Math.max(0,Math.min(100,(readiness==null?35:(100-readiness)) + (volumeTrend>25?18:0) + (sessions>=5?12:0)));
+    var progressionScore=Math.round(Math.max(0,Math.min(100,
+      (recoveryScore*.36) + (consistencyScore*.26) + (balanceScore*.18) + (momentumScore*.14) - (fatigueScore*.18) + 18
+    )));
+    var confidence=Math.max(45,Math.min(100,Math.round((readiness==null?62:readiness) + Math.min(14,sessions*4) + Math.min(8,rows.length))));
+
+    var state='Controlled Baseline';
+    var label='Adaptive Decision';
+    var interpretation='Vertex is still learning your training pattern.';
+    var action='Keep training consistently. Build a few more workouts before pushing progression.';
+    var type='baseline';
+
+    var enoughData=rows.length>=3 || sessions>=2;
+    var recoveryLow=readiness!==null && readiness<58;
+    var recoveryVeryLow=readiness!==null && readiness<48;
+    var heavyRecent=volumeTrend>28 || sessions>=5;
+    var inactive=daysSinceLast>7;
+
+    if(enoughData && recoveryVeryLow && heavyRecent){
+      state='Deload Recommended';
+      label='Recovery Decision';
+      interpretation='You have been pushing hard and recovery needs more room.';
+      action='Reduce volume for the next 5–7 days. Keep movement quality high.';
+      type='deload';
+      confidence=Math.max(confidence,84);
+    }else if(enoughData && recoveryLow){
+      state='Recovery Constrained';
+      label='Recovery Decision';
+      interpretation='Your body needs a little more recovery before pushing harder.';
+      action='Keep today’s session lighter. Do not add weight or extra sets.';
+      type='recovery';
+      confidence=Math.max(confidence,78);
+    }else if(enoughData && imbalance){
+      state='Imbalance Priority';
+      label='Balance Decision';
+      interpretation='One area is getting more work than the rest.';
+      action='Balance your next session before adding more volume.';
+      type='baseline';
+      confidence=Math.max(confidence,84);
+    }else if(enoughData && progressionScore>=76 && sessions>=2 && !inactive){
+      state='Progression Window Open';
+      label='Progression Decision';
+      interpretation='You are recovering well and training consistently.';
+      action='Increase one primary lift next session. Keep everything else steady.';
+      type='progression';
+      confidence=Math.max(confidence,82);
+    }else if(enoughData && momentumScore>=72 && sessions>=2 && !inactive){
+      state='Momentum Building';
+      label='Progression Decision';
+      interpretation='You are stacking good workouts together.';
+      action='Stay on your current plan and keep the momentum going.';
+      type='progression';
+      confidence=Math.max(confidence,76);
+    }else if(enoughData){
+      state='Maintain Load';
+      label='Progression Decision';
+      interpretation='Your training rhythm is improving, but not enough to push harder yet.';
+      action='Repeat your current workload next session.';
+      type='baseline';
+      confidence=Math.max(confidence,68);
+    }
+
+    var loadLabel=volume?String(Math.round(volume)):'Pending';
+    var loadSub=volume?sets+' strength sets':'Need 2–3 sessions';
+
+    return {
+      state:state,label:label,interpretation:interpretation,action:action,type:type,
+      confidence:confidence,confText:confLabel(confidence),progressionScore:progressionScore,
+      recoveryScore:Math.round(recoveryScore),momentumScore:Math.round(momentumScore),balanceScore:Math.round(balanceScore),
+      consistency:consistency,readiness:readiness,sessions:sessions,prev:prev,sets:sets,volume:Math.round(volume),
+      loadLabel:loadLabel,loadSub:loadSub,top:top,imbalance:imbalance
+    };
+  }
+  function railHTML(x){
+    var recovery=x.readiness==null?'Pending':(x.readiness>=72?'Ready':x.readiness>=58?'Manage':'Recover');
+    var balance=x.imbalance?'Priority':'Acceptable';
+    return ''+
+      '<div class="vertex-p5a-rail" aria-label="Adaptive coaching telemetry">'+
+        '<div class="vertex-p5a-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>'+
+        '<div class="vertex-p5a-signal"><div class="k">Consistency</div><div class="v">'+esc(x.consistency)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>'+
+        '<div class="vertex-p5a-signal"><div class="k">Load</div><div class="v">'+esc(x.loadLabel)+'</div><div class="s">'+esc(x.loadSub)+'</div></div>'+
+        '<div class="vertex-p5a-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(x.top?x.top[0]+' '+x.top[1]+' sets':'Pending')+'</div></div>'+
+        '<div class="vertex-p5a-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">'+esc(x.confText)+'</div></div>'+
+      '</div>';
+  }
+  function cardHTML(x){
+    return ''+
+      '<div class="insight vertex-p5a-card '+esc(x.type)+'">'+
+        '<div class="vertex-p5a-head">'+
+          '<div><div class="vertex-p5a-label">'+esc(x.label)+'</div><div class="vertex-p5a-title">'+esc(x.state)+'</div></div>'+
+          '<div class="vertex-p5a-confidence">'+esc(x.confidence)+'% · '+esc(x.confText)+'</div>'+
+        '</div>'+
+        '<div class="vertex-p5a-copy">'+esc(x.interpretation)+'</div>'+
+        '<div class="vertex-p5a-action"><div class="vertex-p5a-action-label">Action</div>'+esc(x.action)+'</div>'+
+        '<div class="vertex-p5a-meta">Progression '+esc(x.progressionScore)+' · Recovery '+esc(x.recoveryScore)+' · Momentum '+esc(x.momentumScore)+' · Balance '+esc(x.balanceScore)+'</div>'+
+      '</div>';
+  }
+  function findInsightsPanel(){
+    var panels=document.querySelectorAll('.progress-card,.progress-card.wide,.panel,.page-panel');
+    for(var i=0;i<panels.length;i++){
+      var label=panels[i].querySelector('.label');
+      if(label && String(label.textContent||'').trim().toLowerCase()==='insights') return panels[i];
+    }
+    return null;
+  }
+  function hideSeparateConsistency(){
+    var cards=document.querySelectorAll('.progress-card,.panel');
+    cards.forEach(function(card){
+      var label=card.querySelector('.label');
+      if(label && String(label.textContent||'').trim().toLowerCase()==='consistency'){
+        card.classList.add('vertex-p5a-hide-card');
+      }
+    });
+  }
+  function normalize(){
+    try{
+      var x=build();
+      var deck=document.getElementById('vertexB2ProgressDeck');
+      if(deck) deck.innerHTML=railHTML(x);
+
+      var insights=document.getElementById('progressInsights');
+      if(insights){
+        insights.innerHTML=cardHTML(x);
+      }else{
+        var panel=findInsightsPanel();
+        if(panel){
+          panel.querySelectorAll('.insight,.coach-item').forEach(function(n){n.remove();});
+          panel.insertAdjacentHTML('beforeend',cardHTML(x));
+        }
+      }
+      hideSeparateConsistency();
+    }catch(e){
+      console.warn('[Vertex Phase 5A] normalize failed', e);
+    }
+  }
+  var old=window.renderProgressPage;
+  if(typeof old==='function' && !old.__vertexPhase5AWrapped){
+    var wrapped=function(){
+      var out=old.apply(this,arguments);
+      [0,80,220,600,1200,2400].forEach(function(ms){setTimeout(normalize,ms);});
+      return out;
+    };
+    wrapped.__vertexPhase5AWrapped=true;
+    window.renderProgressPage=wrapped;
+  }
+  [250,900,1800,3600].forEach(function(ms){setTimeout(normalize,ms);});
+  document.addEventListener('click',function(e){
+    if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){
+      [80,260,800,1500].forEach(function(ms){setTimeout(normalize,ms);});
+    }
+  },true);
+  window.VertexPhase5A={normalize:normalize,build:build};
+})();
+</script>
 
 </body>
 </html>

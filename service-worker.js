@@ -1,8 +1,8 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260529-phase5a4-progress-lock
+   v20260529-phase5a4-syntax-recovery-001
    Network-first for HTML so deploys are visible immediately.
 */
-const CACHE_NAME = 'vertex-v20260529-phase5a4-progress-lock';
+const CACHE_NAME = 'vertex-v20260529-phase5a4-syntax-recovery-001';
 const APP_SHELL = [
   './',
   './index.html',

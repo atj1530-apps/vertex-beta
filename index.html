@@ -19825,6 +19825,39 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('click',function(){setTimeout(run,200);},true);
 })();
 </script>
+
+<script id="vertex-progress-freeze-final">
+(function(){
+ if(window.__vertexProgressFreezeFinal)return;window.__vertexProgressFreezeFinal=true;
+ function fix(){
+  document.querySelectorAll('#vertexB2ProgressDeck .vertex-b2-card').forEach(function(card){
+    var label=card.querySelector('.label');
+    if(!label) return;
+    var name=(label.textContent||'').trim();
+    if(name==='Load Tolerance' || name==='Load Manageable'){
+      var lines=card.querySelectorAll('.vertex-b2-line');
+      if(lines.length>=3){
+        lines[0].textContent='Current workload appears sustainable.';
+        lines[1].textContent='Recovery is still building.';
+        lines[2].textContent='Progress selectively this week.';
+      }
+    }
+    if(name==='Consistency' || name==='Consistency Trend'){
+      var txt=card.innerText||'';
+      if(/This week:\s*0.*previous:\s*0/i.test(txt)){
+        var lines=card.querySelectorAll('.vertex-b2-line');
+        if(lines.length>=2){
+          lines[0].textContent='Training rhythm is forming.';
+          lines[1].textContent='More sessions improve confidence.';
+        }
+      }
+    }
+  });
+ }
+ document.addEventListener('DOMContentLoaded',function(){setTimeout(fix,200);setTimeout(fix,800);});
+ document.addEventListener('click',function(){setTimeout(fix,250);},true);
+})();
+</script>
 </body>
 </html>
 

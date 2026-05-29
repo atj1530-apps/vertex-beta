@@ -9415,12 +9415,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
-
-
-
-
-
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -11037,8 +11031,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -11307,8 +11299,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
 </body></html>`);
     w.document.close();
   };
@@ -11537,8 +11527,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
 </body></html>`);
   w.document.close();
 }
@@ -18896,61 +18884,56 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 })();
 </script>
 
-
-
-<style id="vertex-phase4-final-css">
-/* Phase 4 Final — Coaching Authority Pass */
-.vertex-p4f-rail{
+<style id="vertex-phase4d-css">
+/* Phase 4D — Coaching Authority Refinement */
+.vertex-p4d-rail{
   display:grid;
   grid-template-columns:repeat(5,1fr);
   gap:8px;
-  margin:14px 0 16px;
+  margin:12px 0 16px;
 }
-.vertex-p4f-signal{
+.vertex-p4d-signal{
   border:1px solid rgba(255,255,255,.065);
-  background:#111;
+  background:#121212;
   border-radius:9px;
-  padding:9px 10px;
-  min-height:58px;
+  padding:9px 11px;
+  min-height:66px;
 }
-.vertex-p4f-signal .k{
+.vertex-p4d-signal .k{
   font-family:'DM Mono',monospace;
   font-size:8px;
-  letter-spacing:1.9px;
+  letter-spacing:1.8px;
   text-transform:uppercase;
   color:var(--muted);
   margin-bottom:5px;
 }
-.vertex-p4f-signal .v{
-  font-size:15px;
+.vertex-p4d-signal .v{
+  font-size:16px;
   font-weight:800;
   color:var(--acc);
   line-height:1.1;
 }
-.vertex-p4f-signal .s{
+.vertex-p4d-signal .s{
   color:var(--muted);
   font-size:11px;
   margin-top:4px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
 }
-.vertex-p4f-card{
-  border:1px solid rgba(232,255,71,.48)!important;
-  background:linear-gradient(135deg,rgba(232,255,71,.065),rgba(232,255,71,.018) 60%,rgba(72,255,138,.018))!important;
+.vertex-p4d-card{
+  border:1px solid rgba(232,255,71,.54)!important;
+  background:linear-gradient(135deg,rgba(232,255,71,.075),rgba(232,255,71,.025) 58%,rgba(72,255,138,.022))!important;
   border-radius:12px!important;
-  padding:18px 20px!important;
+  padding:18px 22px!important;
   margin-top:8px!important;
-  box-shadow:0 0 0 1px rgba(232,255,71,.06),0 14px 36px rgba(0,0,0,.16);
+  box-shadow:0 0 0 1px rgba(232,255,71,.08),0 18px 44px rgba(0,0,0,.18);
 }
-.vertex-p4f-head{
+.vertex-p4d-head{
   display:flex;
+  align-items:flex-start;
   justify-content:space-between;
   gap:14px;
-  align-items:flex-start;
   margin-bottom:13px;
 }
-.vertex-p4f-label{
+.vertex-p4d-label{
   font-family:'DM Mono',monospace;
   font-size:10px;
   letter-spacing:3px;
@@ -18958,60 +18941,47 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   color:var(--muted);
   margin-bottom:5px;
 }
-.vertex-p4f-title{
+.vertex-p4d-title{
   font-family:'Bebas Neue',sans-serif;
   font-size:38px;
-  letter-spacing:3.5px;
-  line-height:.98;
+  letter-spacing:3px;
+  line-height:1;
   color:var(--text);
 }
-.vertex-p4f-confidence{
+.vertex-p4d-confidence{
   font-family:'DM Mono',monospace;
-  font-size:9px;
-  letter-spacing:1.4px;
+  font-size:10px;
+  letter-spacing:1.3px;
   color:var(--acc);
-  border:1px solid rgba(232,255,71,.34);
+  border:1px solid rgba(232,255,71,.45);
   border-radius:999px;
-  padding:6px 9px;
+  padding:7px 10px;
   white-space:nowrap;
   text-transform:uppercase;
-  opacity:.9;
 }
-.vertex-p4f-copy{
+.vertex-p4d-copy{
   color:var(--muted);
-  font-size:14px;
-  line-height:1.48;
-  max-width:940px;
+  font-size:15px;
+  line-height:1.45;
+  max-width:920px;
 }
-.vertex-p4f-action-label{
-  font-family:'DM Mono',monospace;
-  color:var(--acc);
-  font-size:9px;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  margin-bottom:6px;
-}
-.vertex-p4f-action{
-  margin-top:14px;
-  padding-top:12px;
+.vertex-p4d-action{
+  margin-top:13px;
+  padding-top:11px;
   border-top:1px solid rgba(255,255,255,.08);
   color:var(--text);
   font-weight:800;
-  line-height:1.42;
 }
-.vertex-p4f-meta{
-  margin-top:12px;
+.vertex-p4d-meta{
+  margin-top:11px;
   font-family:'DM Mono',monospace;
-  font-size:9px;
+  font-size:10px;
   letter-spacing:1.5px;
   text-transform:uppercase;
   color:var(--dim);
 }
-.vertex-p4f-hide-card{
-  display:none!important;
-}
 @media(max-width:900px){
-  .vertex-p4f-rail{
+  .vertex-p4d-rail{
     display:flex;
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
@@ -19020,16 +18990,16 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     margin-right:-2px;
     padding:0 2px 4px;
   }
-  .vertex-p4f-rail::-webkit-scrollbar{display:none}
-  .vertex-p4f-signal{min-width:142px;min-height:56px}
-  .vertex-p4f-title{font-size:32px}
-  .vertex-p4f-head{display:block}
-  .vertex-p4f-confidence{display:inline-flex;margin-top:10px}
+  .vertex-p4d-rail::-webkit-scrollbar{display:none}
+  .vertex-p4d-signal{min-width:150px}
+  .vertex-p4d-title{font-size:32px}
+  .vertex-p4d-head{display:block}
+  .vertex-p4d-confidence{display:inline-flex;margin-top:10px}
 }
 </style>
 
 
-<script id="vertex-phase4-final-js">
+<script id="vertex-phase4d-js">
 (function(){
   function esc(v){
     try{ if(typeof escapeHtml === 'function') return escapeHtml(String(v == null ? '' : v)); }catch(e){}
@@ -19037,7 +19007,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   }
   function rows(){ try{return typeof progressRows==='function' ? (progressRows()||[]) : [];}catch(e){return [];} }
   function summary(r){ try{return typeof progressSummary==='function' ? (progressSummary(r)||{}) : {};}catch(e){return {};} }
-  function ready(){
+  function readiness(){
     try{
       if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
         var x=window.VertexRecoveryInsights.build()||{};
@@ -19063,7 +19033,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     }catch(e){}
     return Object.entries(totals).sort(function(a,b){return b[1]-a[1];});
   }
-  function confLabel(n){
+  function confidenceLabel(n){
     n=Number(n)||0;
     if(n>=90) return 'High Confidence';
     if(n>=75) return 'Moderate Confidence';
@@ -19071,95 +19041,87 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     return 'Learning Mode';
   }
   function build(){
-    var rws=rows(), sum=summary(rws), r=ready();
+    var rws=rows(), sum=summary(rws), ready=readiness();
     var sessions=Number((sum.thisWeek&&sum.thisWeek.length)||0);
     var prev=Number((sum.prevWeek&&sum.prevWeek.length)||0);
     var sets=Number(sum.totalSets||0);
     var volume=Number(sum.totalVolume||0);
     var ranked=muscleRank(rws), top=ranked[0]||null, second=ranked[1]||null;
     var imbalance=!!(top && second && top[1]>=Math.max(6,second[1]*1.45));
-    var confidence=Math.max(45,Math.min(100,Math.round((r==null?62:r) + Math.min(15,sessions*4) + Math.min(8,sets/10))));
-    var consistency=sessions>prev?'Improving':(sessions<prev?'Rebuilding':(sessions>0?'Stable':'Early'));
+    var confidence=Math.max(45,Math.min(100,Math.round((ready==null?62:ready)+Math.min(15,sessions*4)+Math.min(8,sets/10))));
+    var consistency='Early';
+    if(sessions>prev) consistency='Improving';
+    else if(sessions===prev && sessions>0) consistency='Stable';
+    else if(sessions<prev) consistency='Rebuilding';
 
     var state='Controlled Baseline';
     var label='Baseline Intelligence';
     var interpretation='Training baseline still forming.';
-    var action='Maintain current workload. Delay progression until rhythm stabilizes.';
+    var action='Prioritize consistency over progression.';
 
     if(imbalance){
       state='Imbalance Priority';
-      label='Balance Intelligence';
+      label='Imbalance Intelligence';
       interpretation=top[0]+' volume is dominating this week’s workload.';
-      action='Cap extra '+top[0]+' sets next session. Add complementary work to restore balance.';
+      action='Add complementary work or cap extra '+top[0]+' sets next session.';
       confidence=Math.max(confidence,88);
-    }else if(r!==null && r<58){
+    }else if(ready!==null && ready<58){
       state='Recovery Priority';
       label='Recovery Intelligence';
-      interpretation='Recovery is not ready for aggressive progression.';
-      action='Reduce training strain today. Keep execution clean and leave capacity in reserve.';
+      interpretation='Recovery is not supporting aggressive progression.';
+      action='Keep the next session lighter and protect clean execution.';
       confidence=Math.max(confidence,82);
-    }else if(sessions>=3 && r!==null && r>=72){
+    }else if(sessions>=3 && ready!==null && ready>=72){
       state='Progression Window';
       label='Progression Intelligence';
       interpretation='Recovery and rhythm support a controlled push.';
-      action='Progress one priority lift. Keep accessory volume steady.';
+      action='Progress one priority lift or add one quality accessory set.';
       confidence=Math.max(confidence,86);
     }else if(sessions>prev){
       state='Performance Momentum';
       label='Momentum Intelligence';
       interpretation='Training rhythm is improving.';
-      action='Keep the rhythm. Add progression selectively, not across the full session.';
+      action='Keep the rhythm; avoid chasing volume across every movement.';
       confidence=Math.max(confidence,78);
     }
 
-    return {
-      state:state,label:label,interpretation:interpretation,action:action,
-      confidence:confidence,confText:confLabel(confidence),consistency:consistency,
-      readiness:r,sessions:sessions,prev:prev,sets:sets,volume:Math.round(volume),
-      top:top,imbalance:imbalance
-    };
+    return {state:state,label:label,interpretation:interpretation,action:action,confidence:confidence,confidenceText:confidenceLabel(confidence),
+      readiness:ready,sessions:sessions,prev:prev,sets:sets,volume:Math.round(volume),top:top,imbalance:imbalance,consistency:consistency};
   }
   function railHTML(x){
     var recovery=x.readiness==null?'Pending':(x.readiness>=72?'Ready':x.readiness>=58?'Manage':'Recover');
     var load=x.volume?String(x.volume):'—';
     var balance=x.imbalance?'Priority':'Acceptable';
+    var top=x.top?x.top[0]+' '+x.top[1]+' sets':'Pending';
     return ''+
-      '<div class="vertex-p4f-rail" aria-label="Coaching telemetry">'+
-        '<div class="vertex-p4f-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>'+
-        '<div class="vertex-p4f-signal"><div class="k">Consistency</div><div class="v">'+esc(x.consistency)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>'+
-        '<div class="vertex-p4f-signal"><div class="k">Load</div><div class="v">'+esc(load)+'</div><div class="s">'+esc(x.sets)+' strength sets</div></div>'+
-        '<div class="vertex-p4f-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(x.top?x.top[0]+' '+x.top[1]+' sets':'Pending')+'</div></div>'+
-        '<div class="vertex-p4f-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">'+esc(x.confText)+'</div></div>'+
+      '<div class="vertex-p4d-rail" aria-label="Intelligence signal contributors">'+
+        '<div class="vertex-p4d-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>'+
+        '<div class="vertex-p4d-signal"><div class="k">Consistency</div><div class="v">'+esc(x.consistency)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>'+
+        '<div class="vertex-p4d-signal"><div class="k">Load</div><div class="v">'+esc(load)+'</div><div class="s">'+esc(x.sets)+' strength sets</div></div>'+
+        '<div class="vertex-p4d-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(top)+'</div></div>'+
+        '<div class="vertex-p4d-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">'+esc(x.confidenceText)+'</div></div>'+
       '</div>';
   }
   function cardHTML(x){
     return ''+
-      '<div class="insight vertex-p4f-card">'+
-        '<div class="vertex-p4f-head">'+
-          '<div><div class="vertex-p4f-label">'+esc(x.label)+'</div><div class="vertex-p4f-title">'+esc(x.state)+'</div></div>'+
-          '<div class="vertex-p4f-confidence">'+esc(x.confidence)+'% · '+esc(x.confText)+'</div>'+
+      '<div class="insight vertex-p4d-card">'+
+        '<div class="vertex-p4d-head">'+
+          '<div><div class="vertex-p4d-label">'+esc(x.label)+'</div><div class="vertex-p4d-title">'+esc(x.state)+'</div></div>'+
+          '<div class="vertex-p4d-confidence">'+esc(x.confidence)+'% · '+esc(x.confidenceText)+'</div>'+
         '</div>'+
-        '<div class="vertex-p4f-copy">'+esc(x.interpretation)+'</div>'+
-        '<div class="vertex-p4f-action"><div class="vertex-p4f-action-label">Action</div>'+esc(x.action)+'</div>'+
-        '<div class="vertex-p4f-meta">Readiness '+esc(x.readiness==null?'pending':x.readiness)+' · '+esc(x.sessions)+' sessions this week · '+esc(x.sets)+' strength sets · '+esc(x.volume||'—')+' load volume</div>'+
+        '<div class="vertex-p4d-copy">'+esc(x.interpretation)+'</div>'+
+        '<div class="vertex-p4d-action">'+esc(x.action)+'</div>'+
+        '<div class="vertex-p4d-meta">Readiness '+esc(x.readiness==null?'pending':x.readiness)+' · '+esc(x.sessions)+' sessions this week · '+esc(x.sets)+' strength sets · '+esc(x.volume||'—')+' load volume</div>'+
       '</div>';
   }
-  function findInsightsPanel(){
-    var panels=document.querySelectorAll('.progress-card,.progress-card.wide,.panel,.page-panel');
-    for(var i=0;i<panels.length;i++){
-      var label=panels[i].querySelector('.label');
-      if(label && String(label.textContent||'').trim().toLowerCase()==='insights') return panels[i];
+  function findCardByLabel(labelText){
+    var cards=document.querySelectorAll('.progress-card');
+    labelText=String(labelText||'').toLowerCase();
+    for(var i=0;i<cards.length;i++){
+      var lab=cards[i].querySelector('.label');
+      if(lab && String(lab.textContent||'').trim().toLowerCase()===labelText) return cards[i];
     }
     return null;
-  }
-  function hideSeparateConsistency(){
-    var cards=document.querySelectorAll('.progress-card,.panel');
-    cards.forEach(function(card){
-      var label=card.querySelector('.label');
-      if(label && String(label.textContent||'').trim().toLowerCase()==='consistency'){
-        card.classList.add('vertex-p4f-hide-card');
-      }
-    });
   }
   function normalize(){
     try{
@@ -19171,34 +19133,45 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
       if(insights){
         insights.innerHTML=cardHTML(x);
       }else{
-        var panel=findInsightsPanel();
-        if(panel){
-          panel.querySelectorAll('.insight,.coach-item').forEach(function(n){n.remove();});
-          panel.insertAdjacentHTML('beforeend',cardHTML(x));
+        var insightCard=findCardByLabel('insights');
+        if(insightCard){
+          insightCard.querySelectorAll('.insight,.coach-item').forEach(function(n){n.remove();});
+          insightCard.insertAdjacentHTML('beforeend',cardHTML(x));
         }
       }
-      hideSeparateConsistency();
-    }catch(e){
-      console.warn('[Vertex Phase 4 Final] normalize failed', e);
-    }
+
+      var consistencyCard=findCardByLabel('consistency');
+      if(consistencyCard) consistencyCard.remove();
+
+      var muscleCard=findCardByLabel('muscle volume this week');
+      if(muscleCard) muscleCard.classList.add('wide');
+
+      document.querySelectorAll('.insight').forEach(function(n){
+        if(!n.classList.contains('vertex-p4d-card')){
+          var p=n.closest('.progress-card');
+          var lab=p&&p.querySelector('.label');
+          if(lab && String(lab.textContent||'').trim().toLowerCase()==='insights') n.remove();
+        }
+      });
+    }catch(e){ console.warn('[Vertex Phase4D] normalize failed',e); }
   }
   var old=window.renderProgressPage;
-  if(typeof old==='function' && !old.__vertexPhase4FinalWrapped){
+  if(typeof old==='function' && !old.__vertexPhase4DWrapped){
     var wrapped=function(){
       var out=old.apply(this,arguments);
-      [0,80,220,600,1200,2400].forEach(function(ms){setTimeout(normalize,ms);});
+      [0,80,240,700,1400,2600].forEach(function(ms){setTimeout(normalize,ms);});
       return out;
     };
-    wrapped.__vertexPhase4FinalWrapped=true;
+    wrapped.__vertexPhase4DWrapped=true;
     window.renderProgressPage=wrapped;
   }
   [250,900,1800,3600].forEach(function(ms){setTimeout(normalize,ms);});
   document.addEventListener('click',function(e){
     if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){
-      [80,260,800,1500].forEach(function(ms){setTimeout(normalize,ms);});
+      [80,260,900,1600].forEach(function(ms){setTimeout(normalize,ms);});
     }
   },true);
-  window.VertexPhase4Final={normalize:normalize,build:build};
+  window.VertexPhase4D={normalize:normalize,build:build};
 })();
 </script>
 

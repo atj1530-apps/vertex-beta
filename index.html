@@ -7112,7 +7112,7 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
     : (sessions>0?'Baseline forming':'Build the baseline');
 
   const progression=sessions>=3
-    ? (readiness!==null&&readiness<60?'Reduce intensity today':'Focus on One Main Lift')
+    ? (readiness!==null&&readiness<60?'Reduce intensity today':'Advance one priority lift')
     : (sessions>0?'Keep sessions consistent':'Log 3 to 4 clean sessions');
 
   const recoveryTrend=readiness!==null
@@ -7139,7 +7139,7 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
       readiness!==null?'Recovery signal available':'Connect or log recovery data',
       'Controls today intensity call'
     ]),
-    card('Training Strain', strain, [
+    card('Training Load Building', strain, [
       sessions?'Recent workload signal':'Log a session to start the signal',
       'Avoid volume jumps before consistency'
     ]),
@@ -18857,10 +18857,10 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   }
   function titles(d,m,f){
     var sessions=Number(d.sessions||0), prev=Number(d.prev||0), r=(d.readiness==null?null:Number(d.readiness));
-    var recoveryTitle=f.risk==='Elevated'?'Recovery Watch':(r!==null&&r>=75?'Recovery Supportive':'Recovery Still Building');
+    var recoveryTitle=f.risk==='Elevated'?'Recovery Watch':(r!==null&&r>=75?'Recovery Supportive':'Recovery Holding');
     if(m.level==='established' && f.risk==='Low') recoveryTitle='Recovery Pattern Stable';
     var loadTitle=f.risk==='Elevated'?'Load Pressure Rising':(m.level==='established'?'Load Tolerance Confirmed':'Load Manageable');
-    var coachTitle=f.risk==='Elevated'?'Hold progression':(f.progression==='Progress one priority'?'Progress selectively':'Train normally today');
+    var coachTitle=f.risk==='Elevated'?'Hold progression':(f.progression==='Progress one priority'?'Progress selectively':'Train controlled');
     var weeklyTitle=sessions===0?'Rhythm Incomplete':(sessions>prev?'Frequency Building':sessions<prev?'Rhythm Rebuild':'Weekly Rhythm Stable');
     var consistencyTitle=sessions===0?'Consistency Trend':sessions>=3?'Consistency Holding':'Routine Signal Early';
     var longTitle=m.level==='established'?'Adaptation Pattern Established':m.level==='building'?'Adaptation Confidence Building':'Adaptation Signal Building';
@@ -19718,16 +19718,6 @@ function run(){
 
  deck.innerHTML=deck.innerHTML.replace(/This week:\s*0\s*;\s*previous:\s*0/ig,'This week: 3; previous: 0');
 
- if(!/Cardio Strain/i.test(deck.innerText)){
-   var intel=deck.querySelector('.vertex-b2-row-intelligence');
-   if(intel){
-    var c=document.createElement('section');
-    c.className='vertex-b2-card';
-    c.innerHTML='<div class="label">Cardio Strain</div><div class="vertex-b2-value">Not Connected</div><div class="vertex-b2-line">No cardio data connected yet.</div>';
-    intel.appendChild(c);
-   }
- }
-
  if(!document.getElementById('vertexInsightsLayer')){
    var wrap=document.createElement('div');
    wrap.id='vertexInsightsLayer';
@@ -19736,7 +19726,7 @@ function run(){
    +'<section class="vertex-b2-card"><div class="label">Volume Distribution</div><div class="vertex-b2-value">Upper Focused</div><div class="vertex-b2-line">Most volume is going to upper body work.</div></section>'
    +'<section class="vertex-b2-card"><div class="label">Recovery Opportunities</div><div class="vertex-b2-value">Legs Fresh</div><div class="vertex-b2-line">Good opportunity for lower-body work.</div></section>'
    +'<section class="vertex-b2-card"><div class="label">Exercise Diversity</div><div class="vertex-b2-value">Exercise Variety Growing</div><div class="vertex-b2-line">Vertex is learning your exercise patterns.</div></section>'
-   +'</div>';
+   +'<section class="vertex-b2-card"><div class="label">Cardio Strain</div><div class="vertex-b2-value">Not Connected</div><div class="vertex-b2-line">Connect Strava to unlock cardio insights.</div></section>'+'</div>';
    deck.appendChild(wrap);
  }
 }
@@ -20496,9 +20486,9 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     var cnsLoad=Math.max(0,Math.min(100,Math.round(density+ramp+recPenalty+imbalancePenalty+repeatPenalty+stalePenalty)));
     var trend=buildTrendMemory(rs,r,sessions,prev,cnsLoad);
     var confidence=trend.confidence;
-    var state='MAINTAIN', tone='maintain', action='Train normally today';
+    var state='MAINTAIN', tone='maintain', action='Train controlled';
     var reason='You can train today, but keep progression selective.';
-    var guide='Increase only one exercise if warm-ups feel good.';
+    var guide='Progress one movement only if warm-ups feel good.';
     var deload='Not indicated';
     if(trend.state==='Accumulated Fatigue'){ state='DELOAD'; tone='recover'; action='Protect recovery'; reason='Recent trend memory shows fatigue accumulating, not just one low metric.'; guide='Trim hard sets by 20–30% and leave the gym feeling better than when you started.'; deload='Recommended'; }
     else if(r!==null && r<50){ state='RECOVER'; tone='recover'; action='Recovery priority'; reason='Recovery looks low, so forcing a hard session is not the best move today.'; guide='Keep it light: mobility, easy cardio, or technique work. Skip PR attempts.'; deload='Reduce intensity today'; }
@@ -20609,7 +20599,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     var chips='<div class="vertex-phase2d-chip"><strong>Fatigue</strong> 0/100</div>'+
       '<div class="vertex-phase2d-chip"><strong>Baseline Phase</strong></div>'+
       '<div class="vertex-phase2d-chip"><strong>Forecast</strong> '+esc(s.risk)+'</div>';
-    c.innerHTML='<div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Predictive decision combines readiness, training rhythm, recovery debt, and progression-window risk.">i</button></div>'+ '<div class="vertex-b2-value">MAINTAIN · Train normally today</div>'+ '<div class="vertex-b2-line">You can train today, but keep progression selective.</div>'+ '<div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> Increase only one exercise if warm-ups feel good.</div>'+ chips+ '<div class="vertex-b2-line" style="margin-top:8px">'+esc(s.debt)+' · '+esc(s.window)+' · readiness '+esc(s.readiness)+'</div>';
+    c.innerHTML='<div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Predictive decision combines readiness, training rhythm, recovery debt, and progression-window risk.">i</button></div>'+ '<div class="vertex-b2-value">MAINTAIN · Train controlled</div>'+ '<div class="vertex-b2-line">You can train today, but keep progression selective.</div>'+ '<div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> Progress one movement only if warm-ups feel good.</div>'+ chips+ '<div class="vertex-b2-line" style="margin-top:8px">'+esc(s.debt)+' · '+esc(s.window)+' · readiness '+esc(s.readiness)+'</div>';
   }
   function narrativeSync(s){
     var wrap=document.getElementById('progressInsights'); if(!wrap) return;
@@ -20623,7 +20613,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     try{
       var s=state();
       setCard('Load Tolerance','Load Manageable',['Signal strength: Early','Recovery debt: '+esc(s.debt),'Current load appears manageable; progress selectively.']);
-      setCard('Adaptive Coach','Train normally today',['Hold progression based on today\'s signal.','Forecast: '+esc(s.forecast.replace(/^Forecast:\s*/i,''))]);
+      setCard('Adaptive Coach','Train controlled',['Hold progression based on today\'s signal.','Forecast: '+esc(s.forecast.replace(/^Forecast:\s*/i,''))]);
       setCard('Weekly Intelligence',s.baseline?'Weekly Rhythm Forming':'Workload Forecast',[''+esc(s.sessions)+' this week vs 0 previous',s.baseline?'Log the next session to refresh the weekly workload signal.':'Load pressure is being tracked against recovery response.']);
       setCard('Consistency',s.baseline?'Consistency Trend':'Routine Pattern Tracking',['3-week adherence trend and session stability.','This week: '+esc(s.sessions)+'; previous: 0']);
       setCard('Longitudinal Trend',s.baseline?'Adaptation Signal Building':'Trajectory Watch',['Signal strength: Early','Forecast: '+esc(s.window)+'. Keep training repeatable while Vertex learns your normal response.']);

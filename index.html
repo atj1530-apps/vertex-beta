@@ -7059,86 +7059,111 @@ function renderProgressHistoryTab(showAll){
 function renderVertexB2ProgressDeck(rows,sum,perf){
   const deck=document.getElementById('vertexB2ProgressDeck');
   if(!deck) return;
+
   rows=Array.isArray(rows)?rows:[];
-  sum=sum||{};
   perf=Array.isArray(perf)?perf:[];
-  function esc(v){return (typeof escapeHtml==='function')?escapeHtml(String(v ?? '')):String(v ?? '').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
-  function readReadiness(){
-    try{
-      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
-        const intel=window.VertexRecoveryInsights.build()||{};
-        const n=Number(intel.recovery);
-        if(Number.isFinite(n)) return Math.round(n);
-      }
-    }catch(e){}
-    return null;
-  }
-  const readiness=readReadiness();
-  const sessions=Number(sum.thisWeek && sum.thisWeek.length || 0);
-  const prev=Number(sum.prevWeek && sum.prevWeek.length || 0);
-  const totalSets=Number(sum.totalSets||0);
-  const daysSince=Number.isFinite(Number(sum.daysSince))?Number(sum.daysSince):null;
+  sum=sum||{};
+
+  const sessions=(sum.thisWeek&&sum.thisWeek.length)||0;
+  const prev=(sum.prevWeek&&sum.prevWeek.length)||0;
+  const totalSets=sum.totalSets||0;
+  const totalVolume=sum.totalVolume||0;
+  const daysSince=(sum.daysSince===undefined?null:sum.daysSince);
   const topMove=perf[0]||null;
+
+  let readiness=null;
+  try{
+    const r=(typeof getReadinessScore==='function')?getReadinessScore():null;
+    if(r!==null&&r!==undefined&&!isNaN(Number(r))) readiness=Number(r);
+  }catch(e){}
+
   const muscleTotals={};
   try{
-    rows.filter(r=>new Date(r.completed_at)>=weekStart()).forEach(r=>Object.entries(r.metrics?.muscles||{}).forEach(([m,v])=>{muscleTotals[m]=(muscleTotals[m]||0)+(v.sets||0)}));
+    const start=weekStart();
+    rows.filter(r=>new Date(r.completed_at)>=start).forEach(r=>{
+      Object.entries((r.metrics&&r.metrics.muscles)||{}).forEach(([m,v])=>{
+        muscleTotals[m]=(muscleTotals[m]||0)+((v&&v.sets)||0);
+      });
+    });
   }catch(e){}
+
   const rankedMuscles=Object.entries(muscleTotals).sort((a,b)=>b[1]-a[1]);
   const topMuscle=rankedMuscles[0]||null;
   const secondMuscle=rankedMuscles[1]||null;
-  const imbalanceActive=!!(topMuscle && secondMuscle && topMuscle[1]>=Math.max(6,secondMuscle[1]*1.45));
-  const imbalanceValue=topMuscle?(imbalanceActive?'Imbalance detected':'Balance acceptable'):'Baseline pending';
-  const imbalanceLines=topMuscle?(imbalanceActive?[`${topMuscle[0]} is outpacing ${secondMuscle[0]}.`,`Next session: add complementary work or cap ${topMuscle[0]} volume.`]:[`Top group: ${topMuscle[0]} (${topMuscle[1]} sets)`,`No material weekly imbalance flagged.`]):['Log strength sessions to compare muscle distribution.','Looks across current-week set volume.'];
-  function cardioData(){
-    let connected=false, arr=[];
-    try{ connected=!!localStorage.getItem('vertex_strava_token'); }catch(e){}
-    try{ arr=JSON.parse(localStorage.getItem('vertex_strava_activities')||'[]')||[]; }catch(e){ arr=[]; }
-    let score=0;
-    if(Array.isArray(arr) && arr.length){ score=Math.min(100, arr.slice(0,7).reduce((a,x)=>a+Math.round(Number(x.moving_time||x.elapsed_time||0)/300),0)); }
-    const label=score>=75?'High endurance load':score>=45?'Moderate endurance load':score>0?'Low endurance load':(connected?'No cardio load':'Ready for Strava');
-    return {connected,score,label,sessions:Array.isArray(arr)?arr.length:0};
+  const imbalance=!!(topMuscle&&secondMuscle&&topMuscle[1]>=Math.max(6,secondMuscle[1]*1.45));
+
+  function esc(v){
+    return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
-  const cardio=cardioData();
-  const consistencyLabel=sessions>prev?'Improving':sessions<prev?'Needs attention':'Stable';
-  const adaptive = readiness!==null ? (readiness>=80?'Progression opportunity':readiness>=65?'Push with control':readiness>=50?'Maintain':'Recovery priority') : 'Build baseline';
-  const longTrend = readiness!==null ? (readiness>=70?'Baseline building':readiness>=55?'Watch recovery':'Recovery constrained') : 'Baseline pending';
-  const recoveryTrend = readiness!==null ? (readiness>=70?'→ Stable':readiness>=55?'↘ Watch':'↓ Constrained') : 'Pending';
-  const loadTolerance = readiness!==null && readiness<60 ? 'Reduce' : 'Stable';
-  const weeklyTrend = sessions ? 'Actionable trend' : 'Baseline pending';
   function sev(text){
     text=String(text||'').toLowerCase();
-    if(/reduce|elevated|high|constrained|recovery-first|needs attention/.test(text)) return 'high';
-    if(/watch|moderate.high|moderate–high|caution/.test(text)) return 'watch';
-    if(/stable|moderate|baseline|build|ready for strava/.test(text)) return 'moderate';
-    if(/ready|push|opportunity|good|sustainable|improving/.test(text)) return 'good';
+    if(/reduce|constrained|high|caution|recover/.test(text)) return 'high';
+    if(/watch|pending|building|early|baseline/.test(text)) return 'watch';
+    if(/ready|stable|strong|progress|advance|acceptable/.test(text)) return 'good';
     return 'moderate';
   }
   function card(title,value,lines){
     const s=sev(value+' '+(lines||[]).join(' '));
     return `<section class="vertex-b2-card vertex-b2-${s}"><div class="label">${esc(title)}</div><div class="vertex-b2-value">${esc(value)}</div>${(lines||[]).map(x=>`<div class="vertex-b2-line">${esc(x)}</div>`).join('')}</section>`;
   }
-  const recoveryCards=[
-    card('Recovery Trend', recoveryTrend, [readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending', 'Basis: recovery synthesis']),
-    card('Load Tolerance', loadTolerance, [loadTolerance==='Stable'?'Current load appears manageable.':'Current load suggests caution.', 'Continue tracking volume and recovery response.']),
-    card('Adaptive Coach', adaptive, [readiness!==null?`Readiness score: ${readiness}`:'Readiness pending', readiness!==null&&readiness>=65?'Train hard, keep progression selective.':'Favor recovery and clean reps.']),
-    card('Cardio Strain', cardio.label, [`Strava: ${cardio.connected?'Connected':'Not connected'}`, `Cardio strain: ${cardio.score||0}`])
-  ];
-  const intelligenceCards=[
-    card('Workout Memory', `${perf.length||0} exercises tracked`, [`Stored sets: ${totalSets||0}`, topMove?`Top movement: ${topMove.name} (${topMove.sets||0} sets)`:'Top movement pending']),
-    card('Weekly Intelligence', weeklyTrend, [
-      sessions?`${sessions} session${sessions===1?'':'s'} this week — use Volume for raw totals.`:'Log this week to unlock weekly coaching.',
-      daysSince===null?'Last workout pending':daysSince===0?'You logged a workout today.':`Last workout was ${daysSince} day${daysSince===1?'':'s'} ago.`
+
+  const coachDecision=sessions>=3
+    ? (readiness!==null&&readiness<60?'Recover with control':'Progress selectively')
+    : (sessions>0?'Baseline forming':'Build the baseline');
+
+  const progression=sessions>=3
+    ? (readiness!==null&&readiness<60?'Reduce intensity today':'Advance one priority lift')
+    : (sessions>0?'Keep sessions consistent':'Log 3 to 4 clean sessions');
+
+  const recoveryTrend=readiness!==null
+    ? (readiness>=70?'Ready':readiness>=55?'Watch':'Constrained')
+    : 'Pending';
+
+  const strain=sessions>=4?'Moderate':sessions>=2?'Building':'Pending';
+  const consistency=sessions>=4?'Strong':sessions>=2?'Early':'Low';
+  const tolerance=sessions>=3?'Stable':'Pending';
+
+  const decisionCards=[
+    card('Coach Decision Summary', coachDecision, [
+      readiness!==null?`Readiness score: ${readiness}`:'Readiness score pending',
+      `${sessions} session${sessions===1?'':'s'} this week`
     ]),
-    card('Imbalance Detection', imbalanceValue, imbalanceLines),
-    card('Consistency', consistencyLabel, [
-      sessions>prev?'Keep the rhythm; avoid chasing extra volume.':sessions<prev?'Rebuild frequency before adding load.':'Maintain cadence and quality.',
+    card('Progression Prescription', progression, [
+      totalSets?`${totalSets} strength sets captured this week`:'Strength baseline pending',
+      totalVolume?`${Math.round(totalVolume)} load volume captured`:'Load volume pending'
+    ])
+  ];
+
+  const intelligenceCards=[
+    card('Recovery Trend', recoveryTrend, [
+      readiness!==null?'Recovery signal available':'Connect or log recovery data',
+      'Controls today intensity call'
+    ]),
+    card('Training Strain', strain, [
+      sessions?'Recent workload signal':'Log a session to start the signal',
+      'Avoid volume jumps before consistency'
+    ]),
+    card('Consistency', consistency, [
+      sessions>=3?'Weekly rhythm is forming':'Build frequency first',
       `This week: ${sessions}; previous: ${prev}`
     ]),
-    card('Longitudinal Trend', longTrend, [readiness!==null?`30-day readiness: ${readiness}`:'Recovery baseline pending', topMove?`Primary movement signal: ${topMove.name}`:'More repeated lifts needed'])
+    card('Load Tolerance', tolerance, [
+      sessions>=3?'Current load appears manageable':'Need more sessions before load call',
+      'Refines with repeated logs'
+    ]),
+    card('Workout Memory', `${perf.length||0} exercises tracked`, [
+      topMove?`Top movement: ${topMove.name}`:'Top movement pending',
+      totalSets?`${totalSets} stored sets this week`:'Stored sets pending'
+    ]),
+    card('Imbalance Detection', topMuscle?(imbalance?'Imbalance detected':'Acceptable'):'Pending', [
+      topMuscle?`Top group: ${topMuscle[0]} (${topMuscle[1]} sets)`:'Log strength sessions to compare distribution',
+      imbalance&&secondMuscle?`Add complementary work for ${secondMuscle[0]}.`:'No material imbalance flagged.'
+    ])
   ];
+
   deck.innerHTML=[
-    '<div class="vertex-b2-section-label">Recovery / Readiness</div>',
-    `<div class="vertex-b2-row vertex-b2-row-recovery">${recoveryCards.join('')}</div>`,
+    '<div class="vertex-b2-section-label">Progress Decision</div>',
+    `<div class="vertex-b2-row vertex-b2-row-decision">${decisionCards.join('')}</div>`,
     '<div class="vertex-b2-section-label">Training Intelligence</div>',
     `<div class="vertex-b2-row vertex-b2-row-intelligence">${intelligenceCards.join('')}</div>`
   ].join('');
@@ -7163,26 +7188,7 @@ function renderProgressPage(){
   }
 
   renderVertexB2ProgressDeck(rows,sum,perf);
-
-  try{
-    const row=deck.querySelector('.vertex-b2-row-intelligence');
-    if(row && !row.querySelector('[data-phase5a4-primary]')){
-      const sessions=(sum.thisWeek&&sum.thisWeek.length)||0;
-      const totalSets=sum.totalSets||0;
-      const totalVolume=sum.totalVolume||0;
-      const readinessScore=(typeof getReadinessScore==='function')?getReadinessScore():null;
-      const readiness=(readinessScore!==null&&readinessScore!==undefined&&!isNaN(Number(readinessScore)))?Number(readinessScore):null;
-      const decision=sessions>=3?(readiness!==null&&readiness<60?'Recover with control':'Progress selectively'):(sessions>0?'Baseline forming':'Build the baseline');
-      const rx=sessions>=3?(readiness!==null&&readiness<60?'Reduce intensity today':'Advance one priority lift'):(sessions>0?'Keep sessions consistent':'Log 3 to 4 clean sessions');
-      const esc=(v)=>String(v==null?'':v).replace(/[&<>"']/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-      row.insertAdjacentHTML('afterbegin',
-        '<section class="vertex-b2-card vertex-b2-good" data-phase5a4-primary="coach"><div class="label">Coach Decision Summary</div><div class="vertex-b2-value">'+esc(decision)+'</div><div class="vertex-b2-line">'+(readiness!==null?'Readiness score: '+esc(readiness):'Readiness score pending')+'</div><div class="vertex-b2-line">'+esc(sessions)+' session'+(sessions===1?'':'s')+' this week</div></section>'+
-        '<section class="vertex-b2-card vertex-b2-moderate" data-phase5a4-primary="rx"><div class="label">Progression Prescription</div><div class="vertex-b2-value">'+esc(rx)+'</div><div class="vertex-b2-line">'+(totalSets?esc(totalSets)+' strength sets captured this week':'Strength baseline pending')+'</div><div class="vertex-b2-line">'+(totalVolume?esc(Math.round(totalVolume))+' load volume captured':'Load volume pending')+'</div></section>'
-      );
-    }
-  }catch(e){ console.warn('[Vertex Phase5A4] primary progress cards failed',e); }
-
-  try{
+try{
     deck.style.display='block';
     deck.style.visibility='visible';
     deck.style.opacity='1';
@@ -19288,6 +19294,55 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   setTimeout(bind,100);
 })();
 </script>
+
+<style id="vertex-phase5a4-deck-source-fix-css">
+#progressPage #progressSummary,
+#progressPage .progress-tabs,
+#progressPage #progressTabContent,
+#progressPage #ptab-overview,
+#progressPage #ptab-volume,
+#progressPage #ptab-exercises,
+#progressPage #ptab-history,
+#progressPage #vertexProgressIntelligenceHolder,
+#progressPage #vertexRecoveryTrendPanel,
+#progressPage #vertexStrainPanel,
+#progressPage #vertexConsistencyPanel,
+#progressPage #vertexTolerancePanel{
+  display:none!important;
+}
+#progressPage #vertexB2ProgressDeck{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  margin:18px 0 0!important;
+}
+#progressPage .vertex-b2-row-decision{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+@media(max-width:900px){
+  #progressPage .vertex-b2-row-decision,
+  #progressPage .vertex-b2-row-intelligence{
+    display:flex!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x mandatory!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px 14px!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage .vertex-b2-row-decision::-webkit-scrollbar,
+  #progressPage .vertex-b2-row-intelligence::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-b2-row-decision .vertex-b2-card,
+  #progressPage .vertex-b2-row-intelligence .vertex-b2-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    scroll-snap-align:start!important;
+  }
+}
+</style>
 </body>
 </html>
 

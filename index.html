@@ -1,5 +1,4 @@
 <!doctype html>
-<!-- vertex_phase5A4_syntax_recovery_20260529_001 -->
 <html lang="en" style="background:#070707">
 <head>
 <meta charset="utf-8" />
@@ -39,7 +38,6 @@
 <!-- Phase 2E.1: duplicate progress section header + click flicker cleanup; legacy category rail mover disabled; SW/cache untouched -->
 <!-- Phase 2E.2: progress hierarchy CSS-only refinement; SW/cache untouched -->
 <!-- Phase 2E.3A: trend memory foundation; adaptive coaching escalation; SW/cache untouched -->
-<!-- Phase 5A4 surgical progress renderer lock: disables legacy Progress insight fallback/flicker -->
 <!-- Phase 2E.3C.1: intelligence language refinement repair; semantic differentiation + density polish; SW/cache untouched -->
 <!-- Phase 2E.3C.2: SVG/time binding console stabilization; visual language preserved; SW/cache untouched -->
 <!-- Phase 2F: confidence + signal evolution layer; SW/cache untouched -->
@@ -4079,106 +4077,6 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
 }
 </style>
 
-
-<style id="vertex-phase5a4-progress-renderer-lock-css">
-/* Phase 5A4: legacy Progress feed lock */
-body.app-page-progress #progressPage #progressInsights .vertex-phase2d-feed,
-body.app-page-progress #progressPage #progressInsights .vertex-phase2d1-progression,
-body.app-page-progress #progressPage #progressInsights .vertex-phase2b-card{
-  display:none!important;
-}
-body.app-page-progress #progressPage #vertexB2ProgressDeck{
-  visibility:visible!important;
-  opacity:1!important;
-}
-</style>
-
-<style id="vertex-phase5a4-hard-progress-lock">
-body.app-page-progress #progressInsights,
-body.app-page-progress #progressInsights *,
-body.app-page-progress #progressPage .progress-card:has(#progressInsights){display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
-body.app-page-progress #progressPage #vertexB2ProgressDeck{display:block!important;visibility:visible!important;opacity:1!important;}
-</style>
-
-
-
-<style id="vertex-phase5a4-progress-intel-mount-css">
-#progressPage #progressSummary,
-#progressPage .progress-tabs,
-#progressPage #progressTabContent,
-#progressPage #ptab-overview,
-#progressPage #ptab-volume,
-#progressPage #ptab-exercises,
-#progressPage #ptab-history{
-  display:none!important;
-}
-#progressPage #vertexB2ProgressDeck{
-  display:block!important;
-  visibility:visible!important;
-  opacity:1!important;
-  margin:18px 0 0!important;
-}
-#progressPage.vertex-progress-intel-mounted #vertexB2ProgressDeck{
-  display:block!important;
-}
-.vertex-p5a-single-intel{
-  display:grid!important;
-  gap:14px!important;
-  margin-top:18px!important;
-}
-.vertex-p5a-intel-row{
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:14px!important;
-}
-.vertex-p5a-intel-card{
-  border:1px solid rgba(255,255,255,.12)!important;
-  background:rgba(255,255,255,.035)!important;
-  border-radius:16px!important;
-  padding:18px!important;
-  min-height:138px!important;
-}
-.vertex-p5a-intel-label{
-  font-family:'DM Mono',monospace!important;
-  font-size:10px!important;
-  letter-spacing:3px!important;
-  text-transform:uppercase!important;
-  color:rgba(255,255,255,.48)!important;
-  margin-bottom:10px!important;
-}
-.vertex-p5a-intel-value{
-  color:var(--acc,#e8ff47)!important;
-  font-weight:900!important;
-  font-size:26px!important;
-  line-height:1.05!important;
-  margin-bottom:10px!important;
-}
-.vertex-p5a-intel-line{
-  color:rgba(255,255,255,.64)!important;
-  font-size:14px!important;
-  line-height:1.45!important;
-  margin-top:5px!important;
-}
-@media(max-width:900px){
-  .vertex-p5a-intel-row{
-    display:flex!important;
-    overflow-x:auto!important;
-    gap:12px!important;
-    scroll-snap-type:x mandatory!important;
-    padding:0 14px 10px!important;
-    margin:0 -14px 8px!important;
-    -webkit-overflow-scrolling:touch!important;
-    scrollbar-width:none!important;
-  }
-  .vertex-p5a-intel-row::-webkit-scrollbar{display:none!important;}
-  .vertex-p5a-intel-card{
-    flex:0 0 82%!important;
-    min-width:82%!important;
-    max-width:82%!important;
-    scroll-snap-align:start!important;
-  }
-}
-</style>
 </head>
 <body class="auth-resolving">
 
@@ -4301,7 +4199,7 @@ window.vertexFinishBootstrap=function(){
   <main class="main">
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
     <div id="home-dashboard" style="display:none"></div>
-<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck" aria-label="Progress intelligence cards"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
+<section id="progressPage" class="page-panel progress-page" style="display:none"><div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Your training history, volume trends, and performance over time.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="progressSummary" class="progress-summary"></div><div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck" aria-label="Progress intelligence cards"></div><div class="progress-tabs"><button class="progress-tab on" data-ptab="overview">Overview</button><button class="progress-tab" data-ptab="volume">Volume</button><button class="progress-tab" data-ptab="exercises">Exercises</button><button class="progress-tab" data-ptab="history">History</button></div><div id="progressTabContent"><div id="ptab-overview"><div class="progress-layout"><section class="progress-card wide"><div class="label">Trends</div><div id="progressSparklines" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:4px"><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Volume · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-volume"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Sessions · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-sessions"></canvas></div></div><div><div style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Avg Duration · 8 Weeks</div><div style="position:relative;height:60px"><canvas id="spark-duration"></canvas></div></div></div></section><section class="progress-card wide"><div class="label">Insights</div><div id="progressInsights" class="insight-list"></div></section><section class="progress-card"><div class="label">Weekly Consistency</div><div id="progressWeeks"></div></section><section class="progress-card"><div class="label">Muscle Volume This Week</div><div id="progressMuscles"></div></section></div></div><div id="ptab-volume" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Weekly Load Volume — Last 8 Weeks</div><div id="progressVolumeChart"></div></section><section class="progress-card wide"><div class="label">Muscle Group Volume — Last 4 Weeks</div><div id="progressMuscleChart"></div></section></div></div><div id="ptab-exercises" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Exercise History &amp; Estimated 1RM</div><div id="progressExercises"></div></section></div></div><div id="ptab-history" style="display:none"><div class="progress-layout"><section class="progress-card wide"><div class="label">Workout History</div><div id="progressHistory"></div></section></div></div></div></section><section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace"></span>
@@ -7239,6 +7137,17 @@ function renderProgressPage(){
   const rows=progressRows(); const sum=progressSummary(rows); const perf=performanceSummary(rows);
   const summary=document.getElementById('progressSummary');
   if(summary){summary.innerHTML=`<div class="progress-kpi"><b>${sum.thisWeek.length}</b><span>Sessions This Week</span></div><div class="progress-kpi"><b>${Math.round((sum.thisWeek.length/5)*100)}%</b><span>5-Day Consistency</span></div><div class="progress-kpi"><b>${sum.totalSets}</b><span>Strength Sets</span></div><div class="progress-kpi"><b>${sum.totalVolume?Math.round(sum.totalVolume):'—'}</b><span>Load Volume</span></div>`;}
+  const insights=document.getElementById('progressInsights');
+  if(insights){
+    if(!rows.length){insights.innerHTML=`<div class="empty-note" style="padding:28px;line-height:1.7"><div style="font-size:22px;margin-bottom:8px">💪</div><b style="display:block;margin-bottom:6px;color:var(--text)">No workouts logged yet</b><span style="color:var(--muted);font-size:13px">Head to the <b style="color:var(--acc)">Workout</b> tab, build or load a session, then hit <b style="color:var(--acc)">Log Workout</b>. Your stats, volume trends, and exercise history will appear here.</span></div>`;} else {
+      const delta=sum.thisWeek.length-sum.prevWeek.length;
+      const muscleTotals={}; rows.filter(r=>new Date(r.completed_at)>=weekStart()).forEach(r=>Object.entries(r.metrics?.muscles||{}).forEach(([m,v])=>{muscleTotals[m]=(muscleTotals[m]||0)+(v.sets||0)}));
+      const top=Object.entries(muscleTotals).sort((a,b)=>b[1]-a[1])[0];
+      const topMove=perf[0];
+      const notes=[`You logged ${sum.thisWeek.length} workout${sum.thisWeek.length===1?'':'s'} this week.`, delta>0?`Consistency is up ${delta} session${delta===1?'':'s'} versus last week.`:delta<0?`Consistency is down ${Math.abs(delta)} session${Math.abs(delta)===1?'':'s'} versus last week.`:'Consistency matches last week.', top?`${top[0]} has the highest set volume this week at ${top[1]} sets.`:'No strength volume logged this week.', topMove?`${topMove.name} is your most logged exercise (${topMove.sets} sets).`:'Exercise history will appear after strength logs.', sum.daysSince===0?'You logged a workout today.':`Last workout was ${sum.daysSince} day${sum.daysSince===1?'':'s'} ago.`];
+      insights.innerHTML=notes.map(n=>`<div class="insight" insight-confidence-high>${escapeHtml(n)}</div>`).join('');
+    }
+  }
   const weeks=document.getElementById('progressWeeks');
   if(weeks){const starts=[0,1,2,3].map(i=>{const d=weekStart(); d.setDate(d.getDate()-(i*7)); return d;}); const weekData=starts.map(st=>{const end=new Date(st); end.setDate(end.getDate()+7); const count=rows.filter(r=>{const dt=new Date(r.completed_at); if(dt<st||dt>=end) return false; return r.workout_type!=='hk_dismissed'&&r.workout_type!=='hk_imported_dismissed';}).length; return {st,count};}); const withData=weekData.filter(w=>w.count>0); const max=Math.max(1,...withData.map(w=>w.count)); weeks.innerHTML=withData.length?withData.map(({st,count})=>`<div class="week-row"><div class="week-line"><span>${st.toLocaleDateString([],{month:'short',day:'numeric'})}</span><b>${count} session${count===1?'':'s'}</b></div><div class="bar"><div class="fill" style="width:${Math.round(count/max*100)}%"></div></div></div>`).join(''):'<div class="empty-note">Log your first workout to see weekly consistency.</div>';}
   const muscles=document.getElementById('progressMuscles');
@@ -9506,6 +9415,11 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
+
+
+
+
+
 
 </body></html>`;
         const w = window.open('','_blank');
@@ -18984,45 +18898,146 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 
 
 
-<style id="vertex-phase5a-css">
-/* Phase 5A.1 — Adaptive Progression Intelligence */
-.vertex-p5a-rail{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0 16px}
-.vertex-p5a-signal{border:1px solid rgba(255,255,255,.065);background:#111;border-radius:9px;padding:9px 10px;min-height:58px}
-.vertex-p5a-signal .k{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.9px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
-.vertex-p5a-signal .v{font-size:15px;font-weight:800;color:var(--acc);line-height:1.1}
-.vertex-p5a-signal .s{color:var(--muted);font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vertex-p5a-card{border:1px solid rgba(232,255,71,.48)!important;background:linear-gradient(135deg,rgba(232,255,71,.065),rgba(232,255,71,.018) 60%,rgba(72,255,138,.018))!important;border-radius:12px!important;padding:18px 20px!important;margin-top:8px!important;box-shadow:0 0 0 1px rgba(232,255,71,.06),0 14px 36px rgba(0,0,0,.16)}
-.vertex-p5a-card.recovery,.vertex-p5a-card.deload{border-color:rgba(255,176,71,.48)!important;background:linear-gradient(135deg,rgba(255,176,71,.07),rgba(255,176,71,.018) 62%,rgba(232,255,71,.012))!important}
-.vertex-p5a-card.progression{border-color:rgba(72,255,138,.44)!important;background:linear-gradient(135deg,rgba(72,255,138,.065),rgba(72,255,138,.018) 60%,rgba(232,255,71,.016))!important}
-.vertex-p5a-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:13px}
-.vertex-p5a-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
-.vertex-p5a-title{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:3.5px;line-height:.98;color:var(--text)}
-.vertex-p5a-confidence{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.4px;color:var(--acc);border:1px solid rgba(232,255,71,.34);border-radius:999px;padding:6px 9px;white-space:nowrap;text-transform:uppercase;opacity:.9}
-.vertex-p5a-copy{color:var(--muted);font-size:14px;line-height:1.48;max-width:940px}
-.vertex-p5a-action-label{font-family:'DM Mono',monospace;color:var(--acc);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.vertex-p5a-action{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);color:var(--text);font-weight:800;line-height:1.42}
-.vertex-p5a-meta{margin-top:12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
-.vertex-p5a-hide-card{display:none!important}
+<style id="vertex-phase4-final-css">
+/* Phase 4 Final — Coaching Authority Pass */
+.vertex-p4f-rail{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin:14px 0 16px;
+}
+.vertex-p4f-signal{
+  border:1px solid rgba(255,255,255,.065);
+  background:#111;
+  border-radius:9px;
+  padding:9px 10px;
+  min-height:58px;
+}
+.vertex-p4f-signal .k{
+  font-family:'DM Mono',monospace;
+  font-size:8px;
+  letter-spacing:1.9px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+.vertex-p4f-signal .v{
+  font-size:15px;
+  font-weight:800;
+  color:var(--acc);
+  line-height:1.1;
+}
+.vertex-p4f-signal .s{
+  color:var(--muted);
+  font-size:11px;
+  margin-top:4px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.vertex-p4f-card{
+  border:1px solid rgba(232,255,71,.48)!important;
+  background:linear-gradient(135deg,rgba(232,255,71,.065),rgba(232,255,71,.018) 60%,rgba(72,255,138,.018))!important;
+  border-radius:12px!important;
+  padding:18px 20px!important;
+  margin-top:8px!important;
+  box-shadow:0 0 0 1px rgba(232,255,71,.06),0 14px 36px rgba(0,0,0,.16);
+}
+.vertex-p4f-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:13px;
+}
+.vertex-p4f-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+.vertex-p4f-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:38px;
+  letter-spacing:3.5px;
+  line-height:.98;
+  color:var(--text);
+}
+.vertex-p4f-confidence{
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:1.4px;
+  color:var(--acc);
+  border:1px solid rgba(232,255,71,.34);
+  border-radius:999px;
+  padding:6px 9px;
+  white-space:nowrap;
+  text-transform:uppercase;
+  opacity:.9;
+}
+.vertex-p4f-copy{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.48;
+  max-width:940px;
+}
+.vertex-p4f-action-label{
+  font-family:'DM Mono',monospace;
+  color:var(--acc);
+  font-size:9px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.vertex-p4f-action{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+  font-weight:800;
+  line-height:1.42;
+}
+.vertex-p4f-meta{
+  margin-top:12px;
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--dim);
+}
+.vertex-p4f-hide-card{
+  display:none!important;
+}
 @media(max-width:900px){
-  .vertex-p5a-rail{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-left:-2px;margin-right:-2px;padding:0 2px 4px}
-  .vertex-p5a-rail::-webkit-scrollbar{display:none}
-  .vertex-p5a-signal{min-width:142px;min-height:56px}
-  .vertex-p5a-title{font-size:32px}
-  .vertex-p5a-head{display:block}
-  .vertex-p5a-confidence{display:inline-flex;margin-top:10px}
+  .vertex-p4f-rail{
+    display:flex;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    margin-left:-2px;
+    margin-right:-2px;
+    padding:0 2px 4px;
+  }
+  .vertex-p4f-rail::-webkit-scrollbar{display:none}
+  .vertex-p4f-signal{min-width:142px;min-height:56px}
+  .vertex-p4f-title{font-size:32px}
+  .vertex-p4f-head{display:block}
+  .vertex-p4f-confidence{display:inline-flex;margin-top:10px}
 }
 </style>
 
 
-<script id="vertex-phase5a-js">
+<script id="vertex-phase4-final-js">
 (function(){
   function esc(v){
     try{ if(typeof escapeHtml === 'function') return escapeHtml(String(v == null ? '' : v)); }catch(e){}
     return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
   }
-  function getRows(){ try{return typeof progressRows==='function' ? (progressRows()||[]) : [];}catch(e){return [];} }
-  function getSummary(r){ try{return typeof progressSummary==='function' ? (progressSummary(r)||{}) : {};}catch(e){return {};} }
-  function getReadiness(){
+  function rows(){ try{return typeof progressRows==='function' ? (progressRows()||[]) : [];}catch(e){return [];} }
+  function summary(r){ try{return typeof progressSummary==='function' ? (progressSummary(r)||{}) : {};}catch(e){return {};} }
+  function ready(){
     try{
       if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build === 'function'){
         var x=window.VertexRecoveryInsights.build()||{};
@@ -19032,28 +19047,14 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     }catch(e){}
     return null;
   }
-  function avg(arr){
-    arr=(arr||[]).map(Number).filter(function(n){return Number.isFinite(n);});
-    if(!arr.length) return 0;
-    return arr.reduce(function(a,b){return a+b;},0)/arr.length;
-  }
   function weekStartSafe(){
     try{ if(typeof weekStart === 'function') return weekStart(); }catch(e){}
     var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d;
   }
-  function dayDiff(a,b){
-    try{
-      var A=new Date(a); A.setHours(0,0,0,0);
-      var B=new Date(b); B.setHours(0,0,0,0);
-      return Math.round((B-A)/86400000);
-    }catch(e){return 999;}
-  }
-  function volumeOf(row){ return Number((row&&row.metrics&&row.metrics.volume)||0); }
-  function setCountOf(row){ return Number((row&&row.metrics&&row.metrics.sets)||0); }
-  function muscleRank(rows){
+  function muscleRank(r){
     var totals={}, start=weekStartSafe();
     try{
-      rows.filter(function(row){return new Date(row.completed_at)>=start;}).forEach(function(row){
+      r.filter(function(row){return new Date(row.completed_at)>=start;}).forEach(function(row){
         Object.entries((row.metrics&&row.metrics.muscles)||{}).forEach(function(pair){
           var m=pair[0], v=pair[1];
           totals[m]=(totals[m]||0)+(Number((v&&v.sets)||v)||0);
@@ -19070,127 +19071,77 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     return 'Learning Mode';
   }
   function build(){
-    var rows=getRows().slice().sort(function(a,b){return new Date(a.completed_at)-new Date(b.completed_at);});
-    var sum=getSummary(rows);
-    var readiness=getReadiness();
-    var thisWeek=sum.thisWeek||[];
-    var prevWeek=sum.prevWeek||[];
-    var sessions=Number(thisWeek.length||0);
-    var prev=Number(prevWeek.length||0);
+    var rws=rows(), sum=summary(rws), r=ready();
+    var sessions=Number((sum.thisWeek&&sum.thisWeek.length)||0);
+    var prev=Number((sum.prevWeek&&sum.prevWeek.length)||0);
     var sets=Number(sum.totalSets||0);
     var volume=Number(sum.totalVolume||0);
-
-    var recent=rows.slice(-6), older=rows.slice(-12,-6);
-    var recentVol=avg(recent.map(volumeOf)), olderVol=avg(older.map(volumeOf));
-    var recentSets=avg(recent.map(setCountOf)), olderSets=avg(older.map(setCountOf));
-    var volumeTrend=olderVol>0 ? ((recentVol-olderVol)/olderVol)*100 : 0;
-    var setTrend=olderSets>0 ? ((recentSets-olderSets)/olderSets)*100 : 0;
-    var lastDate=rows.length ? rows[rows.length-1].completed_at : null;
-    var daysSinceLast=lastDate ? dayDiff(lastDate,new Date()) : 99;
-
-    var ranked=muscleRank(rows), top=ranked[0]||null, second=ranked[1]||null;
+    var ranked=muscleRank(rws), top=ranked[0]||null, second=ranked[1]||null;
     var imbalance=!!(top && second && top[1]>=Math.max(6,second[1]*1.45));
+    var confidence=Math.max(45,Math.min(100,Math.round((r==null?62:r) + Math.min(15,sessions*4) + Math.min(8,sets/10))));
     var consistency=sessions>prev?'Improving':(sessions<prev?'Rebuilding':(sessions>0?'Stable':'Early'));
 
-    var recoveryScore=(readiness==null?62:readiness);
-    var consistencyScore=Math.max(30,Math.min(100,50 + (sessions*10) + ((sessions-prev)*8)));
-    var balanceScore=imbalance?45:78;
-    var momentumScore=Math.max(30,Math.min(100,50 + ((sessions-prev)*12) + (volumeTrend>5?12:0) + (setTrend>5?8:0) - (daysSinceLast>5?12:0)));
-    var fatigueScore=Math.max(0,Math.min(100,(readiness==null?35:(100-readiness)) + (volumeTrend>25?18:0) + (sessions>=5?12:0)));
-    var progressionScore=Math.round(Math.max(0,Math.min(100,
-      (recoveryScore*.36) + (consistencyScore*.26) + (balanceScore*.18) + (momentumScore*.14) - (fatigueScore*.18) + 18
-    )));
-    var confidence=Math.max(45,Math.min(100,Math.round((readiness==null?62:readiness) + Math.min(14,sessions*4) + Math.min(8,rows.length))));
-
     var state='Controlled Baseline';
-    var label='Adaptive Decision';
-    var interpretation='Vertex is still learning your training pattern.';
-    var action='Keep training consistently. Build a few more workouts before pushing progression.';
-    var type='baseline';
+    var label='Baseline Intelligence';
+    var interpretation='Training baseline still forming.';
+    var action='Maintain current workload. Delay progression until rhythm stabilizes.';
 
-    var enoughData=rows.length>=3 || sessions>=2;
-    var recoveryLow=readiness!==null && readiness<58;
-    var recoveryVeryLow=readiness!==null && readiness<48;
-    var heavyRecent=volumeTrend>28 || sessions>=5;
-    var inactive=daysSinceLast>7;
-
-    if(enoughData && recoveryVeryLow && heavyRecent){
-      state='Deload Recommended';
-      label='Recovery Decision';
-      interpretation='You have been pushing hard and recovery needs more room.';
-      action='Reduce volume for the next 5–7 days. Keep movement quality high.';
-      type='deload';
-      confidence=Math.max(confidence,84);
-    }else if(enoughData && recoveryLow){
-      state='Recovery Constrained';
-      label='Recovery Decision';
-      interpretation='Your body needs a little more recovery before pushing harder.';
-      action='Keep today’s session lighter. Do not add weight or extra sets.';
-      type='recovery';
-      confidence=Math.max(confidence,78);
-    }else if(enoughData && imbalance){
+    if(imbalance){
       state='Imbalance Priority';
-      label='Balance Decision';
-      interpretation='One area is getting more work than the rest.';
-      action='Balance your next session before adding more volume.';
-      type='baseline';
-      confidence=Math.max(confidence,84);
-    }else if(enoughData && progressionScore>=76 && sessions>=2 && !inactive){
-      state='Progression Window Open';
-      label='Progression Decision';
-      interpretation='You are recovering well and training consistently.';
-      action='Increase one primary lift next session. Keep everything else steady.';
-      type='progression';
+      label='Balance Intelligence';
+      interpretation=top[0]+' volume is dominating this week’s workload.';
+      action='Cap extra '+top[0]+' sets next session. Add complementary work to restore balance.';
+      confidence=Math.max(confidence,88);
+    }else if(r!==null && r<58){
+      state='Recovery Priority';
+      label='Recovery Intelligence';
+      interpretation='Recovery is not ready for aggressive progression.';
+      action='Reduce training strain today. Keep execution clean and leave capacity in reserve.';
       confidence=Math.max(confidence,82);
-    }else if(enoughData && momentumScore>=72 && sessions>=2 && !inactive){
-      state='Momentum Building';
-      label='Progression Decision';
-      interpretation='You are stacking good workouts together.';
-      action='Stay on your current plan and keep the momentum going.';
-      type='progression';
-      confidence=Math.max(confidence,76);
-    }else if(enoughData){
-      state='Maintain Load';
-      label='Progression Decision';
-      interpretation='Your training rhythm is improving, but not enough to push harder yet.';
-      action='Repeat your current workload next session.';
-      type='baseline';
-      confidence=Math.max(confidence,68);
+    }else if(sessions>=3 && r!==null && r>=72){
+      state='Progression Window';
+      label='Progression Intelligence';
+      interpretation='Recovery and rhythm support a controlled push.';
+      action='Progress one priority lift. Keep accessory volume steady.';
+      confidence=Math.max(confidence,86);
+    }else if(sessions>prev){
+      state='Performance Momentum';
+      label='Momentum Intelligence';
+      interpretation='Training rhythm is improving.';
+      action='Keep the rhythm. Add progression selectively, not across the full session.';
+      confidence=Math.max(confidence,78);
     }
 
-    var loadLabel=volume?String(Math.round(volume)):'Pending';
-    var loadSub=volume?sets+' strength sets':'Need 2–3 sessions';
-
     return {
-      state:state,label:label,interpretation:interpretation,action:action,type:type,
-      confidence:confidence,confText:confLabel(confidence),progressionScore:progressionScore,
-      recoveryScore:Math.round(recoveryScore),momentumScore:Math.round(momentumScore),balanceScore:Math.round(balanceScore),
-      consistency:consistency,readiness:readiness,sessions:sessions,prev:prev,sets:sets,volume:Math.round(volume),
-      loadLabel:loadLabel,loadSub:loadSub,top:top,imbalance:imbalance
+      state:state,label:label,interpretation:interpretation,action:action,
+      confidence:confidence,confText:confLabel(confidence),consistency:consistency,
+      readiness:r,sessions:sessions,prev:prev,sets:sets,volume:Math.round(volume),
+      top:top,imbalance:imbalance
     };
   }
   function railHTML(x){
     var recovery=x.readiness==null?'Pending':(x.readiness>=72?'Ready':x.readiness>=58?'Manage':'Recover');
+    var load=x.volume?String(x.volume):'—';
     var balance=x.imbalance?'Priority':'Acceptable';
     return ''+
-      '<div class="vertex-p5a-rail" aria-label="Adaptive coaching telemetry">'+
-        '<div class="vertex-p5a-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>'+
-        '<div class="vertex-p5a-signal"><div class="k">Consistency</div><div class="v">'+esc(x.consistency)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>'+
-        '<div class="vertex-p5a-signal"><div class="k">Load</div><div class="v">'+esc(x.loadLabel)+'</div><div class="s">'+esc(x.loadSub)+'</div></div>'+
-        '<div class="vertex-p5a-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(x.top?x.top[0]+' '+x.top[1]+' sets':'Pending')+'</div></div>'+
-        '<div class="vertex-p5a-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">'+esc(x.confText)+'</div></div>'+
+      '<div class="vertex-p4f-rail" aria-label="Coaching telemetry">'+
+        '<div class="vertex-p4f-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>'+
+        '<div class="vertex-p4f-signal"><div class="k">Consistency</div><div class="v">'+esc(x.consistency)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>'+
+        '<div class="vertex-p4f-signal"><div class="k">Load</div><div class="v">'+esc(load)+'</div><div class="s">'+esc(x.sets)+' strength sets</div></div>'+
+        '<div class="vertex-p4f-signal"><div class="k">Balance</div><div class="v">'+esc(balance)+'</div><div class="s">'+esc(x.top?x.top[0]+' '+x.top[1]+' sets':'Pending')+'</div></div>'+
+        '<div class="vertex-p4f-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">'+esc(x.confText)+'</div></div>'+
       '</div>';
   }
   function cardHTML(x){
     return ''+
-      '<div class="insight vertex-p5a-card '+esc(x.type)+'">'+
-        '<div class="vertex-p5a-head">'+
-          '<div><div class="vertex-p5a-label">'+esc(x.label)+'</div><div class="vertex-p5a-title">'+esc(x.state)+'</div></div>'+
-          '<div class="vertex-p5a-confidence">'+esc(x.confidence)+'% · '+esc(x.confText)+'</div>'+
+      '<div class="insight vertex-p4f-card">'+
+        '<div class="vertex-p4f-head">'+
+          '<div><div class="vertex-p4f-label">'+esc(x.label)+'</div><div class="vertex-p4f-title">'+esc(x.state)+'</div></div>'+
+          '<div class="vertex-p4f-confidence">'+esc(x.confidence)+'% · '+esc(x.confText)+'</div>'+
         '</div>'+
-        '<div class="vertex-p5a-copy">'+esc(x.interpretation)+'</div>'+
-        '<div class="vertex-p5a-action"><div class="vertex-p5a-action-label">Action</div>'+esc(x.action)+'</div>'+
-        '<div class="vertex-p5a-meta">Progression '+esc(x.progressionScore)+' · Recovery '+esc(x.recoveryScore)+' · Momentum '+esc(x.momentumScore)+' · Balance '+esc(x.balanceScore)+'</div>'+
+        '<div class="vertex-p4f-copy">'+esc(x.interpretation)+'</div>'+
+        '<div class="vertex-p4f-action"><div class="vertex-p4f-action-label">Action</div>'+esc(x.action)+'</div>'+
+        '<div class="vertex-p4f-meta">Readiness '+esc(x.readiness==null?'pending':x.readiness)+' · '+esc(x.sessions)+' sessions this week · '+esc(x.sets)+' strength sets · '+esc(x.volume||'—')+' load volume</div>'+
       '</div>';
   }
   function findInsightsPanel(){
@@ -19206,7 +19157,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     cards.forEach(function(card){
       var label=card.querySelector('.label');
       if(label && String(label.textContent||'').trim().toLowerCase()==='consistency'){
-        card.classList.add('vertex-p5a-hide-card');
+        card.classList.add('vertex-p4f-hide-card');
       }
     });
   }
@@ -19215,19 +19166,30 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
       var x=build();
       var deck=document.getElementById('vertexB2ProgressDeck');
       if(deck) deck.innerHTML=railHTML(x);
+
+      var insights=document.getElementById('progressInsights');
+      if(insights){
+        insights.innerHTML=cardHTML(x);
+      }else{
+        var panel=findInsightsPanel();
+        if(panel){
+          panel.querySelectorAll('.insight,.coach-item').forEach(function(n){n.remove();});
+          panel.insertAdjacentHTML('beforeend',cardHTML(x));
+        }
+      }
       hideSeparateConsistency();
     }catch(e){
-      console.warn('[Vertex Phase 5A] normalize failed', e);
+      console.warn('[Vertex Phase 4 Final] normalize failed', e);
     }
   }
   var old=window.renderProgressPage;
-  if(typeof old==='function' && !old.__vertexPhase5AWrapped){
+  if(typeof old==='function' && !old.__vertexPhase4FinalWrapped){
     var wrapped=function(){
       var out=old.apply(this,arguments);
       [0,80,220,600,1200,2400].forEach(function(ms){setTimeout(normalize,ms);});
       return out;
     };
-    wrapped.__vertexPhase5AWrapped=true;
+    wrapped.__vertexPhase4FinalWrapped=true;
     window.renderProgressPage=wrapped;
   }
   [250,900,1800,3600].forEach(function(ms){setTimeout(normalize,ms);});
@@ -19236,9 +19198,12 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
       [80,260,800,1500].forEach(function(ms){setTimeout(normalize,ms);});
     }
   },true);
-  window.VertexPhase5A={normalize:normalize,build:build};
+  window.VertexPhase4Final={normalize:normalize,build:build};
 })();
 </script>
+
+</body>
+</html>
 
 <script>
 // ============================================================
@@ -19487,7 +19452,36 @@ window.addEventListener('vertex-auth-ready', async function() {
     return cards.slice(0,4);
   }
 
-  function renderCoachFeedAndCompactWeeks(){ return; }
+  function renderCoachFeedAndCompactWeeks(){
+    try{
+      var rows=getRows(), sum=getSummary(rows), perf=getPerf(rows);
+      var insights=document.getElementById('progressInsights');
+      if(insights){
+        var feed=buildCoachFeed(rows,sum,perf);
+        insights.innerHTML=feed.map(function(c){
+          return '<div class="insight vertex-coach-feed-card '+(c.tone==='warn'?'coach-warning':c.tone==='green'?'coach-green':'')+'"><b>'+esc(c.title)+'</b><span>'+esc(c.body)+'</span></div>';
+        }).join('');
+      }
+      var weeks=document.getElementById('progressWeeks');
+      if(weeks){
+        var starts=[0,1,2,3].map(function(i){var d=week0(); d.setDate(d.getDate()-(i*7)); return d;}).reverse();
+        var data=starts.map(function(st,idx){
+          var end=new Date(st); end.setDate(end.getDate()+7);
+          var count=rows.filter(function(r){var dt=new Date(r.completed_at); return dt>=st && dt<end && r.workout_type!=='hk_dismissed' && r.workout_type!=='hk_imported_dismissed';}).length;
+          return {label:'W'+(idx+1),date:st.toLocaleDateString([],{month:'short',day:'numeric'}),count:count};
+        });
+        var max=Math.max(1, ...data.map(function(w){return w.count;}));
+        if(data.some(function(w){return w.count>0;})){
+          weeks.innerHTML='<div class="vertex-week-compact">'+data.map(function(w){
+            var pct=Math.max(8,Math.round((w.count/max)*100));
+            return '<div class="vertex-week-pill" title="'+esc(w.date)+'"><div class="vertex-week-label">'+esc(w.label)+'</div><div class="vertex-week-bar"><span style="height:'+pct+'%"></span></div><div class="vertex-week-count">'+w.count+'</div></div>';
+          }).join('')+'</div><div class="vertex-week-note">Mobile view is capped at the last 4 weeks.</div>';
+        }else{
+          weeks.innerHTML='<div class="empty-note">Log your first workout to see weekly consistency.</div>';
+        }
+      }
+    }catch(e){ console.warn('[Vertex Phase1F] coach/weekly patch failed',e); }
+  }
 
   function ensurePlannerDots(){
     try{
@@ -19989,8 +19983,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Vertex turns recovery, recent workload, fatigue, and balance into a simple training call.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>Fatigue</strong> '+esc(d.cns)+'/100</div><div class="vertex-phase2d-chip"><strong>'+esc(d.confidence)+'</strong></div><div class="vertex-phase2d-chip"><strong>Memory</strong> '+esc(d.trend.state)+'</div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
   }
   function progressionInsight(d){
-    /* Phase 5A4: disabled legacy Progression Prescription feed card. */
-    return '';
+    return '<div class="insight vertex-phase2d-feed vertex-phase2d1-progression"><div class="vertex-phase2b-title"><b>Progression Prescription</b><button class="vertex-i" type="button" aria-label="Info" data-tip="This turns today’s recovery and fatigue picture into a simple loading decision.">i</button></div><div class="vertex-phase2b-action">'+esc(d.progression)+'</div><div class="vertex-phase2b-why">'+esc(d.trend.memoryLine)+' Deload status: '+esc(d.deload)+'.</div><div class="vertex-phase2b-meta">'+esc(d.trend.state)+' · '+esc(d.confidence)+' · recovery '+esc(d.trend.recoveryTrend)+'</div></div>';
   }
   function inject(){
     try{
@@ -20004,27 +19997,35 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     }catch(e){ console.warn('[Vertex Phase2D.1] decision card injection failed',e); }
   }
   function enhanceCoachFeed(){
-    /* Phase 5A4: disabled legacy Progress insight feed. The single intelligence experience is the B2 deck only. */
     try{
       var el=document.getElementById('progressInsights'); if(!el) return;
-      Array.prototype.slice.call(el.querySelectorAll('.vertex-phase2d-feed,.vertex-phase2d1-progression,.vertex-phase2b-card')).forEach(function(x){ x.remove(); });
-    }catch(e){}
+      var d=buildDecision();
+      var old=el.querySelector('.vertex-phase2d-feed'); if(old) old.remove();
+      var old2=el.querySelector('.vertex-phase2d1-progression'); if(old2) old2.remove();
+      if(d.sessions>=3){
+        Array.prototype.slice.call(el.querySelectorAll('.vertex-phase2b-card,.insight')).forEach(function(x){
+          if(/Build the baseline/i.test(x.textContent||'')) x.remove();
+        });
+      }
+      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A simple explanation of today’s best training move.">i</button></div><div class="vertex-phase2b-action">'+esc(d.trend.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.trend.memoryLine)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">Fatigue estimate: '+esc(d.cns)+'/100 · '+esc(d.confidence)+' · '+esc(d.trend.dataLevel)+'</div></div>';
+      el.insertAdjacentHTML('afterbegin',progressionInsight(d));
+      el.insertAdjacentHTML('afterbegin',html);
+    }catch(e){ console.warn('[Vertex Phase2D.1] coach feed enhancement failed',e); }
   }
   var old=window.renderVertexB2ProgressDeck;
   if(typeof old==='function' && !old.__vertexPhase2D1Wrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); inject(); enhanceCoachFeed(); return out; };
+    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(inject,40); setTimeout(inject,220); return out; };
     wrapped.__vertexPhase2D1Wrapped=true;
     window.renderVertexB2ProgressDeck=wrapped;
   }
   var oldPage=window.renderProgressPage;
   if(typeof oldPage==='function' && !oldPage.__vertexPhase2D1Wrapped){
-    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); inject(); enhanceCoachFeed(); return out; };
+    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); setTimeout(function(){inject(); enhanceCoachFeed();},120); setTimeout(function(){inject(); enhanceCoachFeed();},620); return out; };
     pageWrapped.__vertexPhase2D1Wrapped=true;
     window.renderProgressPage=pageWrapped;
   }
-  inject();
-  enhanceCoachFeed();
-  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ inject(); enhanceCoachFeed(); } },true);
+  [120,520,1200,2400].forEach(function(ms){ setTimeout(function(){ inject(); enhanceCoachFeed(); },ms); });
+  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(function(){inject(); enhanceCoachFeed();},180); setTimeout(function(){inject(); enhanceCoachFeed();},700); } },true);
   window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject,enhanceCoachFeed:enhanceCoachFeed};
 })();
 </script>
@@ -20098,221 +20099,3 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   window.VertexPhase3BForecastingRiskEngine={sync:sync,state:state};
 })();
 </script>
-
-
-<script id="vertex-phase5a4-progress-intel-mount-js">
-(function(){
-  if(window.__vertexPhase5A4ProgressIntelMount005) return;
-  window.__vertexPhase5A4ProgressIntelMount005 = true;
-
-  function esc(v){
-    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
-  }
-
-  function readJson(key, fallback){
-    try{
-      var raw = localStorage.getItem(key);
-      if(!raw) return fallback;
-      var parsed = JSON.parse(raw);
-      return parsed == null ? fallback : parsed;
-    }catch(e){ return fallback; }
-  }
-
-  function collectRows(){
-    var out = [];
-    try{
-      if(typeof window.progressRows === 'function'){
-        var r = window.progressRows();
-        if(Array.isArray(r)) out = out.concat(r);
-      }
-    }catch(e){}
-    try{
-      for(var i=0;i<localStorage.length;i++){
-        var k = localStorage.key(i) || '';
-        if(!/workout|session|progress|history|log/i.test(k)) continue;
-        var v = readJson(k, null);
-        if(Array.isArray(v)) out = out.concat(v);
-        else if(v && Array.isArray(v.rows)) out = out.concat(v.rows);
-        else if(v && Array.isArray(v.logs)) out = out.concat(v.logs);
-        else if(v && Array.isArray(v.sessions)) out = out.concat(v.sessions);
-      }
-    }catch(e){}
-    var seen = {};
-    return out.filter(function(r){
-      if(!r || typeof r !== 'object') return false;
-      var id = r.id || r.completed_at || r.completedAt || r.date || r.created_at || JSON.stringify(r).slice(0,120);
-      if(seen[id]) return false;
-      seen[id] = true;
-      return true;
-    });
-  }
-
-  function dateOf(r){
-    var d = r.completed_at || r.completedAt || r.date || r.created_at || r.timestamp || r.time;
-    var dt = d ? new Date(d) : null;
-    return dt && !isNaN(dt.getTime()) ? dt : null;
-  }
-
-  function metric(r, names){
-    for(var i=0;i<names.length;i++){
-      var n = names[i];
-      if(r[n] != null && r[n] !== '') return Number(r[n]) || 0;
-      if(r.metrics && r.metrics[n] != null && r.metrics[n] !== '') return Number(r.metrics[n]) || 0;
-    }
-    return 0;
-  }
-
-  function weekStart(){
-    var d = new Date();
-    d.setHours(0,0,0,0);
-    var day = d.getDay();
-    var diff = (day + 6) % 7;
-    d.setDate(d.getDate() - diff);
-    return d;
-  }
-
-  function card(title, value, lines){
-    var html = '<section class="vertex-p5a-intel-card">';
-    html += '<div class="vertex-p5a-intel-label">' + esc(title) + '</div>';
-    html += '<div class="vertex-p5a-intel-value">' + esc(value) + '</div>';
-    (lines || []).forEach(function(x){ html += '<div class="vertex-p5a-intel-line">' + esc(x) + '</div>'; });
-    html += '</section>';
-    return html;
-  }
-
-  function renderProgressIntelligence(){
-    var page = document.getElementById('progressPage');
-    if(!page) return false;
-
-    var deck = document.getElementById('vertexB2ProgressDeck');
-    if(!deck){
-      deck = document.createElement('div');
-      deck.id = 'vertexB2ProgressDeck';
-      deck.className = 'vertex-b2-progress-deck';
-    }
-
-    var head = page.querySelector('.progress-head');
-    if(head && deck.parentElement !== page){
-      head.insertAdjacentElement('afterend', deck);
-    }else if(!deck.parentElement){
-      page.appendChild(deck);
-    }
-
-    page.classList.add('vertex-progress-intel-mounted');
-
-    var rows = collectRows();
-    var start = weekStart();
-    var thisWeek = rows.filter(function(r){ var d = dateOf(r); return d && d >= start; });
-    var sessions = thisWeek.length;
-    var sets = thisWeek.reduce(function(a,r){ return a + metric(r, ['sets','totalSets','strength_sets']); }, 0);
-    var volume = thisWeek.reduce(function(a,r){ return a + metric(r, ['load_volume','loadVolume','volume','totalVolume']); }, 0);
-
-    var readinessRaw = null;
-    try{
-      readinessRaw = localStorage.getItem('vertex_readiness_score') || localStorage.getItem('readinessScore') || localStorage.getItem('vertex_readiness');
-    }catch(e){}
-    var readiness = readinessRaw == null ? null : Number(readinessRaw);
-    if(isNaN(readiness)) readiness = null;
-
-    var decision = 'Build the baseline';
-    var prescription = 'Log 3–4 clean sessions';
-    if(sessions >= 3){
-      decision = readiness != null && readiness < 60 ? 'Recover with control' : 'Progress selectively';
-      prescription = readiness != null && readiness < 60 ? 'Reduce intensity today' : 'Advance one priority lift';
-    }else if(sessions > 0){
-      decision = 'Baseline forming';
-      prescription = 'Keep sessions consistent';
-    }
-
-    var recovery = readiness != null ? (readiness >= 70 ? 'Ready' : readiness >= 55 ? 'Watch' : 'Constrained') : 'Pending';
-    var strain = sessions >= 4 ? 'Moderate' : sessions >= 2 ? 'Building' : 'Pending';
-    var consistency = sessions >= 4 ? 'Strong' : sessions >= 2 ? 'Early' : 'Low';
-    var tolerance = sessions >= 3 ? 'Stable' : 'Pending';
-
-    deck.innerHTML =
-      '<div class="vertex-p5a-single-intel">' +
-        '<div class="vertex-p5a-intel-row">' +
-          card('Coach Decision Summary', decision, [
-            readiness != null ? 'Readiness score: ' + readiness : 'Readiness score pending',
-            sessions + ' session' + (sessions === 1 ? '' : 's') + ' this week'
-          ]) +
-          card('Progression Prescription', prescription, [
-            sets ? sets + ' strength sets captured this week' : 'Strength set baseline pending',
-            volume ? Math.round(volume) + ' load volume captured' : 'Load volume pending'
-          ]) +
-        '</div>' +
-        '<div class="vertex-p5a-intel-row">' +
-          card('Recovery Trend', recovery, [
-            readiness != null ? 'Recovery signal available' : 'Connect or log recovery data',
-            'Use recovery to control daily intensity'
-          ]) +
-          card('Training Strain', strain, [
-            sessions ? 'Frequency is visible' : 'Log a session to start the signal',
-            'Avoid adding volume before consistency'
-          ]) +
-          card('Consistency', consistency, [
-            sessions >= 3 ? 'Weekly rhythm is forming' : 'Build frequency first',
-            'Single Progress intelligence renderer'
-          ]) +
-          card('Load Tolerance', tolerance, [
-            'Based on recent sessions and load trend',
-            'Refines as more workouts are logged'
-          ]) +
-        '</div>' +
-      '</div>';
-
-    return true;
-  }
-
-  window.renderProgressIntelligenceSingle = renderProgressIntelligence;
-
-  var originalRender = window.renderProgressPage;
-  if(typeof originalRender === 'function' && !originalRender.__vertexP5A4Intel005){
-    var wrapped = function(){
-      var result;
-      try{ result = originalRender.apply(this, arguments); }catch(e){ console.warn('[Vertex] original progress render failed', e); }
-      try{ renderProgressIntelligence(); }catch(x){ console.warn('[Vertex] intelligence render failed', x); }
-      setTimeout(renderProgressIntelligence, 40);
-      return result;
-    };
-    wrapped.__vertexP5A4Intel005 = true;
-    window.renderProgressPage = wrapped;
-  }
-
-  function run(){
-    try{
-      var page = document.getElementById('progressPage');
-      if(!page) return;
-      var visible = page.offsetParent !== null || getComputedStyle(page).display !== 'none';
-      if(visible || document.querySelector('.nav-btn.active[data-page="progress"], .nav-btn.on[data-page="progress"], [data-page="progress"].active, [data-page="progress"].on')){
-        renderProgressIntelligence();
-      }else{
-        renderProgressIntelligence();
-      }
-    }catch(e){ console.warn('[Vertex Phase5A4] progress intelligence mount failed', e); }
-  }
-
-  document.addEventListener('DOMContentLoaded', run);
-  window.addEventListener('load', run);
-  window.addEventListener('hashchange', function(){ setTimeout(run, 40); setTimeout(run, 250); });
-  window.addEventListener('popstate', function(){ setTimeout(run, 40); setTimeout(run, 250); });
-  document.addEventListener('click', function(e){
-    try{
-      if(e.target && e.target.closest && e.target.closest('[data-page="progress"],[data-nav="progress"],a[href*="progress"],button')){
-        setTimeout(run, 40);
-        setTimeout(run, 180);
-        setTimeout(run, 500);
-      }
-    }catch(x){}
-  }, true);
-
-  setTimeout(run, 50);
-  setTimeout(run, 250);
-  setTimeout(run, 800);
-  setTimeout(run, 1500);
-})();
-</script>
-</body>
-</html>

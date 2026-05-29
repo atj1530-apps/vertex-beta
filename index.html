@@ -7218,7 +7218,7 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
       topMove?`Top movement: ${topMove.name}`:'Top movement pending',
       totalSets?`${totalSets} stored sets this week`:'Stored sets pending'
     ]),
-    card('Imbalance Detection', topMuscle?(imbalance?'Imbalance detected':'Acceptable'):'Pending', [
+    card('Imbalance Detection', topMuscle?(imbalance?'Balance Opportunity':'Acceptable'):'Pending', [
       topMuscle?`Top group: ${topMuscle[0]} (${topMuscle[1]} sets)`:'Log strength sessions to compare distribution',
       imbalance&&secondMuscle?`Add complementary work for ${secondMuscle[0]}.`:'No material imbalance flagged.'
     ])
@@ -7229,9 +7229,9 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
     `<div class="vertex-b2-row vertex-b2-row-decision">${decisionCards.join('')}</div>`,
     '<div class="vertex-b2-section-label">Training Snapshot</div>',
     `<div class="vertex-training-snapshot">
-      <div class="vertex-snapshot-row"><div class="vertex-snapshot-label">Strength Volume</div><div class="vertex-snapshot-track"><span style="width:${Math.min(100,Math.max(18,Math.round((totalSets||0)/20*100)))}%"></span></div></div>
+      <div class="vertex-snapshot-row"><div class="vertex-snapshot-label">Training Volume</div><div class="vertex-snapshot-track"><span style="width:${Math.min(100,Math.max(18,Math.round((totalSets||0)/20*100)))}%"></span></div></div>
       <div class="vertex-snapshot-row"><div class="vertex-snapshot-label">Recovery Capacity</div><div class="vertex-snapshot-track"><span style="width:${readiness!==null?Math.max(12,Math.min(100,readiness)):58}%"></span></div></div>
-      <div class="vertex-snapshot-row"><div class="vertex-snapshot-label">Fatigue Load</div><div class="vertex-snapshot-track"><span style="width:${Math.min(100,Math.max(10,Math.round((sessions||0)/5*100)))}%"></span></div></div>
+      <div class="vertex-snapshot-row"><div class="vertex-snapshot-label">Fatigue Level</div><div class="vertex-snapshot-track"><span style="width:${Math.min(100,Math.max(10,Math.round((sessions||0)/5*100)))}%"></span></div></div>
     </div>`,
     '<div class="vertex-b2-section-label">Training Intelligence</div>',
     `<div class="vertex-b2-row vertex-b2-row-intelligence">${intelligenceCards.join('')}</div>`
@@ -18926,7 +18926,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   }
   function titles(d,m,f){
     var sessions=Number(d.sessions||0), prev=Number(d.prev||0), r=(d.readiness==null?null:Number(d.readiness));
-    var recoveryTitle=f.risk==='Elevated'?'Recovery Watch':(r!==null&&r>=75?'Recovery Supportive':'Recovery Still Building');
+    var recoveryTitle=f.risk==='Elevated'?'Recovery Watch':(r!==null&&r>=75?'Recovery Supportive':'Recovery Baseline Building');
     if(m.level==='established' && f.risk==='Low') recoveryTitle='Recovery Pattern Stable';
     var loadTitle=f.risk==='Elevated'?'Load Pressure Rising':(m.level==='established'?'Load Tolerance Confirmed':'Load Manageable');
     var coachTitle=f.risk==='Elevated'?'Hold progression':(f.progression==='Progress one priority'?'Progress selectively':'Train normally today');
@@ -20300,7 +20300,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
       out.push(card('Stable rhythm','Use the next session to sharpen form or progress one key lift.','Your rhythm is steady, so progress can come from better reps — not just more work.','green','Stable rhythm means weekly frequency is holding.', sessions+' sessions this week'));
     }
     if(top && second && top.sets>=Math.max(6,second.sets*1.45)){
-      out.push(card('Imbalance detected','Balance '+top.name+' with complementary work or keep the next '+top.name+' block submaximal.','One muscle group is getting most of the work this week, which can create fatigue even if overall readiness looks fine.','warn','Flags when one muscle group is starting to pull ahead of the rest.', top.name+' '+top.sets+' sets'));
+      out.push(card('Balance Opportunity','Balance '+top.name+' with complementary work or keep the next '+top.name+' block submaximal.','One muscle group is getting most of the work this week, which can create fatigue even if overall readiness looks fine.','warn','Flags when one muscle group is starting to pull ahead of the rest.', top.name+' '+top.sets+' sets'));
     } else if(top){
       out.push(card('Volume balance looks good','Progress one priority movement if warm-ups feel strong.','No single muscle group is taking over the week, so your training balance looks reasonable.','green','Reviews how your weekly sets are spread across muscle groups.', top.name+' leads'));
     }

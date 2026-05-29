@@ -49,7 +49,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vertex">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.coingecko.com; img-src 'self' blob: data: https:; worker-src 'self' blob:;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.coingecko.com; img-src 'self' blob: data: https:; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com; worker-src 'self' blob:;">
 <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -2857,6 +2857,17 @@ button[data-program-tab][aria-selected="true"],
   border-color:rgba(232,255,71,.58)!important;
   color:var(--acc)!important;
   box-shadow:0 0 0 3px rgba(232,255,71,.06)!important;
+}
+
+
+/* Phase 6A.1a — restore visible selected state for muscle filters */
+#muscles .chip.on,
+#muscles .chip.active,
+#muscles .chip[aria-selected="true"]{
+  background:rgba(232,255,71,.045)!important;
+  border-color:var(--acc)!important;
+  color:var(--acc)!important;
+  box-shadow:0 0 0 2px rgba(232,255,71,.11)!important;
 }
 
 /* True CTAs stay filled */
@@ -10472,7 +10483,7 @@ function renderSidebar(){
   const train=state.training||'Strength';
   const groups=FILTER_GROUPS[train]||FILTER_GROUPS.Strength;
   if(!groups.includes(state.muscle)) state.muscle='All';
-  document.getElementById('muscles').innerHTML=groups.map(m=>`<button class="chip ${state.muscle===m?'on':''}" data-muscle="${m}">${m}</button>`).join('');
+  document.getElementById('muscles').innerHTML=groups.map(m=>{const on=state.muscle===m; return `<button class="chip ${on?'on active':''}" data-muscle="${m}" aria-selected="${on?'true':'false'}">${m}</button>`;}).join('');
   const q=String(state.search||'').toLowerCase();
   let list=EXERCISES.filter(e=>{
     const trainOk=(e.training||'Strength')===train;
@@ -12081,7 +12092,26 @@ document.addEventListener('click',e=>{
   }
 });
 document.addEventListener('input',e=>{if(e.target.id==='search'){state.search=e.target.value; renderSidebar(); return} const r=e.target.getAttribute('data-reps'); if(r){const [i,j]=r.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].reps=Number(e.target.value)||0; renderRight(); renderBuilderMetaOnly(); return} const w=e.target.getAttribute('data-weight'); if(w){const [i,j]=w.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].weight=e.target.value; return}});
- document.addEventListener('click',e=>{const m=e.target.getAttribute?.('data-muscle'); if(m){state.muscle=m; renderSidebar()} const env=e.target.getAttribute?.('data-env'); if(env){e.target.closest?.('.segment')?.classList.add('user-picked'); state.env=env; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; renderAll();}});
+ document.addEventListener('click',e=>{
+  const muscleBtn=e.target&&e.target.closest?e.target.closest('[data-muscle]'):null;
+  if(muscleBtn){
+    const m=muscleBtn.getAttribute('data-muscle');
+    if(m){
+      state.muscle=m;
+      document.querySelectorAll('#muscles .chip').forEach(btn=>{
+        const on=btn.getAttribute('data-muscle')===m;
+        btn.classList.toggle('on',on);
+        btn.classList.toggle('active',on);
+        btn.setAttribute('aria-selected',on?'true':'false');
+      });
+      renderSidebar();
+      return;
+    }
+  }
+  const envBtn=e.target&&e.target.closest?e.target.closest('[data-env]'):null;
+  const env=envBtn?envBtn.getAttribute('data-env'):null;
+  if(env){envBtn.closest?.('.segment')?.classList.add('user-picked'); state.env=env; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; renderAll();}
+});
  function renderBuilderMetaOnly(){const s=stats(); document.getElementById('wkt-meta').innerHTML=`<span>EXERCISES <b>${s.ex}</b></span><span>SETS <b>${s.sets}</b></span><span>EST. <b>${s.est} min</b></span>${state.current.excludeFromVolume?'<span>VOLUME <b>0</b></span>':''}`}
  // Ensure no old app localStorage can prepopulate builder, then restore Supabase session if present.
  

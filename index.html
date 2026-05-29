@@ -4200,6 +4200,23 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<script id="vertex-escape-html-helper">
+window.escapeHtml = window.escapeHtml || function(value){
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+</script>
+
+
+<script id="vertex-escape-html-alias">
+var escapeHtml = window.escapeHtml;
+</script>
+
 </head>
 <body class="auth-resolving">
 
@@ -9735,6 +9752,23 @@ function protoSelectDate(dateStr){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<script id="vertex-escape-html-helper">
+window.escapeHtml = window.escapeHtml || function(value){
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+</script>
+
+
+<script id="vertex-escape-html-alias">
+var escapeHtml = window.escapeHtml;
+</script>
+
 </head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
@@ -11382,6 +11416,23 @@ function generateVertexPDFReport(){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<script id="vertex-escape-html-helper">
+window.escapeHtml = window.escapeHtml || function(value){
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+</script>
+
+
+<script id="vertex-escape-html-alias">
+var escapeHtml = window.escapeHtml;
+</script>
+
 </head><body>
 
 <h1>Vertex</h1>
@@ -11764,6 +11815,23 @@ window.renderSymmetry = renderSymmetry;
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<script id="vertex-escape-html-helper">
+window.escapeHtml = window.escapeHtml || function(value){
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+</script>
+
+
+<script id="vertex-escape-html-alias">
+var escapeHtml = window.escapeHtml;
+</script>
+
 </head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
@@ -12043,6 +12111,23 @@ function vertexShowSyncDiag(){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<script id="vertex-escape-html-helper">
+window.escapeHtml = window.escapeHtml || function(value){
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+</script>
+
+
+<script id="vertex-escape-html-alias">
+var escapeHtml = window.escapeHtml;
+</script>
+
 </head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
@@ -14717,7 +14802,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.0-phase6B1-media-foundation';
+  const VERSION='v13.62.1-phase6B1a-escape-fix';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}

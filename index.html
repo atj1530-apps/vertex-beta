@@ -4078,17 +4078,67 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
 </style>
 
 
-
-<style id="vertex-phase5a8-progress-locked-css">
-#progressPage .vertex-training-snapshot{border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.025);border-radius:18px;padding:18px 20px;margin:0 0 18px;display:grid;gap:13px}
-#progressPage .vertex-snapshot-row{display:grid;grid-template-columns:190px 1fr;gap:14px;align-items:center}
-#progressPage .vertex-snapshot-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2.6px;text-transform:uppercase;color:rgba(255,255,255,.58)}
-#progressPage .vertex-snapshot-track{height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
-#progressPage .vertex-snapshot-track span{display:block;height:100%;border-radius:999px;background:var(--acc)}
-#progressPage .vertex-b2-row-intelligence .vertex-b2-card:first-child{grid-column:span 2!important}
-#progressPage .vertex-insights-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}
-@media(max-width:1200px){#progressPage .vertex-insights-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
-@media(max-width:900px){#progressPage .vertex-training-snapshot{padding:16px;margin-bottom:16px}#progressPage .vertex-snapshot-row{grid-template-columns:1fr;gap:8px}#progressPage .vertex-b2-row-intelligence .vertex-b2-card:first-child{grid-column:auto!important}#progressPage .vertex-insights-grid{display:flex!important;overflow-x:auto!important;gap:12px!important;padding:0 14px 10px!important;margin:0 -14px 14px!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important}#progressPage .vertex-insights-grid::-webkit-scrollbar{display:none!important}#progressPage .vertex-insights-grid .vertex-b2-card{flex:0 0 82%!important;min-width:82%!important;max-width:82%!important;scroll-snap-align:start!important}}
+<style id="vertex-phase5a7-from-5a6-css">
+#progressPage .vertex-training-snapshot{
+  border:1px solid rgba(255,255,255,.11);
+  background:rgba(255,255,255,.025);
+  border-radius:18px;
+  padding:18px 20px;
+  margin:0 0 18px;
+  display:grid;
+  gap:13px;
+}
+#progressPage .vertex-snapshot-row{
+  display:grid;
+  grid-template-columns:190px 1fr;
+  gap:14px;
+  align-items:center;
+}
+#progressPage .vertex-snapshot-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:2.6px;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.58);
+}
+#progressPage .vertex-snapshot-track{
+  height:8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  overflow:hidden;
+}
+#progressPage .vertex-snapshot-track span{
+  display:block;
+  height:100%;
+  border-radius:999px;
+  background:var(--acc);
+}
+#progressPage .vertex-insights-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+@media(max-width:1200px){
+  #progressPage .vertex-insights-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+}
+@media(max-width:900px){
+  #progressPage .vertex-training-snapshot{padding:16px;margin-bottom:16px;}
+  #progressPage .vertex-snapshot-row{grid-template-columns:1fr;gap:8px;}
+  #progressPage .vertex-insights-grid{
+    display:flex!important;
+    overflow-x:auto!important;
+    gap:12px!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px 14px!important;
+    scroll-snap-type:x mandatory!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage .vertex-insights-grid::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-insights-grid .vertex-b2-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    scroll-snap-align:start!important;
+  }
+}
 </style>
 </head>
 <body class="auth-resolving">
@@ -18901,7 +18951,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
       'Forecast: '+esc(f.recovery)
     ]);
     setCard('Workout Memory',m.level==='established'?'Training Memory Established':'Movement Familiarity',[
-      'Behavior: '+(m.level==='baseline'?'exercise patterns forming':'pattern learning'),
+      'Behavior: '+(m.level==='baseline'?'movement mix forming':'pattern learning'),
       m.level==='established'?'Training memory can now support more specific recommendations.':'Vertex is learning your movement mix and normal workload.'
     ]);
     setCard('Weekly Intelligence',t.weeklyTitle,[
@@ -19745,31 +19795,13 @@ function run(){
    +'<section class="vertex-b2-card"><div class="label">Volume Distribution</div><div class="vertex-b2-value">Upper Focused</div><div class="vertex-b2-line">Most volume is going to upper body work.</div></section>'
    +'<section class="vertex-b2-card"><div class="label">Recovery Opportunities</div><div class="vertex-b2-value">Legs Fresh</div><div class="vertex-b2-line">Good opportunity for lower-body work.</div></section>'
    +'<section class="vertex-b2-card"><div class="label">Exercise Diversity</div><div class="vertex-b2-value">Exercise Variety Growing</div><div class="vertex-b2-line">Vertex is learning your exercise patterns.</div></section>'
-   +'<section class="vertex-b2-card"><div class="label">Cardio Strain</div><div class="vertex-b2-value">Not Connected</div><div class="vertex-b2-line">No cardio data connected yet.</div><div class="vertex-b2-line">Connect Strava to add cardio load insights.</div></section>'
+   +'<section class="vertex-b2-card"><div class="label">Cardio Strain</div><div class="vertex-b2-value">Connect Strava</div><div class="vertex-b2-line">No cardio data connected yet.</div><div class="vertex-b2-line">Connect Strava to add cardio load insights.</div></section>'
    +'</div>';
    deck.appendChild(wrap);
  }
 }
 document.addEventListener('DOMContentLoaded',()=>{setTimeout(run,200);setTimeout(run,900);});
 document.addEventListener('click',()=>setTimeout(run,300),true);
-})();
-</script>
-
-<script id="vertex-phase5a8-progress-locked-js">
-(function(){
- if(window.__vertexPhase5A8Locked)return;window.__vertexPhase5A8Locked=true;
- function fix(){
-   var deck=document.getElementById('vertexB2ProgressDeck');if(!deck)return;
-   deck.innerHTML=deck.innerHTML.replace(/Advance one priority lift/ig,'Focus on One Main Lift').replace(/MAINTAIN\s*·\s*Train controlled/ig,'MAINTAIN · Train normally today').replace(/Recovery Holding/ig,'Recovery Still Building').replace(/readiness\s*723/ig,'readiness 72').replace(/Movement mix forming/ig,'Exercise patterns forming').replace(/movement mix forming/ig,'exercise patterns forming').replace(/Recent workload signal/ig,'Recent workload is building steadily.').replace(/Avoid volume jumps before consistency/ig,'Avoid big volume jumps this week.');
-   document.querySelectorAll('#vertexB2ProgressDeck .vertex-b2-card').forEach(function(card){
-     var label=card.querySelector('.label');
-     var value=card.querySelector('.vertex-b2-value');
-     if(label&&/Training Strain/i.test(label.textContent||'')&&value&&/^Building$/i.test(value.textContent.trim()))value.textContent='Training Load Building';
-     if(label&&/Cardio Strain/i.test(label.textContent||'')&&!card.closest('#vertexInsightsLayer'))card.remove();
-   });
- }
- document.addEventListener('DOMContentLoaded',function(){setTimeout(fix,150);setTimeout(fix,700);});
- document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
 </script>
 </body>

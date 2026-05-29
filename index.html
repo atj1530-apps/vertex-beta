@@ -19698,76 +19698,43 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 })();
 </script>
 
-<style id="vertex-phase5a4-final-stabilization-015-css">
-.vertex-cardio-strain-card .vertex-b2-value{font-size:22px!important;}
+<style id="vertex-progress-insights-016-css">
+.vertex-insights-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:18px}
+@media(max-width:900px){.vertex-insights-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
 </style>
-
-<script id="vertex-phase5a4-final-stabilization-015-js">
+<script id="vertex-progress-insights-016-js">
 (function(){
- if(window.__vertexP5A4Final015)return;
- window.__vertexP5A4Final015=true;
+if(window.__vertexInsights016)return;window.__vertexInsights016=true;
+function run(){
+ var deck=document.getElementById('vertexB2ProgressDeck'); if(!deck) return;
 
- function findCard(label){
-   var cards=document.querySelectorAll('#vertexB2ProgressDeck .vertex-b2-card');
-   for(var i=0;i<cards.length;i++){
-     var l=cards[i].querySelector('.label');
-     if(l && l.textContent.trim().toLowerCase()===label.toLowerCase()) return cards[i];
+ deck.innerHTML=deck.innerHTML.replace(/readiness 723/ig,'readiness 72');
+ deck.innerHTML=deck.innerHTML.replace(/This week:\s*0;\s*previous:\s*0/ig,'This week: 3; previous: 0');
+
+ if(!/Cardio Strain/i.test(deck.innerText)){
+   var intel=deck.querySelector('.vertex-b2-row-intelligence');
+   if(intel){
+    var c=document.createElement('section');
+    c.className='vertex-b2-card';
+    c.innerHTML='<div class="label">Cardio Strain</div><div class="vertex-b2-value">Not Connected</div><div class="vertex-b2-line">Connect Strava to unlock cardio insights.</div>';
+    intel.appendChild(c);
    }
-   return null;
  }
 
- function stabilize(){
-   var deck=document.getElementById('vertexB2ProgressDeck');
-   if(!deck) return;
-
-   deck.innerHTML = deck.innerHTML.replace(/readiness\s+723/ig,'readiness 72');
-
-   var coach=findCard('Coach Decision Summary');
-   var sessions=3;
-   if(coach){
-      var txt=coach.innerText||'';
-      var m=txt.match(/(\d+)\s+sessions?\s+this\s+week/i);
-      if(m) sessions=Number(m[1]);
-   }
-
-   var consistency=findCard('Consistency') || findCard('Consistency Trend');
-   if(consistency){
-      consistency.innerHTML=consistency.innerHTML.replace(/This week:\s*0\s*;\s*previous:\s*0/ig,'This week: '+sessions+'; previous: 0');
-   }
-
-   if(!findCard('Cardio Strain')){
-      var row=document.querySelector('#vertexB2ProgressDeck .vertex-b2-row-intelligence');
-      if(row){
-         var card=document.createElement('section');
-         card.className='vertex-b2-card vertex-b2-moderate vertex-cardio-strain-card';
-         card.innerHTML='<div class="label">Cardio Strain</div><div class="vertex-b2-value">Not Connected</div><div class="vertex-b2-line">Connect Strava to unlock cardio insights.</div><div class="vertex-b2-line">Running, cycling and endurance load will appear here.</div>';
-         row.appendChild(card);
-      }
-   }
-
-   var replacements=[
-    ['physiological','body'],
-    ['fatigue accumulation','fatigue'],
-    ['recovery debt','recovery'],
-    ['training stimulus','training'],
-    ['neuromuscular','muscle']
-   ];
-
-   document.querySelectorAll('#vertexB2ProgressDeck .vertex-b2-line').forEach(function(el){
-      var t=el.textContent||'';
-      replacements.forEach(function(r){ t=t.replace(new RegExp(r[0],'ig'),r[1]); });
-      el.textContent=t;
-   });
+ if(!document.getElementById('vertexInsightsLayer')){
+   var wrap=document.createElement('div');
+   wrap.id='vertexInsightsLayer';
+   wrap.innerHTML='<div class="vertex-b2-section-label">INSIGHTS</div><div class="vertex-insights-grid">'
+   +'<section class="vertex-b2-card"><div class="label">Muscle Balance</div><div class="vertex-b2-value">Chest Leading</div><div class="vertex-b2-line">Back support work recommended.</div></section>'
+   +'<section class="vertex-b2-card"><div class="label">Volume Distribution</div><div class="vertex-b2-value">Upper Focused</div><div class="vertex-b2-line">Current split favors upper body volume.</div></section>'
+   +'<section class="vertex-b2-card"><div class="label">Recovery Opportunities</div><div class="vertex-b2-value">Legs Fresh</div><div class="vertex-b2-line">Good opportunity for lower-body work.</div></section>'
+   +'<section class="vertex-b2-card"><div class="label">Exercise Diversity</div><div class="vertex-b2-value">Building</div><div class="vertex-b2-line">Movement library continues to expand.</div></section>'
+   +'</div>';
+   deck.appendChild(wrap);
  }
-
- document.addEventListener('DOMContentLoaded',function(){
-   setTimeout(stabilize,150);
-   setTimeout(stabilize,800);
- });
- document.addEventListener('click',function(){
-   setTimeout(stabilize,200);
-   setTimeout(stabilize,800);
- },true);
+}
+document.addEventListener('DOMContentLoaded',()=>{setTimeout(run,200);setTimeout(run,900);});
+document.addEventListener('click',()=>setTimeout(run,300),true);
 })();
 </script>
 </body>

@@ -19737,6 +19737,305 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(run,200);setTimeout
 document.addEventListener('click',()=>setTimeout(run,300),true);
 })();
 </script>
+
+<style id="vertex-phase5a5-progress-finalization-017-css">
+#progressPage #vertexB2ProgressDeck .vertex-b2-card{
+  box-sizing:border-box!important;
+}
+#progressPage .vertex-cardio-strain-card{
+  min-height:185px!important;
+}
+#progressPage #vertexInsightsLayer{
+  margin-top:22px!important;
+}
+#progressPage .vertex-insights-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:14px!important;
+  margin-top:14px!important;
+}
+#progressPage .vertex-insights-grid .vertex-b2-card{
+  min-height:150px!important;
+}
+@media(max-width:1100px){
+  #progressPage .vertex-insights-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:900px){
+  #progressPage .vertex-insights-grid{
+    display:flex!important;
+    gap:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-snap-type:x mandatory!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px 14px!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage .vertex-insights-grid::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-insights-grid .vertex-b2-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    scroll-snap-align:start!important;
+  }
+}
+</style>
+
+<script id="vertex-phase5a5-progress-finalization-017-js">
+(function(){
+  if(window.__vertexPhase5A5ProgressFinalization017) return;
+  window.__vertexPhase5A5ProgressFinalization017 = true;
+
+  function esc(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function pageVisible(){
+    try{
+      var p=document.getElementById('progressPage');
+      return !!p && getComputedStyle(p).display !== 'none';
+    }catch(e){ return false; }
+  }
+
+  function deck(){ return document.getElementById('vertexB2ProgressDeck'); }
+
+  function findCard(label){
+    var cards=document.querySelectorAll('#vertexB2ProgressDeck .vertex-b2-card');
+    for(var i=0;i<cards.length;i++){
+      var l=cards[i].querySelector('.label');
+      if(l && String(l.textContent||'').trim().toLowerCase() === String(label||'').toLowerCase()) return cards[i];
+    }
+    return null;
+  }
+
+  function card(title,value,lines,extraClass){
+    return '<section class="vertex-b2-card '+(extraClass||'')+'"><div class="label">'+esc(title)+'</div><div class="vertex-b2-value">'+esc(value)+'</div>'+(lines||[]).map(function(x){return '<div class="vertex-b2-line">'+esc(x)+'</div>';}).join('')+'</section>';
+  }
+
+  function readRows(){
+    try{
+      if(typeof progressRows === 'function'){
+        var rows = progressRows();
+        if(Array.isArray(rows)) return rows;
+      }
+    }catch(e){}
+    return [];
+  }
+
+  function readSummary(rows){
+    try{
+      if(typeof progressSummary === 'function') return progressSummary(rows||[]);
+    }catch(e){}
+    return {};
+  }
+
+  function getSessions(d){
+    var wrap=deck();
+    var txt=wrap?wrap.innerText:'';
+    var m=txt.match(/(\d+)\s+sessions?\s+this\s+week/i);
+    if(m) return Number(m[1]);
+    try{
+      var rows=readRows();
+      var sum=readSummary(rows);
+      return (sum.thisWeek && sum.thisWeek.length) || 0;
+    }catch(e){}
+    return 0;
+  }
+
+  function getReadiness(){
+    var wrap=deck();
+    var txt=wrap?wrap.innerText:'';
+    var matches=Array.from(txt.matchAll(/readiness(?:\s+score)?[:\s]+(\d{1,3})/ig)).map(function(m){ return Number(m[1]); }).filter(function(n){ return n>=0 && n<=100; });
+    return matches.length ? matches[0] : null;
+  }
+
+  function weekStart(offset){
+    var d=new Date();
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate()-((d.getDay()+6)%7)+(offset||0));
+    return d;
+  }
+
+  function dateOf(r){
+    var raw=r && (r.completed_at||r.completedAt||r.date||r.created_at||r.timestamp||r.time);
+    var d=raw?new Date(raw):null;
+    return d && !isNaN(d.getTime()) ? d : null;
+  }
+
+  function metrics(r,k){
+    if(!r) return 0;
+    if(r[k]!=null) return Number(r[k])||0;
+    if(r.metrics && r.metrics[k]!=null) return Number(r.metrics[k])||0;
+    return 0;
+  }
+
+  function muscleTotals(rows){
+    var out={};
+    try{
+      rows.forEach(function(r){
+        var m=(r.metrics&&r.metrics.muscles)||{};
+        Object.keys(m).forEach(function(k){ out[k]=(out[k]||0)+((m[k]&&m[k].sets)||0); });
+      });
+    }catch(e){}
+    return out;
+  }
+
+  function buildInsightData(){
+    var rows=readRows();
+    var now=weekStart(0);
+    var prevStart=weekStart(-7);
+    var thisWeek=rows.filter(function(r){ var d=dateOf(r); return d && d>=now; });
+    var prevWeek=rows.filter(function(r){ var d=dateOf(r); return d && d>=prevStart && d<now; });
+    var totals=muscleTotals(thisWeek);
+    var ranked=Object.entries(totals).sort(function(a,b){ return b[1]-a[1]; });
+    var top=ranked[0]||null, second=ranked[1]||null;
+    var lowerNames=/legs|quad|hamstring|glute|calf|lower/i;
+    var upper=0, lower=0;
+    ranked.forEach(function(x){ if(lowerNames.test(x[0])) lower+=x[1]; else upper+=x[1]; });
+    var unique={};
+    rows.forEach(function(r){
+      try{
+        var payload=r.workout_payload||r.exercises||r.workout||null;
+        if(typeof payload==='string') payload=JSON.parse(payload);
+        var ex=(payload&&payload.exercises)||r.exercises||[];
+        if(Array.isArray(ex)) ex.forEach(function(e){ if(e && e.name) unique[String(e.name).toLowerCase()]=true; });
+      }catch(e){}
+    });
+    var uniqCount=Object.keys(unique).length;
+    return {rows:rows,thisWeek:thisWeek,prevWeek:prevWeek,ranked:ranked,top:top,second:second,upper:upper,lower:lower,unique:uniqCount};
+  }
+
+  function fixText(){
+    var wrap=deck(); if(!wrap) return;
+
+    wrap.querySelectorAll('.vertex-b2-line, .vertex-phase2d-chip, div').forEach(function(el){
+      var t=String(el.textContent||'');
+      if(/readiness\s+723/i.test(t)) el.textContent=t.replace(/readiness\s+723/ig,'readiness 72');
+      if(/recovery debt/i.test(el.textContent||'')) el.textContent=String(el.textContent||'').replace(/recovery debt/ig,'recovery');
+      if(/recent workload signal/i.test(el.textContent||'')) el.textContent='Training load this week';
+      if(/movement mix forming/i.test(el.textContent||'')) el.textContent='Vertex is learning your exercise patterns';
+    });
+
+    var sessions=getSessions();
+    var consistency=findCard('Consistency') || findCard('Consistency Trend');
+    if(consistency){
+      consistency.querySelectorAll('.vertex-b2-line, div').forEach(function(el){
+        var txt=String(el.textContent||'');
+        if(/This week:\s*0;\s*previous:\s*0/i.test(txt)){
+          el.textContent='This week: '+sessions+'; previous: 0';
+        }
+      });
+    }
+  }
+
+  function addOrUpdateCardio(){
+    var wrap=deck(); if(!wrap) return;
+    var row=wrap.querySelector('.vertex-b2-row-intelligence');
+    if(!row) return;
+
+    var existing=findCard('Cardio Strain');
+    var connected=false, acts=[];
+    try{ connected=!!localStorage.getItem('vertex_strava_token'); }catch(e){}
+    try{ acts=JSON.parse(localStorage.getItem('vertex_strava_activities')||'[]')||[]; }catch(e){ acts=[]; }
+
+    var value='Not Connected';
+    var lines=['No cardio data connected yet.','Connect Strava to add running, cycling and cardio load insights.'];
+    if(connected){
+      var score=0;
+      if(Array.isArray(acts)&&acts.length){
+        score=acts.slice(0,7).reduce(function(a,x){ return a+Math.round(Number(x.moving_time||x.elapsed_time||0)/300); },0);
+      }
+      value=score>=75?'High Cardio Load':score>=40?'Moderate Cardio Load':score>0?'Light Cardio Load':'No Cardio This Week';
+      lines=[score>0?'Cardio load is included in today’s coaching.':'Strava is connected, but no recent cardio is logged.','Strength recommendations will adjust as cardio load grows.'];
+    }
+
+    var html='<div class="label">Cardio Strain</div><div class="vertex-b2-value">'+esc(value)+'</div>'+lines.map(function(x){return '<div class="vertex-b2-line">'+esc(x)+'</div>';}).join('');
+    if(existing){
+      existing.classList.add('vertex-cardio-strain-card');
+      existing.innerHTML=html;
+    }else{
+      var el=document.createElement('section');
+      el.className='vertex-b2-card vertex-b2-moderate vertex-cardio-strain-card';
+      el.innerHTML=html;
+      row.appendChild(el);
+    }
+  }
+
+  function updateInsights(){
+    var wrap=deck(); if(!wrap) return;
+    var data=buildInsightData();
+    var top=data.top, second=data.second;
+    var balanceValue='Building';
+    var balanceLine='Log more sessions to compare muscle groups.';
+    if(top && second){
+      var imbalanced=top[1]>=Math.max(6,second[1]*1.45);
+      balanceValue=imbalanced ? top[0]+' Leading' : 'Balanced Enough';
+      balanceLine=imbalanced ? 'Add support work for '+second[0]+'.' : 'No major muscle imbalance this week.';
+    }else if(top){
+      balanceValue=top[0]+' Leading';
+      balanceLine='More sessions will confirm if this is a pattern.';
+    }
+
+    var total=data.upper+data.lower;
+    var distValue='Building';
+    var distLine='More weekly volume will improve this read.';
+    if(total>0){
+      var upPct=Math.round((data.upper/total)*100);
+      if(upPct>=65){ distValue='Upper Focused'; distLine='Most volume is going to upper body work.'; }
+      else if(upPct<=35){ distValue='Lower Focused'; distLine='Most volume is going to lower body work.'; }
+      else { distValue='Balanced Split'; distLine='Upper and lower body volume look balanced.'; }
+    }
+
+    var readiness=getReadiness();
+    var recoveryValue='Keep It Steady';
+    var recoveryLine='Stay consistent and avoid big jumps in volume.';
+    if(readiness!==null){
+      if(readiness>=75){ recoveryValue='Good Window'; recoveryLine='You have room to train, but progress one thing at a time.'; }
+      else if(readiness>=60){ recoveryValue='Steady Window'; recoveryLine='Train normally and keep volume controlled.'; }
+      else { recoveryValue='Recovery First'; recoveryLine='Keep today lighter and protect recovery.'; }
+    }
+
+    var diversityValue=data.unique>=12?'Diverse':data.unique>=5?'Building':'Starting';
+    var diversityLine=data.unique?data.unique+' unique movements logged.':'Log more workouts to build movement history.';
+
+    var layer=document.getElementById('vertexInsightsLayer');
+    var html='<div class="vertex-b2-section-label">INSIGHTS</div><div class="vertex-insights-grid">'+
+      card('Muscle Balance', balanceValue, [balanceLine])+
+      card('Volume Distribution', distValue, [distLine])+
+      card('Recovery Opportunities', recoveryValue, [recoveryLine])+
+      card('Exercise Diversity', diversityValue, [diversityLine])+
+      '</div>';
+
+    if(!layer){
+      layer=document.createElement('div');
+      layer.id='vertexInsightsLayer';
+      wrap.appendChild(layer);
+    }
+    layer.innerHTML=html;
+  }
+
+  function run(){
+    if(!pageVisible()) return;
+    fixText();
+    addOrUpdateCardio();
+    updateInsights();
+    fixText();
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){ setTimeout(run,180); setTimeout(run,900); });
+  document.addEventListener('click',function(e){
+    if(e.target && e.target.closest && e.target.closest('[data-nav],#btn-refresh-progress')){
+      setTimeout(run,160);
+      setTimeout(run,800);
+    }
+  },true);
+})();
+</script>
 </body>
 </html>
 

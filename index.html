@@ -19200,7 +19200,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     try{
       var x=build();
       var deck=document.getElementById('vertexB2ProgressDeck');
-      if(deck) deck.innerHTML=railHTML(x);
+      /* Phase 5A4: deck ownership moved to renderVertexB2ProgressDeck(). Do not overwrite with Phase 4 telemetry rail. */
 
       var insights=document.getElementById('progressInsights');
       if(insights){
@@ -19343,6 +19343,31 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   }
 }
 </style>
+
+<script id="vertex-phase5a4-phase4-overwrite-guard-js">
+(function(){
+  if(window.__vertexPhase5A4Phase4OverwriteGuard011) return;
+  window.__vertexPhase5A4Phase4OverwriteGuard011=true;
+  function isProgress(){
+    try{
+      var page=document.getElementById('progressPage');
+      return !!page && getComputedStyle(page).display!=='none';
+    }catch(e){ return false; }
+  }
+  function rerender(){
+    try{
+      if(isProgress() && typeof renderProgressPage==='function') renderProgressPage();
+    }catch(e){}
+  }
+  document.addEventListener('DOMContentLoaded',function(){ setTimeout(rerender,400); setTimeout(rerender,1300); });
+  document.addEventListener('click',function(e){
+    if(e.target && e.target.closest && e.target.closest('[data-nav],#btn-refresh-progress')){
+      setTimeout(rerender,120);
+      setTimeout(rerender,700);
+    }
+  },true);
+})();
+</script>
 </body>
 </html>
 

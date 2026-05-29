@@ -4099,6 +4099,24 @@ body.app-page-progress #progressInsights *,
 body.app-page-progress #progressPage .progress-card:has(#progressInsights){display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
 body.app-page-progress #progressPage #vertexB2ProgressDeck{display:block!important;visibility:visible!important;opacity:1!important;}
 </style>
+
+<style id="vertex-progress-owner-lock-css">
+/* Progress owner lock: prevent legacy Progress dashboard from painting */
+#progressPage #progressSummary,
+#progressPage .progress-tabs,
+#progressPage #progressTabContent,
+#progressPage #ptab-overview,
+#progressPage #ptab-volume,
+#progressPage #ptab-exercises,
+#progressPage #ptab-history{display:none!important}
+#progressPage.vertex-progress-intel-owned #progressSummary,
+#progressPage.vertex-progress-intel-owned .progress-tabs,
+#progressPage.vertex-progress-intel-owned #progressTabContent{display:none!important}
+#progressPage.vertex-progress-intel-owned #vertexB2ProgressDeck{display:block!important}
+.vertex-progress-single{display:grid;gap:16px;margin-top:18px}
+.vertex-progress-single .vertex-p5a-card{margin:0}
+</style>
+
 </head>
 <body class="auth-resolving">
 
@@ -9426,6 +9444,117 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
   box-shadow:none!important;
 }
 </style>
+
+<script id="vertex-progress-owner-lock-js">
+(function(){
+  'use strict';
+  var LOCK='vertex-progress-intel-owned';
+  function esc(v){
+    try{ if(typeof escapeHtml==='function') return escapeHtml(String(v==null?'':v)); }catch(e){}
+    return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function rows(){
+    try{ return typeof progressRows==='function' ? (progressRows()||[]) : []; }catch(e){ return []; }
+  }
+  function summary(r){
+    try{ return typeof progressSummary==='function' ? (progressSummary(r)||{}) : {}; }catch(e){ return {}; }
+  }
+  function readiness(){
+    try{
+      if(window.VertexRecoveryInsights && typeof window.VertexRecoveryInsights.build==='function'){
+        var x=window.VertexRecoveryInsights.build()||{}, n=Number(x.recovery);
+        if(Number.isFinite(n)) return Math.round(n);
+      }
+    }catch(e){}
+    return null;
+  }
+  function avg(a){
+    a=(a||[]).map(Number).filter(function(n){return Number.isFinite(n);});
+    return a.length ? a.reduce(function(x,y){return x+y;},0)/a.length : 0;
+  }
+  function dayDiff(a,b){
+    try{ var A=new Date(a), B=new Date(b); A.setHours(0,0,0,0); B.setHours(0,0,0,0); return Math.round((B-A)/86400000); }catch(e){ return 99; }
+  }
+  function vol(r){ return Number((r&&r.metrics&&r.metrics.volume)||0); }
+  function sets(r){ return Number((r&&r.metrics&&r.metrics.sets)||0); }
+  function weekStartSafe(){
+    try{ if(typeof weekStart==='function') return weekStart(); }catch(e){}
+    var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d;
+  }
+  function muscles(r){
+    var totals={}, start=weekStartSafe();
+    try{
+      r.filter(function(x){return new Date(x.completed_at)>=start;}).forEach(function(x){
+        Object.entries((x.metrics&&x.metrics.muscles)||{}).forEach(function(p){
+          totals[p[0]]=(totals[p[0]]||0)+(Number((p[1]&&p[1].sets)||p[1])||0);
+        });
+      });
+    }catch(e){}
+    return Object.entries(totals).sort(function(a,b){return b[1]-a[1];});
+  }
+  function model(){
+    var r=rows().slice().sort(function(a,b){return new Date(a.completed_at)-new Date(b.completed_at);});
+    var s=summary(r), rd=readiness();
+    var tw=s.thisWeek||[], pw=s.prevWeek||[];
+    var sessions=Number(tw.length||0), prev=Number(pw.length||0);
+    var totalSets=Number(s.totalSets||0), totalVol=Number(s.totalVolume||0);
+    var recent=r.slice(-6), older=r.slice(-12,-6);
+    var volTrend=avg(older.map(vol))>0 ? ((avg(recent.map(vol))-avg(older.map(vol)))/avg(older.map(vol)))*100 : 0;
+    var setTrend=avg(older.map(sets))>0 ? ((avg(recent.map(sets))-avg(older.map(sets)))/avg(older.map(sets)))*100 : 0;
+    var days=r.length?dayDiff(r[r.length-1].completed_at,new Date()):99;
+    var ranked=muscles(r), top=ranked[0]||null, second=ranked[1]||null;
+    var imbalance=!!(top&&second&&top[1]>=Math.max(6,second[1]*1.45));
+    var consistency=sessions>prev?'Improving':(sessions<prev?'Rebuilding':(sessions>0?'Stable':'Early'));
+    var recoveryScore=(rd==null?62:rd);
+    var consistencyScore=Math.max(30,Math.min(100,50+(sessions*10)+((sessions-prev)*8)));
+    var balanceScore=imbalance?45:78;
+    var momentumScore=Math.max(30,Math.min(100,50+((sessions-prev)*12)+(volTrend>5?12:0)+(setTrend>5?8:0)-(days>5?12:0)));
+    var fatigueScore=Math.max(0,Math.min(100,(rd==null?35:(100-rd))+(volTrend>25?18:0)+(sessions>=5?12:0)));
+    var progressionScore=Math.round(Math.max(0,Math.min(100,(recoveryScore*.36)+(consistencyScore*.26)+(balanceScore*.18)+(momentumScore*.14)-(fatigueScore*.18)+18)));
+    var confidence=Math.max(45,Math.min(100,Math.round((rd==null?62:rd)+Math.min(14,sessions*4)+Math.min(8,r.length))));
+    var enough=r.length>=3||sessions>=2, state='Controlled Baseline', label='Adaptive Decision', copy='Vertex is still learning your training pattern.', action='Keep training consistently. Build a few more workouts before pushing progression.', type='baseline';
+    if(enough && rd!==null && rd<48 && (volTrend>28||sessions>=5)){state='Deload Recommended';label='Recovery Decision';copy='You have been pushing hard and recovery needs more room.';action='Reduce volume for the next 5–7 days. Keep movement quality high.';type='deload';confidence=Math.max(confidence,84);}
+    else if(enough && rd!==null && rd<58){state='Recovery Constrained';label='Recovery Decision';copy='Your body needs a little more recovery before pushing harder.';action='Keep today’s session lighter. Do not add weight or extra sets.';type='recovery';confidence=Math.max(confidence,78);}
+    else if(enough && imbalance){state='Imbalance Priority';label='Balance Decision';copy='One area is getting more work than the rest.';action='Balance your next session before adding more volume.';confidence=Math.max(confidence,84);}
+    else if(enough && progressionScore>=76 && sessions>=2 && days<=7){state='Progression Window Open';label='Progression Decision';copy='You are recovering well and training consistently.';action='Increase one primary lift next session. Keep everything else steady.';type='progression';confidence=Math.max(confidence,82);}
+    else if(enough && momentumScore>=72 && sessions>=2 && days<=7){state='Momentum Building';label='Progression Decision';copy='You are stacking good workouts together.';action='Stay on your current plan and keep the momentum going.';type='progression';confidence=Math.max(confidence,76);}
+    else if(enough){state='Maintain Load';label='Progression Decision';copy='Your training rhythm is improving, but not enough to push harder yet.';action='Repeat your current workload next session.';confidence=Math.max(confidence,68);}
+    return {state:state,label:label,copy:copy,action:action,type:type,confidence:Math.round(confidence),progressionScore:progressionScore,recoveryScore:Math.round(recoveryScore),momentumScore:Math.round(momentumScore),balanceScore:Math.round(balanceScore),sessions:sessions,prev:prev,sets:totalSets,volume:Math.round(totalVol),readiness:rd,consistency:consistency,top:top,imbalance:imbalance};
+  }
+  function rail(x){
+    var recovery=x.readiness==null?'Pending':(x.readiness>=72?'Ready':x.readiness>=58?'Manage':'Recover');
+    return '<div class="vertex-p5a-rail" aria-label="Adaptive coaching telemetry">'+
+      '<div class="vertex-p5a-signal"><div class="k">Recovery</div><div class="v">'+esc(recovery)+'</div><div class="s">Readiness '+esc(x.readiness==null?'pending':x.readiness)+'</div></div>'+
+      '<div class="vertex-p5a-signal"><div class="k">Consistency</div><div class="v">'+esc(x.consistency)+'</div><div class="s">'+esc(x.sessions)+' vs '+esc(x.prev)+' sessions</div></div>'+
+      '<div class="vertex-p5a-signal"><div class="k">Load</div><div class="v">'+esc(x.volume?x.volume:'Pending')+'</div><div class="s">'+esc(x.volume?x.sets+' strength sets':'Need 2–3 sessions')+'</div></div>'+
+      '<div class="vertex-p5a-signal"><div class="k">Balance</div><div class="v">'+esc(x.imbalance?'Priority':'Acceptable')+'</div><div class="s">'+esc(x.top?x.top[0]+' '+x.top[1]+' sets':'Pending')+'</div></div>'+
+      '<div class="vertex-p5a-signal"><div class="k">Confidence</div><div class="v">'+esc(x.confidence)+'%</div><div class="s">'+esc(x.confidence>=90?'High Confidence':x.confidence>=75?'Moderate Confidence':x.confidence>=60?'Early Confidence':'Learning Mode')+'</div></div>'+
+    '</div>';
+  }
+  function decision(x){
+    return '<div class="insight vertex-p5a-card '+esc(x.type)+'">'+
+      '<div class="vertex-p5a-head"><div><div class="vertex-p5a-label">'+esc(x.label)+'</div><div class="vertex-p5a-title">'+esc(x.state)+'</div></div><div class="vertex-p5a-confidence">'+esc(x.confidence)+'% Confidence</div></div>'+
+      '<div class="vertex-p5a-copy">'+esc(x.copy)+'</div>'+
+      '<div class="vertex-p5a-action"><div class="vertex-p5a-action-label">Action</div>'+esc(x.action)+'</div>'+
+      '<div class="vertex-p5a-meta">Progression '+esc(x.progressionScore)+' · Recovery '+esc(x.recoveryScore)+' · Momentum '+esc(x.momentumScore)+' · Balance '+esc(x.balanceScore)+'</div>'+
+    '</div>';
+  }
+  function render(){
+    var page=document.getElementById('progressPage'); if(!page) return;
+    var x=model();
+    page.classList.add(LOCK);
+    page.innerHTML='<div class="progress-head"><div><h1 class="page-title">Progress</h1><p class="page-copy">Adaptive training intelligence, recovery signals, and progression guidance.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-refresh-progress" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button></div></div><div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck vertex-progress-single" aria-label="Progress intelligence cards">'+decision(x)+rail(x)+'</div>';
+  }
+  window.renderProgressPage=render;
+  window.setProgressTab=function(){ render(); };
+  window.VertexProgressOwnerLock={render:render};
+  document.addEventListener('click',function(e){
+    if(e.target && (e.target.closest('[data-nav="progress"]') || e.target.closest('#btn-refresh-progress') || e.target.closest('[data-ptab]'))){ setTimeout(render,0); }
+  },true);
+  [0,100,350,900,1800].forEach(function(ms){setTimeout(function(){try{ if((window.state&&state.page==='progress') || document.getElementById('progressPage')) render(); }catch(e){}},ms);});
+})();
+</script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }

@@ -4100,23 +4100,82 @@ body.app-page-progress #progressPage .progress-card:has(#progressInsights){displ
 body.app-page-progress #progressPage #vertexB2ProgressDeck{display:block!important;visibility:visible!important;opacity:1!important;}
 </style>
 
-<style id="vertex-progress-owner-lock-css">
-/* Progress owner lock: prevent legacy Progress dashboard from painting */
-#progressPage #progressSummary,
-#progressPage .progress-tabs,
-#progressPage #progressTabContent,
-#progressPage #ptab-overview,
-#progressPage #ptab-volume,
-#progressPage #ptab-exercises,
-#progressPage #ptab-history{display:none!important}
-#progressPage.vertex-progress-intel-owned #progressSummary,
-#progressPage.vertex-progress-intel-owned .progress-tabs,
-#progressPage.vertex-progress-intel-owned #progressTabContent{display:none!important}
-#progressPage.vertex-progress-intel-owned #vertexB2ProgressDeck{display:block!important}
-.vertex-progress-single{display:grid;gap:16px;margin-top:18px}
-.vertex-progress-single .vertex-p5a-card{margin:0}
-</style>
 
+<style id="vertex-phase5a4-progress-intel-mount-css">
+body.app-page-progress #progressPage #progressSummary,
+body.app-page-progress #progressPage .progress-tabs,
+body.app-page-progress #progressPage #progressTabContent,
+body.app-page-progress #progressPage #ptab-overview,
+body.app-page-progress #progressPage #ptab-volume,
+body.app-page-progress #progressPage #ptab-exercises,
+body.app-page-progress #progressPage #ptab-history{
+  display:none!important;
+}
+body.app-page-progress #progressPage #vertexB2ProgressDeck,
+#progressPage.vertex-progress-intel-owned #vertexB2ProgressDeck{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  margin:18px 0 0!important;
+}
+.vertex-p5a-single-intel{
+  display:grid!important;
+  gap:14px!important;
+  margin-top:18px!important;
+}
+.vertex-p5a-intel-row{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:14px!important;
+}
+.vertex-p5a-intel-card{
+  border:1px solid rgba(255,255,255,.12)!important;
+  background:rgba(255,255,255,.035)!important;
+  border-radius:16px!important;
+  padding:18px!important;
+  min-height:138px!important;
+}
+.vertex-p5a-intel-label{
+  font-family:'DM Mono',monospace!important;
+  font-size:10px!important;
+  letter-spacing:3px!important;
+  text-transform:uppercase!important;
+  color:rgba(255,255,255,.48)!important;
+  margin-bottom:10px!important;
+}
+.vertex-p5a-intel-value{
+  color:var(--acc,#e8ff47)!important;
+  font-weight:900!important;
+  font-size:26px!important;
+  line-height:1.05!important;
+  margin-bottom:10px!important;
+}
+.vertex-p5a-intel-line{
+  color:rgba(255,255,255,.64)!important;
+  font-size:14px!important;
+  line-height:1.45!important;
+  margin-top:5px!important;
+}
+@media(max-width:900px){
+  .vertex-p5a-intel-row{
+    display:flex!important;
+    overflow-x:auto!important;
+    gap:12px!important;
+    scroll-snap-type:x mandatory!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px 8px!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+  }
+  .vertex-p5a-intel-row::-webkit-scrollbar{display:none!important;}
+  .vertex-p5a-intel-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    scroll-snap-align:start!important;
+  }
+}
+</style>
 </head>
 <body class="auth-resolving">
 
@@ -20034,6 +20093,174 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   [220,900,1800,3600].forEach(function(ms){setTimeout(sync,ms);});
   document.addEventListener('click',function(e){if(e.target&&(e.target.closest('[data-nav]')||e.target.closest('[data-ptab]')||e.target.closest('#btn-refresh-progress'))){setTimeout(sync,220);setTimeout(sync,900);}},true);
   window.VertexPhase3BForecastingRiskEngine={sync:sync,state:state};
+})();
+</script>
+
+<script id="vertex-phase5a4-progress-intel-mount-js">
+(function(){
+  if(window.__vertexPhase5A4ProgressIntelMount004) return;
+  window.__vertexPhase5A4ProgressIntelMount004 = true;
+
+  function esc(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function readJson(key, fallback){
+    try{
+      var v = localStorage.getItem(key);
+      if(!v) return fallback;
+      var parsed = JSON.parse(v);
+      return parsed == null ? fallback : parsed;
+    }catch(e){ return fallback; }
+  }
+
+  function allStorageRows(){
+    var out = [];
+    try{
+      for(var i=0;i<localStorage.length;i++){
+        var k = localStorage.key(i) || '';
+        if(!/workout|session|progress|history|log/i.test(k)) continue;
+        var v = readJson(k, null);
+        if(Array.isArray(v)) out = out.concat(v);
+        else if(v && Array.isArray(v.rows)) out = out.concat(v.rows);
+        else if(v && Array.isArray(v.logs)) out = out.concat(v.logs);
+      }
+    }catch(e){}
+    return out.filter(function(r){ return r && typeof r === 'object'; });
+  }
+
+  function dateOf(r){
+    var d = r.completed_at || r.completedAt || r.date || r.created_at || r.timestamp || r.time;
+    var dt = d ? new Date(d) : null;
+    return dt && !isNaN(dt.getTime()) ? dt : null;
+  }
+
+  function metric(r, names){
+    for(var i=0;i<names.length;i++){
+      var n = names[i];
+      if(r[n] != null && r[n] !== '') return Number(r[n]) || 0;
+      if(r.metrics && r.metrics[n] != null && r.metrics[n] !== '') return Number(r.metrics[n]) || 0;
+    }
+    return 0;
+  }
+
+  function weekStart(){
+    var d = new Date();
+    d.setHours(0,0,0,0);
+    var day = d.getDay();
+    var diff = (day + 6) % 7;
+    d.setDate(d.getDate() - diff);
+    return d;
+  }
+
+  function card(title, value, lines){
+    var html = '<section class="vertex-p5a-intel-card">';
+    html += '<div class="vertex-p5a-intel-label">' + esc(title) + '</div>';
+    html += '<div class="vertex-p5a-intel-value">' + esc(value) + '</div>';
+    for(var i=0;i<(lines || []).length;i++){
+      html += '<div class="vertex-p5a-intel-line">' + esc(lines[i]) + '</div>';
+    }
+    html += '</section>';
+    return html;
+  }
+
+  function render(){
+    var page = document.getElementById('progressPage');
+    if(!page) return false;
+
+    var deck = document.getElementById('vertexB2ProgressDeck');
+    if(!deck){
+      deck = document.createElement('div');
+      deck.id = 'vertexB2ProgressDeck';
+      deck.className = 'vertex-b2-progress-deck';
+      var head = page.querySelector('.progress-head');
+      if(head && head.parentNode) head.parentNode.insertBefore(deck, head.nextSibling);
+      else page.appendChild(deck);
+    }
+
+    page.classList.add('vertex-progress-intel-owned');
+    document.body.classList.add('app-page-progress');
+
+    var rows = allStorageRows();
+    var start = weekStart();
+    var thisWeek = rows.filter(function(r){ var d = dateOf(r); return d && d >= start; });
+    var sessions = thisWeek.length;
+    var sets = thisWeek.reduce(function(a,r){ return a + metric(r, ['sets','totalSets','strength_sets']); }, 0);
+    var volume = thisWeek.reduce(function(a,r){ return a + metric(r, ['load_volume','loadVolume','volume','totalVolume']); }, 0);
+    var readiness = null;
+    try{
+      readiness = localStorage.getItem('vertex_readiness_score') || localStorage.getItem('readinessScore') || null;
+    }catch(e){}
+    var readinessNum = readiness == null ? null : Number(readiness);
+
+    var decision = 'Build the baseline';
+    var prescription = 'Log 3–4 clean sessions';
+    if(sessions >= 3){
+      decision = readinessNum != null && readinessNum < 60 ? 'Recover with control' : 'Progress selectively';
+      prescription = readinessNum != null && readinessNum < 60 ? 'Reduce intensity today' : 'Advance one priority lift';
+    } else if(sessions > 0){
+      decision = 'Baseline forming';
+      prescription = 'Keep sessions consistent';
+    }
+
+    var recovery = readinessNum != null ? (readinessNum >= 70 ? 'Ready' : readinessNum >= 55 ? 'Watch' : 'Constrained') : 'Pending';
+    var load = sessions >= 3 ? 'Sustainable' : 'Need 2–3 sessions';
+    var confidence = sessions >= 4 ? 'High' : sessions >= 2 ? 'Early' : 'Low';
+
+    deck.innerHTML =
+      '<div class="vertex-p5a-single-intel">' +
+        '<div class="vertex-p5a-intel-row">' +
+          card('Coach Decision Summary', decision, [
+            readinessNum != null ? 'Readiness score: ' + readinessNum : 'Readiness score pending',
+            sessions + ' session' + (sessions === 1 ? '' : 's') + ' this week'
+          ]) +
+          card('Progression Prescription', prescription, [
+            sets ? sets + ' strength sets captured this week' : 'Strength set baseline pending',
+            volume ? Math.round(volume) + ' load volume captured' : 'Load volume pending'
+          ]) +
+        '</div>' +
+        '<div class="vertex-p5a-intel-row">' +
+          card('Recovery Trend', recovery, [
+            readinessNum != null ? 'Recovery signal available' : 'Connect or log recovery data',
+            'Use this to control daily intensity'
+          ]) +
+          card('Training Strain', load, [
+            sessions ? 'Frequency is now visible' : 'Log a session to start the signal',
+            'Avoid chasing volume before consistency'
+          ]) +
+          card('Consistency', confidence, [
+            sessions >= 3 ? 'Weekly rhythm is forming' : 'Build frequency first',
+            'This page is now single-renderer owned'
+          ]) +
+          card('Load Tolerance', sessions >= 3 ? 'Stable' : 'Pending', [
+            'Based on recent sessions and load trend',
+            'Refines as more workouts are logged'
+          ]) +
+        '</div>' +
+      '</div>';
+    return true;
+  }
+
+  function run(){
+    try{ render(); }catch(e){ console.warn('[Vertex Phase5A4] progress intelligence mount failed', e); }
+  }
+
+  document.addEventListener('DOMContentLoaded', run);
+  window.addEventListener('hashchange', function(){ setTimeout(run, 40); setTimeout(run, 250); });
+  window.addEventListener('popstate', function(){ setTimeout(run, 40); setTimeout(run, 250); });
+  document.addEventListener('click', function(e){
+    try{
+      if(e.target && e.target.closest && e.target.closest('[data-page="progress"],[data-nav="progress"],a[href*="progress"],button')){
+        setTimeout(run, 80);
+        setTimeout(run, 350);
+      }
+    }catch(x){}
+  }, true);
+  setTimeout(run, 50);
+  setTimeout(run, 250);
+  setTimeout(run, 800);
 })();
 </script>
 </body>

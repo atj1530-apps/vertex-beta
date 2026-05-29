@@ -18926,7 +18926,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   }
   function titles(d,m,f){
     var sessions=Number(d.sessions||0), prev=Number(d.prev||0), r=(d.readiness==null?null:Number(d.readiness));
-    var recoveryTitle=f.risk==='Elevated'?'Recovery Watch':(r!==null&&r>=75?'Recovery Supportive':'Recovery Baseline Building');
+    var recoveryTitle=f.risk==='Elevated'?'Recovery Watch':(r!==null&&r>=75?'Recovery Supportive':'Recovery Building');
     if(m.level==='established' && f.risk==='Low') recoveryTitle='Recovery Pattern Stable';
     var loadTitle=f.risk==='Elevated'?'Load Pressure Rising':(m.level==='established'?'Load Tolerance Confirmed':'Load Manageable');
     var coachTitle=f.risk==='Elevated'?'Hold progression':(f.progression==='Progress one priority'?'Progress selectively':'Train normally today');
@@ -19802,6 +19802,27 @@ function run(){
 }
 document.addEventListener('DOMContentLoaded',()=>{setTimeout(run,200);setTimeout(run,900);});
 document.addEventListener('click',()=>setTimeout(run,300),true);
+})();
+</script>
+
+<script id="vertex-phase5a12-progress-lock">
+(function(){
+ if(window.__vertexP512)return; window.__vertexP512=true;
+ function run(){
+   var deck=document.getElementById('vertexB2ProgressDeck');
+   if(!deck) return;
+
+   deck.innerHTML=deck.innerHTML.replace(/Focus On One Main Lift/ig,'Focus On Bench Press');
+
+   var labels=document.querySelectorAll('#vertexB2ProgressDeck .vertex-snapshot-label');
+   labels.forEach(function(el){
+      if(el.textContent.trim()==='Training Volume') el.title='Calculated from logged workout volume';
+      if(el.textContent.trim()==='Recovery Capacity') el.title='Calculated from readiness and recovery metrics';
+      if(el.textContent.trim()==='Fatigue Level') el.title='Calculated from workload and recovery trend';
+   });
+ }
+ document.addEventListener('DOMContentLoaded',function(){setTimeout(run,200);});
+ document.addEventListener('click',function(){setTimeout(run,200);},true);
 })();
 </script>
 </body>

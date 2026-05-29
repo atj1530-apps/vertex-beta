@@ -9436,30 +9436,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-<script id="vertex-phase5a4-progress-renderer-lock">
-(function(){
-  'use strict';
-  if(window.__vertexPhase5A4ProgressRendererLock) return;
-  window.__vertexPhase5A4ProgressRendererLock=true;
-  function clean(){
-    try{
-      var page=document.getElementById('progressPage');
-      if(!page) return;
-      page.querySelectorAll('#progressInsights .vertex-phase2d-feed,#progressInsights .vertex-phase2d1-progression,#progressInsights .vertex-phase2b-card').forEach(function(el){ el.remove(); });
-      var deck=document.getElementById('vertexB2ProgressDeck');
-      if(deck){ deck.style.visibility='visible'; deck.style.opacity='1'; }
-    }catch(e){}
-  }
-  clean();
-  document.addEventListener('DOMContentLoaded', clean);
-  document.addEventListener('click', function(e){
-    if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ clean(); }
-  }, true);
-  try{
-    new MutationObserver(clean).observe(document.documentElement,{childList:true,subtree:true});
-  }catch(e){}
-})();
-</script>
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }

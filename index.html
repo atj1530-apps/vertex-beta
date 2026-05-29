@@ -4077,6 +4077,69 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
 }
 </style>
 
+
+<style id="vertex-phase5a7-from-5a6-css">
+#progressPage .vertex-training-snapshot{
+  border:1px solid rgba(255,255,255,.11);
+  background:rgba(255,255,255,.025);
+  border-radius:18px;
+  padding:18px 20px;
+  margin:0 0 18px;
+  display:grid;
+  gap:13px;
+}
+#progressPage .vertex-snapshot-row{
+  display:grid;
+  grid-template-columns:190px 1fr;
+  gap:14px;
+  align-items:center;
+}
+#progressPage .vertex-snapshot-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:2.6px;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.58);
+}
+#progressPage .vertex-snapshot-track{
+  height:8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  overflow:hidden;
+}
+#progressPage .vertex-snapshot-track span{
+  display:block;
+  height:100%;
+  border-radius:999px;
+  background:var(--acc);
+}
+#progressPage .vertex-insights-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+@media(max-width:1200px){
+  #progressPage .vertex-insights-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+}
+@media(max-width:900px){
+  #progressPage .vertex-training-snapshot{padding:16px;margin-bottom:16px;}
+  #progressPage .vertex-snapshot-row{grid-template-columns:1fr;gap:8px;}
+  #progressPage .vertex-insights-grid{
+    display:flex!important;
+    overflow-x:auto!important;
+    gap:12px!important;
+    padding:0 14px 10px!important;
+    margin:0 -14px 14px!important;
+    scroll-snap-type:x mandatory!important;
+    scrollbar-width:none!important;
+  }
+  #progressPage .vertex-insights-grid::-webkit-scrollbar{display:none!important;}
+  #progressPage .vertex-insights-grid .vertex-b2-card{
+    flex:0 0 82%!important;
+    min-width:82%!important;
+    max-width:82%!important;
+    scroll-snap-align:start!important;
+  }
+}
+</style>
 </head>
 <body class="auth-resolving">
 
@@ -7139,9 +7202,9 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
       readiness!==null?'Recovery signal available':'Connect or log recovery data',
       'Controls today intensity call'
     ]),
-    card('Training Strain', strain, [
-      sessions?'Recent workload signal':'Log a session to start the signal',
-      'Avoid volume jumps before consistency'
+    card('Training Load Building', strain, [
+      sessions?'Recent workload is building steadily.':'Log a session to start the signal.',
+      'Avoid big volume jumps this week.'
     ]),
     card('Consistency', consistency, [
       sessions>=3?'Weekly rhythm is forming':'Build frequency first',
@@ -7164,6 +7227,12 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
   deck.innerHTML=[
     '<div class="vertex-b2-section-label">Progress Decision</div>',
     `<div class="vertex-b2-row vertex-b2-row-decision">${decisionCards.join('')}</div>`,
+    '<div class="vertex-b2-section-label">Training Snapshot</div>',
+    `<div class="vertex-training-snapshot">
+      <div class="vertex-snapshot-row"><div class="vertex-snapshot-label">Strength Volume</div><div class="vertex-snapshot-track"><span style="width:${Math.min(100,Math.max(18,Math.round((totalSets||0)/20*100)))}%"></span></div></div>
+      <div class="vertex-snapshot-row"><div class="vertex-snapshot-label">Recovery Capacity</div><div class="vertex-snapshot-track"><span style="width:${readiness!==null?Math.max(12,Math.min(100,readiness)):58}%"></span></div></div>
+      <div class="vertex-snapshot-row"><div class="vertex-snapshot-label">Fatigue Load</div><div class="vertex-snapshot-track"><span style="width:${Math.min(100,Math.max(10,Math.round((sessions||0)/5*100)))}%"></span></div></div>
+    </div>`,
     '<div class="vertex-b2-section-label">Training Intelligence</div>',
     `<div class="vertex-b2-row vertex-b2-row-intelligence">${intelligenceCards.join('')}</div>`
   ].join('');
@@ -18911,7 +18980,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   }
   function narrativeHtml(){
     var d=safeDecision(), m=maturity(d), f=forecast(d,m), sessions=Number(d.sessions||0), r=(d.readiness==null?'pending':d.readiness);
-    var action=f.risk==='Elevated'?'Recovery debt watch':(f.progression==='Progress one priority'?'Progression window forming':'Controlled baseline build');
+    var action=f.risk==='Elevated'?'Watch recovery':(f.progression==='Progress one priority'?'Progression window forming':'Controlled baseline build');
     var why=f.risk==='Elevated'?
       'Load pressure is starting to outpace the current recovery signal. Hold progression and prioritize clean execution today.':
       (m.level==='baseline'?'Vertex is still learning your normal rhythm. Focus on repeatable execution before adding volume or intensity.':'Current signals support controlled progression. Keep changes selective so recovery response stays clear.');
@@ -19718,16 +19787,6 @@ function run(){
 
  deck.innerHTML=deck.innerHTML.replace(/This week:\s*0\s*;\s*previous:\s*0/ig,'This week: 3; previous: 0');
 
- if(!/Cardio Strain/i.test(deck.innerText)){
-   var intel=deck.querySelector('.vertex-b2-row-intelligence');
-   if(intel){
-    var c=document.createElement('section');
-    c.className='vertex-b2-card';
-    c.innerHTML='<div class="label">Cardio Strain</div><div class="vertex-b2-value">Not Connected</div><div class="vertex-b2-line">No cardio data connected yet.</div>';
-    intel.appendChild(c);
-   }
- }
-
  if(!document.getElementById('vertexInsightsLayer')){
    var wrap=document.createElement('div');
    wrap.id='vertexInsightsLayer';
@@ -19736,6 +19795,7 @@ function run(){
    +'<section class="vertex-b2-card"><div class="label">Volume Distribution</div><div class="vertex-b2-value">Upper Focused</div><div class="vertex-b2-line">Most volume is going to upper body work.</div></section>'
    +'<section class="vertex-b2-card"><div class="label">Recovery Opportunities</div><div class="vertex-b2-value">Legs Fresh</div><div class="vertex-b2-line">Good opportunity for lower-body work.</div></section>'
    +'<section class="vertex-b2-card"><div class="label">Exercise Diversity</div><div class="vertex-b2-value">Exercise Variety Growing</div><div class="vertex-b2-line">Vertex is learning your exercise patterns.</div></section>'
+   +'<section class="vertex-b2-card"><div class="label">Cardio Strain</div><div class="vertex-b2-value">Not Connected</div><div class="vertex-b2-line">No cardio data connected yet.</div><div class="vertex-b2-line">Connect Strava to add cardio load insights.</div></section>'
    +'</div>';
    deck.appendChild(wrap);
  }
@@ -20593,14 +20653,14 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   }
   function state(){
     var body=document.body?document.body.textContent:'';
-    var readiness=textNum((body.match(/Readiness score:\s*\d+/i)||[''])[0],72)||72;
+    var readiness=textNum((body.match(/Readiness score:\s*\d+/i)||[''])[0],72)||72; if(readiness>100){readiness=Number(String(readiness).slice(0,2))||72;}
     var sessions=textNum((body.match(/(?:This week|Sessions this week)[:\s]+\d+/i)||[''])[0],0);
     var sets=textNum((body.match(/Strength Sets\s*\n?\s*\d+|\d+\s*Strength Sets/i)||[''])[0],0);
     var volume=textNum((body.match(/Load Volume\s*\n?\s*\d+|\d+\s*Load Volume/i)||[''])[0],0);
     var baseline=sessions<2;
     var risk=baseline?'Low risk':(readiness<60&&sessions>=3?'Moderate risk':(readiness<52||sessions>=5?'Elevated risk':'Low risk'));
-    var debt=baseline?'Recovery debt baseline forming':(risk==='Elevated risk'?'Recovery debt accumulating':risk==='Moderate risk'?'Recovery debt watch':'Recovery debt controlled');
-    var window=baseline?'Progression window pending':(risk==='Low risk'&&readiness>=70?'Controlled progression window':'Progression window narrow');
+    var debt=baseline?'Recovery is still building':(risk==='Elevated risk'?'Recovery is under pressure':risk==='Moderate risk'?'Watch recovery':'Recovery looks controlled');
+    var window=baseline?'Progress window still forming':(risk==='Low risk'&&readiness>=70?'Controlled progression window':'Progression window narrow');
     var forecast=baseline?'Forecast: recovery baseline still forming':(risk==='Low risk'?'Forecast: stable next-session outlook':risk==='Moderate risk'?'Forecast: hold progression next session':'Forecast: recovery emphasis likely');
     return {readiness:readiness,sessions:sessions,sets:sets,volume:volume,baseline:baseline,risk:risk,debt:debt,window:window,forecast:forecast};
   }
@@ -20614,7 +20674,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   function narrativeSync(s){
     var wrap=document.getElementById('progressInsights'); if(!wrap) return;
     [].slice.call(wrap.querySelectorAll('.vertex-phase3b-narrative,.vertex-phase2f-narrative,.vertex-phase2e3c-narrative,.vertex-phase2d-feed,.vertex-phase2d1-progression')).forEach(function(x){x.remove();});
-    var title=s.baseline?'Controlled baseline forecast':(s.risk==='Low risk'?'Stable progression outlook':s.risk==='Moderate risk'?'Recovery debt watch':'Recovery priority forecast');
+    var title=s.baseline?'Controlled baseline forecast':(s.risk==='Low risk'?'Stable progression outlook':s.risk==='Moderate risk'?'Watch recovery':'Recovery priority forecast');
     var why=s.baseline?'Vertex is still learning your normal rhythm. Keep today repeatable before adding volume or intensity.':(s.risk==='Low risk'?'Recovery and workload signals support controlled progression, but keep the change small and measurable.':s.risk==='Moderate risk'?'Load pressure is building. Hold aggressive progression until the next recovery signal confirms readiness.':'Recovery debt is likely accumulating. Reduce hard work and protect the next session.');
     var meta='Readiness '+esc(s.readiness)+' · '+esc(s.sessions)+' sessions this week · '+esc(s.risk)+' · '+esc(s.window);
     wrap.insertAdjacentHTML('afterbegin','<div class="insight vertex-phase3b-narrative"><div class="vertex-phase2b-title"><b>Predictive Coach Narrative</b><button class="vertex-i" type="button" aria-label="Info" data-tip="Forecasting translates current readiness and workload rhythm into next-session risk and progression guidance.">i</button></div><div class="vertex-phase2b-action">'+esc(title)+'</div><div class="vertex-phase2b-why">'+esc(why)+'</div><div class="vertex-phase2b-meta">'+esc(meta)+'</div></div>');

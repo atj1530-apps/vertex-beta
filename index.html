@@ -38,6 +38,7 @@
 <!-- Phase 2E.1: duplicate progress section header + click flicker cleanup; legacy category rail mover disabled; SW/cache untouched -->
 <!-- Phase 2E.2: progress hierarchy CSS-only refinement; SW/cache untouched -->
 <!-- Phase 2E.3A: trend memory foundation; adaptive coaching escalation; SW/cache untouched -->
+<!-- Phase 5A4 surgical progress renderer lock: disables legacy Progress insight fallback/flicker -->
 <!-- Phase 2E.3C.1: intelligence language refinement repair; semantic differentiation + density polish; SW/cache untouched -->
 <!-- Phase 2E.3C.2: SVG/time binding console stabilization; visual language preserved; SW/cache untouched -->
 <!-- Phase 2F: confidence + signal evolution layer; SW/cache untouched -->
@@ -4077,6 +4078,19 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
 }
 </style>
 
+
+<style id="vertex-phase5a4-progress-renderer-lock-css">
+/* Phase 5A4: legacy Progress feed lock */
+body.app-page-progress #progressPage #progressInsights .vertex-phase2d-feed,
+body.app-page-progress #progressPage #progressInsights .vertex-phase2d1-progression,
+body.app-page-progress #progressPage #progressInsights .vertex-phase2b-card{
+  display:none!important;
+}
+body.app-page-progress #progressPage #vertexB2ProgressDeck{
+  visibility:visible!important;
+  opacity:1!important;
+}
+</style>
 </head>
 <body class="auth-resolving">
 
@@ -9421,6 +9435,31 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
+
+<script id="vertex-phase5a4-progress-renderer-lock">
+(function(){
+  'use strict';
+  if(window.__vertexPhase5A4ProgressRendererLock) return;
+  window.__vertexPhase5A4ProgressRendererLock=true;
+  function clean(){
+    try{
+      var page=document.getElementById('progressPage');
+      if(!page) return;
+      page.querySelectorAll('#progressInsights .vertex-phase2d-feed,#progressInsights .vertex-phase2d1-progression,#progressInsights .vertex-phase2b-card').forEach(function(el){ el.remove(); });
+      var deck=document.getElementById('vertexB2ProgressDeck');
+      if(deck){ deck.style.visibility='visible'; deck.style.opacity='1'; }
+    }catch(e){}
+  }
+  clean();
+  document.addEventListener('DOMContentLoaded', clean);
+  document.addEventListener('click', function(e){
+    if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ clean(); }
+  }, true);
+  try{
+    new MutationObserver(clean).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
+</script>
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -19946,7 +19985,8 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     return '<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-'+esc(d.tone)+'"><div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Vertex turns recovery, recent workload, fatigue, and balance into a simple training call.">i</button></div><div class="vertex-b2-value">'+esc(d.state)+' · '+esc(d.action)+'</div><div class="vertex-b2-line">'+esc(d.reason)+'</div><div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> '+esc(d.guide)+'</div><div class="vertex-phase2d-chip"><strong>Fatigue</strong> '+esc(d.cns)+'/100</div><div class="vertex-phase2d-chip"><strong>'+esc(d.confidence)+'</strong></div><div class="vertex-phase2d-chip"><strong>Memory</strong> '+esc(d.trend.state)+'</div><div class="vertex-b2-line" style="margin-top:8px">'+esc(d.meta)+'</div></section>';
   }
   function progressionInsight(d){
-    return '<div class="insight vertex-phase2d-feed vertex-phase2d1-progression"><div class="vertex-phase2b-title"><b>Progression Prescription</b><button class="vertex-i" type="button" aria-label="Info" data-tip="This turns today’s recovery and fatigue picture into a simple loading decision.">i</button></div><div class="vertex-phase2b-action">'+esc(d.progression)+'</div><div class="vertex-phase2b-why">'+esc(d.trend.memoryLine)+' Deload status: '+esc(d.deload)+'.</div><div class="vertex-phase2b-meta">'+esc(d.trend.state)+' · '+esc(d.confidence)+' · recovery '+esc(d.trend.recoveryTrend)+'</div></div>';
+    /* Phase 5A4: disabled legacy Progression Prescription feed card. */
+    return '';
   }
   function inject(){
     try{
@@ -19960,35 +20000,27 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     }catch(e){ console.warn('[Vertex Phase2D.1] decision card injection failed',e); }
   }
   function enhanceCoachFeed(){
+    /* Phase 5A4: disabled legacy Progress insight feed. The single intelligence experience is the B2 deck only. */
     try{
       var el=document.getElementById('progressInsights'); if(!el) return;
-      var d=buildDecision();
-      var old=el.querySelector('.vertex-phase2d-feed'); if(old) old.remove();
-      var old2=el.querySelector('.vertex-phase2d1-progression'); if(old2) old2.remove();
-      if(d.sessions>=3){
-        Array.prototype.slice.call(el.querySelectorAll('.vertex-phase2b-card,.insight')).forEach(function(x){
-          if(/Build the baseline/i.test(x.textContent||'')) x.remove();
-        });
-      }
-      var html='<div class="insight vertex-phase2d-feed"><div class="vertex-phase2b-title"><b>Coach Decision Summary</b><button class="vertex-i" type="button" aria-label="Info" data-tip="A simple explanation of today’s best training move.">i</button></div><div class="vertex-phase2b-action">'+esc(d.trend.state)+' · '+esc(d.action)+'</div><div class="vertex-phase2b-why">'+esc(d.trend.memoryLine)+' '+esc(d.guide)+'</div><div class="vertex-phase2b-meta">Fatigue estimate: '+esc(d.cns)+'/100 · '+esc(d.confidence)+' · '+esc(d.trend.dataLevel)+'</div></div>';
-      el.insertAdjacentHTML('afterbegin',progressionInsight(d));
-      el.insertAdjacentHTML('afterbegin',html);
-    }catch(e){ console.warn('[Vertex Phase2D.1] coach feed enhancement failed',e); }
+      Array.prototype.slice.call(el.querySelectorAll('.vertex-phase2d-feed,.vertex-phase2d1-progression,.vertex-phase2b-card')).forEach(function(x){ x.remove(); });
+    }catch(e){}
   }
   var old=window.renderVertexB2ProgressDeck;
   if(typeof old==='function' && !old.__vertexPhase2D1Wrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(inject,40); setTimeout(inject,220); return out; };
+    var wrapped=function(){ var out=old.apply(this,arguments); inject(); enhanceCoachFeed(); return out; };
     wrapped.__vertexPhase2D1Wrapped=true;
     window.renderVertexB2ProgressDeck=wrapped;
   }
   var oldPage=window.renderProgressPage;
   if(typeof oldPage==='function' && !oldPage.__vertexPhase2D1Wrapped){
-    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); setTimeout(function(){inject(); enhanceCoachFeed();},120); setTimeout(function(){inject(); enhanceCoachFeed();},620); return out; };
+    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); inject(); enhanceCoachFeed(); return out; };
     pageWrapped.__vertexPhase2D1Wrapped=true;
     window.renderProgressPage=pageWrapped;
   }
-  [120,520,1200,2400].forEach(function(ms){ setTimeout(function(){ inject(); enhanceCoachFeed(); },ms); });
-  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(function(){inject(); enhanceCoachFeed();},180); setTimeout(function(){inject(); enhanceCoachFeed();},700); } },true);
+  inject();
+  enhanceCoachFeed();
+  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ inject(); enhanceCoachFeed(); } },true);
   window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject,enhanceCoachFeed:enhanceCoachFeed};
 })();
 </script>

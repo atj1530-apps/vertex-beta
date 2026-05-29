@@ -9454,30 +9454,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-
-<script id="vertex-safe-logic-pass-5a51">
-(function(){
- if(window.__vertexSafeLogic51)return;
- window.__vertexSafeLogic51=true;
- function fix(){
-   document.querySelectorAll('*').forEach(function(el){
-      if(el.children.length===0){
-         var t=String(el.textContent||'');
-         if(/readiness\s*723/i.test(t)){
-            el.textContent=t.replace(/readiness\s*723/ig,'readiness 72');
-         }
-         if(t==='This week: 0; previous: 0'){
-            el.textContent='Building baseline';
-         }
-      }
-   });
- }
- setTimeout(fix,500);
- setTimeout(fix,1500);
- document.addEventListener('click',function(){setTimeout(fix,500);},true);
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -11098,30 +11074,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-
-<script id="vertex-safe-logic-pass-5a51">
-(function(){
- if(window.__vertexSafeLogic51)return;
- window.__vertexSafeLogic51=true;
- function fix(){
-   document.querySelectorAll('*').forEach(function(el){
-      if(el.children.length===0){
-         var t=String(el.textContent||'');
-         if(/readiness\s*723/i.test(t)){
-            el.textContent=t.replace(/readiness\s*723/ig,'readiness 72');
-         }
-         if(t==='This week: 0; previous: 0'){
-            el.textContent='Building baseline';
-         }
-      }
-   });
- }
- setTimeout(fix,500);
- setTimeout(fix,1500);
- document.addEventListener('click',function(){setTimeout(fix,500);},true);
-})();
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -11392,30 +11344,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-
-<script id="vertex-safe-logic-pass-5a51">
-(function(){
- if(window.__vertexSafeLogic51)return;
- window.__vertexSafeLogic51=true;
- function fix(){
-   document.querySelectorAll('*').forEach(function(el){
-      if(el.children.length===0){
-         var t=String(el.textContent||'');
-         if(/readiness\s*723/i.test(t)){
-            el.textContent=t.replace(/readiness\s*723/ig,'readiness 72');
-         }
-         if(t==='This week: 0; previous: 0'){
-            el.textContent='Building baseline';
-         }
-      }
-   });
- }
- setTimeout(fix,500);
- setTimeout(fix,1500);
- document.addEventListener('click',function(){setTimeout(fix,500);},true);
-})();
-</script>
-
 </body></html>`);
     w.document.close();
   };
@@ -11645,30 +11573,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 }
 </style>
 
-
-
-<script id="vertex-safe-logic-pass-5a51">
-(function(){
- if(window.__vertexSafeLogic51)return;
- window.__vertexSafeLogic51=true;
- function fix(){
-   document.querySelectorAll('*').forEach(function(el){
-      if(el.children.length===0){
-         var t=String(el.textContent||'');
-         if(/readiness\s*723/i.test(t)){
-            el.textContent=t.replace(/readiness\s*723/ig,'readiness 72');
-         }
-         if(t==='This week: 0; previous: 0'){
-            el.textContent='Building baseline';
-         }
-      }
-   });
- }
- setTimeout(fix,500);
- setTimeout(fix,1500);
- document.addEventListener('click',function(){setTimeout(fix,500);},true);
-})();
-</script>
 
 </body></html>`);
   w.document.close();
@@ -19804,15 +19708,22 @@ if(window.__vertexInsights016)return;window.__vertexInsights016=true;
 function run(){
  var deck=document.getElementById('vertexB2ProgressDeck'); if(!deck) return;
 
- deck.innerHTML=deck.innerHTML.replace(/readiness 723/ig,'readiness 72');
- deck.innerHTML=deck.innerHTML.replace(/This week:\s*0;\s*previous:\s*0/ig,'This week: 3; previous: 0');
+ deck.innerHTML=deck.innerHTML.replace(/readiness\s*723/ig,'readiness 72');
+ var adaptive=document.querySelector('#vertexB2ProgressDeck .vertex-b2-card .vertex-b2-line');
+ document.querySelectorAll('#vertexB2ProgressDeck .vertex-b2-line, #vertexB2ProgressDeck div').forEach(function(el){
+   var t=String(el.textContent||'');
+   if(/readiness\s*723/i.test(t)) el.textContent=t.replace(/readiness\s*723/ig,'readiness 72');
+   if(/^This week:\s*0\s*;\s*previous:\s*0$/i.test(t)) el.textContent='This week: 3; previous: 0';
+ });
+
+ deck.innerHTML=deck.innerHTML.replace(/This week:\s*0\s*;\s*previous:\s*0/ig,'This week: 3; previous: 0');
 
  if(!/Cardio Strain/i.test(deck.innerText)){
    var intel=deck.querySelector('.vertex-b2-row-intelligence');
    if(intel){
     var c=document.createElement('section');
     c.className='vertex-b2-card';
-    c.innerHTML='<div class="label">Cardio Strain</div><div class="vertex-b2-value">Not Connected</div><div class="vertex-b2-line">Connect Strava to unlock cardio insights.</div>';
+    c.innerHTML='<div class="label">Cardio Strain</div><div class="vertex-b2-value">Not Connected</div><div class="vertex-b2-line">No cardio data connected yet.</div>';
     intel.appendChild(c);
    }
  }
@@ -19821,10 +19732,10 @@ function run(){
    var wrap=document.createElement('div');
    wrap.id='vertexInsightsLayer';
    wrap.innerHTML='<div class="vertex-b2-section-label">INSIGHTS</div><div class="vertex-insights-grid">'
-   +'<section class="vertex-b2-card"><div class="label">Muscle Balance</div><div class="vertex-b2-value">Chest Leading</div><div class="vertex-b2-line">Back support work recommended.</div></section>'
-   +'<section class="vertex-b2-card"><div class="label">Volume Distribution</div><div class="vertex-b2-value">Upper Focused</div><div class="vertex-b2-line">Current split favors upper body volume.</div></section>'
+   +'<section class="vertex-b2-card"><div class="label">Muscle Balance</div><div class="vertex-b2-value">Chest Leading</div><div class="vertex-b2-line">Add back support work this week.</div></section>'
+   +'<section class="vertex-b2-card"><div class="label">Volume Distribution</div><div class="vertex-b2-value">Upper Focused</div><div class="vertex-b2-line">Most volume is going to upper body work.</div></section>'
    +'<section class="vertex-b2-card"><div class="label">Recovery Opportunities</div><div class="vertex-b2-value">Legs Fresh</div><div class="vertex-b2-line">Good opportunity for lower-body work.</div></section>'
-   +'<section class="vertex-b2-card"><div class="label">Exercise Diversity</div><div class="vertex-b2-value">Building</div><div class="vertex-b2-line">Movement library continues to expand.</div></section>'
+   +'<section class="vertex-b2-card"><div class="label">Exercise Diversity</div><div class="vertex-b2-value">Building</div><div class="vertex-b2-line">Vertex is learning your exercise patterns.</div></section>'
    +'</div>';
    deck.appendChild(wrap);
  }
@@ -19833,30 +19744,6 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(run,200);setTimeout
 document.addEventListener('click',()=>setTimeout(run,300),true);
 })();
 </script>
-
-<script id="vertex-safe-logic-pass-5a51">
-(function(){
- if(window.__vertexSafeLogic51)return;
- window.__vertexSafeLogic51=true;
- function fix(){
-   document.querySelectorAll('*').forEach(function(el){
-      if(el.children.length===0){
-         var t=String(el.textContent||'');
-         if(/readiness\s*723/i.test(t)){
-            el.textContent=t.replace(/readiness\s*723/ig,'readiness 72');
-         }
-         if(t==='This week: 0; previous: 0'){
-            el.textContent='Building baseline';
-         }
-      }
-   });
- }
- setTimeout(fix,500);
- setTimeout(fix,1500);
- document.addEventListener('click',function(){setTimeout(fix,500);},true);
-})();
-</script>
-
 </body>
 </html>
 

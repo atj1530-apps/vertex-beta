@@ -18940,7 +18940,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
     var r=(d.readiness==null?'pending':d.readiness), sessions=Number(d.sessions||0), prev=Number(d.prev||0);
     setCard('Recovery Trend',t.recoveryTitle,[
       'Readiness score: '+esc(r),
-      f.risk==='Elevated'?'Recovery trend may soften if load keeps rising. Keep today controlled.':(m.level==='baseline'?'Recovery baseline is forming. Keep execution clean while Vertex builds confidence.':'Recovery signal is stable enough for selective training decisions.')
+      f.risk==='Elevated'?'Recovery trend may soften if load keeps rising. Keep today controlled.':(m.level==='baseline'?'Recovery patterns are forming.<br>Keep training consistent while Vertex builds confidence.':'Recovery signal is stable enough for selective training decisions.')
     ]);
     setCard('Load Tolerance',t.loadTitle,[
       esc(m.authority),

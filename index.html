@@ -13758,7 +13758,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     var topMove=pf&&pf[0];
     var out=[];
     if(!rs.length){
-      return [card('Build the baseline','Log 3–4 workouts so Vertex can learn your normal rhythm.','After a few sessions, Vertex can spot what is normal for you and make better coaching calls.','','Why Vertex needs a baseline','Phase 2B')];
+      return [];
     }
     if(score!==null && score<60){
       out.push(card('Recovery-first day','Keep today lighter: technique work, mobility, or controlled volume.','Recovery looks low, so the win today is staying consistent without forcing a hard session.','warn','Readiness tells Vertex how much room you likely have to train hard today.', 'Readiness '+score));
@@ -14163,7 +14163,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
       setCard('Consistency',s.baseline?'Consistency Trend':'Routine Pattern Tracking',['3-week adherence trend and session stability.','This week: '+esc(s.sessions)+'; previous: 0']);
       setCard('Longitudinal Trend',s.baseline?'Adaptation Signal Building':'Trajectory Watch',['Signal strength: Early','Forecast: '+esc(s.window)+'. Keep training repeatable while Vertex learns your normal response.']);
       decisionCardSync(s);
-      narrativeSync(s);
+      /* Phase5 fix: legacy narrative renderer disabled */
     }catch(e){console.warn('[Vertex Phase3B] sync failed',e);}
   }
   var old=window.renderProgressPage;

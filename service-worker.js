@@ -61,3 +61,5 @@ self.addEventListener('fetch', (event) => {
     }).catch(() => cached))
   );
 });
+
+// Phase 6A16 page/workout state lock

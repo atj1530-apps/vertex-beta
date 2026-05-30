@@ -4309,7 +4309,6 @@ window.vertexFinishBootstrap=function(){
 <div id="app">
   <aside class="sidebar">
     <div class="label">Category</div><div class="segment"><button class="seg-btn" data-env="gym">🏋️ Gym</button><button class="seg-btn" data-env="home">🏠 Home</button></div>
-    <div id="equipmentPanel"></div>
     <div class="label">Programs (Optional)</div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="program-seg"><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div></div>
     <div class="label">Workout Templates</div><div class="pill-fade-wrap"><div id="tpl-grid" class="segment pill-scroll"><button class="seg-btn" data-load-tpl="push">💪 Push Day</button><button class="seg-btn" data-load-tpl="pull">🔄 Pull Day</button><button class="seg-btn" data-load-tpl="legs">🦵 Legs Day</button><button class="seg-btn" data-load-tpl="kenpo">🥋 Kenpo X</button><button class="seg-btn" data-load-tpl="plyo">⚡ Plyometrics X</button><button class="seg-btn" data-load-tpl="yogaX">🧘 Yoga X</button><button class="seg-btn" data-load-tpl="stretch">🌀 Full Body Stretch</button><button class="seg-btn" data-load-tpl="coreMobility">🎯 Core + Mobility</button></div></div>
     <div class="label">Training Focus <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Choose Your Style</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery / Mobility">♧ Recovery / Mobility</button></div></div>
@@ -10252,20 +10251,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-
-<script id="vertex-safe-equipment-opener">
-(function(){
-  document.addEventListener('click', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('#btn-equipment-open') : null;
-    if(!btn) return;
-    if(typeof openEquipmentModal === 'function'){
-      e.preventDefault();
-      openEquipmentModal();
-    }
-  }, true);
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -15201,7 +15186,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.12-phase6A8a-safe-rollback';
+  const VERSION='v13.62.7-stable-rollback';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -20904,6 +20889,7 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('DOMContentLoaded',function(){setTimeout(fix,200);setTimeout(fix,800);});
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
+</script>
 </body>
 </html>
 

@@ -5934,7 +5934,7 @@ function getExerciseDemo(name){
 // Phase 6A.1 — Exercise Library Normalization
 // Purpose: add stable IDs, Bunny-ready paths, thumbnail paths, media category mapping, movement patterns,
 // and demo lookup support without changing the Progress module or visible UI.
-const VERTEX_LIBRARY_PHASE='6A.1';
+const VERTEX_LIBRARY_PHASE='6B.2';
 function vertexSlug(value){
   return String(value||'')
     .normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
@@ -6073,6 +6073,85 @@ function normalizeVertexExerciseLibrary(){
   };
 }
 normalizeVertexExerciseLibrary();
+
+// Phase 6B.2 — Media Mapping Layer
+// Infrastructure only: creates one master media record per exercise for Bunny thumbnails/videos.
+function vertexBunnyFolderForExercise(ex){
+  const cat=String(ex&&ex.media_category||vertexMediaCategory(ex&&ex.training)||'strength').toLowerCase();
+  if(cat==='yoga-pilates') return 'yoga-pilates';
+  if(cat==='recovery-mobility') return 'recovery-mobility';
+  if(cat==='kettlebell') return 'kettlebell';
+  if(cat==='cardio') return 'cardio';
+  return 'strength';
+}
+function vertexMediaKeyForExercise(ex){
+  return vertexId((ex&&ex.id)||((ex&&ex.name)||'exercise'));
+}
+function vertexBuildMediaRecord(ex){
+  const id=vertexMediaKeyForExercise(ex);
+  const folder=vertexBunnyFolderForExercise(ex);
+  const slug=vertexSlug((ex&&ex.name)||id);
+  const videoPath=(ex&&ex.bunny_video)||'exercises/'+folder+'/'+slug+'.mp4';
+  const thumbnailPath=(ex&&ex.bunny_thumbnail)||'thumbnails/'+folder+'/'+slug+'.jpg';
+  return {
+    id:id,
+    exercise_id:id,
+    name:(ex&&ex.name)||'',
+    category:(ex&&ex.training)||'Strength',
+    media_category:folder,
+    movement_pattern:(ex&&ex.movement_pattern)||vertexMovementPattern(ex||{}),
+    equipment_type:(ex&&ex.equipment_type)||vertexEquipmentType(ex&&ex.equip),
+    primary_muscle:(ex&&ex.primary_muscle)||(ex&&ex.muscle)||'',
+    bunny_video:'',
+    bunny_thumbnail:'',
+    bunny_video_path:videoPath,
+    bunny_thumbnail_path:thumbnailPath,
+    video_url:'',
+    thumbnail_url:'',
+    legacy_demo_url:(ex&&ex.legacy_demo_url)||'',
+    has_bunny_video:false,
+    has_video:false,
+    media_status:'bunny_pending'
+  };
+}
+function vertexBuildMediaRegistry(){
+  const registry={};
+  const aliases={};
+  EXERCISES.forEach((ex)=>{
+    if(!ex.id) ex.id=vertexMediaKeyForExercise(ex);
+    const rec=vertexBuildMediaRecord(ex);
+    registry[rec.id]=rec;
+    aliases[vertexSlug(ex.name)]=rec.id;
+    aliases[vertexId(ex.name)]=rec.id;
+
+    ex.media_key=rec.id;
+    ex.bunny_video=rec.bunny_video;
+    ex.bunny_thumbnail=rec.bunny_thumbnail;
+    ex.bunny_video_path=rec.bunny_video_path;
+    ex.bunny_thumbnail_path=rec.bunny_thumbnail_path;
+    ex.video_url=rec.video_url;
+    ex.thumbnail_url=rec.thumbnail_url;
+    ex.has_bunny_video=false;
+    ex.media_status=rec.media_status;
+  });
+  window.VERTEX_MEDIA_REGISTRY=registry;
+  window.VERTEX_MEDIA_ALIASES=aliases;
+  window.getVertexMediaRecord=function(value){
+    const key=vertexId(value||'');
+    const slug=vertexSlug(value||'');
+    return registry[key] || registry[aliases[key]] || registry[aliases[slug]] || null;
+  };
+  window.VERTEX_MEDIA_AUDIT={
+    phase:'6B.2',
+    total:Object.keys(registry).length,
+    bunnyReady:Object.values(registry).filter(r=>r.has_bunny_video).length,
+    bunnyPending:Object.values(registry).filter(r=>!r.has_bunny_video).length,
+    movementPatterns:Object.values(registry).reduce((a,r)=>{const k=r.movement_pattern||'Unclassified'; a[k]=(a[k]||0)+1; return a;},{}),
+    mediaCategories:Object.values(registry).reduce((a,r)=>{const k=r.media_category||'uncategorized'; a[k]=(a[k]||0)+1; return a;},{})
+  };
+}
+vertexBuildMediaRegistry();
+
 
 // Expose on window so the demo modal controller (separate script block) can access it
 window._EXERCISE_DEMOS=EXERCISE_DEMOS;
@@ -13039,7 +13118,13 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   function findExerciseMediaRecord(name){
     const rows=(typeof EXERCISES!=='undefined'&&Array.isArray(EXERCISES))?EXERCISES:[];
-    return rows.find(e=>e&&e.name===name) || rows.find(e=>e&&String(e.name||'').toLowerCase()===String(name||'').toLowerCase()) || {name:name};
+    const match=rows.find(e=>e&&e.name===name) || rows.find(e=>e&&String(e.name||'').toLowerCase()===String(name||'').toLowerCase());
+    if(match) return match;
+    if(window.getVertexMediaRecord){
+      const rec=window.getVertexMediaRecord(name);
+      if(rec) return {name:rec.name||name,id:rec.exercise_id,training:rec.category,media_category:rec.media_category,movement_pattern:rec.movement_pattern,equipment_type:rec.equipment_type,bunny_video:rec.bunny_video,video_url:rec.video_url,bunny_path:rec.bunny_video_path,bunny_thumbnail:rec.bunny_thumbnail,thumbnail_url:rec.thumbnail_url,thumbnail_path:rec.bunny_thumbnail_path,has_video:rec.has_video};
+    }
+    return {name:name};
   }
   function exerciseMediaPaths(ex){
     const slug=slugifyMediaName(ex.id||ex.name);

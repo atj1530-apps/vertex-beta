@@ -4200,6 +4200,24 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<style id="vertex-6a11-sidebar-qa-fix">
+  #sidebar, .sidebar, .workout-sidebar, aside{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  #recent-list, .recent-list, .recently-used, [data-section="recently-used"]{
+    position:relative!important;
+    top:auto!important;
+    bottom:auto!important;
+    z-index:1!important;
+    max-height:none!important;
+  }
+  .exercise-card, .recent-card{
+    position:relative!important;
+  }
+</style>
+
 </head>
 <body class="auth-resolving">
 
@@ -10184,6 +10202,24 @@ function protoSelectDate(dateStr){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<style id="vertex-6a11-sidebar-qa-fix">
+  #sidebar, .sidebar, .workout-sidebar, aside{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  #recent-list, .recent-list, .recently-used, [data-section="recently-used"]{
+    position:relative!important;
+    top:auto!important;
+    bottom:auto!important;
+    z-index:1!important;
+    max-height:none!important;
+  }
+  .exercise-card, .recent-card{
+    position:relative!important;
+  }
+</style>
+
 </head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
@@ -10265,6 +10301,111 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
+
+
+<script id="vertex-6a11-exercise-qa-layer">
+(function(){
+  function norm(s){ return String(s||'').toLowerCase().trim(); }
+  function title(s){ return String(s||'').replace(/\s+/g,' ').trim(); }
+  var list = (typeof EXERCISES !== 'undefined' && Array.isArray(EXERCISES)) ? EXERCISES : (Array.isArray(window.EXERCISES)?window.EXERCISES:null);
+  if(!list) return;
+
+  function setFields(ex, muscle, equip){
+    if(muscle){
+      ex.muscle=muscle; ex.category=muscle; ex.target=muscle; ex.targetArea=muscle;
+      if(!ex.training || /strength/i.test(String(ex.training))) ex.training='Strength';
+    }
+    if(equip){
+      ex.equip=equip; ex.equipment=equip; ex.equipment_type=equip;
+    }
+  }
+
+  list.forEach(function(ex){
+    if(!ex || !ex.name) return;
+    ex.name=title(ex.name);
+    var n=norm(ex.name);
+
+    // Rename potentially problematic legacy name.
+    if(n==='sissy squat' || n.indexOf('sissy squat')>=0){
+      ex.name = ex.name.replace(/sissy squat/ig,'Narrow-Stance Squat');
+      n=norm(ex.name);
+    }
+
+    // Equipment corrections.
+    if(/cable/.test(n)){ setFields(ex, null, 'Cable'); }
+    if(/machine|pec deck|leg press|hack squat|smith/.test(n)){ setFields(ex, null, 'Machine'); }
+    if(/barbell|bench press$|incline bench press$|decline bench press$|squat$|deadlift$|romanian deadlift$|overhead press$|barbell row|barbell curl/.test(n)){ setFields(ex, null, 'Barbell'); }
+    if(/dumbbell|hex press|floor press|goblet|hammer curl|lateral raise|rear delt fly|reverse fly|fly$/.test(n) && !/cable|machine|pec deck/.test(n)){ setFields(ex, null, 'Dumbbells'); }
+    if(/push[- ]?up|pull[- ]?up|chin[- ]?up|plank|crunch|dip|dead bug|leg raise|russian twist|handstand|pike/.test(n)){ setFields(ex, null, 'Bodyweight'); }
+
+    // Category corrections.
+    if(/bench press|chest press|push[- ]?up|hex press|squeeze press|chest dip|bench dip|cable fly|pec deck|fly/.test(n) && !/rear delt|reverse/.test(n)){
+      setFields(ex,'Chest', ex.equip||ex.equipment);
+    }
+    if(/rear delt|reverse fly|face pull|lateral raise|front raise|shoulder press|arnold press|handstand push|pike push|overhead press/.test(n)){
+      setFields(ex,'Shoulders', ex.equip||ex.equipment);
+    }
+    if(/curl/.test(n)){
+      setFields(ex,'Biceps', ex.equip||ex.equipment);
+    }
+    if(/tricep|pushdown|skull crusher|kickback|overhead extension/.test(n)){
+      setFields(ex,'Triceps', ex.equip||ex.equipment);
+    }
+    if(/lat pulldown|row|pull[- ]?up|chin[- ]?up|pullover|t-bar|meadows/.test(n)){
+      setFields(ex,'Back', ex.equip||ex.equipment);
+    }
+    if(/squat|lunge|deadlift|rdl|romanian|calf|step[- ]?up|hip thrust|glute bridge|hamstring|leg extension|leg press/.test(n)){
+      setFields(ex,'Legs', ex.equip||ex.equipment);
+    }
+    if(/plank|dead bug|crunch|leg raise|russian twist|sit[- ]?up|hollow|bird dog|pallof|woodchop/.test(n)){
+      setFields(ex,'Core', ex.equip||ex.equipment);
+    }
+
+    // Demo/media alias for Dumbbell Bench Press.
+    if(norm(ex.name)==='dumbbell bench press'){
+      ex.demo_key = ex.demo_key || 'dumbbell_bench_press';
+      ex.media_key = ex.media_key || 'dumbbell_bench_press';
+      ex.has_demo = true;
+      ex.has_video = true;
+      ex.legacy_demo_url = ex.legacy_demo_url || 'demo:dumbbell_bench_press';
+    }
+  });
+
+  // Deduplicate exact names after rename.
+  var seen={};
+  for(var i=list.length-1;i>=0;i--){
+    var k=norm(list[i] && list[i].name);
+    if(!k) continue;
+    if(seen[k]) list.splice(i,1);
+    else seen[k]=true;
+  }
+
+  // Patch common demo lookup registries if present.
+  window.VERTEX_DEMO_ALIASES = Object.assign({}, window.VERTEX_DEMO_ALIASES||{}, {
+    'dumbbell bench press':'dumbbell_bench_press',
+    'dumbbell_bench_press':'dumbbell_bench_press',
+    'db bench press':'dumbbell_bench_press'
+  });
+
+  window.VERTEX_QA_AUDIT = {
+    phase:'6A.11',
+    total:list.length,
+    renamed:['Sissy Squat → Narrow-Stance Squat'],
+    correctedEquipment:['High Cable Fly → Cable','Cable Fly → Cable','Machine/Pec Deck → Machine'],
+    demoAliases:['Dumbbell Bench Press']
+  };
+})();
+</script>
+
+
+<script id="vertex-6a11-demo-helper">
+(function(){
+  window.vertexHasExerciseDemo = window.vertexHasExerciseDemo || function(ex){
+    var name = String((ex&&ex.name)||'').toLowerCase();
+    return !!(ex && (ex.has_demo || ex.has_video || ex.demo_url || ex.legacy_demo_url || ex.video_url || /bench press|squat|deadlift|lat pulldown/.test(name)));
+  };
+})();
+</script>
 
 </body></html>`;
         const w = window.open('','_blank');
@@ -11840,6 +11981,24 @@ function generateVertexPDFReport(){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<style id="vertex-6a11-sidebar-qa-fix">
+  #sidebar, .sidebar, .workout-sidebar, aside{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  #recent-list, .recent-list, .recently-used, [data-section="recently-used"]{
+    position:relative!important;
+    top:auto!important;
+    bottom:auto!important;
+    z-index:1!important;
+    max-height:none!important;
+  }
+  .exercise-card, .recent-card{
+    position:relative!important;
+  }
+</style>
+
 </head><body>
 
 <h1>Vertex</h1>
@@ -11945,6 +12104,111 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 }
 </style>
 
+
+
+<script id="vertex-6a11-exercise-qa-layer">
+(function(){
+  function norm(s){ return String(s||'').toLowerCase().trim(); }
+  function title(s){ return String(s||'').replace(/\s+/g,' ').trim(); }
+  var list = (typeof EXERCISES !== 'undefined' && Array.isArray(EXERCISES)) ? EXERCISES : (Array.isArray(window.EXERCISES)?window.EXERCISES:null);
+  if(!list) return;
+
+  function setFields(ex, muscle, equip){
+    if(muscle){
+      ex.muscle=muscle; ex.category=muscle; ex.target=muscle; ex.targetArea=muscle;
+      if(!ex.training || /strength/i.test(String(ex.training))) ex.training='Strength';
+    }
+    if(equip){
+      ex.equip=equip; ex.equipment=equip; ex.equipment_type=equip;
+    }
+  }
+
+  list.forEach(function(ex){
+    if(!ex || !ex.name) return;
+    ex.name=title(ex.name);
+    var n=norm(ex.name);
+
+    // Rename potentially problematic legacy name.
+    if(n==='sissy squat' || n.indexOf('sissy squat')>=0){
+      ex.name = ex.name.replace(/sissy squat/ig,'Narrow-Stance Squat');
+      n=norm(ex.name);
+    }
+
+    // Equipment corrections.
+    if(/cable/.test(n)){ setFields(ex, null, 'Cable'); }
+    if(/machine|pec deck|leg press|hack squat|smith/.test(n)){ setFields(ex, null, 'Machine'); }
+    if(/barbell|bench press$|incline bench press$|decline bench press$|squat$|deadlift$|romanian deadlift$|overhead press$|barbell row|barbell curl/.test(n)){ setFields(ex, null, 'Barbell'); }
+    if(/dumbbell|hex press|floor press|goblet|hammer curl|lateral raise|rear delt fly|reverse fly|fly$/.test(n) && !/cable|machine|pec deck/.test(n)){ setFields(ex, null, 'Dumbbells'); }
+    if(/push[- ]?up|pull[- ]?up|chin[- ]?up|plank|crunch|dip|dead bug|leg raise|russian twist|handstand|pike/.test(n)){ setFields(ex, null, 'Bodyweight'); }
+
+    // Category corrections.
+    if(/bench press|chest press|push[- ]?up|hex press|squeeze press|chest dip|bench dip|cable fly|pec deck|fly/.test(n) && !/rear delt|reverse/.test(n)){
+      setFields(ex,'Chest', ex.equip||ex.equipment);
+    }
+    if(/rear delt|reverse fly|face pull|lateral raise|front raise|shoulder press|arnold press|handstand push|pike push|overhead press/.test(n)){
+      setFields(ex,'Shoulders', ex.equip||ex.equipment);
+    }
+    if(/curl/.test(n)){
+      setFields(ex,'Biceps', ex.equip||ex.equipment);
+    }
+    if(/tricep|pushdown|skull crusher|kickback|overhead extension/.test(n)){
+      setFields(ex,'Triceps', ex.equip||ex.equipment);
+    }
+    if(/lat pulldown|row|pull[- ]?up|chin[- ]?up|pullover|t-bar|meadows/.test(n)){
+      setFields(ex,'Back', ex.equip||ex.equipment);
+    }
+    if(/squat|lunge|deadlift|rdl|romanian|calf|step[- ]?up|hip thrust|glute bridge|hamstring|leg extension|leg press/.test(n)){
+      setFields(ex,'Legs', ex.equip||ex.equipment);
+    }
+    if(/plank|dead bug|crunch|leg raise|russian twist|sit[- ]?up|hollow|bird dog|pallof|woodchop/.test(n)){
+      setFields(ex,'Core', ex.equip||ex.equipment);
+    }
+
+    // Demo/media alias for Dumbbell Bench Press.
+    if(norm(ex.name)==='dumbbell bench press'){
+      ex.demo_key = ex.demo_key || 'dumbbell_bench_press';
+      ex.media_key = ex.media_key || 'dumbbell_bench_press';
+      ex.has_demo = true;
+      ex.has_video = true;
+      ex.legacy_demo_url = ex.legacy_demo_url || 'demo:dumbbell_bench_press';
+    }
+  });
+
+  // Deduplicate exact names after rename.
+  var seen={};
+  for(var i=list.length-1;i>=0;i--){
+    var k=norm(list[i] && list[i].name);
+    if(!k) continue;
+    if(seen[k]) list.splice(i,1);
+    else seen[k]=true;
+  }
+
+  // Patch common demo lookup registries if present.
+  window.VERTEX_DEMO_ALIASES = Object.assign({}, window.VERTEX_DEMO_ALIASES||{}, {
+    'dumbbell bench press':'dumbbell_bench_press',
+    'dumbbell_bench_press':'dumbbell_bench_press',
+    'db bench press':'dumbbell_bench_press'
+  });
+
+  window.VERTEX_QA_AUDIT = {
+    phase:'6A.11',
+    total:list.length,
+    renamed:['Sissy Squat → Narrow-Stance Squat'],
+    correctedEquipment:['High Cable Fly → Cable','Cable Fly → Cable','Machine/Pec Deck → Machine'],
+    demoAliases:['Dumbbell Bench Press']
+  };
+})();
+</script>
+
+
+<script id="vertex-6a11-demo-helper">
+(function(){
+  window.vertexHasExerciseDemo = window.vertexHasExerciseDemo || function(ex){
+    var name = String((ex&&ex.name)||'').toLowerCase();
+    return !!(ex && (ex.has_demo || ex.has_video || ex.demo_url || ex.legacy_demo_url || ex.video_url || /bench press|squat|deadlift|lat pulldown/.test(name)));
+  };
+})();
+</script>
 
 </body></html>`;
 
@@ -12222,6 +12486,24 @@ window.renderSymmetry = renderSymmetry;
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<style id="vertex-6a11-sidebar-qa-fix">
+  #sidebar, .sidebar, .workout-sidebar, aside{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  #recent-list, .recent-list, .recently-used, [data-section="recently-used"]{
+    position:relative!important;
+    top:auto!important;
+    bottom:auto!important;
+    z-index:1!important;
+    max-height:none!important;
+  }
+  .exercise-card, .recent-card{
+    position:relative!important;
+  }
+</style>
+
 </head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
@@ -12264,6 +12546,111 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 }
 </style>
 
+
+
+<script id="vertex-6a11-exercise-qa-layer">
+(function(){
+  function norm(s){ return String(s||'').toLowerCase().trim(); }
+  function title(s){ return String(s||'').replace(/\s+/g,' ').trim(); }
+  var list = (typeof EXERCISES !== 'undefined' && Array.isArray(EXERCISES)) ? EXERCISES : (Array.isArray(window.EXERCISES)?window.EXERCISES:null);
+  if(!list) return;
+
+  function setFields(ex, muscle, equip){
+    if(muscle){
+      ex.muscle=muscle; ex.category=muscle; ex.target=muscle; ex.targetArea=muscle;
+      if(!ex.training || /strength/i.test(String(ex.training))) ex.training='Strength';
+    }
+    if(equip){
+      ex.equip=equip; ex.equipment=equip; ex.equipment_type=equip;
+    }
+  }
+
+  list.forEach(function(ex){
+    if(!ex || !ex.name) return;
+    ex.name=title(ex.name);
+    var n=norm(ex.name);
+
+    // Rename potentially problematic legacy name.
+    if(n==='sissy squat' || n.indexOf('sissy squat')>=0){
+      ex.name = ex.name.replace(/sissy squat/ig,'Narrow-Stance Squat');
+      n=norm(ex.name);
+    }
+
+    // Equipment corrections.
+    if(/cable/.test(n)){ setFields(ex, null, 'Cable'); }
+    if(/machine|pec deck|leg press|hack squat|smith/.test(n)){ setFields(ex, null, 'Machine'); }
+    if(/barbell|bench press$|incline bench press$|decline bench press$|squat$|deadlift$|romanian deadlift$|overhead press$|barbell row|barbell curl/.test(n)){ setFields(ex, null, 'Barbell'); }
+    if(/dumbbell|hex press|floor press|goblet|hammer curl|lateral raise|rear delt fly|reverse fly|fly$/.test(n) && !/cable|machine|pec deck/.test(n)){ setFields(ex, null, 'Dumbbells'); }
+    if(/push[- ]?up|pull[- ]?up|chin[- ]?up|plank|crunch|dip|dead bug|leg raise|russian twist|handstand|pike/.test(n)){ setFields(ex, null, 'Bodyweight'); }
+
+    // Category corrections.
+    if(/bench press|chest press|push[- ]?up|hex press|squeeze press|chest dip|bench dip|cable fly|pec deck|fly/.test(n) && !/rear delt|reverse/.test(n)){
+      setFields(ex,'Chest', ex.equip||ex.equipment);
+    }
+    if(/rear delt|reverse fly|face pull|lateral raise|front raise|shoulder press|arnold press|handstand push|pike push|overhead press/.test(n)){
+      setFields(ex,'Shoulders', ex.equip||ex.equipment);
+    }
+    if(/curl/.test(n)){
+      setFields(ex,'Biceps', ex.equip||ex.equipment);
+    }
+    if(/tricep|pushdown|skull crusher|kickback|overhead extension/.test(n)){
+      setFields(ex,'Triceps', ex.equip||ex.equipment);
+    }
+    if(/lat pulldown|row|pull[- ]?up|chin[- ]?up|pullover|t-bar|meadows/.test(n)){
+      setFields(ex,'Back', ex.equip||ex.equipment);
+    }
+    if(/squat|lunge|deadlift|rdl|romanian|calf|step[- ]?up|hip thrust|glute bridge|hamstring|leg extension|leg press/.test(n)){
+      setFields(ex,'Legs', ex.equip||ex.equipment);
+    }
+    if(/plank|dead bug|crunch|leg raise|russian twist|sit[- ]?up|hollow|bird dog|pallof|woodchop/.test(n)){
+      setFields(ex,'Core', ex.equip||ex.equipment);
+    }
+
+    // Demo/media alias for Dumbbell Bench Press.
+    if(norm(ex.name)==='dumbbell bench press'){
+      ex.demo_key = ex.demo_key || 'dumbbell_bench_press';
+      ex.media_key = ex.media_key || 'dumbbell_bench_press';
+      ex.has_demo = true;
+      ex.has_video = true;
+      ex.legacy_demo_url = ex.legacy_demo_url || 'demo:dumbbell_bench_press';
+    }
+  });
+
+  // Deduplicate exact names after rename.
+  var seen={};
+  for(var i=list.length-1;i>=0;i--){
+    var k=norm(list[i] && list[i].name);
+    if(!k) continue;
+    if(seen[k]) list.splice(i,1);
+    else seen[k]=true;
+  }
+
+  // Patch common demo lookup registries if present.
+  window.VERTEX_DEMO_ALIASES = Object.assign({}, window.VERTEX_DEMO_ALIASES||{}, {
+    'dumbbell bench press':'dumbbell_bench_press',
+    'dumbbell_bench_press':'dumbbell_bench_press',
+    'db bench press':'dumbbell_bench_press'
+  });
+
+  window.VERTEX_QA_AUDIT = {
+    phase:'6A.11',
+    total:list.length,
+    renamed:['Sissy Squat → Narrow-Stance Squat'],
+    correctedEquipment:['High Cable Fly → Cable','Cable Fly → Cable','Machine/Pec Deck → Machine'],
+    demoAliases:['Dumbbell Bench Press']
+  };
+})();
+</script>
+
+
+<script id="vertex-6a11-demo-helper">
+(function(){
+  window.vertexHasExerciseDemo = window.vertexHasExerciseDemo || function(ex){
+    var name = String((ex&&ex.name)||'').toLowerCase();
+    return !!(ex && (ex.has_demo || ex.has_video || ex.demo_url || ex.legacy_demo_url || ex.video_url || /bench press|squat|deadlift|lat pulldown/.test(name)));
+  };
+})();
+</script>
 
 </body></html>`);
     w.document.close();
@@ -12501,6 +12888,24 @@ function vertexShowSyncDiag(){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<style id="vertex-6a11-sidebar-qa-fix">
+  #sidebar, .sidebar, .workout-sidebar, aside{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  #recent-list, .recent-list, .recently-used, [data-section="recently-used"]{
+    position:relative!important;
+    top:auto!important;
+    bottom:auto!important;
+    z-index:1!important;
+    max-height:none!important;
+  }
+  .exercise-card, .recent-card{
+    position:relative!important;
+  }
+</style>
+
 </head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
@@ -12543,6 +12948,111 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 }
 </style>
 
+
+
+<script id="vertex-6a11-exercise-qa-layer">
+(function(){
+  function norm(s){ return String(s||'').toLowerCase().trim(); }
+  function title(s){ return String(s||'').replace(/\s+/g,' ').trim(); }
+  var list = (typeof EXERCISES !== 'undefined' && Array.isArray(EXERCISES)) ? EXERCISES : (Array.isArray(window.EXERCISES)?window.EXERCISES:null);
+  if(!list) return;
+
+  function setFields(ex, muscle, equip){
+    if(muscle){
+      ex.muscle=muscle; ex.category=muscle; ex.target=muscle; ex.targetArea=muscle;
+      if(!ex.training || /strength/i.test(String(ex.training))) ex.training='Strength';
+    }
+    if(equip){
+      ex.equip=equip; ex.equipment=equip; ex.equipment_type=equip;
+    }
+  }
+
+  list.forEach(function(ex){
+    if(!ex || !ex.name) return;
+    ex.name=title(ex.name);
+    var n=norm(ex.name);
+
+    // Rename potentially problematic legacy name.
+    if(n==='sissy squat' || n.indexOf('sissy squat')>=0){
+      ex.name = ex.name.replace(/sissy squat/ig,'Narrow-Stance Squat');
+      n=norm(ex.name);
+    }
+
+    // Equipment corrections.
+    if(/cable/.test(n)){ setFields(ex, null, 'Cable'); }
+    if(/machine|pec deck|leg press|hack squat|smith/.test(n)){ setFields(ex, null, 'Machine'); }
+    if(/barbell|bench press$|incline bench press$|decline bench press$|squat$|deadlift$|romanian deadlift$|overhead press$|barbell row|barbell curl/.test(n)){ setFields(ex, null, 'Barbell'); }
+    if(/dumbbell|hex press|floor press|goblet|hammer curl|lateral raise|rear delt fly|reverse fly|fly$/.test(n) && !/cable|machine|pec deck/.test(n)){ setFields(ex, null, 'Dumbbells'); }
+    if(/push[- ]?up|pull[- ]?up|chin[- ]?up|plank|crunch|dip|dead bug|leg raise|russian twist|handstand|pike/.test(n)){ setFields(ex, null, 'Bodyweight'); }
+
+    // Category corrections.
+    if(/bench press|chest press|push[- ]?up|hex press|squeeze press|chest dip|bench dip|cable fly|pec deck|fly/.test(n) && !/rear delt|reverse/.test(n)){
+      setFields(ex,'Chest', ex.equip||ex.equipment);
+    }
+    if(/rear delt|reverse fly|face pull|lateral raise|front raise|shoulder press|arnold press|handstand push|pike push|overhead press/.test(n)){
+      setFields(ex,'Shoulders', ex.equip||ex.equipment);
+    }
+    if(/curl/.test(n)){
+      setFields(ex,'Biceps', ex.equip||ex.equipment);
+    }
+    if(/tricep|pushdown|skull crusher|kickback|overhead extension/.test(n)){
+      setFields(ex,'Triceps', ex.equip||ex.equipment);
+    }
+    if(/lat pulldown|row|pull[- ]?up|chin[- ]?up|pullover|t-bar|meadows/.test(n)){
+      setFields(ex,'Back', ex.equip||ex.equipment);
+    }
+    if(/squat|lunge|deadlift|rdl|romanian|calf|step[- ]?up|hip thrust|glute bridge|hamstring|leg extension|leg press/.test(n)){
+      setFields(ex,'Legs', ex.equip||ex.equipment);
+    }
+    if(/plank|dead bug|crunch|leg raise|russian twist|sit[- ]?up|hollow|bird dog|pallof|woodchop/.test(n)){
+      setFields(ex,'Core', ex.equip||ex.equipment);
+    }
+
+    // Demo/media alias for Dumbbell Bench Press.
+    if(norm(ex.name)==='dumbbell bench press'){
+      ex.demo_key = ex.demo_key || 'dumbbell_bench_press';
+      ex.media_key = ex.media_key || 'dumbbell_bench_press';
+      ex.has_demo = true;
+      ex.has_video = true;
+      ex.legacy_demo_url = ex.legacy_demo_url || 'demo:dumbbell_bench_press';
+    }
+  });
+
+  // Deduplicate exact names after rename.
+  var seen={};
+  for(var i=list.length-1;i>=0;i--){
+    var k=norm(list[i] && list[i].name);
+    if(!k) continue;
+    if(seen[k]) list.splice(i,1);
+    else seen[k]=true;
+  }
+
+  // Patch common demo lookup registries if present.
+  window.VERTEX_DEMO_ALIASES = Object.assign({}, window.VERTEX_DEMO_ALIASES||{}, {
+    'dumbbell bench press':'dumbbell_bench_press',
+    'dumbbell_bench_press':'dumbbell_bench_press',
+    'db bench press':'dumbbell_bench_press'
+  });
+
+  window.VERTEX_QA_AUDIT = {
+    phase:'6A.11',
+    total:list.length,
+    renamed:['Sissy Squat → Narrow-Stance Squat'],
+    correctedEquipment:['High Cable Fly → Cable','Cable Fly → Cable','Machine/Pec Deck → Machine'],
+    demoAliases:['Dumbbell Bench Press']
+  };
+})();
+</script>
+
+
+<script id="vertex-6a11-demo-helper">
+(function(){
+  window.vertexHasExerciseDemo = window.vertexHasExerciseDemo || function(ex){
+    var name = String((ex&&ex.name)||'').toLowerCase();
+    return !!(ex && (ex.has_demo || ex.has_video || ex.demo_url || ex.legacy_demo_url || ex.video_url || /bench press|squat|deadlift|lat pulldown/.test(name)));
+  };
+})();
+</script>
 
 </body></html>`);
   w.document.close();
@@ -15190,7 +15700,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.13-phase6A9c-equipment-flow';
+  const VERSION='v13.62.15-phase6A11-exercise-qa-sidebar';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -20894,6 +21404,111 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
 </script>
+
+<script id="vertex-6a11-exercise-qa-layer">
+(function(){
+  function norm(s){ return String(s||'').toLowerCase().trim(); }
+  function title(s){ return String(s||'').replace(/\s+/g,' ').trim(); }
+  var list = (typeof EXERCISES !== 'undefined' && Array.isArray(EXERCISES)) ? EXERCISES : (Array.isArray(window.EXERCISES)?window.EXERCISES:null);
+  if(!list) return;
+
+  function setFields(ex, muscle, equip){
+    if(muscle){
+      ex.muscle=muscle; ex.category=muscle; ex.target=muscle; ex.targetArea=muscle;
+      if(!ex.training || /strength/i.test(String(ex.training))) ex.training='Strength';
+    }
+    if(equip){
+      ex.equip=equip; ex.equipment=equip; ex.equipment_type=equip;
+    }
+  }
+
+  list.forEach(function(ex){
+    if(!ex || !ex.name) return;
+    ex.name=title(ex.name);
+    var n=norm(ex.name);
+
+    // Rename potentially problematic legacy name.
+    if(n==='sissy squat' || n.indexOf('sissy squat')>=0){
+      ex.name = ex.name.replace(/sissy squat/ig,'Narrow-Stance Squat');
+      n=norm(ex.name);
+    }
+
+    // Equipment corrections.
+    if(/cable/.test(n)){ setFields(ex, null, 'Cable'); }
+    if(/machine|pec deck|leg press|hack squat|smith/.test(n)){ setFields(ex, null, 'Machine'); }
+    if(/barbell|bench press$|incline bench press$|decline bench press$|squat$|deadlift$|romanian deadlift$|overhead press$|barbell row|barbell curl/.test(n)){ setFields(ex, null, 'Barbell'); }
+    if(/dumbbell|hex press|floor press|goblet|hammer curl|lateral raise|rear delt fly|reverse fly|fly$/.test(n) && !/cable|machine|pec deck/.test(n)){ setFields(ex, null, 'Dumbbells'); }
+    if(/push[- ]?up|pull[- ]?up|chin[- ]?up|plank|crunch|dip|dead bug|leg raise|russian twist|handstand|pike/.test(n)){ setFields(ex, null, 'Bodyweight'); }
+
+    // Category corrections.
+    if(/bench press|chest press|push[- ]?up|hex press|squeeze press|chest dip|bench dip|cable fly|pec deck|fly/.test(n) && !/rear delt|reverse/.test(n)){
+      setFields(ex,'Chest', ex.equip||ex.equipment);
+    }
+    if(/rear delt|reverse fly|face pull|lateral raise|front raise|shoulder press|arnold press|handstand push|pike push|overhead press/.test(n)){
+      setFields(ex,'Shoulders', ex.equip||ex.equipment);
+    }
+    if(/curl/.test(n)){
+      setFields(ex,'Biceps', ex.equip||ex.equipment);
+    }
+    if(/tricep|pushdown|skull crusher|kickback|overhead extension/.test(n)){
+      setFields(ex,'Triceps', ex.equip||ex.equipment);
+    }
+    if(/lat pulldown|row|pull[- ]?up|chin[- ]?up|pullover|t-bar|meadows/.test(n)){
+      setFields(ex,'Back', ex.equip||ex.equipment);
+    }
+    if(/squat|lunge|deadlift|rdl|romanian|calf|step[- ]?up|hip thrust|glute bridge|hamstring|leg extension|leg press/.test(n)){
+      setFields(ex,'Legs', ex.equip||ex.equipment);
+    }
+    if(/plank|dead bug|crunch|leg raise|russian twist|sit[- ]?up|hollow|bird dog|pallof|woodchop/.test(n)){
+      setFields(ex,'Core', ex.equip||ex.equipment);
+    }
+
+    // Demo/media alias for Dumbbell Bench Press.
+    if(norm(ex.name)==='dumbbell bench press'){
+      ex.demo_key = ex.demo_key || 'dumbbell_bench_press';
+      ex.media_key = ex.media_key || 'dumbbell_bench_press';
+      ex.has_demo = true;
+      ex.has_video = true;
+      ex.legacy_demo_url = ex.legacy_demo_url || 'demo:dumbbell_bench_press';
+    }
+  });
+
+  // Deduplicate exact names after rename.
+  var seen={};
+  for(var i=list.length-1;i>=0;i--){
+    var k=norm(list[i] && list[i].name);
+    if(!k) continue;
+    if(seen[k]) list.splice(i,1);
+    else seen[k]=true;
+  }
+
+  // Patch common demo lookup registries if present.
+  window.VERTEX_DEMO_ALIASES = Object.assign({}, window.VERTEX_DEMO_ALIASES||{}, {
+    'dumbbell bench press':'dumbbell_bench_press',
+    'dumbbell_bench_press':'dumbbell_bench_press',
+    'db bench press':'dumbbell_bench_press'
+  });
+
+  window.VERTEX_QA_AUDIT = {
+    phase:'6A.11',
+    total:list.length,
+    renamed:['Sissy Squat → Narrow-Stance Squat'],
+    correctedEquipment:['High Cable Fly → Cable','Cable Fly → Cable','Machine/Pec Deck → Machine'],
+    demoAliases:['Dumbbell Bench Press']
+  };
+})();
+</script>
+
+
+<script id="vertex-6a11-demo-helper">
+(function(){
+  window.vertexHasExerciseDemo = window.vertexHasExerciseDemo || function(ex){
+    var name = String((ex&&ex.name)||'').toLowerCase();
+    return !!(ex && (ex.has_demo || ex.has_video || ex.demo_url || ex.legacy_demo_url || ex.video_url || /bench press|squat|deadlift|lat pulldown/.test(name)));
+  };
+})();
+</script>
+
 </body>
 </html>
 

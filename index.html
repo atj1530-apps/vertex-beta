@@ -10271,18 +10271,21 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
+
 <script id="vertex-equip-clear-all-handler-safe">
-document.addEventListener('click', function(e){
-  var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
-  if(!el) return;
-  e.preventDefault();
-  if(typeof state !== 'undefined'){
-    state.equipment = {};
-    if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
-    if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
-    if(typeof renderSidebar === 'function') renderSidebar();
-  }
-}, true);
+(function(){
+  document.addEventListener('click', function(e){
+    var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
+    if(!el) return;
+    e.preventDefault();
+    if(typeof state !== 'undefined'){
+      state.equipment = {};
+      if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
+      if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
+      if(typeof renderSidebar === 'function') renderSidebar();
+    }
+  }, true);
+})();
 </script>
 
 </body></html>`;
@@ -11965,20 +11968,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 
 
 
-<script id="vertex-equip-clear-all-handler-safe">
-document.addEventListener('click', function(e){
-  var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
-  if(!el) return;
-  e.preventDefault();
-  if(typeof state !== 'undefined'){
-    state.equipment = {};
-    if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
-    if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
-    if(typeof renderSidebar === 'function') renderSidebar();
-  }
-}, true);
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -12299,20 +12288,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 
 
 
-<script id="vertex-equip-clear-all-handler-safe">
-document.addEventListener('click', function(e){
-  var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
-  if(!el) return;
-  e.preventDefault();
-  if(typeof state !== 'undefined'){
-    state.equipment = {};
-    if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
-    if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
-    if(typeof renderSidebar === 'function') renderSidebar();
-  }
-}, true);
-</script>
-
 </body></html>`);
     w.document.close();
   };
@@ -12592,20 +12567,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-
-<script id="vertex-equip-clear-all-handler-safe">
-document.addEventListener('click', function(e){
-  var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
-  if(!el) return;
-  e.preventDefault();
-  if(typeof state !== 'undefined'){
-    state.equipment = {};
-    if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
-    if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
-    if(typeof renderSidebar === 'function') renderSidebar();
-  }
-}, true);
-</script>
 
 </body></html>`);
   w.document.close();
@@ -15266,7 +15227,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.10-phase6A9a-syntax-fix';
+  const VERSION='v13.62.11-phase6A9b-syntax-clean';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -20969,20 +20930,6 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('DOMContentLoaded',function(){setTimeout(fix,200);setTimeout(fix,800);});
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
-</script>
-
-<script id="vertex-equip-clear-all-handler-safe">
-document.addEventListener('click', function(e){
-  var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
-  if(!el) return;
-  e.preventDefault();
-  if(typeof state !== 'undefined'){
-    state.equipment = {};
-    if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
-    if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
-    if(typeof renderSidebar === 'function') renderSidebar();
-  }
-}, true);
 </script>
 
 </body>

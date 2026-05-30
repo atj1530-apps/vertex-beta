@@ -21994,7 +21994,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   function setDisplay(sel, value){ var el=qs(sel); if(el) el.style.display=value; }
   function applyWorkoutStartState(started){
     var guide=qs('#workoutStartGuide');
-    if(guide) guide.style.display = started ? 'none' : 'block';
+    var ex=(window.workoutExercises&&workoutExercises.length)||0; if(guide) guide.style.display = ex>0 ? 'none' : 'block';
     setDisplay('#coachBar', started ? '' : 'none');
     setDisplay('#autoCoachAcc', started ? '' : 'none');
     setDisplay('.wkt-name-row', started ? '' : 'none');

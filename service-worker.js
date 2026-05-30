@@ -2,7 +2,7 @@
    v20260530-6a12
    Network-first for HTML so deploys are visible immediately.
 */
-const CACHE_NAME = 'vertex-v20260530-6a12-exercise-audit-lock';
+const CACHE_NAME = 'vertex-v20260530-6a17';
 const APP_SHELL = [
   './',
   './index.html',

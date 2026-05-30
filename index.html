@@ -5133,9 +5133,9 @@ function markUnsaved(){ if(!hasWorkout()){ refreshSyncStatus(); return; } if(aut
 const EXERCISES=[
 {name:'Alternating Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Bench Press',muscle:'Chest',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
-{name:'Bench Press (Normal)',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Incline Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Decline Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'Bench Press (Normal)',muscle:'Chest',equip:'Barbell',env:'home',kind:'push',training:'Strength'},
+{name:'Incline Bench Press',muscle:'Chest',equip:'Barbell',env:'home',kind:'push',training:'Strength'},
+{name:'Decline Bench Press',muscle:'Chest',equip:'Barbell',env:'home',kind:'push',training:'Strength'},
 {name:'Dumbbell Fly',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Overhead Press',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Lateral Raise',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
@@ -13219,7 +13219,7 @@ document.addEventListener('DOMContentLoaded',function(){
         ['Movement Pattern', ex.movement_pattern || ex.pattern || ex.kind || 'Pending classification'],
         ['Primary Muscles', muscles],
         ['Equipment', ex.equipment_type || ex.equip || 'Not specified'],
-        ['Media Status', paths.hasVideo ? 'Video ready' : (intel ? 'Exercise intelligence ready' : 'Basic placeholder')]
+        ['Difficulty', ex.difficulty || 'Beginner']
       ];
       fields.innerHTML=rows.map(r=>'<div class="media-field"><div class="k">'+mediaEscape(r[0])+'</div><div class="v">'+mediaEscape(r[1])+'</div></div>').join('');
     }

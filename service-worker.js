@@ -1,8 +1,8 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260530-6a12
+   v20260530-6a20
    Network-first for HTML so deploys are visible immediately.
 */
-const CACHE_NAME = 'vertex-v20260530-6a17';
+const CACHE_NAME = 'vertex-v20260530-6a20';
 const APP_SHELL = [
   './',
   './index.html',
@@ -61,5 +61,3 @@ self.addEventListener('fetch', (event) => {
     }).catch(() => cached))
   );
 });
-
-// Phase 6A16 page/workout state lock

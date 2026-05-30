@@ -6143,6 +6143,38 @@ function getExerciseDemo(name){
   };
 })();
 
+
+// Phase 6A.6 Library Deep Clean
+(function(){
+ const list=(typeof EXERCISES!=='undefined')?EXERCISES:(window.EXERCISES||[]);
+ if(!Array.isArray(list)) return;
+
+ // normalize duplicate bench names
+ list.forEach(ex=>{
+   const n=(ex.name||'').trim();
+   if(n==='Bench Press (Normal)'||n==='Bench Press Normal') ex.name='Bench Press';
+ });
+
+ // dedupe
+ const seen=new Set();
+ for(let i=list.length-1;i>=0;i--){
+   const k=(list[i].name||'').toLowerCase();
+   if(seen.has(k)) list.splice(i,1); else seen.add(k);
+ }
+
+ // ensure dumbbell bench variants
+ const add=(name,muscle,equip)=>{
+   if(!list.find(x=>(x.name||'').toLowerCase()===name.toLowerCase())){
+      list.push({name,muscle,category:muscle,targetArea:muscle,equip,equipment:equip,training:'Strength'});
+   }
+ };
+ add('Dumbbell Bench Press','Chest','Dumbbells');
+ add('Incline Dumbbell Bench Press','Chest','Dumbbells');
+ add('Decline Dumbbell Bench Press','Chest','Dumbbells');
+
+ window.VERTEX_66_READY=true;
+})();
+
 const VERTEX_LIBRARY_PHASE='6B.3A';
 function vertexSlug(value){
   return String(value||'')

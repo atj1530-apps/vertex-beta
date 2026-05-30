@@ -21087,6 +21087,73 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
 </script>
+
+
+<!-- Phase 6A16: hard page-state and workout empty-state lock -->
+<style>
+  body:not(.app-page-progress) #progressPage{display:none!important;}
+  body:not(.app-page-home) #home-dashboard{display:none!important;}
+  body.app-page-workout.vertex-workout-empty #workoutStartGuide{display:block!important;}
+  body.app-page-workout.vertex-workout-empty #coachBar,
+  body.app-page-workout.vertex-workout-empty #autoCoachAcc,
+  body.app-page-workout.vertex-workout-empty .wkt-name-row,
+  body.app-page-workout.vertex-workout-empty #wkt-meta,
+  body.app-page-workout.vertex-workout-empty #builder{display:none!important;}
+</style>
+<script>
+(function(){
+  function q(id){return document.getElementById(id);}
+  function show(el,on,display){ if(el) el.style.display=on?(display||''):'none'; }
+  function page(){ try{return (state&&state.page)||'home';}catch(e){return 'home';} }
+  function workoutEmpty(){
+    try{
+      if(typeof hasWorkout==='function') return !hasWorkout(state.current);
+      var w=state&&state.current;
+      return !(w&&Array.isArray(w.exercises)&&w.exercises.length>0);
+    }catch(e){ return true; }
+  }
+  function syncVertexPageState(){
+    var pg=page();
+    var onHome=pg==='home', onWorkout=pg==='workout', onProgress=pg==='progress';
+    document.body.classList.toggle('app-page-home', onHome);
+    document.body.classList.toggle('app-page-workout', onWorkout);
+    document.body.classList.toggle('app-page-progress', onProgress);
+    document.body.classList.toggle('app-page-nonworkout', !onWorkout);
+    var empty=onWorkout && workoutEmpty();
+    document.body.classList.toggle('vertex-workout-empty', empty);
+
+    show(q('home-dashboard'), onHome);
+    show(q('progressPage'), onProgress, 'block');
+    show(q('wellnessPage'), pg==='wellness', 'block');
+    show(q('aiPage'), pg==='ai', 'block');
+
+    show(q('workoutStartGuide'), empty, 'block');
+    show(q('coachBar'), onWorkout && !empty);
+    show(q('autoCoachAcc'), onWorkout && !empty);
+    var nameRow=document.querySelector('.wkt-name-row'); show(nameRow, onWorkout && !empty);
+    show(q('wkt-meta'), onWorkout && !empty);
+    show(q('builder'), onWorkout && !empty);
+  }
+  function after(){ setTimeout(syncVertexPageState,0); setTimeout(syncVertexPageState,80); }
+  ['setPage','renderAll','renderBuilder','addExerciseByName','clearCurrent','loadTemplate','loadWorkoutIntoBuilder'].forEach(function(name){
+    try{
+      var fn=window[name];
+      if(typeof fn==='function' && !fn.__vertex6A16){
+        var wrapped=function(){ var out=fn.apply(this,arguments); after(); return out; };
+        wrapped.__vertex6A16=true;
+        window[name]=wrapped;
+      }
+    }catch(e){}
+  });
+  document.addEventListener('DOMContentLoaded', after);
+  window.addEventListener('pageshow', after);
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && (e.target.closest('[data-nav]') || e.target.closest('[data-add]') || e.target.closest('[data-load]') || e.target.closest('[data-template]') || e.target.closest('[data-clear]'))) after();
+  }, true);
+  window.Vertex6A16SyncWorkoutState=syncVertexPageState;
+  after();
+})();
+</script>
 </body>
 </html>
 
@@ -21988,35 +22055,6 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
 <!-- Phase 6A.1b: Recovery and Stretching combined into Recovery / Mobility in workout filters; legacy exercise records remain matched. -->
 
 
-<script>
-(function(){
-  function qs(sel){ return document.querySelector(sel); }
-  function setDisplay(sel, value){ var el=qs(sel); if(el) el.style.display=value; }
-  function applyWorkoutStartState(started){
-    var guide=qs('#workoutStartGuide');
-    var ex=(window.workoutExercises&&workoutExercises.length)||0; if(guide) guide.style.display = ex>0 ? 'none' : 'block';
-    setDisplay('#coachBar', ex>0 ? '' : 'none');
-    setDisplay('#autoCoachAcc', ex>0 ? '' : 'none');
-    setDisplay('.wkt-name-row', ex>0 ? '' : 'none');
-    setDisplay('#wkt-meta', ex>0 ? '' : 'none');
-    setDisplay('#builder', ex>0 ? '' : 'none');
-  }
-  function startWorkoutPane(){
-    document.body.classList.add('vertex-workout-pane-started');
-    applyWorkoutStartState(true);
-  }
-  document.addEventListener('DOMContentLoaded', function(){
-    applyWorkoutStartState(false);
-    var sidebar=qs('.sidebar');
-    if(sidebar){
-      sidebar.addEventListener('click', function(e){
-        if(e.target && e.target.closest && e.target.closest('button')) startWorkoutPane();
-      }, true);
-      sidebar.addEventListener('input', function(){ startWorkoutPane(); }, true);
-      sidebar.addEventListener('focusin', function(e){
-        if(e.target && e.target.id==='search') startWorkoutPane();
-      }, true);
-    }
-  });
-})();
-</script>
+
+<!-- Phase 6A15 superseded by Phase 6A16 state lock -->
+

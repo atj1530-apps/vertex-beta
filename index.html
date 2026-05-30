@@ -6605,11 +6605,7 @@ function saveLibraryExercise(){
 }
 function openLibraryModal_REMOVED_DUPLICATE(){}
 function saveLibraryExercise_REMOVED_DUPLICATE(){}
-function renderEquipmentModalBody(){
-  const body=document.getElementById('equipmentModalBody'); if(!body) return;
-  const opts=EQUIPMENT_OPTIONS.filter(eq=>String(eq).toLowerCase()!=='none');
-  body.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:10px"><button class="btn small" data-equip-clear-all="1">Clear All</button></div><div class="equip-grid">${opts.map(eq=>{const key=equipmentKey(eq); const on=!!state.equipment?.[key]; return `<label class="equip-toggle ${on?'on':''}"><input type="checkbox" data-equip-toggle="${key}" ${on?'checked':''}> ${escapeHtml(eq)}</label>`}).join('')}</div>`;
-}
+function renderEquipmentModalBody(){const body=document.getElementById('equipmentModalBody'); if(!body) return; body.innerHTML=`<div class="equip-grid">${EQUIPMENT_OPTIONS.map(eq=>{const key=equipmentKey(eq); const on=!!state.equipment?.[key]; return `<label class="equip-toggle ${on?'on':''}"><input type="checkbox" data-equip-toggle="${key}" ${on?'checked':''}> ${escapeHtml(eq)}</label>`}).join('')}</div>`;}
 function openEquipmentModal(){renderEquipmentModalBody(); document.getElementById('equipmentModal')?.classList.add('on');}
 function closeEquipmentModal(){document.getElementById('equipmentModal')?.classList.remove('on');}
 
@@ -7331,21 +7327,7 @@ async function initAuth(){
 }
 function emptyPlanner(){return Object.fromEntries(DAYS.map(d=>[d,null]))}
 function byName(n){const e=EXERCISES.find(x=>x.name===n); if(!e){console.warn('Missing exercise: '+n); return null;} return clone(e)}
-function normalizeStrengthExercise(e){
-  const x=clone(e)||{};
-  const nm=x.name||'Exercise';
-  const muscle=x.muscle||x.category||x.target||x.targetArea||'Custom';
-  const equip=x.equip||x.equipment||x.equipment_type||'Bodyweight';
-  let kind=x.kind;
-  if(!kind){
-    const m=String(muscle).toLowerCase();
-    kind=(m.includes('chest')||m.includes('tricep')||/press|push/i.test(nm))?'push':
-      (m.includes('back')||m.includes('bicep')||/row|pull|curl/i.test(nm))?'pull':
-      (m.includes('leg')||/squat|lunge|deadlift|calf/i.test(nm))?'legs':
-      (m.includes('core'))?'core':'strength';
-  }
-  return {...x,name:nm,muscle,equip,equipment:equip,kind,sets:[{reps:8,weight:''},{reps:8,weight:''},{reps:8,weight:''}],target:8,notes:''}
-}
+function normalizeStrengthExercise(e){return {...clone(e),sets:[{reps:8,weight:''},{reps:8,weight:''},{reps:8,weight:''}],target:8,notes:''}}
 function normalizePhaseMove(item, phase){const name=Array.isArray(item)?item[0]:item; const side=Array.isArray(item)?item[1]:''; return {name,side,mode:phase.mode,seconds:phase.defaultSeconds||0};}
 function workoutFromTemplate(key){const t=TEMPLATES[key]; if(!t) return null; if(t.type==='strength') return {name:t.name,type:'strength',source:'template',assignedDay:null,exercises:t.exercises.map(n=>normalizeStrengthExercise(byName(n)))}; if(t.type==='mobility_strength_hybrid') return {name:t.name,type:t.type,displayType:t.displayType||'Recovery / Mobility Day',source:'template',assignedDay:null,duration:t.duration||0,excludeFromVolume:true,volume:0,activePhase:0,phases:(t.phases||[]).map((p,i)=>({name:p.name,mode:p.mode,defaultSeconds:p.defaultSeconds||0,index:i,moves:(p.moves||[]).map(item=>normalizePhaseMove(item,p))})),exercises:[]}; return {name:t.name,type:t.type,source:'template',assignedDay:null,duration:t.duration,blocks:t.blocks,moves:t.moves.map((m,i)=>({name:m,duration:t.type==='interval'?30:Math.round((t.duration*60)/t.moves.length),block:i+1})),exercises:[]};}
 function setCurrent(w){state.tracking=false; state.activePhase=0; state.current=clone(w); markUnsaved(); renderAll(); collapseTopIfContent();}
@@ -10271,18 +10253,14 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-
-<script id="vertex-equip-clear-all-handler-safe">
+<script id="vertex-safe-equipment-opener">
 (function(){
   document.addEventListener('click', function(e){
-    var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
-    if(!el) return;
-    e.preventDefault();
-    if(typeof state !== 'undefined'){
-      state.equipment = {};
-      if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
-      if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
-      if(typeof renderSidebar === 'function') renderSidebar();
+    var btn = e.target && e.target.closest ? e.target.closest('#btn-equipment-open') : null;
+    if(!btn) return;
+    if(typeof openEquipmentModal === 'function'){
+      e.preventDefault();
+      openEquipmentModal();
     }
   }, true);
 })();
@@ -10969,7 +10947,6 @@ ${dueToday.length ? `
 
 function renderAll(){
   const pg=state.page||defaultPage();
-  const guide=document.getElementById('workoutStartGuide'); if(guide) guide.style.display=(pg==='workout'?'block':'none');
   renderControls(); setPage(pg);
   const logBtn=document.getElementById('btn-log');
   if(logBtn) logBtn.classList.toggle('armed',!!hasWorkout());
@@ -11087,7 +11064,7 @@ function renderSidebar(){
       let opened=false;
       try{ opened=localStorage.getItem('vertex_acc_equipmentPanel')==='1'; }catch(e){}
       ep.style.display='block';
-      ep.innerHTML=`<button class="btn small" id="btn-equipment-open" title="Choose which equipment shapes your home exercise list" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border-color:rgba(232,255,71,.45)"><span style="font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--acc)">Home Equipment</span><span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--acc);font-weight:700">${onCount} on</span></button>`;
+      ep.innerHTML=`<div class="equip-acc-head" data-equip-acc="1" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;user-select:none"><div class="label" style="margin:0">Home Equipment</div><span style="display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--muted)"><span style="color:var(--acc);font-weight:600">${onCount} on</span><span class="equip-acc-caret">${opened?'▼':'▶'}</span></span></div><div class="equip-acc-body" style="${opened?'margin-top:10px':'display:none'}"><button class="btn small" id="btn-equipment-open" title="Choose which equipment shapes your home exercise list" style="width:100%">Manage Equipment</button></div>`;
     }
     else {ep.style.display='none'; ep.innerHTML='';}
   }
@@ -11355,7 +11332,7 @@ function renderBuilder(){
     const downBtn=`<button class="ex-reorder" data-move-down="${i}" ${isLast?'disabled':''} title="Move down" aria-label="Move ${escapeAttr(e.name)} down">▼</button>`;
     const hasDemo=!!getExerciseDemo(e.name);
     const demoBtn=hasDemo?`<button class="btn small demo-trigger" data-demo="${escapeAttr(e.name)}" title="Watch exercise demonstration">▶ Demo</button>`:'';
-    return `<article class="exercise-card"><div class="ex-head"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(e.name)}</strong><span class="badge blue">${String(e.kind||'STRENGTH').toUpperCase()}</span><span class="badge green">${e.muscle}</span><span class="ex-reorder-group">${upBtn}${downBtn}</span>${demoBtn}<button class="remove" data-remove="${i}">×</button></div>${perfStrip(e)}<div class="sets"><div class="set-row head"><div>Set</div><div>Reps</div><div>Weight (lb)</div><div class="status">Status</div></div>${(e.sets||[]).map((r,j)=>{
+    return `<article class="exercise-card"><div class="ex-head"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(e.name)}</strong><span class="badge blue">${e.kind.toUpperCase()}</span><span class="badge green">${e.muscle}</span><span class="ex-reorder-group">${upBtn}${downBtn}</span>${demoBtn}<button class="remove" data-remove="${i}">×</button></div>${perfStrip(e)}<div class="sets"><div class="set-row head"><div>Set</div><div>Reps</div><div>Weight (lb)</div><div class="status">Status</div></div>${(e.sets||[]).map((r,j)=>{
   const hasLast=j>0&&e.sets[j-1];
   const repeatBtn=hasLast?`<button class="quick-btn" data-qa-repeat="${i}:${j}">↺ Repeat</button>`:'';
   return `<div class="set-row"><div class="num">${j+1}</div><input data-reps="${i}:${j}" inputmode="numeric" value="${r.reps??''}"/><input data-weight="${i}:${j}" inputmode="decimal" value="${r.weight??''}" placeholder="lbs"/><div class="status ${String(setPrLabel(e,r)).includes('PR')?'perf-pr':''}">${escapeHtml(setPrLabel(e,r))}</div></div><div class="quick-add-row"><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="1">+1</button><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="-1">-1</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="5">+5 lb</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="-5">-5</button>${repeatBtn}</div>`;
@@ -11967,7 +11944,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -12287,7 +12263,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-
 </body></html>`);
     w.document.close();
   };
@@ -12565,7 +12540,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
 
 
 </body></html>`);
@@ -15227,7 +15201,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.11-phase6A9b-syntax-clean';
+  const VERSION='v13.62.12-phase6A8a-safe-rollback';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -20930,8 +20904,6 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('DOMContentLoaded',function(){setTimeout(fix,200);setTimeout(fix,800);});
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
-</script>
-
 </body>
 </html>
 

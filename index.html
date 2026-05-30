@@ -4273,7 +4273,15 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   }
 </style>
 
-<style>@media(max-width:900px){#workoutStartGuide>div:first-child{grid-template-columns:1fr!important}#workoutStartGuide div[style*="repeat(3,1fr)"]{grid-template-columns:1fr!important}}</style></head>
+
+<style id="vertex-6a20-css">
+  .vertex-workout-hero-grid{display:grid;grid-template-columns:1.1fr .9fr 2fr;gap:18px;align-items:center}
+  .vertex-workout-hero-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .vertex-equipment-chip{white-space:nowrap}
+  .ex-group-label[data-equip-section]{scroll-margin-top:88px}
+  @media(max-width:980px){.vertex-workout-hero-grid{grid-template-columns:1fr}.vertex-workout-hero-steps{grid-template-columns:1fr}}
+</style>
+</head>
 <body class="auth-resolving">
 
 <div id="vertex-bootstrap-screen">
@@ -4387,6 +4395,7 @@ window.vertexFinishBootstrap=function(){
     <div class="label">Workout Templates</div><div class="pill-fade-wrap"><div id="tpl-grid" class="segment pill-scroll"><button class="seg-btn" data-load-tpl="push">💪 Push Day</button><button class="seg-btn" data-load-tpl="pull">🔄 Pull Day</button><button class="seg-btn" data-load-tpl="legs">🦵 Legs Day</button><button class="seg-btn" data-load-tpl="kenpo">🥋 Kenpo X</button><button class="seg-btn" data-load-tpl="plyo">⚡ Plyometrics X</button><button class="seg-btn" data-load-tpl="yogaX">🧘 Yoga X</button><button class="seg-btn" data-load-tpl="stretch">🌀 Full Body Stretch</button><button class="seg-btn" data-load-tpl="coreMobility">🎯 Core + Mobility</button></div></div>
     <div class="label">Training Focus <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Choose Your Style</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery / Mobility">♧ Recovery / Mobility</button></div></div>
     <div class="label">Muscle Group <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Optional</span></div><div class="pill-fade-wrap"><div id="muscles" class="muscles"></div></div>
+    <div class="label">Equipment <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Quick Jump</span></div><div class="pill-fade-wrap"><div id="equipmentSubFilter" class="muscles"></div></div>
     <input id="search" class="search" placeholder="Search exercises..." />
     <button id="btn-add-library" class="btn acc" style="width:100%;margin:0 0 8px">+ Add Exercise to Library</button>
     <button id="btn-manual-entry" class="btn acc" style="width:100%;margin:0 0 10px">+ Lightweight Manual Entry</button>
@@ -4771,15 +4780,17 @@ window.vertexFinishBootstrap=function(){
     <section id="plannerAcc" class="panel planner-panel open"><div class="acc-body" style="display:block"><div class="label">Weekly Planner v2 · Start Today Flow</div><p style="color:var(--muted);margin:8px 0 14px">Build custom workouts from the library for each day, then start <b style="color:var(--acc)">today’s workout.</b></p><div style="overflow-x:auto;margin:0 -8px;padding:0 8px 0 8px;box-sizing:border-box"><div id="planner" class="planner-grid"></div></div></div></section>
 
 
-    <section id="workoutStartGuide" class="panel hl today-card" style="display:block;padding:18px 22px;margin-bottom:16px;display:none">
-<div style="display:grid;grid-template-columns:1.1fr .9fr 2fr;gap:18px;align-items:center">
-<div><div class="label" style="color:var(--acc);margin-bottom:8px">WORKOUT SETUP</div><h2 style="margin:0;font-size:24px;line-height:1.15">Ready to Start a Workout?</h2></div>
-<div><p style="color:#b8c0cc;margin:0;font-size:14px;line-height:1.5">Use the left panel to choose how you want to train today.</p></div>
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-<div class="panel" style="margin:0"><b>🏠 Step 1</b><br><span style="color:var(--muted)">Choose Gym or Home.</span></div>
-<div class="panel" style="margin:0"><b>📋 Step 2</b><br><span style="color:var(--muted)">Select a program, template, or focus.</span></div>
-<div class="panel" style="margin:0"><b>🏋️ Step 3</b><br><span style="color:var(--muted)">Build the workout and start training.</span></div>
-</div></div></section>
+    <section id="workoutStartGuide" class="panel hl today-card vertex-workout-hero" style="padding:18px 22px;margin-bottom:16px;display:none">
+      <div class="vertex-workout-hero-grid">
+        <div><div class="label" style="color:var(--acc);margin-bottom:8px">WORKOUT SETUP</div><h2 style="margin:0;font-size:24px;line-height:1.15">Ready to Start a Workout?</h2></div>
+        <div><p style="color:#b8c0cc;margin:0;font-size:14px;line-height:1.5">Use the left panel to choose how you want to train today.</p></div>
+        <div class="vertex-workout-hero-steps">
+          <div class="panel" style="margin:0"><b>🏠 Step 1</b><br><span style="color:var(--muted)">Choose Gym or Home.</span></div>
+          <div class="panel" style="margin:0"><b>📋 Step 2</b><br><span style="color:var(--muted)">Select a program, template, or focus.</span></div>
+          <div class="panel" style="margin:0"><b>🏋️ Step 3</b><br><span style="color:var(--muted)">Build the workout and start training.</span></div>
+        </div>
+      </div>
+    </section>
 
     <div id="coachBar" class="coachbar">Ready: Push intensity today.</div>
     <section id="autoCoachAcc" class="accordion open"><div class="acc-head"><span class="acc-title">Auto Coach</span><span class="acc-hint">▼ COLLAPSE</span></div><div class="acc-body"><div id="autoCoachBody"><div class="label" style="color:var(--acc)">Auto Coach</div><p style="color:var(--muted);margin:4px 0 12px">Optional plan guidance based on recovery, workout type, and live performance signals.</p><div class="panel" style="margin:0"><b>Recovery signal is favorable.</b><br><span style="color:var(--muted)">Add a small load or rep increase where form is stable.</span></div></div></div></section>
@@ -10371,7 +10382,7 @@ function protoSelectDate(dateStr){
   }
 </style>
 
-<style>@media(max-width:900px){#workoutStartGuide>div:first-child{grid-template-columns:1fr!important}#workoutStartGuide div[style*="repeat(3,1fr)"]{grid-template-columns:1fr!important}}</style></head><body>
+</head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
           <div class="meta">Generated: ${pdfDateStr} · ${items.length} active compound${items.length===1?'':'s'}</div>
@@ -10765,7 +10776,7 @@ function setPage(page){
   // Sidebar (library) — Workout tab only
   // Right panel (saved workouts/stats) — Workout tab only (on Home, Saved Workouts is moved into main)
   document.querySelectorAll('.sidebar').forEach(el=>{el.style.display=onWorkout?'':'none';});
-  document.querySelectorAll('.right').forEach(el=>{el.style.display=onWorkout?'':'none';});
+  document.querySelectorAll('.right').forEach(el=>{el.style.display=(onWorkout && hasWorkout())?'':'none';});
   // On Home, hide the builder-tied sections of the right panel (Coach Reco / Volume Stats / Muscle Volume).
   document.querySelectorAll('.right .home-hide').forEach(el=>{el.style.display=onHome?'none':'';});
   // v13.63 — Saved Workouts lives in the right column on Workout tab only.
@@ -10798,7 +10809,8 @@ function setPage(page){
   // Workout tab: show builder, intel, coach, name/meta, builder
   ['savedAcc','statsAcc','coachAcc'].forEach(id=>{const el=document.getElementById(id); if(el) el.style.display=onWorkout?'':'none';});
   // intelAcc now lives in Home dashboard — rendered by renderHomeDashboard, not shown here
-  document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=onWorkout?'':'none';});
+  document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=(onWorkout && hasWorkout())?'':'none';});
+  const _wguide=document.getElementById('workoutStartGuide'); if(_wguide) _wguide.style.display=(onWorkout && !hasWorkout())?'block':'none';
 
   // homePage is legacy scaffold — always hidden, home-dashboard is the real content
   const homePh=document.getElementById('homePage'); if(homePh) homePh.style.display='none';
@@ -11132,11 +11144,21 @@ ${dueToday.length ? `
   }
 }
 
+function vertexWorkoutHasContent(){
+  try{return !!hasWorkout(state.current);}catch(e){return false;}
+}
+function vertexApplyWorkoutEmptyState(){
+  const onWorkout=(state.page||defaultPage())==='workout';
+  const hasContent=vertexWorkoutHasContent();
+  const guide=document.getElementById('workoutStartGuide');
+  if(guide) guide.style.display=(onWorkout && !hasContent)?'block':'none';
+  document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=(onWorkout && hasContent)?'':'none';});
+  document.querySelectorAll('.right').forEach(el=>{el.style.display=(onWorkout && hasContent)?'':'none';});
+}
 function renderAll(){
   const pg=state.page||defaultPage();
-  const guide=document.getElementById('workoutStartGuide');
-  if(guide) guide.style.display=(pg==='workout'?'':'none');
   renderControls(); setPage(pg);
+  vertexApplyWorkoutEmptyState();
   const logBtn=document.getElementById('btn-log');
   if(logBtn) logBtn.classList.toggle('armed',!!hasWorkout());
   refreshSaveButton(); updateWorkoutBottomBar();
@@ -11263,7 +11285,9 @@ function renderSidebar(){
   if(!groups.includes(state.muscle)) state.muscle='';
   document.getElementById('muscles').innerHTML=groups.filter(m=>m!=='All').map(m=>{const on=state.muscle===m; return `<button class="chip ${on?'on active':''}" data-muscle="${m}" aria-selected="${on?'true':'false'}">${m}</button>`;}).join('');
   const envPicked=!!document.querySelector('[data-env]')?.closest('.segment')?.classList.contains('user-picked');
+  const equipSub=document.getElementById('equipmentSubFilter');
   if(!envPicked || !state.env){
+    if(equipSub) equipSub.innerHTML='';
     document.getElementById('ex-count').textContent='0';
     document.getElementById('exercise-list').innerHTML='<div style="color:var(--dim);padding:12px;border:1px dashed var(--line2);border-radius:12px">Choose Gym or Home to view exercises.</div>';
     return;
@@ -11280,6 +11304,11 @@ function renderSidebar(){
   const seen=new Set();
   list=list.filter(e=>{const key=e.name.toLowerCase(); if(seen.has(key)) return false; seen.add(key); return true;}).sort((a,b)=>a.name.localeCompare(b.name));
   document.getElementById('ex-count').textContent=list.length;
+  const EQUIP_ORDER=['Bodyweight','Dumbbells','Barbell','Cable','Machine','Kettlebell','Band','Bench','Pull-Up Bar','Mat','Cardio','Other'];
+  const equipGroups={};
+  list.forEach(e=>{const raw=String(e.equipment_type||e.equipment||e.equip||'Other').trim()||'Other'; const k=/dumbbell/i.test(raw)?'Dumbbells':/barbell/i.test(raw)?'Barbell':/cable/i.test(raw)?'Cable':/machine/i.test(raw)?'Machine':/kettlebell/i.test(raw)?'Kettlebell':/bodyweight|none/i.test(raw)?'Bodyweight':/band/i.test(raw)?'Band':/bench/i.test(raw)?'Bench':/pull/i.test(raw)?'Pull-Up Bar':/mat|yoga/i.test(raw)?'Mat':/bike|treadmill|rower|cardio/i.test(raw)?'Cardio':raw; (equipGroups[k]||(equipGroups[k]=[])).push(e);});
+  const equipNames=EQUIP_ORDER.filter(k=>equipGroups[k]?.length).concat(Object.keys(equipGroups).filter(k=>!EQUIP_ORDER.includes(k)).sort());
+  if(equipSub) equipSub.innerHTML=equipNames.map(k=>`<button class="chip vertex-equipment-chip" data-equip-jump="${escapeAttr(k)}">${escapeHtml(k)} <span style="color:var(--dim);font-size:10px">${equipGroups[k].length}</span></button>`).join('');
   const MUSCLE_COLORS={
     'Chest':'#ff6b6b','Pecs':'#ff6b6b','Back':'#4bbdff','Lats':'#4bbdff',
     'Shoulders':'#ffb047','Legs':'#48ff8a','Quads':'#48ff8a','Hamstrings':'#48ff8a',
@@ -11358,21 +11387,12 @@ function renderSidebar(){
     // Filtered or searching — flat list, no headers
     html += list.map(e=>exCard(e,true)).join('');
   } else {
-    // All muscles — group by muscle with headers
-    const muscleOrder = groups.filter(m => m !== 'All');
-    const grouped = {};
-    muscleOrder.forEach(m => { grouped[m] = []; });
-    list.forEach(e => {
-      const m = e.muscle || 'Other';
-      if(grouped[m]) grouped[m].push(e);
-      else { grouped[m] = grouped[m]||[]; grouped[m].push(e); }
-    });
-    muscleOrder.forEach(m => {
-      const items = grouped[m];
+    // All exercises — group by equipment for quick scanning/jump.
+    equipNames.forEach(eq => {
+      const items = equipGroups[eq];
       if(!items || !items.length) return;
-      const dot = muscleColor(m);
-      html += `<div class="ex-group-label" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${dot};display:inline-block;flex-shrink:0"></span>${escapeHtml(m)} <span style="color:var(--dim);font-size:10px">${items.length}</span></div>`;
-    html += items.map(e=>exCard(e,false)).join('');
+      html += `<div class="ex-group-label" data-equip-section="${escapeAttr(eq)}" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--acc);display:inline-block;flex-shrink:0"></span>${escapeHtml(eq)} <span style="color:var(--dim);font-size:10px">${items.length}</span></div>`;
+      html += items.sort((a,b)=>a.name.localeCompare(b.name)).map(e=>exCard(e,false)).join('');
     });
   }
   document.getElementById('exercise-list').innerHTML=html;
@@ -12029,7 +12049,7 @@ function generateVertexPDFReport(){
 </style>
 
 
-<style>@media(max-width:900px){#workoutStartGuide>div:first-child{grid-template-columns:1fr!important}#workoutStartGuide div[style*="repeat(3,1fr)"]{grid-template-columns:1fr!important}}</style></head><body>
+</head><body>
 
 <h1>Vertex</h1>
 <div class="meta">Health &amp; Fitness Report · ${esc(displayName)} · Generated ${dateStr}</div>
@@ -12413,7 +12433,7 @@ window.renderSymmetry = renderSymmetry;
 </style>
 
 
-<style>@media(max-width:900px){#workoutStartGuide>div:first-child{grid-template-columns:1fr!important}#workoutStartGuide div[style*="repeat(3,1fr)"]{grid-template-columns:1fr!important}}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
+</head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX
@@ -12694,7 +12714,7 @@ function vertexShowSyncDiag(){
 </style>
 
 
-<style>@media(max-width:900px){#workoutStartGuide>div:first-child{grid-template-columns:1fr!important}#workoutStartGuide div[style*="repeat(3,1fr)"]{grid-template-columns:1fr!important}}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
+</head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX
@@ -13041,6 +13061,13 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{if(e.target.id==='search'){state.search=e.target.value; renderSidebar(); return} const r=e.target.getAttribute('data-reps'); if(r){const [i,j]=r.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].reps=Number(e.target.value)||0; renderRight(); renderBuilderMetaOnly(); return} const w=e.target.getAttribute('data-weight'); if(w){const [i,j]=w.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].weight=e.target.value; return}});
  document.addEventListener('click',e=>{
+  const equipJump=e.target&&e.target.closest?e.target.closest('[data-equip-jump]'):null;
+  if(equipJump){
+    const eq=equipJump.getAttribute('data-equip-jump');
+    const target=document.querySelector(`.ex-group-label[data-equip-section="${CSS.escape(eq)}"]`);
+    if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
   const muscleBtn=e.target&&e.target.closest?e.target.closest('[data-muscle]'):null;
   if(muscleBtn){
     const m=muscleBtn.getAttribute('data-muscle');
@@ -21087,8 +21114,6 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
 </script>
-
-
 </body>
 </html>
 
@@ -21990,203 +22015,35 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
 <!-- Phase 6A.1b: Recovery and Stretching combined into Recovery / Mobility in workout filters; legacy exercise records remain matched. -->
 
 
-
-<!-- Phase 6A15 superseded by Phase 6A16 state lock -->
-
-<!-- Phase 6A17: page routing correction / workout empty-state verified -->
-<style id="vertex-6a17-page-routing-style">
-  body:not(.app-page-home) #home-dashboard{display:none!important;}
-  body:not(.app-page-progress) #progressPage{display:none!important;}
-  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
-  body:not(.app-page-ai) #aiPage{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #workoutStartGuide{display:block!important;}
-  body.app-page-workout.vertex-workout-empty #autoCoachAcc,
-  body.app-page-workout.vertex-workout-empty .coachbar,
-  body.app-page-workout.vertex-workout-empty .wkt-name-row,
-  body.app-page-workout.vertex-workout-empty #wkt-meta,
-  body.app-page-workout.vertex-workout-empty #builder{display:none!important;}
-</style>
-<script id="vertex-6a17-page-routing-script">
+<script>
 (function(){
-  function byId(id){ return document.getElementById(id); }
-  function activePage(){
-    var nav=document.querySelector('[data-nav].on');
-    var pg=nav&&nav.getAttribute('data-nav');
-    if(pg) return pg;
-    try{ return (window.state&&window.state.page)||state.page||'workout'; }catch(e){ return 'workout'; }
+  function qs(sel){ return document.querySelector(sel); }
+  function setDisplay(sel, value){ var el=qs(sel); if(el) el.style.display=value; }
+  function applyWorkoutStartState(started){
+    var guide=qs('#workoutStartGuide');
+    if(guide) guide.style.display = started ? 'none' : 'block';
+    setDisplay('#coachBar', started ? '' : 'none');
+    setDisplay('#autoCoachAcc', started ? '' : 'none');
+    setDisplay('.wkt-name-row', started ? '' : 'none');
+    setDisplay('#wkt-meta', started ? '' : 'none');
+    setDisplay('#builder', started ? '' : 'none');
   }
-  function workoutHasExercises(){
-    try{
-      var w=(window.state&&window.state.current)||state.current||{};
-      if(w.type==='strength') return Array.isArray(w.exercises)&&w.exercises.length>0;
-      if(w.type==='flow'||w.type==='interval') return Array.isArray(w.moves)&&w.moves.length>0;
-      if(w.type==='mobility_strength_hybrid') return Array.isArray(w.phases)&&w.phases.length>0;
-      return (Array.isArray(w.exercises)&&w.exercises.length>0)||(Array.isArray(w.moves)&&w.moves.length>0)||(Array.isArray(w.phases)&&w.phases.length>0);
-    }catch(e){ return false; }
+  function startWorkoutPane(){
+    document.body.classList.add('vertex-workout-pane-started');
+    applyWorkoutStartState(true);
   }
-  function show(el,on,display){ if(el) el.style.display=on?(display||''):'none'; }
-  function sync(){
-    var pg=activePage();
-    try{ if(window.state) window.state.page=pg; else if(typeof state!=='undefined') state.page=pg; }catch(e){}
-
-    ['home','workout','progress','wellness','ai'].forEach(function(p){
-      document.body.classList.toggle('app-page-'+p, pg===p);
-    });
-    document.body.classList.toggle('app-page-nonworkout', pg!=='workout');
-
-    var onHome=pg==='home', onWorkout=pg==='workout', onProgress=pg==='progress', onWellness=pg==='wellness', onAi=pg==='ai';
-    var empty=onWorkout && !workoutHasExercises();
-    document.body.classList.toggle('vertex-workout-empty', empty);
-
-    show(byId('home-dashboard'), onHome, 'block');
-    show(byId('homePage'), false);
-    show(byId('progressPage'), onProgress, 'block');
-    show(byId('wellnessPage'), onWellness, 'block');
-    show(byId('aiPage'), onAi, 'block');
-
-    document.querySelectorAll('.sidebar').forEach(function(el){ show(el,onWorkout); });
-    document.querySelectorAll('.right').forEach(function(el){ show(el,onWorkout); });
-
-    show(byId('workoutStartGuide'), empty, 'block');
-    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(function(el){ show(el,onWorkout && !empty); });
-    ['savedAcc','statsAcc','coachAcc'].forEach(function(id){ show(byId(id), onWorkout); });
-
-    var logBtn=byId('btn-log'); if(logBtn) logBtn.style.display=onWorkout?'':'none';
-    var saveBtn=byId('btn-save'); if(saveBtn) saveBtn.style.display=onWorkout?'':'none';
-  }
-  function defer(){ setTimeout(sync,0); setTimeout(sync,120); setTimeout(sync,450); }
-  document.addEventListener('DOMContentLoaded', defer);
-  window.addEventListener('load', defer);
-  window.addEventListener('pageshow', defer);
-  document.addEventListener('click', function(e){
-    if(e.target&&e.target.closest&&e.target.closest('[data-nav], [data-add], [data-load-tpl], [data-start-day], [data-edit-day], #btn-add-library, #btn-manual-entry, .seg-btn')) defer();
-  }, true);
-  window.Vertex6A17PageSync=sync;
-  defer();
-})();
-</script>
-
-
-<!-- Phase 6A19: stable page routing + workout empty-state + weight chart anchor fix -->
-<style id="vertex-6a19-state-guard-style">
-  body:not(.app-page-home) #home-dashboard{display:none!important;}
-  body:not(.app-page-progress) #progressPage{display:none!important;}
-  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
-  body:not(.app-page-ai) #aiPage{display:none!important;}
-  body:not(.app-page-workout) .sidebar,
-  body:not(.app-page-workout) .right{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #workoutStartGuide{display:block!important;}
-  body.app-page-workout.vertex-workout-has-content #workoutStartGuide{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #autoCoachAcc,
-  body.app-page-workout.vertex-workout-empty .coachbar,
-  body.app-page-workout.vertex-workout-empty .wkt-name-row,
-  body.app-page-workout.vertex-workout-empty #wkt-meta,
-  body.app-page-workout.vertex-workout-empty #builder{display:none!important;}
-</style>
-<script id="vertex-6a19-state-guard-script">
-(function(){
-  var lastPage=null;
-  function el(id){return document.getElementById(id);}
-  function page(){
-    try{ if(lastPage) return lastPage; }catch(e){}
-    try{ if(typeof state!=='undefined' && state && state.page) return state.page; }catch(e){}
-    var nav=document.querySelector('[data-nav].on');
-    return (nav&&nav.getAttribute('data-nav'))||'home';
-  }
-  function hasContent(){
-    try{ if(typeof hasWorkout==='function' && typeof state!=='undefined') return !!hasWorkout(state.current); }catch(e){}
-    try{
-      var w=(typeof state!=='undefined'&&state&&state.current)?state.current:{};
-      return !!((w.exercises&&w.exercises.length)||(w.moves&&w.moves.length)||(w.phases&&w.phases.length));
-    }catch(e){return false;}
-  }
-  function show(node,on,display){ if(node) node.style.display=on?(display||'block'):'none'; }
-  function sync(){
-    var pg=page();
-    try{ if(typeof state!=='undefined' && state) state.page=pg; }catch(e){}
-    ['home','workout','progress','wellness','ai'].forEach(function(p){document.body.classList.toggle('app-page-'+p,pg===p);});
-    document.querySelectorAll('[data-nav]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-nav')===pg);});
-    var wOn=pg==='workout', empty=wOn&&!hasContent();
-    document.body.classList.toggle('vertex-workout-empty',empty);
-    document.body.classList.toggle('vertex-workout-has-content',wOn&&!empty);
-    show(el('home-dashboard'),pg==='home');
-    show(el('homePage'),false);
-    show(el('progressPage'),pg==='progress');
-    show(el('wellnessPage'),pg==='wellness');
-    show(el('aiPage'),pg==='ai');
-    document.querySelectorAll('.sidebar,.right').forEach(function(n){show(n,wOn);});
-    show(el('workoutStartGuide'),empty);
-    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(function(n){show(n,wOn&&!empty);});
-    ['savedAcc','statsAcc','coachAcc'].forEach(function(id){show(el(id),wOn);});
-    show(el('btn-save'),wOn,'inline-flex');
-    show(el('btn-log'),wOn,'inline-flex');
-  }
-  function tick(){setTimeout(sync,0);setTimeout(sync,80);setTimeout(sync,250);}
-  document.addEventListener('click',function(e){
-    var n=e.target&&e.target.closest&&e.target.closest('[data-nav]');
-    if(n){lastPage=n.getAttribute('data-nav');}
-    if(e.target&&e.target.closest&&e.target.closest('[data-nav],[data-add],[data-remove],[data-load-tpl],[data-start-day],[data-edit-day],[data-template],[data-training],[data-muscle],#manualAdd,#mediaDetailAdd,.seg-btn,.ex-add-btn')) tick();
-  },true);
-  var oldSet=window.setPage;
-  if(typeof oldSet==='function'&&!oldSet.__v6a19){window.setPage=function(p){lastPage=p;var r=oldSet.apply(this,arguments);tick();return r;};window.setPage.__v6a19=true;}
-  var oldRender=window.renderAll;
-  if(typeof oldRender==='function'&&!oldRender.__v6a19){window.renderAll=function(){var r=oldRender.apply(this,arguments);tick();return r;};window.renderAll.__v6a19=true;}
-  document.addEventListener('DOMContentLoaded',tick);
-  window.addEventListener('load',tick);
-  window.addEventListener('pageshow',tick);
-  setInterval(sync,1200);
-  window.Vertex6A19StateGuard=sync;
-  tick();
-})();
-</script>
-<script id="vertex-6a19-weight-chart-anchor-fix">
-(function(){
-  function num(v){var n=Number(v);return Number.isFinite(n)?Math.round(n*10)/10:null;}
-  function dateKey(r){var s=String((r&&(r.date||r.sync_date||r.checkin_date||r.created_at||r.synced_at))||'');return s.length>=10?s.slice(0,10):null;}
-  function weightVal(r){
-    if(!r)return null; var raw=null; try{raw=r.raw?(typeof r.raw==='string'?JSON.parse(r.raw):r.raw):null;}catch(e){}
-    var vals=[r.bodyWeight,r.body_weight,r.weight,r.bodyweight,raw&&raw.bodyWeight,raw&&raw.body_weight,raw&&raw.weight];
-    for(var i=0;i<vals.length;i++){var n=num(vals[i]);if(n&&n>100&&n<450)return n;} return null;
-  }
-  function mergedRows(){
-    var map={}, rows=[];
-    try{(typeof loadHealthEntries==='function'?loadHealthEntries():[]).forEach(function(r){rows.push(Object.assign({},r,{_p:3}));});}catch(e){}
-    try{(typeof wcLogs!=='undefined'&&Array.isArray(wcLogs)?wcLogs:[]).forEach(function(r){rows.push(Object.assign({},r,{_p:2}));});}catch(e){}
-    rows.forEach(function(r){var d=dateKey(r), w=weightVal(r); if(!d||!w)return; if(!map[d]||r._p>=map[d]._p)map[d]={date:d,weight:w,_p:r._p};});
-    var today=new Date(); today.setHours(23,59,59,999);
-    return Object.keys(map).sort().map(function(k){return map[k];}).filter(function(r){return new Date(r.date+'T12:00:00')<=today;});
-  }
-  function redrawWeight(){
-    try{
-      var canvas=el('wc-dc-weight'); if(!canvas||typeof Chart==='undefined')return;
-      var rows=mergedRows(); if(!rows.length)return;
-      var latest=rows[rows.length-1];
-      var cutoff=new Date(latest.date+'T12:00:00'); cutoff.setDate(cutoff.getDate()-120);
-      rows=rows.filter(function(r){return new Date(r.date+'T12:00:00')>=cutoff;});
-      var labels=rows.map(function(r){var p=r.date.split('-');return p[1]+'/'+p[2];});
-      var actual=rows.map(function(r){return r.weight;});
-      var recent=rows.filter(function(r){return (new Date(latest.date+'T12:00:00')-new Date(r.date+'T12:00:00'))<=28*86400000;});
-      var pace=null;
-      if(recent.length>=2){
-        var first=recent[0], last=recent[recent.length-1];
-        var weeks=Math.max(1,(new Date(last.date+'T12:00:00')-new Date(first.date+'T12:00:00'))/604800000);
-        var p=(first.weight-last.weight)/weeks; if(p>0.05) pace=Math.min(2,Math.round(p*100)/100);
-      }
-      var target=195; try{target=typeof wcGetGoalWeight==='function'?Number(wcGetGoalWeight()):195;}catch(e){}
-      var proj=actual.map(function(){return null;});
-      if(pace){for(var i=1;i<=8;i++){var d=new Date(latest.date+'T12:00:00');d.setDate(d.getDate()+i*7);labels.push(String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'));actual.push(null);proj.push(Math.max(target,+(latest.weight-(pace*i)).toFixed(1)));}}
-      try{if(typeof _wcCharts!=='undefined'&&_wcCharts['wc-dc-weight']){_wcCharts['wc-dc-weight'].destroy();delete _wcCharts['wc-dc-weight'];}}catch(e){}
-      var opts=(typeof WC_CHART_OPTS!=='undefined')?WC_CHART_OPTS:{};
-      var datasets=[{label:'Actual',data:actual,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:.25,spanGaps:false}];
-      if(pace)datasets.push({label:'Projected',data:proj,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:.25,spanGaps:true});
-      var chart=new Chart(canvas.getContext('2d'),{type:'line',data:{labels:labels,datasets:datasets},options:Object.assign({},opts,{plugins:Object.assign({},opts.plugins||{},{legend:{display:!!pace,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}})})});
-      try{if(typeof _wcCharts!=='undefined')_wcCharts['wc-dc-weight']=chart;}catch(e){}
-    }catch(e){console.warn('6A19 weight redraw skipped',e);}
-  }
-  function el(id){return document.getElementById(id);}
-  function tick(){setTimeout(redrawWeight,100);setTimeout(redrawWeight,500);}
-  var old=window.wcRenderDashboard;
-  if(typeof old==='function'&&!old.__v6a19){window.wcRenderDashboard=function(){var r=old.apply(this,arguments);tick();return r;};window.wcRenderDashboard.__v6a19=true;}
-  document.addEventListener('DOMContentLoaded',tick);window.addEventListener('load',tick);window.Vertex6A19RedrawWeight=redrawWeight;
+  document.addEventListener('DOMContentLoaded', function(){
+    applyWorkoutStartState(false);
+    var sidebar=qs('.sidebar');
+    if(sidebar){
+      sidebar.addEventListener('click', function(e){
+        if(e.target && e.target.closest && e.target.closest('button')) startWorkoutPane();
+      }, true);
+      sidebar.addEventListener('input', function(){ startWorkoutPane(); }, true);
+      sidebar.addEventListener('focusin', function(e){
+        if(e.target && e.target.id==='search') startWorkoutPane();
+      }, true);
+    }
+  });
 })();
 </script>

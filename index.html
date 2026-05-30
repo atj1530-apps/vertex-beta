@@ -4215,6 +4215,43 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   }
 </style>
 
+
+<style id="vertex-6a11f-sidebar-hard-fix">
+  .side, .sidebar, aside, #sidebar, .workout-sidebar{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    contain:layout!important;
+  }
+  .side *{
+    position:relative;
+  }
+  .side [style*="position: sticky"],
+  .side [style*="position:sticky"],
+  .side [style*="position: fixed"],
+  .side [style*="position:fixed"],
+  .recently-used,
+  .recent-list,
+  #recent-list,
+  [data-section="recently-used"],
+  [data-recent],
+  .recent-header,
+  .recent-title{
+    position:relative!important;
+    top:auto!important;
+    bottom:auto!important;
+    left:auto!important;
+    right:auto!important;
+    z-index:1!important;
+  }
+  .recently-used,
+  .recent-list,
+  #recent-list{
+    display:block!important;
+    transform:none!important;
+    margin-top:10px!important;
+  }
+</style>
+
 </head>
 <body class="auth-resolving">
 
@@ -15212,7 +15249,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.19-phase6A11d-safe-tooltip-equipment';
+  const VERSION='v13.62.21-phase6A11f-sidebar-narrow';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}

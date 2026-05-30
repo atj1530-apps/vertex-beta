@@ -2,7 +2,7 @@
    v20260529-6b2
    Network-first for HTML so deploys are visible immediately.
 */
-const CACHE_NAME = 'vertex-v20260530-6a9a-syntax-fix';
+const CACHE_NAME = 'vertex-v20260530-6a9b-syntax-cleansyntax-fix';
 const APP_SHELL = [
   './',
   './index.html',

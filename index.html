@@ -10270,17 +10270,22 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-<script id="vertex-equip-clear-all-handler">
-document.addEventListener('click',function(e){
-  if(e.target.closest('[data-equip-clear-all]')){
-    e.preventDefault();
-    state.equipment={};
-    saveEquipmentProfile();
-    renderEquipmentModalBody();
-    renderSidebar();
+
+<script id="vertex-equip-clear-all-handler-safe">
+document.addEventListener('click', function(e){
+  var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
+  if(!el) return;
+  e.preventDefault();
+  if(typeof state !== 'undefined'){
+    state.equipment = {};
+    if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
+    if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
+    if(typeof renderSidebar === 'function') renderSidebar();
   }
-},true);
-</script></body></html>`;
+}, true);
+</script>
+
+</body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
         if(status) status.textContent = '✓ Print dialog opened. Close this panel when done.';
@@ -11959,17 +11964,22 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-<script id="vertex-equip-clear-all-handler">
-document.addEventListener('click',function(e){
-  if(e.target.closest('[data-equip-clear-all]')){
-    e.preventDefault();
-    state.equipment={};
-    saveEquipmentProfile();
-    renderEquipmentModalBody();
-    renderSidebar();
+
+<script id="vertex-equip-clear-all-handler-safe">
+document.addEventListener('click', function(e){
+  var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
+  if(!el) return;
+  e.preventDefault();
+  if(typeof state !== 'undefined'){
+    state.equipment = {};
+    if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
+    if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
+    if(typeof renderSidebar === 'function') renderSidebar();
   }
-},true);
-</script></body></html>`;
+}, true);
+</script>
+
+</body></html>`;
 
     const w = window.open('','_blank');
     if(w){ w.document.write(html); w.document.close(); setTimeout(()=>{ try{ w.print(); }catch(e){} }, 400); }
@@ -12288,17 +12298,22 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-<script id="vertex-equip-clear-all-handler">
-document.addEventListener('click',function(e){
-  if(e.target.closest('[data-equip-clear-all]')){
-    e.preventDefault();
-    state.equipment={};
-    saveEquipmentProfile();
-    renderEquipmentModalBody();
-    renderSidebar();
+
+<script id="vertex-equip-clear-all-handler-safe">
+document.addEventListener('click', function(e){
+  var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
+  if(!el) return;
+  e.preventDefault();
+  if(typeof state !== 'undefined'){
+    state.equipment = {};
+    if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
+    if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
+    if(typeof renderSidebar === 'function') renderSidebar();
   }
-},true);
-</script></body></html>`);
+}, true);
+</script>
+
+</body></html>`);
     w.document.close();
   };
 })();
@@ -12577,17 +12592,22 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-<script id="vertex-equip-clear-all-handler">
-document.addEventListener('click',function(e){
-  if(e.target.closest('[data-equip-clear-all]')){
-    e.preventDefault();
-    state.equipment={};
-    saveEquipmentProfile();
-    renderEquipmentModalBody();
-    renderSidebar();
+
+<script id="vertex-equip-clear-all-handler-safe">
+document.addEventListener('click', function(e){
+  var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
+  if(!el) return;
+  e.preventDefault();
+  if(typeof state !== 'undefined'){
+    state.equipment = {};
+    if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
+    if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
+    if(typeof renderSidebar === 'function') renderSidebar();
   }
-},true);
-</script></body></html>`);
+}, true);
+</script>
+
+</body></html>`);
   w.document.close();
 }
 window.vertexShowSyncDiag=vertexShowSyncDiag;
@@ -15246,7 +15266,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.9-phase6A9-equipment-add-fix';
+  const VERSION='v13.62.10-phase6A9a-syntax-fix';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -20950,17 +20970,22 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
 </script>
-<script id="vertex-equip-clear-all-handler">
-document.addEventListener('click',function(e){
-  if(e.target.closest('[data-equip-clear-all]')){
-    e.preventDefault();
-    state.equipment={};
-    saveEquipmentProfile();
-    renderEquipmentModalBody();
-    renderSidebar();
+
+<script id="vertex-equip-clear-all-handler-safe">
+document.addEventListener('click', function(e){
+  var el = e.target && e.target.closest ? e.target.closest('[data-equip-clear-all]') : null;
+  if(!el) return;
+  e.preventDefault();
+  if(typeof state !== 'undefined'){
+    state.equipment = {};
+    if(typeof saveEquipmentProfile === 'function') saveEquipmentProfile();
+    if(typeof renderEquipmentModalBody === 'function') renderEquipmentModalBody();
+    if(typeof renderSidebar === 'function') renderSidebar();
   }
-},true);
-</script></body>
+}, true);
+</script>
+
+</body>
 </html>
 
 <script>

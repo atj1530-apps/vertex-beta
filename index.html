@@ -10288,35 +10288,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-
-<script id="vertex-6a11e-runtime-data-fix">
-(function(){
-  function fixList(){
-    try{
-      var list=(typeof EXERCISES!=='undefined' && Array.isArray(EXERCISES)) ? EXERCISES : null;
-      if(!list) return;
-      var hasNarrow=false;
-      list.forEach(function(ex){
-        if(!ex || !ex.name) return;
-        var n=String(ex.name).toLowerCase();
-        if(n.indexOf('sissy squat')>=0){ ex.name='Narrow-Stance Squat'; n='narrow-stance squat'; }
-        if(n==='narrow-stance squat'){ hasNarrow=true; ex.muscle='Legs'; ex.category='Legs'; ex.target='Legs'; ex.targetArea='Legs'; ex.equip='Bodyweight'; ex.equipment='Bodyweight'; ex.equipment_type='Bodyweight'; }
-        if(n.indexOf('high cable fly')>=0 || n.indexOf('low cable fly')>=0 || n.indexOf('cable fly')>=0 || n.indexOf('cable chest press')>=0){
-          ex.muscle='Chest'; ex.category='Chest'; ex.target='Chest'; ex.targetArea='Chest';
-          ex.equip='Cable'; ex.equipment='Cable'; ex.equipment_type='Cable';
-        }
-      });
-      if(!hasNarrow){
-        list.push({name:'Narrow-Stance Squat',training:'Strength',muscle:'Legs',category:'Legs',target:'Legs',targetArea:'Legs',equip:'Bodyweight',equipment:'Bodyweight',equipment_type:'Bodyweight',env:'home'});
-      }
-      if(typeof renderSidebar==='function') renderSidebar();
-    }catch(e){}
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fixList); else fixList();
-  setTimeout(fixList,300);
-})();
-</script>
-
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -15241,7 +15212,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.20-phase6A11e-cable-narrow';
+  const VERSION='v13.62.19-phase6A11d-safe-tooltip-equipment';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}

@@ -4273,7 +4273,7 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   }
 </style>
 
-</head>
+<style>@media(max-width:900px){#workoutStartGuide>div:first-child{grid-template-columns:1fr!important}#workoutStartGuide div[style*="repeat(3,1fr)"]{grid-template-columns:1fr!important}}</style></head>
 <body class="auth-resolving">
 
 <div id="vertex-bootstrap-screen">
@@ -4771,16 +4771,15 @@ window.vertexFinishBootstrap=function(){
     <section id="plannerAcc" class="panel planner-panel open"><div class="acc-body" style="display:block"><div class="label">Weekly Planner v2 · Start Today Flow</div><p style="color:var(--muted);margin:8px 0 14px">Build custom workouts from the library for each day, then start <b style="color:var(--acc)">today’s workout.</b></p><div style="overflow-x:auto;margin:0 -8px;padding:0 8px 0 8px;box-sizing:border-box"><div id="planner" class="planner-grid"></div></div></div></section>
 
 
-    <section id="workoutStartGuide" class="panel hl today-card" style="display:block;padding:24px 26px;margin-bottom:16px;display:none">
-      <div class="label" style="color:var(--acc);margin-bottom:10px">Workout Setup</div>
-      <h2 style="margin:0 0 10px;font-size:30px;letter-spacing:.3px">Ready to Start a Workout?</h2>
-      <p style="color:var(--muted);margin:0 0 18px;font-size:15px;line-height:1.45">Use the left panel to choose how you want to train today.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
-        <div class="panel" style="margin:0"><b>Step 1</b><br><span style="color:var(--muted)">Choose Gym or Home.</span></div>
-        <div class="panel" style="margin:0"><b>Step 2</b><br><span style="color:var(--muted)">Pick a program, template, or training focus.</span></div>
-        <div class="panel" style="margin:0"><b>Step 3</b><br><span style="color:var(--muted)">Build the workout and start training.</span></div>
-      </div>
-    </section>
+    <section id="workoutStartGuide" class="panel hl today-card" style="display:block;padding:18px 22px;margin-bottom:16px;display:none">
+<div style="display:grid;grid-template-columns:1.1fr .9fr 2fr;gap:18px;align-items:center">
+<div><div class="label" style="color:var(--acc);margin-bottom:8px">WORKOUT SETUP</div><h2 style="margin:0;font-size:24px;line-height:1.15">Ready to Start a Workout?</h2></div>
+<div><p style="color:#b8c0cc;margin:0;font-size:14px;line-height:1.5">Use the left panel to choose how you want to train today.</p></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+<div class="panel" style="margin:0"><b>🏠 Step 1</b><br><span style="color:var(--muted)">Choose Gym or Home.</span></div>
+<div class="panel" style="margin:0"><b>📋 Step 2</b><br><span style="color:var(--muted)">Select a program, template, or focus.</span></div>
+<div class="panel" style="margin:0"><b>🏋️ Step 3</b><br><span style="color:var(--muted)">Build the workout and start training.</span></div>
+</div></div></section>
 
     <div id="coachBar" class="coachbar">Ready: Push intensity today.</div>
     <section id="autoCoachAcc" class="accordion open"><div class="acc-head"><span class="acc-title">Auto Coach</span><span class="acc-hint">▼ COLLAPSE</span></div><div class="acc-body"><div id="autoCoachBody"><div class="label" style="color:var(--acc)">Auto Coach</div><p style="color:var(--muted);margin:4px 0 12px">Optional plan guidance based on recovery, workout type, and live performance signals.</p><div class="panel" style="margin:0"><b>Recovery signal is favorable.</b><br><span style="color:var(--muted)">Add a small load or rep increase where form is stable.</span></div></div></div></section>
@@ -10372,7 +10371,7 @@ function protoSelectDate(dateStr){
   }
 </style>
 
-</head><body>
+<style>@media(max-width:900px){#workoutStartGuide>div:first-child{grid-template-columns:1fr!important}#workoutStartGuide div[style*="repeat(3,1fr)"]{grid-template-columns:1fr!important}}</style></head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
           <div class="meta">Generated: ${pdfDateStr} · ${items.length} active compound${items.length===1?'':'s'}</div>
@@ -12030,7 +12029,7 @@ function generateVertexPDFReport(){
 </style>
 
 
-</head><body>
+<style>@media(max-width:900px){#workoutStartGuide>div:first-child{grid-template-columns:1fr!important}#workoutStartGuide div[style*="repeat(3,1fr)"]{grid-template-columns:1fr!important}}</style></head><body>
 
 <h1>Vertex</h1>
 <div class="meta">Health &amp; Fitness Report · ${esc(displayName)} · Generated ${dateStr}</div>
@@ -12414,7 +12413,7 @@ window.renderSymmetry = renderSymmetry;
 </style>
 
 
-</head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
+<style>@media(max-width:900px){#workoutStartGuide>div:first-child{grid-template-columns:1fr!important}#workoutStartGuide div[style*="repeat(3,1fr)"]{grid-template-columns:1fr!important}}</style></head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX
@@ -12695,7 +12694,7 @@ function vertexShowSyncDiag(){
 </style>
 
 
-</head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
+<style>@media(max-width:900px){#workoutStartGuide>div:first-child{grid-template-columns:1fr!important}#workoutStartGuide div[style*="repeat(3,1fr)"]{grid-template-columns:1fr!important}}</style></head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
    v20260526-y WORKOUT BUILDER QUIET-STATE ROOT FIX

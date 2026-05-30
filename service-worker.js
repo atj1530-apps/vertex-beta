@@ -2,7 +2,7 @@
    v20260529-6b2
    Network-first for HTML so deploys are visible immediately.
 */
-const CACHE_NAME = 'vertex-v20260529-6a8-home-equipment-clean';
+const CACHE_NAME = 'vertex-v20260529-6a8-equipment-module';
 const APP_SHELL = [
   './',
   './index.html',

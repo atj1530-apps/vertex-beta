@@ -21089,71 +21089,6 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
 </script>
 
 
-<!-- Phase 6A16: hard page-state and workout empty-state lock -->
-<style>
-  body:not(.app-page-progress) #progressPage{display:none!important;}
-  body:not(.app-page-home) #home-dashboard{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #workoutStartGuide{display:block!important;}
-  body.app-page-workout.vertex-workout-empty #coachBar,
-  body.app-page-workout.vertex-workout-empty #autoCoachAcc,
-  body.app-page-workout.vertex-workout-empty .wkt-name-row,
-  body.app-page-workout.vertex-workout-empty #wkt-meta,
-  body.app-page-workout.vertex-workout-empty #builder{display:none!important;}
-</style>
-<script>
-(function(){
-  function q(id){return document.getElementById(id);}
-  function show(el,on,display){ if(el) el.style.display=on?(display||''):'none'; }
-  function page(){ try{return (state&&state.page)||'home';}catch(e){return 'home';} }
-  function workoutEmpty(){
-    try{
-      if(typeof hasWorkout==='function') return !hasWorkout(state.current);
-      var w=state&&state.current;
-      return !(w&&Array.isArray(w.exercises)&&w.exercises.length>0);
-    }catch(e){ return true; }
-  }
-  function syncVertexPageState(){
-    var pg=page();
-    var onHome=pg==='home', onWorkout=pg==='workout', onProgress=pg==='progress';
-    document.body.classList.toggle('app-page-home', onHome);
-    document.body.classList.toggle('app-page-workout', onWorkout);
-    document.body.classList.toggle('app-page-progress', onProgress);
-    document.body.classList.toggle('app-page-nonworkout', !onWorkout);
-    var empty=onWorkout && workoutEmpty();
-    document.body.classList.toggle('vertex-workout-empty', empty);
-
-    show(q('home-dashboard'), onHome);
-    show(q('progressPage'), onProgress, 'block');
-    show(q('wellnessPage'), pg==='wellness', 'block');
-    show(q('aiPage'), pg==='ai', 'block');
-
-    show(q('workoutStartGuide'), empty, 'block');
-    show(q('coachBar'), onWorkout && !empty);
-    show(q('autoCoachAcc'), onWorkout && !empty);
-    var nameRow=document.querySelector('.wkt-name-row'); show(nameRow, onWorkout && !empty);
-    show(q('wkt-meta'), onWorkout && !empty);
-    show(q('builder'), onWorkout && !empty);
-  }
-  function after(){ setTimeout(syncVertexPageState,0); setTimeout(syncVertexPageState,80); }
-  ['setPage','renderAll','renderBuilder','addExerciseByName','clearCurrent','loadTemplate','loadWorkoutIntoBuilder'].forEach(function(name){
-    try{
-      var fn=window[name];
-      if(typeof fn==='function' && !fn.__vertex6A16){
-        var wrapped=function(){ var out=fn.apply(this,arguments); after(); return out; };
-        wrapped.__vertex6A16=true;
-        window[name]=wrapped;
-      }
-    }catch(e){}
-  });
-  document.addEventListener('DOMContentLoaded', after);
-  window.addEventListener('pageshow', after);
-  document.addEventListener('click', function(e){
-    if(e.target && e.target.closest && (e.target.closest('[data-nav]') || e.target.closest('[data-add]') || e.target.closest('[data-load]') || e.target.closest('[data-template]') || e.target.closest('[data-clear]'))) after();
-  }, true);
-  window.Vertex6A16SyncWorkoutState=syncVertexPageState;
-  after();
-})();
-</script>
 </body>
 </html>
 
@@ -22057,4 +21992,77 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
 
 
 <!-- Phase 6A15 superseded by Phase 6A16 state lock -->
+
+<!-- Phase 6A17: page routing correction / workout empty-state verified -->
+<style id="vertex-6a17-page-routing-style">
+  body:not(.app-page-home) #home-dashboard{display:none!important;}
+  body:not(.app-page-progress) #progressPage{display:none!important;}
+  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
+  body:not(.app-page-ai) #aiPage{display:none!important;}
+  body.app-page-workout.vertex-workout-empty #workoutStartGuide{display:block!important;}
+  body.app-page-workout.vertex-workout-empty #autoCoachAcc,
+  body.app-page-workout.vertex-workout-empty .coachbar,
+  body.app-page-workout.vertex-workout-empty .wkt-name-row,
+  body.app-page-workout.vertex-workout-empty #wkt-meta,
+  body.app-page-workout.vertex-workout-empty #builder{display:none!important;}
+</style>
+<script id="vertex-6a17-page-routing-script">
+(function(){
+  function byId(id){ return document.getElementById(id); }
+  function activePage(){
+    var nav=document.querySelector('[data-nav].on');
+    var pg=nav&&nav.getAttribute('data-nav');
+    if(pg) return pg;
+    try{ return (window.state&&window.state.page)||state.page||'workout'; }catch(e){ return 'workout'; }
+  }
+  function workoutHasExercises(){
+    try{
+      var w=(window.state&&window.state.current)||state.current||{};
+      if(w.type==='strength') return Array.isArray(w.exercises)&&w.exercises.length>0;
+      if(w.type==='flow'||w.type==='interval') return Array.isArray(w.moves)&&w.moves.length>0;
+      if(w.type==='mobility_strength_hybrid') return Array.isArray(w.phases)&&w.phases.length>0;
+      return (Array.isArray(w.exercises)&&w.exercises.length>0)||(Array.isArray(w.moves)&&w.moves.length>0)||(Array.isArray(w.phases)&&w.phases.length>0);
+    }catch(e){ return false; }
+  }
+  function show(el,on,display){ if(el) el.style.display=on?(display||''):'none'; }
+  function sync(){
+    var pg=activePage();
+    try{ if(window.state) window.state.page=pg; else if(typeof state!=='undefined') state.page=pg; }catch(e){}
+
+    ['home','workout','progress','wellness','ai'].forEach(function(p){
+      document.body.classList.toggle('app-page-'+p, pg===p);
+    });
+    document.body.classList.toggle('app-page-nonworkout', pg!=='workout');
+
+    var onHome=pg==='home', onWorkout=pg==='workout', onProgress=pg==='progress', onWellness=pg==='wellness', onAi=pg==='ai';
+    var empty=onWorkout && !workoutHasExercises();
+    document.body.classList.toggle('vertex-workout-empty', empty);
+
+    show(byId('home-dashboard'), onHome, 'block');
+    show(byId('homePage'), false);
+    show(byId('progressPage'), onProgress, 'block');
+    show(byId('wellnessPage'), onWellness, 'block');
+    show(byId('aiPage'), onAi, 'block');
+
+    document.querySelectorAll('.sidebar').forEach(function(el){ show(el,onWorkout); });
+    document.querySelectorAll('.right').forEach(function(el){ show(el,onWorkout); });
+
+    show(byId('workoutStartGuide'), empty, 'block');
+    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(function(el){ show(el,onWorkout && !empty); });
+    ['savedAcc','statsAcc','coachAcc'].forEach(function(id){ show(byId(id), onWorkout); });
+
+    var logBtn=byId('btn-log'); if(logBtn) logBtn.style.display=onWorkout?'':'none';
+    var saveBtn=byId('btn-save'); if(saveBtn) saveBtn.style.display=onWorkout?'':'none';
+  }
+  function defer(){ setTimeout(sync,0); setTimeout(sync,120); setTimeout(sync,450); }
+  document.addEventListener('DOMContentLoaded', defer);
+  window.addEventListener('load', defer);
+  window.addEventListener('pageshow', defer);
+  document.addEventListener('click', function(e){
+    if(e.target&&e.target.closest&&e.target.closest('[data-nav], [data-add], [data-load-tpl], [data-start-day], [data-edit-day], #btn-add-library, #btn-manual-entry, .seg-btn')) defer();
+  }, true);
+  window.Vertex6A17PageSync=sync;
+  defer();
+})();
+</script>
 

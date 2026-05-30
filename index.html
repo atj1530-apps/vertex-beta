@@ -4200,23 +4200,6 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
-
-<script id="vertex-escape-html-helper">
-window.escapeHtml = window.escapeHtml || function(value){
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-};
-</script>
-
-
-<script id="vertex-escape-html-alias">
-var escapeHtml = window.escapeHtml;
-</script>
-
 </head>
 <body class="auth-resolving">
 
@@ -9752,23 +9735,6 @@ function protoSelectDate(dateStr){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
-
-<script id="vertex-escape-html-helper">
-window.escapeHtml = window.escapeHtml || function(value){
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-};
-</script>
-
-
-<script id="vertex-escape-html-alias">
-var escapeHtml = window.escapeHtml;
-</script>
-
 </head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
@@ -11416,23 +11382,6 @@ function generateVertexPDFReport(){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
-
-<script id="vertex-escape-html-helper">
-window.escapeHtml = window.escapeHtml || function(value){
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-};
-</script>
-
-
-<script id="vertex-escape-html-alias">
-var escapeHtml = window.escapeHtml;
-</script>
-
 </head><body>
 
 <h1>Vertex</h1>
@@ -11815,23 +11764,6 @@ window.renderSymmetry = renderSymmetry;
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
-
-<script id="vertex-escape-html-helper">
-window.escapeHtml = window.escapeHtml || function(value){
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-};
-</script>
-
-
-<script id="vertex-escape-html-alias">
-var escapeHtml = window.escapeHtml;
-</script>
-
 </head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
@@ -12111,23 +12043,6 @@ function vertexShowSyncDiag(){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
-
-<script id="vertex-escape-html-helper">
-window.escapeHtml = window.escapeHtml || function(value){
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-};
-</script>
-
-
-<script id="vertex-escape-html-alias">
-var escapeHtml = window.escapeHtml;
-</script>
-
 </head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
@@ -13102,6 +13017,16 @@ document.addEventListener('DOMContentLoaded',function(){
   
 <script id="vertex-6b1-media-foundation-js">
 (function(){
+  function mediaEscape(value){
+    return String(value ?? '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#039;');
+  }
+  function mediaEscapeAttr(value){ return mediaEscape(value); }
+
   function slugifyMediaName(name){
     return String(name||'exercise').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'exercise';
   }
@@ -13155,7 +13080,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(add) add.setAttribute('data-name', ex.name||name||'');
     if(stage){
       if(paths.hasVideo){
-        stage.innerHTML='<video controls playsinline preload="metadata" style="width:100%;max-height:360px;border-radius:12px;background:#000"><source src="'+escapeAttr(paths.video)+'" type="video/mp4">Video unavailable.</video>';
+        stage.innerHTML='<video controls playsinline preload="metadata" style="width:100%;max-height:360px;border-radius:12px;background:#000"><source src="'+mediaEscapeAttr(paths.video)+'" type="video/mp4">Video unavailable.</video>';
       }else{
         stage.innerHTML='<div><b>Video Coming Soon</b><span>Bunny video and thumbnail paths are ready. Upload media in Phase 6B.2 and this area becomes the demo player.</span></div>';
       }
@@ -13169,11 +13094,11 @@ document.addEventListener('DOMContentLoaded',function(){
         ['Thumbnail Path', paths.thumbnail],
         ['Media Status', paths.hasVideo ? 'Video ready' : 'Placeholder only']
       ];
-      fields.innerHTML=rows.map(r=>'<div class="media-field"><div class="k">'+escapeHtml(r[0])+'</div><div class="v">'+escapeHtml(r[1])+'</div></div>').join('');
+      fields.innerHTML=rows.map(r=>'<div class="media-field"><div class="k">'+mediaEscape(r[0])+'</div><div class="v">'+mediaEscape(r[1])+'</div></div>').join('');
     }
     if(cues){
       const cueList=Array.isArray(ex.coach_cues)&&ex.coach_cues.length?ex.coach_cues:defaultCoachCues(ex);
-      cues.innerHTML=cueList.map(c=>'<div class="media-cue">'+escapeHtml(c)+'</div>').join('');
+      cues.innerHTML=cueList.map(c=>'<div class="media-cue">'+mediaEscape(c)+'</div>').join('');
     }
     requestAnimationFrame(()=>modal.classList.add('on'));
     document.body.style.overflow='hidden';
@@ -14802,7 +14727,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.1-phase6B1a-escape-fix';
+  const VERSION='v13.62.2-phase6B1b-syntax-fix';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}

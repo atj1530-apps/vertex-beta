@@ -4200,6 +4200,59 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<style id="vertex-6a9d-layout-fix">
+  #workoutStartGuide{
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  #workoutStartGuide .setup-steps,
+  #workoutStartGuide [class*="setup-steps"]{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  #workoutStartGuide .setup-step,
+  #workoutStartGuide [class*="setup-step"]{
+    min-width:0!important;
+    overflow-wrap:break-word!important;
+    word-break:normal!important;
+  }
+  @media(max-width:820px){
+    #workoutStartGuide{
+      padding:22px!important;
+    }
+    #workoutStartGuide .setup-steps,
+    #workoutStartGuide [class*="setup-steps"]{
+      grid-template-columns:1fr!important;
+    }
+  }
+  @media(max-width:720px){
+    #equipmentPanel{
+      display:block!important;
+      width:100%!important;
+      margin:10px 0 14px!important;
+      grid-column:1 / -1!important;
+    }
+    #btn-equipment-open{
+      min-height:42px!important;
+    }
+  }
+  .vertex-equipment-actions{
+    display:grid!important;
+    grid-template-columns:1fr 1fr 1fr!important;
+    gap:10px!important;
+    margin-top:14px!important;
+  }
+  @media(max-width:640px){
+    .vertex-equipment-actions{
+      grid-template-columns:1fr!important;
+    }
+  }
+</style>
+
 </head>
 <body class="auth-resolving">
 
@@ -4870,7 +4923,7 @@ window.vertexFinishBootstrap=function(){
 <div id="libraryModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)" id="libraryModalLabel">Add Exercise to Library</div><h2 id="libraryModalTitle">Add Exercise</h2><p id="libraryModalDesc">Create a new exercise and keep it in your library going forward. Custom exercises are saved in this browser.</p><div class="manual-grid"><label><span class="label">Category</span><select id="libraryEnv"><option value="home">Home</option><option value="gym">Gym</option></select></label><label><span class="label">Training Focus</span><select id="libraryTraining"><option>Strength</option><option>Kettlebell</option><option>Yoga / Pilates</option><option>Cardio</option><option>Recovery / Mobility</option></select></label><label class="wide"><span class="label">Exercise Name</span><input id="libraryName" placeholder="e.g., Band Face Pull"></label><label><span class="label">Muscle Group / Subcategory</span><select id="libraryMuscle"></select></label><label><span class="label">Equipment</span><select id="libraryEquip"><option>Dumbbells</option><option>Bodyweight</option><option>Band</option><option>Bench</option><option>Pull-Up Bar</option><option>Kettlebell</option><option>Mat</option><option>Cable</option><option>Machine</option><option>Barbell</option><option>Bike</option><option>Treadmill</option><option>Rower</option><option>None</option><option>Other</option></select></label><label><span class="label">Movement Type</span><select id="libraryKind"><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="core">Core</option><option value="cardio">Cardio</option><option value="recovery">Recovery</option><option value="stretch">Stretch</option><option value="kettlebell">Kettlebell</option><option value="mobility">Mobility</option><option value="custom">Custom</option></select></label></div><div class="manual-help">Saved exercises appear in the sidebar after refresh and follow the same filters as built-in exercises.</div><div class="modal-grid"><button id="librarySave" class="btn acc">Save to Library</button><button id="libraryCancel" class="btn red">Cancel</button></div></div></div>
 <div id="manualModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Lightweight Manual Entry</div><h2>Add Custom Move</h2><p>Add a one-off exercise without expanding the library. Good for substitutes, rehab moves, carries, machine variants, or quick notes.</p><div class="manual-grid"><label class="wide"><span class="label">Exercise Name</span><input id="manualName" placeholder="e.g., Seated Cable Row"></label><label><span class="label">Muscle Group</span><select id="manualMuscle"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Legs</option><option>Arms</option><option>Triceps</option><option>Core</option><option>Recovery</option></select></label><label><span class="label">Equipment</span><input id="manualEquip" placeholder="Dumbbells, Machine, Bodyweight"></label><label><span class="label">Sets</span><input id="manualSets" type="number" min="1" max="12" value="3"></label><label><span class="label">Reps</span><input id="manualReps" type="number" min="0" max="200" value="8"></label><label><span class="label">Weight</span><input id="manualWeight" placeholder="optional"></label><label><span class="label">Type</span><select id="manualKind"><option value="custom">Custom</option><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="recovery">Recovery</option></select></label></div><div class="manual-help">This adds directly to the current workout only. It does not permanently change the main exercise library.</div><div class="modal-grid"><button id="manualAdd" class="btn acc">Add to Workout</button><button id="manualCancel" class="btn red">Cancel</button></div></div></div>
 
-<div id="equipmentModal" class="modal-overlay" data-close-on-backdrop="1"><div class="modal"><div class="label" style="color:var(--acc)">Home Equipment</div><h2>Available Equipment</h2><p>Toggle the equipment you have access to. The exercise list updates to match.</p><div id="equipmentModalBody" style="margin-top:14px"></div><div class="modal-grid"><button id="equipmentAllOn" class="btn">All On</button><button id="equipmentClearAll" class="btn red">Clear All</button><button id="equipmentDone" class="btn acc">Done</button></div></div></div>
+<div id="equipmentModal" class="modal-overlay" data-close-on-backdrop="1"><div class="modal"><div class="label" style="color:var(--acc)">Home Equipment</div><h2>Available Equipment</h2><p>Toggle the equipment you have access to. The exercise list updates to match.</p><div id="equipmentModalBody" style="margin-top:14px"></div><div class="modal-grid"><div class="vertex-equipment-actions"><button id="equipmentAllOn" class="btn">All On</button><button id="equipmentClearAll" class="btn red">Clear All</button><button id="equipmentDone" class="btn acc">Done</button></div></div></div></div>
 
 <!-- SUPPLEMENT ADD/EDIT MODAL -->
 <!-- SUPPLEMENT / PROTOCOL ADD MODAL -->
@@ -10184,6 +10237,59 @@ function protoSelectDate(dateStr){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<style id="vertex-6a9d-layout-fix">
+  #workoutStartGuide{
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  #workoutStartGuide .setup-steps,
+  #workoutStartGuide [class*="setup-steps"]{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  #workoutStartGuide .setup-step,
+  #workoutStartGuide [class*="setup-step"]{
+    min-width:0!important;
+    overflow-wrap:break-word!important;
+    word-break:normal!important;
+  }
+  @media(max-width:820px){
+    #workoutStartGuide{
+      padding:22px!important;
+    }
+    #workoutStartGuide .setup-steps,
+    #workoutStartGuide [class*="setup-steps"]{
+      grid-template-columns:1fr!important;
+    }
+  }
+  @media(max-width:720px){
+    #equipmentPanel{
+      display:block!important;
+      width:100%!important;
+      margin:10px 0 14px!important;
+      grid-column:1 / -1!important;
+    }
+    #btn-equipment-open{
+      min-height:42px!important;
+    }
+  }
+  .vertex-equipment-actions{
+    display:grid!important;
+    grid-template-columns:1fr 1fr 1fr!important;
+    gap:10px!important;
+    margin-top:14px!important;
+  }
+  @media(max-width:640px){
+    .vertex-equipment-actions{
+      grid-template-columns:1fr!important;
+    }
+  }
+</style>
+
 </head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
@@ -10266,6 +10372,47 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
+
+<script id="vertex-6a9d-equipment-mobile-fix">
+(function(){
+  function ensureEquipmentPanel(){
+    var panel=document.getElementById('equipmentPanel');
+    var homeBtn=document.querySelector('[data-env="home"]');
+    var homeActive=homeBtn && (homeBtn.classList.contains('active') || homeBtn.classList.contains('selected') || homeBtn.getAttribute('aria-pressed')==='true' || /\bHome\b/.test(homeBtn.textContent||'') && (homeBtn.style.borderColor||''));
+    if(panel && typeof state!=='undefined' && state.env==='home'){
+      panel.style.display='block';
+    }
+  }
+  document.addEventListener('click', function(e){
+    setTimeout(ensureEquipmentPanel,0);
+    var btn=e.target && e.target.closest ? e.target.closest('#btn-equipment-open') : null;
+    if(btn && typeof openEquipmentModal==='function'){
+      e.preventDefault();
+      openEquipmentModal();
+    }
+    if(e.target && e.target.closest && e.target.closest('[data-equip-done]')){
+      var modal=document.getElementById('equipmentModal') || document.querySelector('.equipment-modal,.modal-overlay');
+      if(modal) modal.style.display='none';
+    }
+    if(e.target && e.target.closest && e.target.closest('[data-equip-all]')){
+      e.preventDefault();
+      if(typeof state!=='undefined'){
+        if(!state.equipment) state.equipment={};
+        if(typeof EQUIPMENT_OPTIONS!=='undefined' && typeof equipmentKey==='function'){
+          EQUIPMENT_OPTIONS.forEach(function(eq){ if(String(eq).toLowerCase()!=='none') state.equipment[equipmentKey(eq)]=true; });
+        }
+        if(typeof saveEquipmentProfile==='function') saveEquipmentProfile();
+        if(typeof renderEquipmentModalBody==='function') renderEquipmentModalBody();
+        if(typeof renderSidebar==='function') renderSidebar();
+      }
+    }
+  }, true);
+  document.addEventListener('DOMContentLoaded', ensureEquipmentPanel);
+  setTimeout(ensureEquipmentPanel,500);
+})();
+</script>
+
+<script>window.VERTEX_EQUIPMENT_SYNC_SCOPE='local-current-account-sync-pending';</script>
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -11840,6 +11987,59 @@ function generateVertexPDFReport(){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<style id="vertex-6a9d-layout-fix">
+  #workoutStartGuide{
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  #workoutStartGuide .setup-steps,
+  #workoutStartGuide [class*="setup-steps"]{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  #workoutStartGuide .setup-step,
+  #workoutStartGuide [class*="setup-step"]{
+    min-width:0!important;
+    overflow-wrap:break-word!important;
+    word-break:normal!important;
+  }
+  @media(max-width:820px){
+    #workoutStartGuide{
+      padding:22px!important;
+    }
+    #workoutStartGuide .setup-steps,
+    #workoutStartGuide [class*="setup-steps"]{
+      grid-template-columns:1fr!important;
+    }
+  }
+  @media(max-width:720px){
+    #equipmentPanel{
+      display:block!important;
+      width:100%!important;
+      margin:10px 0 14px!important;
+      grid-column:1 / -1!important;
+    }
+    #btn-equipment-open{
+      min-height:42px!important;
+    }
+  }
+  .vertex-equipment-actions{
+    display:grid!important;
+    grid-template-columns:1fr 1fr 1fr!important;
+    gap:10px!important;
+    margin-top:14px!important;
+  }
+  @media(max-width:640px){
+    .vertex-equipment-actions{
+      grid-template-columns:1fr!important;
+    }
+  }
+</style>
+
 </head><body>
 
 <h1>Vertex</h1>
@@ -12222,6 +12422,59 @@ window.renderSymmetry = renderSymmetry;
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<style id="vertex-6a9d-layout-fix">
+  #workoutStartGuide{
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  #workoutStartGuide .setup-steps,
+  #workoutStartGuide [class*="setup-steps"]{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  #workoutStartGuide .setup-step,
+  #workoutStartGuide [class*="setup-step"]{
+    min-width:0!important;
+    overflow-wrap:break-word!important;
+    word-break:normal!important;
+  }
+  @media(max-width:820px){
+    #workoutStartGuide{
+      padding:22px!important;
+    }
+    #workoutStartGuide .setup-steps,
+    #workoutStartGuide [class*="setup-steps"]{
+      grid-template-columns:1fr!important;
+    }
+  }
+  @media(max-width:720px){
+    #equipmentPanel{
+      display:block!important;
+      width:100%!important;
+      margin:10px 0 14px!important;
+      grid-column:1 / -1!important;
+    }
+    #btn-equipment-open{
+      min-height:42px!important;
+    }
+  }
+  .vertex-equipment-actions{
+    display:grid!important;
+    grid-template-columns:1fr 1fr 1fr!important;
+    gap:10px!important;
+    margin-top:14px!important;
+  }
+  @media(max-width:640px){
+    .vertex-equipment-actions{
+      grid-template-columns:1fr!important;
+    }
+  }
+</style>
+
 </head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
@@ -12501,6 +12754,59 @@ function vertexShowSyncDiag(){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
+
+<style id="vertex-6a9d-layout-fix">
+  #workoutStartGuide{
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
+  #workoutStartGuide .setup-steps,
+  #workoutStartGuide [class*="setup-steps"]{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  #workoutStartGuide .setup-step,
+  #workoutStartGuide [class*="setup-step"]{
+    min-width:0!important;
+    overflow-wrap:break-word!important;
+    word-break:normal!important;
+  }
+  @media(max-width:820px){
+    #workoutStartGuide{
+      padding:22px!important;
+    }
+    #workoutStartGuide .setup-steps,
+    #workoutStartGuide [class*="setup-steps"]{
+      grid-template-columns:1fr!important;
+    }
+  }
+  @media(max-width:720px){
+    #equipmentPanel{
+      display:block!important;
+      width:100%!important;
+      margin:10px 0 14px!important;
+      grid-column:1 / -1!important;
+    }
+    #btn-equipment-open{
+      min-height:42px!important;
+    }
+  }
+  .vertex-equipment-actions{
+    display:grid!important;
+    grid-template-columns:1fr 1fr 1fr!important;
+    gap:10px!important;
+    margin-top:14px!important;
+  }
+  @media(max-width:640px){
+    .vertex-equipment-actions{
+      grid-template-columns:1fr!important;
+    }
+  }
+</style>
+
 </head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
@@ -15190,7 +15496,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.13-phase6A9c-equipment-flow';
+  const VERSION='v13.62.14-phase6A9d-equipment-mobile-setup';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}

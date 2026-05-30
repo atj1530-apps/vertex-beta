@@ -4308,7 +4308,7 @@ window.vertexFinishBootstrap=function(){
 <div id="vertex-offline-banner">⚠ Offline — changes saved locally and will sync when reconnected</div>
 <div id="app">
   <aside class="sidebar">
-    <div class="label">Category</div><div class="segment"><button class="seg-btn" data-env="gym">🏋️ Gym</button><button class="seg-btn" data-env="home">🏠 Home</button></div>
+    <div class="label">Category</div><div class="segment"><button class="seg-btn" data-env="gym">🏋️ Gym</button><button class="seg-btn" data-env="home">🏠 Home</button></div><div id="equipmentPanel" style="display:none;margin:10px 0 14px"></div>
     <div class="label">Programs (Optional)</div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="program-seg"><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div></div>
     <div class="label">Workout Templates</div><div class="pill-fade-wrap"><div id="tpl-grid" class="segment pill-scroll"><button class="seg-btn" data-load-tpl="push">💪 Push Day</button><button class="seg-btn" data-load-tpl="pull">🔄 Pull Day</button><button class="seg-btn" data-load-tpl="legs">🦵 Legs Day</button><button class="seg-btn" data-load-tpl="kenpo">🥋 Kenpo X</button><button class="seg-btn" data-load-tpl="plyo">⚡ Plyometrics X</button><button class="seg-btn" data-load-tpl="yogaX">🧘 Yoga X</button><button class="seg-btn" data-load-tpl="stretch">🌀 Full Body Stretch</button><button class="seg-btn" data-load-tpl="coreMobility">🎯 Core + Mobility</button></div></div>
     <div class="label">Training Focus <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Choose Your Style</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery / Mobility">♧ Recovery / Mobility</button></div></div>
@@ -4317,7 +4317,7 @@ window.vertexFinishBootstrap=function(){
     <button id="btn-add-library" class="btn acc" style="width:100%;margin:0 0 8px">+ Add Exercise to Library</button>
     <button id="btn-manual-entry" class="btn acc" style="width:100%;margin:0 0 10px">+ Lightweight Manual Entry</button>
     <div class="label">Click to add (<span id="ex-count">0</span>)</div>
-    <div <button id="homeEquipBtn" class="btn">Home Equipment</button><div id="exercise-list" class="ex-list"></div>
+    <div id="exercise-list" class="ex-list"></div>
   </aside>
   <main class="main">
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
@@ -6524,12 +6524,14 @@ function normalizeCustomExercise(ex){return {name:String(ex.name||'').trim(),mus
 loadCustomExercises().forEach(ex=>{const clean=normalizeCustomExercise(ex); if(clean.name && !EXERCISES.some(e=>e.name.toLowerCase()===clean.name.toLowerCase())) EXERCISES.push(clean);});
 function isEquipmentAllowed(e){
   if(state.env!=='home') return true;
-  const equip=String(e.equip||'Other');
+  const equip=String(e.equip||e.equipment||e.equipment_type||'Other');
   const key=equipmentKey(equip);
   if(['bodyweight','none','mat'].includes(key)) return true;
-  if(!state.equipment) return false;
+  if(!state.equipment) state.equipment=defaultEquipmentProfile();
   if(state.equipment[key]) return true;
-  // v13.63 migration: 'Peloton / Exercise Bike' was previously stored as 'bike'
+  if(key==='dumbbell' && state.equipment['dumbbells']) return true;
+  if(key==='dumbbells' && state.equipment['dumbbell']) return true;
+  if(key==='pull_up_bar' && (state.equipment['pullup_bar']||state.equipment['pull_up'])) return true;
   if(key==='peloton_exercise_bike' && (state.equipment['bike']||state.equipment['exercise_bike'])) return true;
   return false;
 }
@@ -10251,12 +10253,18 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-<script>
+
+<script id="vertex-home-equipment-fallback">
 document.addEventListener('click',function(e){
- const b=e.target.closest('#homeEquipBtn');
- if(b){ if(typeof openEquipmentModal==='function') openEquipmentModal(); }
-});
-</script></body></html>`;
+  const btn=e.target.closest && e.target.closest('#btn-equipment-open');
+  if(btn && typeof openEquipmentModal==='function'){
+    e.preventDefault();
+    openEquipmentModal();
+  }
+},true);
+</script>
+
+</body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
         if(status) status.textContent = '✓ Print dialog opened. Close this panel when done.';
@@ -11934,12 +11942,18 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-<script>
+
+<script id="vertex-home-equipment-fallback">
 document.addEventListener('click',function(e){
- const b=e.target.closest('#homeEquipBtn');
- if(b){ if(typeof openEquipmentModal==='function') openEquipmentModal(); }
-});
-</script></body></html>`;
+  const btn=e.target.closest && e.target.closest('#btn-equipment-open');
+  if(btn && typeof openEquipmentModal==='function'){
+    e.preventDefault();
+    openEquipmentModal();
+  }
+},true);
+</script>
+
+</body></html>`;
 
     const w = window.open('','_blank');
     if(w){ w.document.write(html); w.document.close(); setTimeout(()=>{ try{ w.print(); }catch(e){} }, 400); }
@@ -12258,12 +12272,18 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-<script>
+
+<script id="vertex-home-equipment-fallback">
 document.addEventListener('click',function(e){
- const b=e.target.closest('#homeEquipBtn');
- if(b){ if(typeof openEquipmentModal==='function') openEquipmentModal(); }
-});
-</script></body></html>`);
+  const btn=e.target.closest && e.target.closest('#btn-equipment-open');
+  if(btn && typeof openEquipmentModal==='function'){
+    e.preventDefault();
+    openEquipmentModal();
+  }
+},true);
+</script>
+
+</body></html>`);
     w.document.close();
   };
 })();
@@ -12542,12 +12562,18 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-<script>
+
+<script id="vertex-home-equipment-fallback">
 document.addEventListener('click',function(e){
- const b=e.target.closest('#homeEquipBtn');
- if(b){ if(typeof openEquipmentModal==='function') openEquipmentModal(); }
-});
-</script></body></html>`);
+  const btn=e.target.closest && e.target.closest('#btn-equipment-open');
+  if(btn && typeof openEquipmentModal==='function'){
+    e.preventDefault();
+    openEquipmentModal();
+  }
+},true);
+</script>
+
+</body></html>`);
   w.document.close();
 }
 window.vertexShowSyncDiag=vertexShowSyncDiag;
@@ -15206,7 +15232,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.7-phase6A7-filter-engine';
+  const VERSION='v13.62.8-phase6A8-home-equipment-clean';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -20910,12 +20936,18 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
 </script>
-<script>
+
+<script id="vertex-home-equipment-fallback">
 document.addEventListener('click',function(e){
- const b=e.target.closest('#homeEquipBtn');
- if(b){ if(typeof openEquipmentModal==='function') openEquipmentModal(); }
-});
-</script></body>
+  const btn=e.target.closest && e.target.closest('#btn-equipment-open');
+  if(btn && typeof openEquipmentModal==='function'){
+    e.preventDefault();
+    openEquipmentModal();
+  }
+},true);
+</script>
+
+</body>
 </html>
 
 <script>

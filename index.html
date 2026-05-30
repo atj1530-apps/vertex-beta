@@ -4309,6 +4309,7 @@ window.vertexFinishBootstrap=function(){
 <div id="app">
   <aside class="sidebar">
     <div class="label">Category</div><div class="segment"><button class="seg-btn" data-env="gym">🏋️ Gym</button><button class="seg-btn" data-env="home">🏠 Home</button></div>
+    <div id="equipmentPanel"></div>
     <div class="label">Programs (Optional)</div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="program-seg"><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div></div>
     <div class="label">Workout Templates</div><div class="pill-fade-wrap"><div id="tpl-grid" class="segment pill-scroll"><button class="seg-btn" data-load-tpl="push">💪 Push Day</button><button class="seg-btn" data-load-tpl="pull">🔄 Pull Day</button><button class="seg-btn" data-load-tpl="legs">🦵 Legs Day</button><button class="seg-btn" data-load-tpl="kenpo">🥋 Kenpo X</button><button class="seg-btn" data-load-tpl="plyo">⚡ Plyometrics X</button><button class="seg-btn" data-load-tpl="yogaX">🧘 Yoga X</button><button class="seg-btn" data-load-tpl="stretch">🌀 Full Body Stretch</button><button class="seg-btn" data-load-tpl="coreMobility">🎯 Core + Mobility</button></div></div>
     <div class="label">Training Focus <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Choose Your Style</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery / Mobility">♧ Recovery / Mobility</button></div></div>
@@ -4869,7 +4870,7 @@ window.vertexFinishBootstrap=function(){
 <div id="libraryModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)" id="libraryModalLabel">Add Exercise to Library</div><h2 id="libraryModalTitle">Add Exercise</h2><p id="libraryModalDesc">Create a new exercise and keep it in your library going forward. Custom exercises are saved in this browser.</p><div class="manual-grid"><label><span class="label">Category</span><select id="libraryEnv"><option value="home">Home</option><option value="gym">Gym</option></select></label><label><span class="label">Training Focus</span><select id="libraryTraining"><option>Strength</option><option>Kettlebell</option><option>Yoga / Pilates</option><option>Cardio</option><option>Recovery / Mobility</option></select></label><label class="wide"><span class="label">Exercise Name</span><input id="libraryName" placeholder="e.g., Band Face Pull"></label><label><span class="label">Muscle Group / Subcategory</span><select id="libraryMuscle"></select></label><label><span class="label">Equipment</span><select id="libraryEquip"><option>Dumbbells</option><option>Bodyweight</option><option>Band</option><option>Bench</option><option>Pull-Up Bar</option><option>Kettlebell</option><option>Mat</option><option>Cable</option><option>Machine</option><option>Barbell</option><option>Bike</option><option>Treadmill</option><option>Rower</option><option>None</option><option>Other</option></select></label><label><span class="label">Movement Type</span><select id="libraryKind"><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="core">Core</option><option value="cardio">Cardio</option><option value="recovery">Recovery</option><option value="stretch">Stretch</option><option value="kettlebell">Kettlebell</option><option value="mobility">Mobility</option><option value="custom">Custom</option></select></label></div><div class="manual-help">Saved exercises appear in the sidebar after refresh and follow the same filters as built-in exercises.</div><div class="modal-grid"><button id="librarySave" class="btn acc">Save to Library</button><button id="libraryCancel" class="btn red">Cancel</button></div></div></div>
 <div id="manualModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Lightweight Manual Entry</div><h2>Add Custom Move</h2><p>Add a one-off exercise without expanding the library. Good for substitutes, rehab moves, carries, machine variants, or quick notes.</p><div class="manual-grid"><label class="wide"><span class="label">Exercise Name</span><input id="manualName" placeholder="e.g., Seated Cable Row"></label><label><span class="label">Muscle Group</span><select id="manualMuscle"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Legs</option><option>Arms</option><option>Triceps</option><option>Core</option><option>Recovery</option></select></label><label><span class="label">Equipment</span><input id="manualEquip" placeholder="Dumbbells, Machine, Bodyweight"></label><label><span class="label">Sets</span><input id="manualSets" type="number" min="1" max="12" value="3"></label><label><span class="label">Reps</span><input id="manualReps" type="number" min="0" max="200" value="8"></label><label><span class="label">Weight</span><input id="manualWeight" placeholder="optional"></label><label><span class="label">Type</span><select id="manualKind"><option value="custom">Custom</option><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="recovery">Recovery</option></select></label></div><div class="manual-help">This adds directly to the current workout only. It does not permanently change the main exercise library.</div><div class="modal-grid"><button id="manualAdd" class="btn acc">Add to Workout</button><button id="manualCancel" class="btn red">Cancel</button></div></div></div>
 
-<div id="equipmentModal" class="modal-overlay" data-close-on-backdrop="1"><div class="modal"><div class="label" style="color:var(--acc)">Home Equipment</div><h2>Available Equipment</h2><p>Toggle the equipment you have access to. The exercise list updates to match.</p><div id="equipmentModalBody" style="margin-top:14px"></div><div class="modal-grid"><button id="equipmentAllOn" class="btn">All On</button><button id="equipmentDone" class="btn acc">Done</button></div></div></div>
+<div id="equipmentModal" class="modal-overlay" data-close-on-backdrop="1"><div class="modal"><div class="label" style="color:var(--acc)">Home Equipment</div><h2>Available Equipment</h2><p>Toggle the equipment you have access to. The exercise list updates to match.</p><div id="equipmentModalBody" style="margin-top:14px"></div><div class="modal-grid"><button id="equipmentAllOn" class="btn">All On</button><button id="equipmentClearAll" class="btn red">Clear All</button><button id="equipmentDone" class="btn acc">Done</button></div></div></div>
 
 <!-- SUPPLEMENT ADD/EDIT MODAL -->
 <!-- SUPPLEMENT / PROTOCOL ADD MODAL -->
@@ -5116,7 +5117,7 @@ const SUPA_KEY='sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E';
 let _supa=null;
 let authUser=null;
 let sessionTimerId=null;
-const EQUIPMENT_OPTIONS=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Foam Roller','Step Platform','Cable','Machine','Barbell','Peloton / Exercise Bike','Road Bike','Treadmill','Rower','None','Other'];
+const EQUIPMENT_OPTIONS=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Foam Roller','Step Platform','Stability Platform','Cable','Machine','Barbell','Peloton / Exercise Bike','Road Bike','Treadmill','Rower','Other'];
 function getSupa(){
   if(window._supa) { _supa = window._supa; return _supa; }
   if(_supa) { window._supa = _supa; return _supa; }
@@ -6524,12 +6525,15 @@ function normalizeCustomExercise(ex){return {name:String(ex.name||'').trim(),mus
 loadCustomExercises().forEach(ex=>{const clean=normalizeCustomExercise(ex); if(clean.name && !EXERCISES.some(e=>e.name.toLowerCase()===clean.name.toLowerCase())) EXERCISES.push(clean);});
 function isEquipmentAllowed(e){
   if(state.env!=='home') return true;
-  const equip=String(e.equip||'Other');
+  const equip=String(e.equip||e.equipment||e.equipment_type||'Other');
   const key=equipmentKey(equip);
   if(['bodyweight','none','mat'].includes(key)) return true;
-  if(!state.equipment) return false;
+  if(!state.equipment) state.equipment=loadEquipmentProfile ? loadEquipmentProfile() : {};
   if(state.equipment[key]) return true;
-  // v13.63 migration: 'Peloton / Exercise Bike' was previously stored as 'bike'
+  if(key==='dumbbell' && state.equipment['dumbbells']) return true;
+  if(key==='dumbbells' && state.equipment['dumbbell']) return true;
+  if(key==='pull_up_bar' && (state.equipment['pullup_bar']||state.equipment['pull_up'])) return true;
+  if(key==='stability_platform' && (state.equipment['step_platform']||state.equipment['stability_ball'])) return true;
   if(key==='peloton_exercise_bike' && (state.equipment['bike']||state.equipment['exercise_bike'])) return true;
   return false;
 }
@@ -7326,7 +7330,18 @@ async function initAuth(){
 }
 function emptyPlanner(){return Object.fromEntries(DAYS.map(d=>[d,null]))}
 function byName(n){const e=EXERCISES.find(x=>x.name===n); if(!e){console.warn('Missing exercise: '+n); return null;} return clone(e)}
-function normalizeStrengthExercise(e){return {...clone(e),sets:[{reps:8,weight:''},{reps:8,weight:''},{reps:8,weight:''}],target:8,notes:''}}
+function normalizeStrengthExercise(e){
+  const x=clone(e)||{};
+  const nm=x.name||'Exercise';
+  const muscle=x.muscle||x.category||x.target||x.targetArea||'Custom';
+  const equip=x.equip||x.equipment||x.equipment_type||'Bodyweight';
+  let kind=x.kind;
+  if(!kind){
+    const m=String(muscle).toLowerCase();
+    kind=(m.includes('chest')||m.includes('tricep')||/press|push/i.test(nm))?'push':(m.includes('back')||m.includes('bicep')||/row|pull|curl/i.test(nm))?'pull':(m.includes('leg')||/squat|lunge|deadlift|calf/i.test(nm))?'legs':(m.includes('core'))?'core':'strength';
+  }
+  return {...x,name:nm,muscle,equip,equipment:equip,kind,sets:[{reps:8,weight:''},{reps:8,weight:''},{reps:8,weight:''}],target:8,notes:''};
+}
 function normalizePhaseMove(item, phase){const name=Array.isArray(item)?item[0]:item; const side=Array.isArray(item)?item[1]:''; return {name,side,mode:phase.mode,seconds:phase.defaultSeconds||0};}
 function workoutFromTemplate(key){const t=TEMPLATES[key]; if(!t) return null; if(t.type==='strength') return {name:t.name,type:'strength',source:'template',assignedDay:null,exercises:t.exercises.map(n=>normalizeStrengthExercise(byName(n)))}; if(t.type==='mobility_strength_hybrid') return {name:t.name,type:t.type,displayType:t.displayType||'Recovery / Mobility Day',source:'template',assignedDay:null,duration:t.duration||0,excludeFromVolume:true,volume:0,activePhase:0,phases:(t.phases||[]).map((p,i)=>({name:p.name,mode:p.mode,defaultSeconds:p.defaultSeconds||0,index:i,moves:(p.moves||[]).map(item=>normalizePhaseMove(item,p))})),exercises:[]}; return {name:t.name,type:t.type,source:'template',assignedDay:null,duration:t.duration,blocks:t.blocks,moves:t.moves.map((m,i)=>({name:m,duration:t.type==='interval'?30:Math.round((t.duration*60)/t.moves.length),block:i+1})),exercises:[]};}
 function setCurrent(w){state.tracking=false; state.activePhase=0; state.current=clone(w); markUnsaved(); renderAll(); collapseTopIfContent();}
@@ -10932,6 +10947,8 @@ ${dueToday.length ? `
 
 function renderAll(){
   const pg=state.page||defaultPage();
+  const guide=document.getElementById('workoutStartGuide');
+  if(guide) guide.style.display=(pg==='workout'?'':'none');
   renderControls(); setPage(pg);
   const logBtn=document.getElementById('btn-log');
   if(logBtn) logBtn.classList.toggle('armed',!!hasWorkout());
@@ -11049,7 +11066,7 @@ function renderSidebar(){
       let opened=false;
       try{ opened=localStorage.getItem('vertex_acc_equipmentPanel')==='1'; }catch(e){}
       ep.style.display='block';
-      ep.innerHTML=`<div class="equip-acc-head" data-equip-acc="1" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;user-select:none"><div class="label" style="margin:0">Home Equipment</div><span style="display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--muted)"><span style="color:var(--acc);font-weight:600">${onCount} on</span><span class="equip-acc-caret">${opened?'▼':'▶'}</span></span></div><div class="equip-acc-body" style="${opened?'margin-top:10px':'display:none'}"><button class="btn small" id="btn-equipment-open" title="Choose which equipment shapes your home exercise list" style="width:100%">Manage Equipment</button></div>`;
+      ep.innerHTML=`<button class="btn small" id="btn-equipment-open" title="Choose which equipment shapes your home exercise list" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border-color:rgba(232,255,71,.45)"><span style="font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--acc)">Home Equipment</span><span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--acc);font-weight:700">${onCount} on</span></button>`;
     }
     else {ep.style.display='none'; ep.innerHTML='';}
   }
@@ -11317,7 +11334,7 @@ function renderBuilder(){
     const downBtn=`<button class="ex-reorder" data-move-down="${i}" ${isLast?'disabled':''} title="Move down" aria-label="Move ${escapeAttr(e.name)} down">▼</button>`;
     const hasDemo=!!getExerciseDemo(e.name);
     const demoBtn=hasDemo?`<button class="btn small demo-trigger" data-demo="${escapeAttr(e.name)}" title="Watch exercise demonstration">▶ Demo</button>`:'';
-    return `<article class="exercise-card"><div class="ex-head"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(e.name)}</strong><span class="badge blue">${e.kind.toUpperCase()}</span><span class="badge green">${e.muscle}</span><span class="ex-reorder-group">${upBtn}${downBtn}</span>${demoBtn}<button class="remove" data-remove="${i}">×</button></div>${perfStrip(e)}<div class="sets"><div class="set-row head"><div>Set</div><div>Reps</div><div>Weight (lb)</div><div class="status">Status</div></div>${(e.sets||[]).map((r,j)=>{
+    return `<article class="exercise-card"><div class="ex-head"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(e.name)}</strong><span class="badge blue">${String(e.kind||'STRENGTH').toUpperCase()}</span><span class="badge green">${e.muscle}</span><span class="ex-reorder-group">${upBtn}${downBtn}</span>${demoBtn}<button class="remove" data-remove="${i}">×</button></div>${perfStrip(e)}<div class="sets"><div class="set-row head"><div>Set</div><div>Reps</div><div>Weight (lb)</div><div class="status">Status</div></div>${(e.sets||[]).map((r,j)=>{
   const hasLast=j>0&&e.sets[j-1];
   const repeatBtn=hasLast?`<button class="quick-btn" data-qa-repeat="${i}:${j}">↺ Repeat</button>`:'';
   return `<div class="set-row"><div class="num">${j+1}</div><input data-reps="${i}:${j}" inputmode="numeric" value="${r.reps??''}"/><input data-weight="${i}:${j}" inputmode="decimal" value="${r.weight??''}" placeholder="lbs"/><div class="status ${String(setPrLabel(e,r)).includes('PR')?'perf-pr':''}">${escapeHtml(setPrLabel(e,r))}</div></div><div class="quick-add-row"><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="1">+1</button><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="-1">-1</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="5">+5 lb</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="-5">-5</button>${repeatBtn}</div>`;
@@ -12859,26 +12876,13 @@ document.addEventListener('click', e=>{
   // Backdrop click-to-close for equipment modal
   if(e.target && e.target.id==='equipmentModal'){closeEquipmentModal(); return;}
   // v13.63 — Home Equipment accordion toggle (lives in sidebar above program selector)
-  const equipAcc=e.target && e.target.closest && e.target.closest('[data-equip-acc]');
-  if(equipAcc){
-    const wrapper=equipAcc.parentElement;
-    const body=wrapper && wrapper.querySelector('.equip-acc-body');
-    const caret=equipAcc.querySelector('.equip-acc-caret');
-    if(body){
-      const willOpen=body.style.display==='none';
-      body.style.display=willOpen?'block':'none';
-      body.style.marginTop=willOpen?'10px':'';
-      if(caret) caret.textContent=willOpen?'▼':'▶';
-      try{ localStorage.setItem('vertex_acc_equipmentPanel', willOpen?'1':'0'); }catch(err){}
-    }
-    return;
-  }
   const t=e.target.closest('button'); if(!t) return;
   if(t.id==='btn-add-library'){e.preventDefault(); openLibraryModal(); return;}
   const editCustom=t.getAttribute('data-edit-custom'); if(editCustom){e.preventDefault(); e.stopPropagation(); openEditCustomExercise(editCustom); return;}
   if(t.id==='btn-equipment-open'){e.preventDefault(); openEquipmentModal(); return;}
   if(t.id==='btn-equipment-all'){e.preventDefault(); EQUIPMENT_OPTIONS.forEach(eq=>state.equipment[equipmentKey(eq)]=true); saveEquipmentProfile(); renderEquipmentModalBody(); renderAll(); return;}
   if(t.id==='equipmentAllOn'){e.preventDefault(); EQUIPMENT_OPTIONS.forEach(eq=>state.equipment[equipmentKey(eq)]=true); saveEquipmentProfile(); renderEquipmentModalBody(); renderSidebar(); return;}
+  if(t.id==='equipmentClearAll'){e.preventDefault(); state.equipment={}; saveEquipmentProfile(); renderEquipmentModalBody(); renderSidebar(); return;}
   if(t.id==='equipmentDone'){e.preventDefault(); closeEquipmentModal(); renderAll(); return;}
   if(t.id==='librarySave'){e.preventDefault(); saveLibraryExercise(); return;}
   if(t.id==='libraryCancel'){e.preventDefault(); document.getElementById('libraryModal')?.classList.remove('on'); return;}
@@ -15186,7 +15190,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.7-stable-rollback';
+  const VERSION='v13.62.13-phase6A9c-equipment-flow';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}

@@ -5933,6 +5933,93 @@ function getExerciseDemo(name){
 // Phase 6A.1 — Exercise Library Normalization
 // Purpose: add stable IDs, Bunny-ready paths, thumbnail paths, media category mapping, movement patterns,
 // and demo lookup support without changing the Progress module or visible UI.
+
+// Phase 6A.4 — Exercise Filter Repair
+(function vertexFilterRepair(){
+  if (!Array.isArray(window.EXERCISES) && typeof EXERCISES === "undefined") return;
+  const list = Array.isArray(window.EXERCISES) ? window.EXERCISES : EXERCISES;
+
+  const chestMap = {
+    "bench press": "Barbell",
+    "bench press normal": "Barbell",
+    "bench press (normal)": "Barbell",
+    "incline bench press": "Barbell",
+    "decline bench press": "Barbell",
+    "dumbbell bench press": "Dumbbells",
+    "incline dumbbell bench press": "Dumbbells",
+    "decline dumbbell bench press": "Dumbbells",
+    "dumbbell fly": "Dumbbells",
+    "dumbbell floor press": "Dumbbells",
+    "hex press": "Dumbbells",
+    "cable chest press": "Cable",
+    "machine chest press": "Machine",
+    "push-up": "Bodyweight",
+    "push up": "Bodyweight",
+    "incline push-up": "Bodyweight",
+    "decline push-up": "Bodyweight",
+    "diamond push-up": "Bodyweight",
+    "paused push-up": "Bodyweight",
+    "tempo push-up": "Bodyweight",
+    "single-arm assisted push-up": "Bodyweight",
+    "squeeze press": "Dumbbells"
+  };
+
+  const ensureExercise = (name, muscle, equip, training="Strength") => {
+    const key = String(name).toLowerCase();
+    let ex = list.find(e => String(e?.name || "").toLowerCase() === key);
+    if (!ex) {
+      ex = { name, muscle, equip, training };
+      list.push(ex);
+    }
+    ex.training = ex.training || training;
+    ex.muscle = muscle;
+    ex.category = ex.category || muscle;
+    ex.target = ex.target || muscle;
+    ex.targetArea = ex.targetArea || muscle;
+    ex.equip = ex.equip || equip;
+    ex.equipment = ex.equipment || equip;
+    if (typeof vertexId === "function" && !ex.id) ex.id = vertexId(name);
+    return ex;
+  };
+
+  Object.entries(chestMap).forEach(([rawName, equip]) => {
+    const title = rawName
+      .replace(/\b\w/g, c => c.toUpperCase())
+      .replace("Push-Up", "Push-Up")
+      .replace("(Normal)", "(Normal)");
+    ensureExercise(title, "Chest", equip);
+  });
+
+  // Normalize all likely chest records already present so filter/search catches them.
+  list.forEach(ex => {
+    const n = String(ex?.name || "").toLowerCase();
+    const isChest =
+      /bench|chest press|push[- ]?up|fly|hex press|squeeze press|dip/.test(n) ||
+      String(ex?.muscle || "").toLowerCase() === "chest";
+    if (isChest) {
+      ex.training = ex.training || "Strength";
+      ex.muscle = "Chest";
+      ex.category = ex.category || "Chest";
+      ex.target = ex.target || "Chest";
+      ex.targetArea = ex.targetArea || "Chest";
+      if (!ex.equip && !ex.equipment) {
+        if (/dumbbell|hex|fly|squeeze/.test(n)) ex.equip = "Dumbbells";
+        else if (/cable/.test(n)) ex.equip = "Cable";
+        else if (/machine/.test(n)) ex.equip = "Machine";
+        else if (/push[- ]?up|dip/.test(n)) ex.equip = "Bodyweight";
+        else ex.equip = "Barbell";
+      }
+      ex.equipment = ex.equipment || ex.equip;
+    }
+  });
+
+  window.VERTEX_FILTER_REPAIR = {
+    phase: "6A.4",
+    total: list.length,
+    chest: list.filter(e => String(e?.muscle || "").toLowerCase() === "chest").map(e => e.name)
+  };
+})();
+
 const VERTEX_LIBRARY_PHASE='6B.3A';
 function vertexSlug(value){
   return String(value||'')
@@ -14857,7 +14944,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.2-phase6B1b-syntax-fix';
+  const VERSION='v13.62.5-phase6A4-filter-repair';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}

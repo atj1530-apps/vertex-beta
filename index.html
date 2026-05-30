@@ -21995,11 +21995,11 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   function applyWorkoutStartState(started){
     var guide=qs('#workoutStartGuide');
     var ex=(window.workoutExercises&&workoutExercises.length)||0; if(guide) guide.style.display = ex>0 ? 'none' : 'block';
-    setDisplay('#coachBar', started ? '' : 'none');
-    setDisplay('#autoCoachAcc', started ? '' : 'none');
-    setDisplay('.wkt-name-row', started ? '' : 'none');
-    setDisplay('#wkt-meta', started ? '' : 'none');
-    setDisplay('#builder', started ? '' : 'none');
+    setDisplay('#coachBar', ex>0 ? '' : 'none');
+    setDisplay('#autoCoachAcc', ex>0 ? '' : 'none');
+    setDisplay('.wkt-name-row', ex>0 ? '' : 'none');
+    setDisplay('#wkt-meta', ex>0 ? '' : 'none');
+    setDisplay('#builder', ex>0 ? '' : 'none');
   }
   function startWorkoutPane(){
     document.body.classList.add('vertex-workout-pane-started');

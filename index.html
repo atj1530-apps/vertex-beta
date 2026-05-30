@@ -4201,11 +4201,7 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
 
-<style id="vertex-6a11-sidebar-qa-fix">
-  #sidebar, .sidebar, .workout-sidebar, aside{
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-  }
+<style id="vertex-6a11b-sidebar-fix">
   #recent-list, .recent-list, .recently-used, [data-section="recently-used"]{
     position:relative!important;
     top:auto!important;
@@ -4213,8 +4209,9 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
     z-index:1!important;
     max-height:none!important;
   }
-  .exercise-card, .recent-card{
-    position:relative!important;
+  #sidebar, .sidebar, .workout-sidebar, aside{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
   }
 </style>
 
@@ -5563,7 +5560,7 @@ const V1362_LIBRARY_ADDITIONS=[
 
 // --- LEGS ---
 
-{name:'Sissy Squat',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
+{name:'Narrow-Stance Squat',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
 {name:'Reverse Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Curtsy Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Belt Squat',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
@@ -5577,6 +5574,13 @@ V1362_LIBRARY_ADDITIONS.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EX
 // To add a new exercise: find a good YouTube video, grab the ID from the URL
 // (e.g. youtube.com/watch?v=rT7DgCr-3pg → ID is "rT7DgCr-3pg"), add an entry below.
 const EXERCISE_DEMOS={
+  'Dumbbell Bench Press':{
+    demoUrl:'rT7DgCr-3pg',
+    formCues:[{label:'SETUP',text:'Dumbbells start stacked over chest, feet planted'},{label:'DESCENT',text:'Lower with elbows slightly tucked'},{label:'PRESS',text:'Press up and slightly together without clanking'},{label:'CONTROL',text:'Keep shoulder blades set throughout'}],
+    mistakes:['Letting dumbbells drift too wide','Cutting the range short','Overarching the low back','Losing wrist position'],
+    muscles:['Chest','Front delts','Triceps'],
+    tip:'Keep the dumbbells stacked over the wrists and control the bottom position.'
+  },
   'Bench Press':{
     demoUrl:'rT7DgCr-3pg',
     formCues:[{label:'SETUP',text:'Flat back, feet planted, eyes under the bar'},{label:'GRIP',text:'Slightly wider than shoulder-width, full grip'},{label:'DESCENT',text:'Bar to mid-chest, elbows 45–75° from torso'},{label:'PRESS',text:'Drive through chest, full lockout at top'}],
@@ -6022,8 +6026,8 @@ function getExerciseDemo(name){
       ex.target = ex.target || "Chest";
       ex.targetArea = ex.targetArea || "Chest";
       if (!ex.equip && !ex.equipment) {
-        if (/dumbbell|hex|fly|squeeze/.test(n)) ex.equip = "Dumbbells";
-        else if (/cable/.test(n)) ex.equip = "Cable";
+        if (/cable/.test(n)) ex.equip = "Cable";
+        else if (/dumbbell|hex|fly|squeeze/.test(n)) ex.equip = "Dumbbells";
         else if (/machine/.test(n)) ex.equip = "Machine";
         else if (/push[- ]?up|dip/.test(n)) ex.equip = "Bodyweight";
         else ex.equip = "Barbell";
@@ -6057,8 +6061,8 @@ function getExerciseDemo(name){
 
   const equipmentRules = [
     {re:/barbell|bench press$|bench press \(normal\)|incline bench press|decline bench press|squat$|deadlift$|romanian deadlift|rdl|overhead press|barbell row|barbell curl/i, equip:"Barbell"},
-    {re:/dumbbell|db |hex press|fly|floor press|hammer curl|alternating curl|lateral raise|rear delt fly|reverse fly|goblet/i, equip:"Dumbbells"},
     {re:/cable|pushdown|pallof|woodchop/i, equip:"Cable"},
+    {re:/dumbbell|db |hex press|fly|floor press|hammer curl|alternating curl|lateral raise|rear delt fly|reverse fly|goblet/i, equip:"Dumbbells"},
     {re:/machine|leg press|hack squat|lat pulldown|seated cable row/i, equip:"Machine"},
     {re:/push[- ]?up|pull[- ]?up|chin[- ]?up|plank|crunch|dip|handstand|pike|dead bug|leg raise|russian twist|child|downward|stretch|mobility/i, equip:"Bodyweight"},
     {re:/kettlebell|kb |swing|turkish|get-up|snatch|clean|halo|windmill/i, equip:"Kettlebell"}
@@ -10202,24 +10206,6 @@ function protoSelectDate(dateStr){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
-
-<style id="vertex-6a11-sidebar-qa-fix">
-  #sidebar, .sidebar, .workout-sidebar, aside{
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-  }
-  #recent-list, .recent-list, .recently-used, [data-section="recently-used"]{
-    position:relative!important;
-    top:auto!important;
-    bottom:auto!important;
-    z-index:1!important;
-    max-height:none!important;
-  }
-  .exercise-card, .recent-card{
-    position:relative!important;
-  }
-</style>
-
 </head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
@@ -10301,74 +10287,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-
-
-
-
-
-
-
-
-<script id="vertex-6a11-safe-qa">
-(function(){
-  function n(v){ return String(v || '').toLowerCase().trim(); }
-  function setFields(ex,muscle,equip){
-    if(muscle){
-      ex.muscle=muscle; ex.category=muscle; ex.target=muscle; ex.targetArea=muscle;
-      if(!ex.training) ex.training='Strength';
-    }
-    if(equip){ ex.equip=equip; ex.equipment=equip; ex.equipment_type=equip; }
-  }
-  function run(){
-    var list = (typeof EXERCISES !== 'undefined' && Array.isArray(EXERCISES)) ? EXERCISES : null;
-    if(!list) return;
-    for(var i=0;i<list.length;i++){
-      var ex=list[i]; if(!ex || !ex.name) continue;
-      var name=n(ex.name);
-
-      if(name.indexOf('sissy squat') !== -1){ ex.name=String(ex.name).replace(/sissy squat/ig,'Narrow-Stance Squat'); name=n(ex.name); }
-
-      if(/cable/.test(name)){ setFields(ex,null,'Cable'); }
-      if(/machine|pec deck|leg press|hack squat|smith/.test(name)){ setFields(ex,null,'Machine'); }
-      if(/barbell|bench press$|incline bench press$|decline bench press$|squat$|deadlift$|romanian deadlift$|overhead press$|barbell row|barbell curl/.test(name)){ setFields(ex,null,'Barbell'); }
-      if(/dumbbell|hex press|floor press|goblet|hammer curl|lateral raise|rear delt fly|reverse fly|fly$/.test(name) && !/cable|machine|pec deck/.test(name)){ setFields(ex,null,'Dumbbells'); }
-      if(/push[- ]?up|pull[- ]?up|chin[- ]?up|plank|crunch|dip|dead bug|leg raise|russian twist|handstand|pike/.test(name)){ setFields(ex,null,'Bodyweight'); }
-
-      if(/bench press|chest press|push[- ]?up|hex press|squeeze press|chest dip|bench dip|cable fly|pec deck|fly/.test(name) && !/rear delt|reverse/.test(name)){ setFields(ex,'Chest',ex.equip||ex.equipment); }
-      if(/rear delt|reverse fly|face pull|lateral raise|front raise|shoulder press|arnold press|handstand push|pike push|overhead press/.test(name)){ setFields(ex,'Shoulders',ex.equip||ex.equipment); }
-      if(/curl/.test(name)){ setFields(ex,'Biceps',ex.equip||ex.equipment); }
-      if(/tricep|pushdown|skull crusher|kickback|overhead extension/.test(name)){ setFields(ex,'Triceps',ex.equip||ex.equipment); }
-      if(/lat pulldown|row|pull[- ]?up|chin[- ]?up|pullover|t-bar|meadows/.test(name)){ setFields(ex,'Back',ex.equip||ex.equipment); }
-      if(/squat|lunge|deadlift|rdl|romanian|calf|step[- ]?up|hip thrust|glute bridge|hamstring|leg extension|leg press/.test(name)){ setFields(ex,'Legs',ex.equip||ex.equipment); }
-      if(/plank|dead bug|crunch|leg raise|russian twist|sit[- ]?up|hollow|bird dog|pallof|woodchop/.test(name)){ setFields(ex,'Core',ex.equip||ex.equipment); }
-
-      if(n(ex.name)==='dumbbell bench press'){
-        ex.demo_key='dumbbell_bench_press';
-        ex.media_key='dumbbell_bench_press';
-        ex.has_demo=true;
-        ex.has_video=true;
-        if(!ex.legacy_demo_url) ex.legacy_demo_url='demo:dumbbell_bench_press';
-      }
-    }
-    var seen={};
-    for(var j=list.length-1;j>=0;j--){
-      var key=n(list[j] && list[j].name);
-      if(!key) continue;
-      if(seen[key]) list.splice(j,1); else seen[key]=true;
-    }
-    window.VERTEX_DEMO_ALIASES = Object.assign({}, window.VERTEX_DEMO_ALIASES || {}, {
-      'dumbbell bench press':'dumbbell_bench_press',
-      'dumbbell_bench_press':'dumbbell_bench_press',
-      'db bench press':'dumbbell_bench_press'
-    });
-    window.vertexHasExerciseDemo = window.vertexHasExerciseDemo || function(ex){
-      var name = n(ex && ex.name);
-      return !!(ex && (ex.has_demo || ex.has_video || ex.demo_url || ex.legacy_demo_url || ex.video_url || /bench press|squat|deadlift|lat pulldown/.test(name)));
-    };
-  }
-  try{ run(); }catch(e){ console.warn('6A11 QA skipped', e); }
-})();
-</script>
 
 </body></html>`;
         const w = window.open('','_blank');
@@ -11944,24 +11862,6 @@ function generateVertexPDFReport(){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
-
-<style id="vertex-6a11-sidebar-qa-fix">
-  #sidebar, .sidebar, .workout-sidebar, aside{
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-  }
-  #recent-list, .recent-list, .recently-used, [data-section="recently-used"]{
-    position:relative!important;
-    top:auto!important;
-    bottom:auto!important;
-    z-index:1!important;
-    max-height:none!important;
-  }
-  .exercise-card, .recent-card{
-    position:relative!important;
-  }
-</style>
-
 </head><body>
 
 <h1>Vertex</h1>
@@ -12066,12 +11966,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-
-
-
-
 
 
 </body></html>`;
@@ -12350,24 +12244,6 @@ window.renderSymmetry = renderSymmetry;
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
-
-<style id="vertex-6a11-sidebar-qa-fix">
-  #sidebar, .sidebar, .workout-sidebar, aside{
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-  }
-  #recent-list, .recent-list, .recently-used, [data-section="recently-used"]{
-    position:relative!important;
-    top:auto!important;
-    bottom:auto!important;
-    z-index:1!important;
-    max-height:none!important;
-  }
-  .exercise-card, .recent-card{
-    position:relative!important;
-  }
-</style>
-
 </head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
@@ -12409,12 +12285,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-
-
-
-
 
 
 </body></html>`);
@@ -12653,24 +12523,6 @@ function vertexShowSyncDiag(){
   .ex-item:hover{border-color:rgba(232,255,71,.28)}
   @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
 </style>
-
-<style id="vertex-6a11-sidebar-qa-fix">
-  #sidebar, .sidebar, .workout-sidebar, aside{
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-  }
-  #recent-list, .recent-list, .recently-used, [data-section="recently-used"]{
-    position:relative!important;
-    top:auto!important;
-    bottom:auto!important;
-    z-index:1!important;
-    max-height:none!important;
-  }
-  .exercise-card, .recent-card{
-    position:relative!important;
-  }
-</style>
-
 </head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
@@ -12712,12 +12564,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
   outline-offset:2px!important;
 }
 </style>
-
-
-
-
-
-
 
 
 </body></html>`);
@@ -15366,7 +15212,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.16-phase6A11a-syntax-fix';
+  const VERSION='v13.62.17-phase6A11b-clean-qa';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -21070,12 +20916,6 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
 </script>
-
-
-
-
-
-
 </body>
 </html>
 

@@ -5126,7 +5126,7 @@ function getSupa(){
   return _supa;
 }
 function defaultPage(){return 'home';}
-const state={page:defaultPage(),env:'home',muscle:'All',search:'',program:'Manual',training:'Strength',current:{name:'Name Your Workout',type:'strength',exercises:[],source:'manual',assignedDay:null},tracking:false,activePhase:0,planner:emptyPlanner(),pendingTemplate:null,session:{steps:[],idx:0},savedWorkouts:[],progressLogs:[],equipment:loadEquipmentProfile(),restTimerDefault:60};
+const state={page:defaultPage(),env:'',muscle:'',search:'',program:'Manual',training:'Strength',current:{name:'Name Your Workout',type:'strength',exercises:[],source:'manual',assignedDay:null},tracking:false,activePhase:0,planner:emptyPlanner(),pendingTemplate:null,session:{steps:[],idx:0},savedWorkouts:[],progressLogs:[],equipment:loadEquipmentProfile(),restTimerDefault:60};
 function setSyncStatus(status,label){state.syncStatus=status; state.syncLabel=label; const pill=document.getElementById('syncStatus'); const text=document.getElementById('syncStatusText'); if(!pill||!text) return; pill.className='sync-pill '+status; text.textContent=label;}
 function refreshSyncStatus(){ if(!authUser) setSyncStatus('local','Local mode'); else setSyncStatus(state.syncStatus||'synced', state.syncLabel||'Supabase synced'); }
 function markUnsaved(){ if(!hasWorkout()){ refreshSyncStatus(); return; } if(authUser) setSyncStatus('unsaved','Unsaved changes'); else setSyncStatus('local','Local mode'); }
@@ -6173,6 +6173,86 @@ function getExerciseDemo(name){
  add('Decline Dumbbell Bench Press','Chest','Dumbbells');
 
  window.VERTEX_66_READY=true;
+})();
+
+
+// Phase 6A.7 — Filter Engine + Library Classification Fix
+(function vertexFilterEngineFix(){
+  const list = (typeof EXERCISES !== "undefined" && Array.isArray(EXERCISES)) ? EXERCISES : null;
+  if(!list) return;
+
+  const setCat=(ex,muscle,equip,training="Strength")=>{
+    ex.muscle=muscle; ex.category=muscle; ex.target=muscle; ex.targetArea=muscle; ex.training=training;
+    if(equip){ ex.equip=equip; ex.equipment=equip; ex.equipment_type=equip; }
+  };
+
+  list.forEach(ex=>{
+    if(!ex || !ex.name) return;
+    const n=String(ex.name).toLowerCase().trim();
+
+    if(/cohen curl|preacher curl|spider curl|concentration curl|hammer curl|alternating curl|bicep curl|barbell curl|incline curl|\bcurl\b/.test(n)) setCat(ex,"Biceps",/barbell/.test(n)?"Barbell":"Dumbbells");
+    else if(/rear delt|reverse fly|face pull/.test(n)) setCat(ex,"Shoulders",/cable|face pull/.test(n)?"Cable":"Dumbbells");
+    else if(/handstand push|pike push/.test(n)) setCat(ex,"Shoulders","Bodyweight");
+    else if(/tricep|pushdown|skull crusher|kickback|overhead extension/.test(n)) setCat(ex,"Triceps",/cable|pushdown/.test(n)?"Cable":(/barbell|skull/.test(n)?"Barbell":"Dumbbells"));
+    else if(/lat pulldown|pull-up|pull up|chin-up|chin up|row|pullover|meadows|t-bar|inverted row/.test(n)) setCat(ex,"Back",/cable|pulldown|seated/.test(n)?"Cable":(/barbell|t-bar/.test(n)?"Barbell":(/pull|chin|inverted/.test(n)?"Bodyweight":"Dumbbells")));
+    else if(/squat|lunge|leg press|deadlift|romanian|rdl|calf|step-up|step up|split squat|hip thrust|glute bridge|hamstring curl|leg extension/.test(n)) setCat(ex,"Legs",/dumbbell|goblet/.test(n)?"Dumbbells":(/machine|leg press|hack/.test(n)?"Machine":(/bodyweight|lunge|step/.test(n)?"Bodyweight":"Barbell")));
+    else if(/plank|dead bug|crunch|leg raise|russian twist|sit-up|hollow|bird dog|pallof|woodchop/.test(n)) setCat(ex,"Core",/cable|pallof|woodchop/.test(n)?"Cable":"Bodyweight");
+    else if(/bench press|chest press|push[- ]?up|fly|hex press|squeeze press|chest dip|bench dip|dip/.test(n)) {
+      let eq="Barbell";
+      if(/dumbbell|hex|fly|floor|squeeze/.test(n)) eq="Dumbbells";
+      else if(/cable/.test(n)) eq="Cable";
+      else if(/machine/.test(n)) eq="Machine";
+      else if(/push[- ]?up|dip/.test(n)) eq="Bodyweight";
+      setCat(ex,"Chest",eq);
+    }
+
+    if(!ex.env && !ex.environments && !ex.environment){
+      const eq=String(ex.equip||ex.equipment||"").toLowerCase();
+      ex.env=(eq==="bodyweight" || eq==="dumbbells" || eq==="kettlebell" || eq==="mat") ? "home" : "gym";
+    }
+  });
+
+  // Canonicalize bench duplicates.
+  const canonical = {
+    "bench press normal":"Bench Press",
+    "bench press (normal)":"Bench Press",
+    "push up":"Push-Up"
+  };
+  list.forEach(ex=>{
+    const k=String(ex.name||"").toLowerCase().trim();
+    if(canonical[k]) ex.name=canonical[k];
+  });
+
+  const seen=new Set();
+  for(let i=list.length-1;i>=0;i--){
+    const ex=list[i];
+    const key=String(ex?.name||"").toLowerCase().trim();
+    if(!key) continue;
+    if(seen.has(key)) list.splice(i,1);
+    else seen.add(key);
+  }
+
+  const ensure=(name,muscle,equip,env="gym")=>{
+    if(list.some(e=>String(e.name||"").toLowerCase()===name.toLowerCase())) return;
+    list.push({name,training:"Strength",muscle,category:muscle,target:muscle,targetArea:muscle,equip,equipment:equip,equipment_type:equip,env});
+  };
+
+  ensure("Bench Press","Chest","Barbell","gym");
+  ensure("Incline Bench Press","Chest","Barbell","gym");
+  ensure("Decline Bench Press","Chest","Barbell","gym");
+  ensure("Dumbbell Bench Press","Chest","Dumbbells","home");
+  ensure("Incline Dumbbell Bench Press","Chest","Dumbbells","home");
+  ensure("Decline Dumbbell Bench Press","Chest","Dumbbells","home");
+  ensure("Cable Chest Press","Chest","Cable","gym");
+  ensure("Machine Chest Press","Chest","Machine","gym");
+
+  window.VERTEX_FILTER_AUDIT={
+    phase:"6A.7",
+    total:list.length,
+    chest:list.filter(e=>e.muscle==="Chest").map(e=>e.name).sort(),
+    biceps:list.filter(e=>e.muscle==="Biceps").map(e=>e.name).sort(),
+    shoulders:list.filter(e=>e.muscle==="Shoulders").map(e=>e.name).sort()
+  };
 })();
 
 const VERTEX_LIBRARY_PHASE='6B.3A';
@@ -10954,9 +11034,10 @@ function exerciseEnvironments(e){
   return arr.map(x=>String(x||'').toLowerCase()).filter(Boolean);
 }
 function matchesEnvironment(e){
+  if(!state.env) return false;
   const envs=exerciseEnvironments(e);
-  if(!envs.length) return true;
-  if(state.env==='gym') return true; // Gym access includes all home/bodyweight exercises plus gym-only work.
+  if(!envs.length) return state.env==='gym';
+  if(state.env==='gym') return true;
   return envs.includes('home')||envs.includes('both')||envs.includes('all')||envs.includes('home/gym');
 }
 function renderSidebar(){
@@ -10977,6 +11058,12 @@ function renderSidebar(){
   const groups=FILTER_GROUPS[mediaTrain]||FILTER_GROUPS.Strength;
   if(!groups.includes(state.muscle)) state.muscle='';
   document.getElementById('muscles').innerHTML=groups.filter(m=>m!=='All').map(m=>{const on=state.muscle===m; return `<button class="chip ${on?'on active':''}" data-muscle="${m}" aria-selected="${on?'true':'false'}">${m}</button>`;}).join('');
+  const envPicked=!!document.querySelector('[data-env]')?.closest('.segment')?.classList.contains('user-picked');
+  if(!envPicked || !state.env){
+    document.getElementById('ex-count').textContent='0';
+    document.getElementById('exercise-list').innerHTML='<div style="color:var(--dim);padding:12px;border:1px dashed var(--line2);border-radius:12px">Choose Gym or Home to view exercises.</div>';
+    return;
+  }
   const q=String(state.search||'').toLowerCase();
   let list=EXERCISES.filter(e=>{
     const exTrain=(e.training||'Strength');
@@ -15099,7 +15186,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.6-phase6A5-category-cleanup';
+  const VERSION='v13.62.7-phase6A7-filter-engine';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}

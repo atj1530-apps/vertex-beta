@@ -6020,6 +6020,129 @@ function getExerciseDemo(name){
   };
 })();
 
+
+// Phase 6A.5 — Full Category Audit + Cleanup
+(function vertexFullCategoryAuditCleanup(){
+  const list = (typeof EXERCISES !== "undefined" && Array.isArray(EXERCISES)) ? EXERCISES : (Array.isArray(window.EXERCISES) ? window.EXERCISES : null);
+  if (!list) return;
+
+  const rules = [
+    {re:/bench cohen curl|cohen curl|spider curl|preacher curl|hammer curl|alternating curl|bicep curl|barbell curl|concentration curl|incline curl|curl/i, muscle:"Biceps", equip:"Dumbbells"},
+    {re:/tricep|pushdown|skull crusher|overhead extension|kickback/i, muscle:"Triceps"},
+    {re:/rear delt|reverse fly|face pull|lateral raise|front raise|arnold press|shoulder press|overhead press|handstand push|pike push/i, muscle:"Shoulders"},
+    {re:/lat pulldown|pull-up|pull up|chin-up|chin up|row|pullover|meadows row|t-bar|inverted row/i, muscle:"Back"},
+    {re:/squat|lunge|leg press|deadlift|rdl|romanian|calf|step-up|step up|hack squat|belt squat|split squat|hip thrust|glute bridge|hamstring curl|leg extension/i, muscle:"Legs"},
+    {re:/plank|dead bug|crunch|leg raise|russian twist|sit-up|hollow|bird dog|pallof|woodchop/i, muscle:"Core"},
+    {re:/bench press|chest press|push[- ]?up|fly|hex press|squeeze press|chest dip|dip/i, muscle:"Chest"},
+  ];
+
+  const equipmentRules = [
+    {re:/barbell|bench press$|bench press \(normal\)|incline bench press|decline bench press|squat$|deadlift$|romanian deadlift|rdl|overhead press|barbell row|barbell curl/i, equip:"Barbell"},
+    {re:/dumbbell|db |hex press|fly|floor press|hammer curl|alternating curl|lateral raise|rear delt fly|reverse fly|goblet/i, equip:"Dumbbells"},
+    {re:/cable|pushdown|pallof|woodchop/i, equip:"Cable"},
+    {re:/machine|leg press|hack squat|lat pulldown|seated cable row/i, equip:"Machine"},
+    {re:/push[- ]?up|pull[- ]?up|chin[- ]?up|plank|crunch|dip|handstand|pike|dead bug|leg raise|russian twist|child|downward|stretch|mobility/i, equip:"Bodyweight"},
+    {re:/kettlebell|kb |swing|turkish|get-up|snatch|clean|halo|windmill/i, equip:"Kettlebell"}
+  ];
+
+  const recoveryRe = /stretch|mobility|child.?s pose|downward dog|hip flexor|hamstring stretch|thoracic|yoga|pose|breath|recovery/i;
+  const kettlebellRe = /kettlebell|kb |swing|turkish|get-up|snatch|clean|halo|windmill/i;
+  const cardioRe = /run|walk|bike|rower|jump rope|burpee|mountain climber|cardio|sprint/i;
+
+  const normalizeTitle = s => String(s || "").replace(/\s+/g," ").trim();
+
+  list.forEach(ex => {
+    if (!ex || !ex.name) return;
+    ex.name = normalizeTitle(ex.name);
+    const n = ex.name.toLowerCase();
+
+    let muscle = "";
+    for (const r of rules) {
+      if (r.re.test(n)) { muscle = r.muscle; break; }
+    }
+
+    if (muscle) {
+      ex.muscle = muscle;
+      ex.category = muscle;
+      ex.target = muscle;
+      ex.targetArea = muscle;
+      ex.training = "Strength";
+    }
+
+    if (kettlebellRe.test(n) || String(ex.training||"").toLowerCase()==="kettlebell") {
+      ex.training = "Kettlebell";
+      ex.muscle = ex.muscle || "Kettlebell";
+      ex.category = ex.category || "Kettlebell";
+      ex.target = ex.target || "Kettlebell";
+      ex.targetArea = ex.targetArea || "Kettlebell";
+    }
+
+    if (recoveryRe.test(n) || /recovery|stretch|mobility|yoga|pilates/i.test(String(ex.training||""))) {
+      ex.training = "Recovery / Mobility";
+      ex.muscle = ex.muscle || "Recovery / Mobility";
+      ex.category = ex.category || "Recovery / Mobility";
+      ex.target = ex.target || "Recovery / Mobility";
+      ex.targetArea = ex.targetArea || "Recovery / Mobility";
+    }
+
+    if (cardioRe.test(n) || /cardio/i.test(String(ex.training||""))) {
+      ex.training = "Cardio";
+      ex.muscle = ex.muscle || "Cardio";
+      ex.category = ex.category || "Cardio";
+      ex.target = ex.target || "Cardio";
+      ex.targetArea = ex.targetArea || "Cardio";
+    }
+
+    let equip = "";
+    for (const r of equipmentRules) {
+      if (r.re.test(n)) { equip = r.equip; break; }
+    }
+    if (equip) {
+      ex.equip = equip;
+      ex.equipment = equip;
+      ex.equipment_type = equip;
+    } else {
+      ex.equipment = ex.equipment || ex.equip || ex.equipment_type || "Bodyweight";
+      ex.equip = ex.equip || ex.equipment;
+      ex.equipment_type = ex.equipment_type || ex.equipment;
+    }
+
+    if (typeof vertexId === "function" && !ex.id) ex.id = vertexId(ex.name);
+  });
+
+  // Deduplicate exact-name duplicates while preserving first record and memory fields.
+  const seen = new Map();
+  for (let i=list.length-1; i>=0; i--) {
+    const key = String(list[i]?.name || "").toLowerCase().trim();
+    if (!key) continue;
+    if (seen.has(key)) {
+      list.splice(i,1);
+    } else {
+      seen.set(key,true);
+    }
+  }
+
+  const counts = {};
+  const equipmentCounts = {};
+  list.forEach(ex => {
+    const k = ex.muscle || ex.category || ex.training || "Unclassified";
+    counts[k] = (counts[k]||0)+1;
+    const eq = ex.equipment || ex.equip || "Unknown";
+    equipmentCounts[eq] = (equipmentCounts[eq]||0)+1;
+  });
+
+  window.VERTEX_CATEGORY_AUDIT = {
+    phase:"6A.5",
+    total:list.length,
+    counts,
+    equipmentCounts,
+    chest:list.filter(e=>e.muscle==="Chest").map(e=>e.name),
+    biceps:list.filter(e=>e.muscle==="Biceps").map(e=>e.name),
+    shoulders:list.filter(e=>e.muscle==="Shoulders").map(e=>e.name),
+    repaired:true
+  };
+})();
+
 const VERTEX_LIBRARY_PHASE='6B.3A';
 function vertexSlug(value){
   return String(value||'')
@@ -14944,7 +15067,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.5-phase6A4-filter-repair';
+  const VERSION='v13.62.6-phase6A5-category-cleanup';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}

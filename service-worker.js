@@ -2,7 +2,7 @@
    v20260529-6b2
    Network-first for HTML so deploys are visible immediately.
 */
-const CACHE_NAME = 'vertex-v20260530-6a8a-safe-rollbacksafe-rollback';
+const CACHE_NAME = 'vertex-v20260530-6a7-stable-rollbackstable-rollback';
 const APP_SHELL = [
   './',
   './index.html',

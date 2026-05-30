@@ -4215,11 +4215,6 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   }
 </style>
 
-
-<style id="vertex-6a11c-tooltip-fix">
-  [title="View exercise details"]{ pointer-events:auto; }
-</style>
-
 </head>
 <body class="auth-resolving">
 
@@ -5569,7 +5564,7 @@ const V1362_LIBRARY_ADDITIONS=[
 {name:'Reverse Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Curtsy Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Belt Squat',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
-{name:'Single-Leg RDL',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'}
+{name:'Single-Leg RDL',muscle:'Legs',equip:'Dumbbell',env:'home',kind:'legs',training:'Strength'}
 ];
 V1362_LIBRARY_ADDITIONS.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERCISES.push(ex);});
 
@@ -10292,29 +10287,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-
-
-<script id="vertex-6a11c-safe-runtime-fix">
-(function(){
-  function fix(){
-    try{
-      document.querySelectorAll('[title="View exercise details"]').forEach(function(el){ el.removeAttribute('title'); });
-      var list=(typeof EXERCISES!=='undefined'&&Array.isArray(EXERCISES))?EXERCISES:null;
-      if(!list) return;
-      list.forEach(function(ex){
-        if(!ex||!ex.name) return;
-        var n=String(ex.name).toLowerCase();
-        if(n.indexOf('sissy squat')>=0){ ex.name='Narrow-Stance Squat'; }
-        if(n.indexOf('cable')>=0){ ex.equip='Cable'; ex.equipment='Cable'; ex.equipment_type='Cable'; }
-        if(n.indexOf('high cable fly')>=0){ ex.muscle='Chest'; ex.category='Chest'; }
-        if(n==='rdl'||n.indexOf('single-leg rdl')>=0||n.indexOf('single-leg romanian')>=0){ ex.equip='Dumbbells'; ex.equipment='Dumbbells'; }
-        if(n.indexOf('marching glute')>=0||n.indexOf('standing calf raise')>=0){ ex.equip='Bodyweight'; ex.equipment='Bodyweight'; }
-      });
-    }catch(e){}
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fix); else fix();
-})();
-</script>
 
 </body></html>`;
         const w = window.open('','_blank');
@@ -15240,7 +15212,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.62.18-phase6A11c-tooltip-equipment';
+  const VERSION='v13.62.19-phase6A11d-safe-tooltip-equipment';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}

@@ -8984,12 +8984,8 @@ function wcRenderDashboard(){
   const ahWeightEntries = Object.entries(ahWeightMap).sort((a,b)=>a[0].localeCompare(b[0]));
   const last28AH = ahWeightEntries.filter(([d])=>(Date.now()-new Date(d+'T12:00:00').getTime())<28*86400000);
   let rolling = null;
-  // Phase 6A18: anchor projection to the latest actual weight date, not the current calendar date.
-  // This prevents the projection line from jumping/gapping when Apple Health has not posted today's weight yet.
-  const actualWeightPairs = allWeightDates.map(d=>[d, ahWeightMap[d] ?? (sorted.find(e=>e.date===d)?.weight ?? null)]).filter(x=>x[1]!=null && !isNaN(Number(x[1])));
-  const lastActualPair = actualWeightPairs.length ? actualWeightPairs[actualWeightPairs.length-1] : [latest.date, latest.weight];
-  let projAnchorWeight = Number(lastActualPair[1]);
-  let projAnchorDate = lastActualPair[0];
+  let projAnchorWeight = ahWeightMap[todayIsoStr] ?? latest.weight;
+  let projAnchorDate = todayIsoStr;
   let _rawRate = null;
   if(last28AH.length >= 4){
     const firstAH = last28AH[0]; const lastAH = last28AH[last28AH.length-1];
@@ -9027,12 +9023,7 @@ function wcRenderDashboard(){
   const _hasProjection=rolling&&rolling>0;
   const _wcDatasets=[{label:'Actual',data:wData,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:0.35,spanGaps:false}];
   if(_hasProjection) _wcDatasets.push({label:'Projected',data:projData,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:0.35,spanGaps:true});
-  if(wcEl){
-    const allChartVals=[...wData,...projData].filter(v=>v!=null&&!isNaN(Number(v))).map(Number);
-    const minW=allChartVals.length?Math.floor(Math.min(...allChartVals)-3):undefined;
-    const maxW=allChartVals.length?Math.ceil(Math.max(...allChartVals)+3):undefined;
-    _wcCharts['wc-dc-weight']=new Chart(wcEl.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:_wcDatasets},options:{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:_hasProjection,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}},scales:{...WC_CHART_OPTS.scales,y:{...WC_CHART_OPTS.scales.y,suggestedMin:minW,suggestedMax:maxW}}}});
-  }
+  if(wcEl)_wcCharts['wc-dc-weight']=new Chart(wcEl.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:_wcDatasets},options:{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:_hasProjection,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}}}});
 
   // Progress
   const journey=WC_START_WEIGHT-TARGET;
@@ -10461,89 +10452,6 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-
-
-
-<!-- Phase 6A18: final page state lock + workout empty state + weight trajectory cleanup -->
-<style id="vertex-6a18-state-lock-style">
-  body:not(.app-page-home) #home-dashboard{display:none!important;}
-  body:not(.app-page-workout) #workoutStartGuide{display:none!important;}
-  body:not(.app-page-progress) #progressPage{display:none!important;}
-  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
-  body:not(.app-page-ai) #aiPage{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #workoutStartGuide{display:block!important;}
-  body.app-page-workout:not(.vertex-workout-empty) #workoutStartGuide{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #autoCoachAcc,
-  body.app-page-workout.vertex-workout-empty .coachbar,
-  body.app-page-workout.vertex-workout-empty .wkt-name-row,
-  body.app-page-workout.vertex-workout-empty #wkt-meta,
-  body.app-page-workout.vertex-workout-empty #builder{display:none!important;}
-  body.app-page-workout:not(.vertex-workout-empty) #autoCoachAcc,
-  body.app-page-workout:not(.vertex-workout-empty) .coachbar,
-  body.app-page-workout:not(.vertex-workout-empty) .wkt-name-row,
-  body.app-page-workout:not(.vertex-workout-empty) #wkt-meta,
-  body.app-page-workout:not(.vertex-workout-empty) #builder{display:block!important;}
-</style>
-<script id="vertex-6a18-state-lock-script">
-(function(){
-  function id(x){return document.getElementById(x);}
-  function getPage(){
-    try{ if(window.state&&window.state.page) return window.state.page; }catch(e){}
-    try{ if(typeof state!=='undefined'&&state.page) return state.page; }catch(e){}
-    var nav=document.querySelector('[data-nav].on');
-    return (nav&&nav.getAttribute('data-nav'))||'home';
-  }
-  function hasExercises(){
-    try{
-      var w=(window.state&&window.state.current)||(typeof state!=='undefined'?state.current:null)||{};
-      if(Array.isArray(w.exercises)&&w.exercises.length>0) return true;
-      if(Array.isArray(w.moves)&&w.moves.length>0) return true;
-      if(Array.isArray(w.phases)&&w.phases.length>0) return true;
-    }catch(e){}
-    return false;
-  }
-  function show(el,on,display){if(el)el.style.setProperty('display',on?(display||'block'):'none','important');}
-  function enforce(){
-    var pg=getPage();
-    ['home','workout','progress','wellness','ai'].forEach(function(p){document.body.classList.toggle('app-page-'+p,pg===p);});
-    document.body.classList.toggle('app-page-nonworkout',pg!=='workout');
-    var empty=pg==='workout'&&!hasExercises();
-    document.body.classList.toggle('vertex-workout-empty',empty);
-    show(id('home-dashboard'),pg==='home','block');
-    show(id('homePage'),false);
-    show(id('progressPage'),pg==='progress','block');
-    show(id('wellnessPage'),pg==='wellness','block');
-    show(id('aiPage'),pg==='ai','block');
-    document.querySelectorAll('.sidebar,.right').forEach(function(el){show(el,pg==='workout');});
-    show(id('workoutStartGuide'),pg==='workout'&&empty,'block');
-    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(function(el){show(el,pg==='workout'&&!empty);});
-    ['savedAcc','statsAcc','coachAcc'].forEach(function(x){show(id(x),pg==='workout');});
-    var save=id('btn-save'), log=id('btn-log');
-    if(save) show(save,pg==='workout','inline-flex');
-    if(log) show(log,pg==='workout','inline-flex');
-  }
-  function tick(){setTimeout(enforce,0);setTimeout(enforce,80);setTimeout(enforce,250);}
-  var oldSet=window.setPage;
-  if(typeof oldSet==='function'&&!oldSet.__v6a18){
-    window.setPage=function(page){var r=oldSet.apply(this,arguments); tick(); return r;};
-    window.setPage.__v6a18=true;
-  }
-  var oldRender=window.renderAll;
-  if(typeof oldRender==='function'&&!oldRender.__v6a18){
-    window.renderAll=function(){var r=oldRender.apply(this,arguments); tick(); return r;};
-    window.renderAll.__v6a18=true;
-  }
-  document.addEventListener('click',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('[data-nav],[data-add],[data-remove],[data-load-tpl],[data-start-day],[data-training],[data-muscle],.seg-btn,.chip,.ex-add-btn')) tick();
-  },true);
-  document.addEventListener('DOMContentLoaded',tick);
-  window.addEventListener('load',tick);
-  window.addEventListener('pageshow',tick);
-  setInterval(enforce,1000);
-  window.Vertex6A18StateLock=enforce;
-  tick();
-})();
-</script>
 
 </body></html>`;
         const w = window.open('','_blank');
@@ -12227,89 +12135,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-
-
-<!-- Phase 6A18: final page state lock + workout empty state + weight trajectory cleanup -->
-<style id="vertex-6a18-state-lock-style">
-  body:not(.app-page-home) #home-dashboard{display:none!important;}
-  body:not(.app-page-workout) #workoutStartGuide{display:none!important;}
-  body:not(.app-page-progress) #progressPage{display:none!important;}
-  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
-  body:not(.app-page-ai) #aiPage{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #workoutStartGuide{display:block!important;}
-  body.app-page-workout:not(.vertex-workout-empty) #workoutStartGuide{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #autoCoachAcc,
-  body.app-page-workout.vertex-workout-empty .coachbar,
-  body.app-page-workout.vertex-workout-empty .wkt-name-row,
-  body.app-page-workout.vertex-workout-empty #wkt-meta,
-  body.app-page-workout.vertex-workout-empty #builder{display:none!important;}
-  body.app-page-workout:not(.vertex-workout-empty) #autoCoachAcc,
-  body.app-page-workout:not(.vertex-workout-empty) .coachbar,
-  body.app-page-workout:not(.vertex-workout-empty) .wkt-name-row,
-  body.app-page-workout:not(.vertex-workout-empty) #wkt-meta,
-  body.app-page-workout:not(.vertex-workout-empty) #builder{display:block!important;}
-</style>
-<script id="vertex-6a18-state-lock-script">
-(function(){
-  function id(x){return document.getElementById(x);}
-  function getPage(){
-    try{ if(window.state&&window.state.page) return window.state.page; }catch(e){}
-    try{ if(typeof state!=='undefined'&&state.page) return state.page; }catch(e){}
-    var nav=document.querySelector('[data-nav].on');
-    return (nav&&nav.getAttribute('data-nav'))||'home';
-  }
-  function hasExercises(){
-    try{
-      var w=(window.state&&window.state.current)||(typeof state!=='undefined'?state.current:null)||{};
-      if(Array.isArray(w.exercises)&&w.exercises.length>0) return true;
-      if(Array.isArray(w.moves)&&w.moves.length>0) return true;
-      if(Array.isArray(w.phases)&&w.phases.length>0) return true;
-    }catch(e){}
-    return false;
-  }
-  function show(el,on,display){if(el)el.style.setProperty('display',on?(display||'block'):'none','important');}
-  function enforce(){
-    var pg=getPage();
-    ['home','workout','progress','wellness','ai'].forEach(function(p){document.body.classList.toggle('app-page-'+p,pg===p);});
-    document.body.classList.toggle('app-page-nonworkout',pg!=='workout');
-    var empty=pg==='workout'&&!hasExercises();
-    document.body.classList.toggle('vertex-workout-empty',empty);
-    show(id('home-dashboard'),pg==='home','block');
-    show(id('homePage'),false);
-    show(id('progressPage'),pg==='progress','block');
-    show(id('wellnessPage'),pg==='wellness','block');
-    show(id('aiPage'),pg==='ai','block');
-    document.querySelectorAll('.sidebar,.right').forEach(function(el){show(el,pg==='workout');});
-    show(id('workoutStartGuide'),pg==='workout'&&empty,'block');
-    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(function(el){show(el,pg==='workout'&&!empty);});
-    ['savedAcc','statsAcc','coachAcc'].forEach(function(x){show(id(x),pg==='workout');});
-    var save=id('btn-save'), log=id('btn-log');
-    if(save) show(save,pg==='workout','inline-flex');
-    if(log) show(log,pg==='workout','inline-flex');
-  }
-  function tick(){setTimeout(enforce,0);setTimeout(enforce,80);setTimeout(enforce,250);}
-  var oldSet=window.setPage;
-  if(typeof oldSet==='function'&&!oldSet.__v6a18){
-    window.setPage=function(page){var r=oldSet.apply(this,arguments); tick(); return r;};
-    window.setPage.__v6a18=true;
-  }
-  var oldRender=window.renderAll;
-  if(typeof oldRender==='function'&&!oldRender.__v6a18){
-    window.renderAll=function(){var r=oldRender.apply(this,arguments); tick(); return r;};
-    window.renderAll.__v6a18=true;
-  }
-  document.addEventListener('click',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('[data-nav],[data-add],[data-remove],[data-load-tpl],[data-start-day],[data-training],[data-muscle],.seg-btn,.chip,.ex-add-btn')) tick();
-  },true);
-  document.addEventListener('DOMContentLoaded',tick);
-  window.addEventListener('load',tick);
-  window.addEventListener('pageshow',tick);
-  setInterval(enforce,1000);
-  window.Vertex6A18StateLock=enforce;
-  tick();
-})();
-</script>
-
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -12631,89 +12456,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-
-
-<!-- Phase 6A18: final page state lock + workout empty state + weight trajectory cleanup -->
-<style id="vertex-6a18-state-lock-style">
-  body:not(.app-page-home) #home-dashboard{display:none!important;}
-  body:not(.app-page-workout) #workoutStartGuide{display:none!important;}
-  body:not(.app-page-progress) #progressPage{display:none!important;}
-  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
-  body:not(.app-page-ai) #aiPage{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #workoutStartGuide{display:block!important;}
-  body.app-page-workout:not(.vertex-workout-empty) #workoutStartGuide{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #autoCoachAcc,
-  body.app-page-workout.vertex-workout-empty .coachbar,
-  body.app-page-workout.vertex-workout-empty .wkt-name-row,
-  body.app-page-workout.vertex-workout-empty #wkt-meta,
-  body.app-page-workout.vertex-workout-empty #builder{display:none!important;}
-  body.app-page-workout:not(.vertex-workout-empty) #autoCoachAcc,
-  body.app-page-workout:not(.vertex-workout-empty) .coachbar,
-  body.app-page-workout:not(.vertex-workout-empty) .wkt-name-row,
-  body.app-page-workout:not(.vertex-workout-empty) #wkt-meta,
-  body.app-page-workout:not(.vertex-workout-empty) #builder{display:block!important;}
-</style>
-<script id="vertex-6a18-state-lock-script">
-(function(){
-  function id(x){return document.getElementById(x);}
-  function getPage(){
-    try{ if(window.state&&window.state.page) return window.state.page; }catch(e){}
-    try{ if(typeof state!=='undefined'&&state.page) return state.page; }catch(e){}
-    var nav=document.querySelector('[data-nav].on');
-    return (nav&&nav.getAttribute('data-nav'))||'home';
-  }
-  function hasExercises(){
-    try{
-      var w=(window.state&&window.state.current)||(typeof state!=='undefined'?state.current:null)||{};
-      if(Array.isArray(w.exercises)&&w.exercises.length>0) return true;
-      if(Array.isArray(w.moves)&&w.moves.length>0) return true;
-      if(Array.isArray(w.phases)&&w.phases.length>0) return true;
-    }catch(e){}
-    return false;
-  }
-  function show(el,on,display){if(el)el.style.setProperty('display',on?(display||'block'):'none','important');}
-  function enforce(){
-    var pg=getPage();
-    ['home','workout','progress','wellness','ai'].forEach(function(p){document.body.classList.toggle('app-page-'+p,pg===p);});
-    document.body.classList.toggle('app-page-nonworkout',pg!=='workout');
-    var empty=pg==='workout'&&!hasExercises();
-    document.body.classList.toggle('vertex-workout-empty',empty);
-    show(id('home-dashboard'),pg==='home','block');
-    show(id('homePage'),false);
-    show(id('progressPage'),pg==='progress','block');
-    show(id('wellnessPage'),pg==='wellness','block');
-    show(id('aiPage'),pg==='ai','block');
-    document.querySelectorAll('.sidebar,.right').forEach(function(el){show(el,pg==='workout');});
-    show(id('workoutStartGuide'),pg==='workout'&&empty,'block');
-    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(function(el){show(el,pg==='workout'&&!empty);});
-    ['savedAcc','statsAcc','coachAcc'].forEach(function(x){show(id(x),pg==='workout');});
-    var save=id('btn-save'), log=id('btn-log');
-    if(save) show(save,pg==='workout','inline-flex');
-    if(log) show(log,pg==='workout','inline-flex');
-  }
-  function tick(){setTimeout(enforce,0);setTimeout(enforce,80);setTimeout(enforce,250);}
-  var oldSet=window.setPage;
-  if(typeof oldSet==='function'&&!oldSet.__v6a18){
-    window.setPage=function(page){var r=oldSet.apply(this,arguments); tick(); return r;};
-    window.setPage.__v6a18=true;
-  }
-  var oldRender=window.renderAll;
-  if(typeof oldRender==='function'&&!oldRender.__v6a18){
-    window.renderAll=function(){var r=oldRender.apply(this,arguments); tick(); return r;};
-    window.renderAll.__v6a18=true;
-  }
-  document.addEventListener('click',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('[data-nav],[data-add],[data-remove],[data-load-tpl],[data-start-day],[data-training],[data-muscle],.seg-btn,.chip,.ex-add-btn')) tick();
-  },true);
-  document.addEventListener('DOMContentLoaded',tick);
-  window.addEventListener('load',tick);
-  window.addEventListener('pageshow',tick);
-  setInterval(enforce,1000);
-  window.Vertex6A18StateLock=enforce;
-  tick();
-})();
-</script>
-
 </body></html>`);
     w.document.close();
   };
@@ -12994,89 +12736,6 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 }
 </style>
 
-
-
-
-<!-- Phase 6A18: final page state lock + workout empty state + weight trajectory cleanup -->
-<style id="vertex-6a18-state-lock-style">
-  body:not(.app-page-home) #home-dashboard{display:none!important;}
-  body:not(.app-page-workout) #workoutStartGuide{display:none!important;}
-  body:not(.app-page-progress) #progressPage{display:none!important;}
-  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
-  body:not(.app-page-ai) #aiPage{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #workoutStartGuide{display:block!important;}
-  body.app-page-workout:not(.vertex-workout-empty) #workoutStartGuide{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #autoCoachAcc,
-  body.app-page-workout.vertex-workout-empty .coachbar,
-  body.app-page-workout.vertex-workout-empty .wkt-name-row,
-  body.app-page-workout.vertex-workout-empty #wkt-meta,
-  body.app-page-workout.vertex-workout-empty #builder{display:none!important;}
-  body.app-page-workout:not(.vertex-workout-empty) #autoCoachAcc,
-  body.app-page-workout:not(.vertex-workout-empty) .coachbar,
-  body.app-page-workout:not(.vertex-workout-empty) .wkt-name-row,
-  body.app-page-workout:not(.vertex-workout-empty) #wkt-meta,
-  body.app-page-workout:not(.vertex-workout-empty) #builder{display:block!important;}
-</style>
-<script id="vertex-6a18-state-lock-script">
-(function(){
-  function id(x){return document.getElementById(x);}
-  function getPage(){
-    try{ if(window.state&&window.state.page) return window.state.page; }catch(e){}
-    try{ if(typeof state!=='undefined'&&state.page) return state.page; }catch(e){}
-    var nav=document.querySelector('[data-nav].on');
-    return (nav&&nav.getAttribute('data-nav'))||'home';
-  }
-  function hasExercises(){
-    try{
-      var w=(window.state&&window.state.current)||(typeof state!=='undefined'?state.current:null)||{};
-      if(Array.isArray(w.exercises)&&w.exercises.length>0) return true;
-      if(Array.isArray(w.moves)&&w.moves.length>0) return true;
-      if(Array.isArray(w.phases)&&w.phases.length>0) return true;
-    }catch(e){}
-    return false;
-  }
-  function show(el,on,display){if(el)el.style.setProperty('display',on?(display||'block'):'none','important');}
-  function enforce(){
-    var pg=getPage();
-    ['home','workout','progress','wellness','ai'].forEach(function(p){document.body.classList.toggle('app-page-'+p,pg===p);});
-    document.body.classList.toggle('app-page-nonworkout',pg!=='workout');
-    var empty=pg==='workout'&&!hasExercises();
-    document.body.classList.toggle('vertex-workout-empty',empty);
-    show(id('home-dashboard'),pg==='home','block');
-    show(id('homePage'),false);
-    show(id('progressPage'),pg==='progress','block');
-    show(id('wellnessPage'),pg==='wellness','block');
-    show(id('aiPage'),pg==='ai','block');
-    document.querySelectorAll('.sidebar,.right').forEach(function(el){show(el,pg==='workout');});
-    show(id('workoutStartGuide'),pg==='workout'&&empty,'block');
-    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(function(el){show(el,pg==='workout'&&!empty);});
-    ['savedAcc','statsAcc','coachAcc'].forEach(function(x){show(id(x),pg==='workout');});
-    var save=id('btn-save'), log=id('btn-log');
-    if(save) show(save,pg==='workout','inline-flex');
-    if(log) show(log,pg==='workout','inline-flex');
-  }
-  function tick(){setTimeout(enforce,0);setTimeout(enforce,80);setTimeout(enforce,250);}
-  var oldSet=window.setPage;
-  if(typeof oldSet==='function'&&!oldSet.__v6a18){
-    window.setPage=function(page){var r=oldSet.apply(this,arguments); tick(); return r;};
-    window.setPage.__v6a18=true;
-  }
-  var oldRender=window.renderAll;
-  if(typeof oldRender==='function'&&!oldRender.__v6a18){
-    window.renderAll=function(){var r=oldRender.apply(this,arguments); tick(); return r;};
-    window.renderAll.__v6a18=true;
-  }
-  document.addEventListener('click',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('[data-nav],[data-add],[data-remove],[data-load-tpl],[data-start-day],[data-training],[data-muscle],.seg-btn,.chip,.ex-add-btn')) tick();
-  },true);
-  document.addEventListener('DOMContentLoaded',tick);
-  window.addEventListener('load',tick);
-  window.addEventListener('pageshow',tick);
-  setInterval(enforce,1000);
-  window.Vertex6A18StateLock=enforce;
-  tick();
-})();
-</script>
 
 </body></html>`);
   w.document.close();
@@ -21430,89 +21089,6 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
 </script>
 
 
-
-
-<!-- Phase 6A18: final page state lock + workout empty state + weight trajectory cleanup -->
-<style id="vertex-6a18-state-lock-style">
-  body:not(.app-page-home) #home-dashboard{display:none!important;}
-  body:not(.app-page-workout) #workoutStartGuide{display:none!important;}
-  body:not(.app-page-progress) #progressPage{display:none!important;}
-  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
-  body:not(.app-page-ai) #aiPage{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #workoutStartGuide{display:block!important;}
-  body.app-page-workout:not(.vertex-workout-empty) #workoutStartGuide{display:none!important;}
-  body.app-page-workout.vertex-workout-empty #autoCoachAcc,
-  body.app-page-workout.vertex-workout-empty .coachbar,
-  body.app-page-workout.vertex-workout-empty .wkt-name-row,
-  body.app-page-workout.vertex-workout-empty #wkt-meta,
-  body.app-page-workout.vertex-workout-empty #builder{display:none!important;}
-  body.app-page-workout:not(.vertex-workout-empty) #autoCoachAcc,
-  body.app-page-workout:not(.vertex-workout-empty) .coachbar,
-  body.app-page-workout:not(.vertex-workout-empty) .wkt-name-row,
-  body.app-page-workout:not(.vertex-workout-empty) #wkt-meta,
-  body.app-page-workout:not(.vertex-workout-empty) #builder{display:block!important;}
-</style>
-<script id="vertex-6a18-state-lock-script">
-(function(){
-  function id(x){return document.getElementById(x);}
-  function getPage(){
-    try{ if(window.state&&window.state.page) return window.state.page; }catch(e){}
-    try{ if(typeof state!=='undefined'&&state.page) return state.page; }catch(e){}
-    var nav=document.querySelector('[data-nav].on');
-    return (nav&&nav.getAttribute('data-nav'))||'home';
-  }
-  function hasExercises(){
-    try{
-      var w=(window.state&&window.state.current)||(typeof state!=='undefined'?state.current:null)||{};
-      if(Array.isArray(w.exercises)&&w.exercises.length>0) return true;
-      if(Array.isArray(w.moves)&&w.moves.length>0) return true;
-      if(Array.isArray(w.phases)&&w.phases.length>0) return true;
-    }catch(e){}
-    return false;
-  }
-  function show(el,on,display){if(el)el.style.setProperty('display',on?(display||'block'):'none','important');}
-  function enforce(){
-    var pg=getPage();
-    ['home','workout','progress','wellness','ai'].forEach(function(p){document.body.classList.toggle('app-page-'+p,pg===p);});
-    document.body.classList.toggle('app-page-nonworkout',pg!=='workout');
-    var empty=pg==='workout'&&!hasExercises();
-    document.body.classList.toggle('vertex-workout-empty',empty);
-    show(id('home-dashboard'),pg==='home','block');
-    show(id('homePage'),false);
-    show(id('progressPage'),pg==='progress','block');
-    show(id('wellnessPage'),pg==='wellness','block');
-    show(id('aiPage'),pg==='ai','block');
-    document.querySelectorAll('.sidebar,.right').forEach(function(el){show(el,pg==='workout');});
-    show(id('workoutStartGuide'),pg==='workout'&&empty,'block');
-    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(function(el){show(el,pg==='workout'&&!empty);});
-    ['savedAcc','statsAcc','coachAcc'].forEach(function(x){show(id(x),pg==='workout');});
-    var save=id('btn-save'), log=id('btn-log');
-    if(save) show(save,pg==='workout','inline-flex');
-    if(log) show(log,pg==='workout','inline-flex');
-  }
-  function tick(){setTimeout(enforce,0);setTimeout(enforce,80);setTimeout(enforce,250);}
-  var oldSet=window.setPage;
-  if(typeof oldSet==='function'&&!oldSet.__v6a18){
-    window.setPage=function(page){var r=oldSet.apply(this,arguments); tick(); return r;};
-    window.setPage.__v6a18=true;
-  }
-  var oldRender=window.renderAll;
-  if(typeof oldRender==='function'&&!oldRender.__v6a18){
-    window.renderAll=function(){var r=oldRender.apply(this,arguments); tick(); return r;};
-    window.renderAll.__v6a18=true;
-  }
-  document.addEventListener('click',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('[data-nav],[data-add],[data-remove],[data-load-tpl],[data-start-day],[data-training],[data-muscle],.seg-btn,.chip,.ex-add-btn')) tick();
-  },true);
-  document.addEventListener('DOMContentLoaded',tick);
-  window.addEventListener('load',tick);
-  window.addEventListener('pageshow',tick);
-  setInterval(enforce,1000);
-  window.Vertex6A18StateLock=enforce;
-  tick();
-})();
-</script>
-
 </body>
 </html>
 
@@ -22490,3 +22066,127 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
 })();
 </script>
 
+
+<!-- Phase 6A19: stable page routing + workout empty-state + weight chart anchor fix -->
+<style id="vertex-6a19-state-guard-style">
+  body:not(.app-page-home) #home-dashboard{display:none!important;}
+  body:not(.app-page-progress) #progressPage{display:none!important;}
+  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
+  body:not(.app-page-ai) #aiPage{display:none!important;}
+  body:not(.app-page-workout) .sidebar,
+  body:not(.app-page-workout) .right{display:none!important;}
+  body.app-page-workout.vertex-workout-empty #workoutStartGuide{display:block!important;}
+  body.app-page-workout.vertex-workout-has-content #workoutStartGuide{display:none!important;}
+  body.app-page-workout.vertex-workout-empty #autoCoachAcc,
+  body.app-page-workout.vertex-workout-empty .coachbar,
+  body.app-page-workout.vertex-workout-empty .wkt-name-row,
+  body.app-page-workout.vertex-workout-empty #wkt-meta,
+  body.app-page-workout.vertex-workout-empty #builder{display:none!important;}
+</style>
+<script id="vertex-6a19-state-guard-script">
+(function(){
+  var lastPage=null;
+  function el(id){return document.getElementById(id);}
+  function page(){
+    try{ if(lastPage) return lastPage; }catch(e){}
+    try{ if(typeof state!=='undefined' && state && state.page) return state.page; }catch(e){}
+    var nav=document.querySelector('[data-nav].on');
+    return (nav&&nav.getAttribute('data-nav'))||'home';
+  }
+  function hasContent(){
+    try{ if(typeof hasWorkout==='function' && typeof state!=='undefined') return !!hasWorkout(state.current); }catch(e){}
+    try{
+      var w=(typeof state!=='undefined'&&state&&state.current)?state.current:{};
+      return !!((w.exercises&&w.exercises.length)||(w.moves&&w.moves.length)||(w.phases&&w.phases.length));
+    }catch(e){return false;}
+  }
+  function show(node,on,display){ if(node) node.style.display=on?(display||'block'):'none'; }
+  function sync(){
+    var pg=page();
+    try{ if(typeof state!=='undefined' && state) state.page=pg; }catch(e){}
+    ['home','workout','progress','wellness','ai'].forEach(function(p){document.body.classList.toggle('app-page-'+p,pg===p);});
+    document.querySelectorAll('[data-nav]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-nav')===pg);});
+    var wOn=pg==='workout', empty=wOn&&!hasContent();
+    document.body.classList.toggle('vertex-workout-empty',empty);
+    document.body.classList.toggle('vertex-workout-has-content',wOn&&!empty);
+    show(el('home-dashboard'),pg==='home');
+    show(el('homePage'),false);
+    show(el('progressPage'),pg==='progress');
+    show(el('wellnessPage'),pg==='wellness');
+    show(el('aiPage'),pg==='ai');
+    document.querySelectorAll('.sidebar,.right').forEach(function(n){show(n,wOn);});
+    show(el('workoutStartGuide'),empty);
+    document.querySelectorAll('.coachbar,#autoCoachAcc,.wkt-name-row,#wkt-meta,#builder').forEach(function(n){show(n,wOn&&!empty);});
+    ['savedAcc','statsAcc','coachAcc'].forEach(function(id){show(el(id),wOn);});
+    show(el('btn-save'),wOn,'inline-flex');
+    show(el('btn-log'),wOn,'inline-flex');
+  }
+  function tick(){setTimeout(sync,0);setTimeout(sync,80);setTimeout(sync,250);}
+  document.addEventListener('click',function(e){
+    var n=e.target&&e.target.closest&&e.target.closest('[data-nav]');
+    if(n){lastPage=n.getAttribute('data-nav');}
+    if(e.target&&e.target.closest&&e.target.closest('[data-nav],[data-add],[data-remove],[data-load-tpl],[data-start-day],[data-edit-day],[data-template],[data-training],[data-muscle],#manualAdd,#mediaDetailAdd,.seg-btn,.ex-add-btn')) tick();
+  },true);
+  var oldSet=window.setPage;
+  if(typeof oldSet==='function'&&!oldSet.__v6a19){window.setPage=function(p){lastPage=p;var r=oldSet.apply(this,arguments);tick();return r;};window.setPage.__v6a19=true;}
+  var oldRender=window.renderAll;
+  if(typeof oldRender==='function'&&!oldRender.__v6a19){window.renderAll=function(){var r=oldRender.apply(this,arguments);tick();return r;};window.renderAll.__v6a19=true;}
+  document.addEventListener('DOMContentLoaded',tick);
+  window.addEventListener('load',tick);
+  window.addEventListener('pageshow',tick);
+  setInterval(sync,1200);
+  window.Vertex6A19StateGuard=sync;
+  tick();
+})();
+</script>
+<script id="vertex-6a19-weight-chart-anchor-fix">
+(function(){
+  function num(v){var n=Number(v);return Number.isFinite(n)?Math.round(n*10)/10:null;}
+  function dateKey(r){var s=String((r&&(r.date||r.sync_date||r.checkin_date||r.created_at||r.synced_at))||'');return s.length>=10?s.slice(0,10):null;}
+  function weightVal(r){
+    if(!r)return null; var raw=null; try{raw=r.raw?(typeof r.raw==='string'?JSON.parse(r.raw):r.raw):null;}catch(e){}
+    var vals=[r.bodyWeight,r.body_weight,r.weight,r.bodyweight,raw&&raw.bodyWeight,raw&&raw.body_weight,raw&&raw.weight];
+    for(var i=0;i<vals.length;i++){var n=num(vals[i]);if(n&&n>100&&n<450)return n;} return null;
+  }
+  function mergedRows(){
+    var map={}, rows=[];
+    try{(typeof loadHealthEntries==='function'?loadHealthEntries():[]).forEach(function(r){rows.push(Object.assign({},r,{_p:3}));});}catch(e){}
+    try{(typeof wcLogs!=='undefined'&&Array.isArray(wcLogs)?wcLogs:[]).forEach(function(r){rows.push(Object.assign({},r,{_p:2}));});}catch(e){}
+    rows.forEach(function(r){var d=dateKey(r), w=weightVal(r); if(!d||!w)return; if(!map[d]||r._p>=map[d]._p)map[d]={date:d,weight:w,_p:r._p};});
+    var today=new Date(); today.setHours(23,59,59,999);
+    return Object.keys(map).sort().map(function(k){return map[k];}).filter(function(r){return new Date(r.date+'T12:00:00')<=today;});
+  }
+  function redrawWeight(){
+    try{
+      var canvas=el('wc-dc-weight'); if(!canvas||typeof Chart==='undefined')return;
+      var rows=mergedRows(); if(!rows.length)return;
+      var latest=rows[rows.length-1];
+      var cutoff=new Date(latest.date+'T12:00:00'); cutoff.setDate(cutoff.getDate()-120);
+      rows=rows.filter(function(r){return new Date(r.date+'T12:00:00')>=cutoff;});
+      var labels=rows.map(function(r){var p=r.date.split('-');return p[1]+'/'+p[2];});
+      var actual=rows.map(function(r){return r.weight;});
+      var recent=rows.filter(function(r){return (new Date(latest.date+'T12:00:00')-new Date(r.date+'T12:00:00'))<=28*86400000;});
+      var pace=null;
+      if(recent.length>=2){
+        var first=recent[0], last=recent[recent.length-1];
+        var weeks=Math.max(1,(new Date(last.date+'T12:00:00')-new Date(first.date+'T12:00:00'))/604800000);
+        var p=(first.weight-last.weight)/weeks; if(p>0.05) pace=Math.min(2,Math.round(p*100)/100);
+      }
+      var target=195; try{target=typeof wcGetGoalWeight==='function'?Number(wcGetGoalWeight()):195;}catch(e){}
+      var proj=actual.map(function(){return null;});
+      if(pace){for(var i=1;i<=8;i++){var d=new Date(latest.date+'T12:00:00');d.setDate(d.getDate()+i*7);labels.push(String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'));actual.push(null);proj.push(Math.max(target,+(latest.weight-(pace*i)).toFixed(1)));}}
+      try{if(typeof _wcCharts!=='undefined'&&_wcCharts['wc-dc-weight']){_wcCharts['wc-dc-weight'].destroy();delete _wcCharts['wc-dc-weight'];}}catch(e){}
+      var opts=(typeof WC_CHART_OPTS!=='undefined')?WC_CHART_OPTS:{};
+      var datasets=[{label:'Actual',data:actual,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:.25,spanGaps:false}];
+      if(pace)datasets.push({label:'Projected',data:proj,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:.25,spanGaps:true});
+      var chart=new Chart(canvas.getContext('2d'),{type:'line',data:{labels:labels,datasets:datasets},options:Object.assign({},opts,{plugins:Object.assign({},opts.plugins||{},{legend:{display:!!pace,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}})})});
+      try{if(typeof _wcCharts!=='undefined')_wcCharts['wc-dc-weight']=chart;}catch(e){}
+    }catch(e){console.warn('6A19 weight redraw skipped',e);}
+  }
+  function el(id){return document.getElementById(id);}
+  function tick(){setTimeout(redrawWeight,100);setTimeout(redrawWeight,500);}
+  var old=window.wcRenderDashboard;
+  if(typeof old==='function'&&!old.__v6a19){window.wcRenderDashboard=function(){var r=old.apply(this,arguments);tick();return r;};window.wcRenderDashboard.__v6a19=true;}
+  document.addEventListener('DOMContentLoaded',tick);window.addEventListener('load',tick);window.Vertex6A19RedrawWeight=redrawWeight;
+})();
+</script>

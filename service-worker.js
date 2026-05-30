@@ -2,7 +2,7 @@
    v20260529-6b2
    Network-first for HTML so deploys are visible immediately.
 */
-const CACHE_NAME = 'vertex-v20260529-6a5-category-cleanup';
+const CACHE_NAME = 'vertex-v20260529-6a7-filter-engine';
 const APP_SHELL = [
   './',
   './index.html',

@@ -4317,7 +4317,7 @@ window.vertexFinishBootstrap=function(){
     <button id="btn-add-library" class="btn acc" style="width:100%;margin:0 0 8px">+ Add Exercise to Library</button>
     <button id="btn-manual-entry" class="btn acc" style="width:100%;margin:0 0 10px">+ Lightweight Manual Entry</button>
     <div class="label">Click to add (<span id="ex-count">0</span>)</div>
-    <div id="exercise-list" class="ex-list"></div>
+    <div <button id="homeEquipBtn" class="btn">Home Equipment</button><div id="exercise-list" class="ex-list"></div>
   </aside>
   <main class="main">
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
@@ -10251,7 +10251,12 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
-</body></html>`;
+<script>
+document.addEventListener('click',function(e){
+ const b=e.target.closest('#homeEquipBtn');
+ if(b){ if(typeof openEquipmentModal==='function') openEquipmentModal(); }
+});
+</script></body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
         if(status) status.textContent = '✓ Print dialog opened. Close this panel when done.';
@@ -11929,7 +11934,12 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-</body></html>`;
+<script>
+document.addEventListener('click',function(e){
+ const b=e.target.closest('#homeEquipBtn');
+ if(b){ if(typeof openEquipmentModal==='function') openEquipmentModal(); }
+});
+</script></body></html>`;
 
     const w = window.open('','_blank');
     if(w){ w.document.write(html); w.document.close(); setTimeout(()=>{ try{ w.print(); }catch(e){} }, 400); }
@@ -12248,7 +12258,12 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-</body></html>`);
+<script>
+document.addEventListener('click',function(e){
+ const b=e.target.closest('#homeEquipBtn');
+ if(b){ if(typeof openEquipmentModal==='function') openEquipmentModal(); }
+});
+</script></body></html>`);
     w.document.close();
   };
 })();
@@ -12527,7 +12542,12 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
-</body></html>`);
+<script>
+document.addEventListener('click',function(e){
+ const b=e.target.closest('#homeEquipBtn');
+ if(b){ if(typeof openEquipmentModal==='function') openEquipmentModal(); }
+});
+</script></body></html>`);
   w.document.close();
 }
 window.vertexShowSyncDiag=vertexShowSyncDiag;
@@ -20890,7 +20910,12 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
 </script>
-</body>
+<script>
+document.addEventListener('click',function(e){
+ const b=e.target.closest('#homeEquipBtn');
+ if(b){ if(typeof openEquipmentModal==='function') openEquipmentModal(); }
+});
+</script></body>
 </html>
 
 <script>

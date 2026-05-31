@@ -32,6 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
+<!-- v20260531-6a38: welcome card overlap fix (active step flows; Next no longer covers options) + capture-phase selection -->
 <!-- v20260531-6a37: welcome buttons direct-bind fix + equipment spacing + Programs renamed Pre-Built Programs + ab wheel removed -->
 <!-- v20260531-6a36: onboarding cards 2/3 wired + balance board + mobile setup card on top + settings modal live-refresh -->
 <!-- v20260531-6a35: settings realtime sync + stability-ball exercises + vertical workout setup card + removed movements-tracked hint -->
@@ -540,6 +541,7 @@ body.welcome-active #app{
   pointer-events:none;
 }
 .welcome-step.active{
+  position:relative;
   opacity:1;
   transform:translateY(0);
   pointer-events:auto;
@@ -13663,26 +13665,25 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
     group.forEach(function(b){ b.classList.remove(cls); });
     btn.classList.add(cls);
   }
+  function handleWelcomePick(t){
+    if(!t || !t.closest) return false;
+    var g=t.closest('.welcome-goal-btn');
+    if(g && overlay.contains(g)){ selGoal=g.getAttribute('data-goal'); singleSelect(Array.from(overlay.querySelectorAll('.welcome-goal-btn')), g, 'selected'); return true; }
+    var envB=t.closest('[data-wenv]');
+    if(envB && overlay.contains(envB)){ selEnv=envB.getAttribute('data-wenv'); singleSelect(Array.from(overlay.querySelectorAll('[data-wenv]')), envB, 'active'); return true; }
+    var trB=t.closest('[data-wtraining]');
+    if(trB && overlay.contains(trB)){ selTraining=trB.getAttribute('data-wtraining'); singleSelect(Array.from(overlay.querySelectorAll('[data-wtraining]')), trB, 'active'); return true; }
+    return false;
+  }
+  // 6A38: capture-phase listener fires before any other click handler can intercept,
+  // and stops propagation so a selection can never be mistaken for a Next/advance tap.
+  document.addEventListener('click', function(ev){
+    if(!overlay.classList.contains('on')) return;
+    if(handleWelcomePick(ev.target)){ ev.stopPropagation(); }
+  }, true);
   function bindWelcomeChoices(){
-    // 6A37: bind directly to each button (idempotent via onclick) so selections
-    // always register regardless of event delegation or other global click listeners.
-    overlay.querySelectorAll('.welcome-goal-btn').forEach(function(b){
-      b.onclick = function(){
-        selGoal = b.getAttribute('data-goal');
-        singleSelect(Array.from(overlay.querySelectorAll('.welcome-goal-btn')), b, 'selected');
-      };
-    });
-    overlay.querySelectorAll('[data-wenv]').forEach(function(b){
-      b.onclick = function(){
-        selEnv = b.getAttribute('data-wenv');
-        singleSelect(Array.from(overlay.querySelectorAll('[data-wenv]')), b, 'active');
-      };
-    });
-    overlay.querySelectorAll('[data-wtraining]').forEach(function(b){
-      b.onclick = function(){
-        selTraining = b.getAttribute('data-wtraining');
-        singleSelect(Array.from(overlay.querySelectorAll('[data-wtraining]')), b, 'active');
-      };
+    overlay.querySelectorAll('.welcome-goal-btn,[data-wenv],[data-wtraining]').forEach(function(b){
+      b.onclick = function(e){ handleWelcomePick(b); if(e && e.stopPropagation) e.stopPropagation(); };
     });
   }
 

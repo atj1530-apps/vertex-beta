@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260530-6a27: OAuth hash session lock + home progress css lock -->
+<!-- v20260530-6a28: oauth hash timeout + home progress css lock -->
 <!-- v20260529-6a2b-fix: recovery intelligence engine v2; service worker/cache locked -->
 <!-- Phase 2C.1: spark SVG cleanup; no auth/boot/SW architecture changes -->
 <!-- Phase 2E: adaptive coaching polish; approachable coach tone; no architecture changes -->
@@ -7464,8 +7464,6 @@ async function initAuth(){
       const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=msg;
     }
     if(hasHashToken){
-      // Implicit flow token in hash — apply it directly. Some browsers keep the
-      // hash token visible while getSession waits, which can bounce back to login.
       console.log('[Vertex OAuth] Hash token detected — applying session directly');
     }
     let sessionApplied=false;
@@ -7473,15 +7471,43 @@ async function initAuth(){
       try{
         const access_token=hashParams.get('access_token');
         const refresh_token=hashParams.get('refresh_token');
+        let hashSession=null;
         if(access_token){
-          const {data,error}=await supa.auth.setSession({access_token,refresh_token});
-          if(error){
-            console.warn('OAuth hash session warning:', error.message || error);
-            const ebox=document.getElementById('landing-error');
-            if(ebox) ebox.textContent='Sign-in token failed: '+(error.message||'unknown error');
+          const setResult=await withTimeout(
+            supa.auth.setSession({access_token,refresh_token:refresh_token||''}),
+            6000
+          );
+          if(setResult && setResult.error){
+            console.warn('OAuth hash session warning:', setResult.error.message || setResult.error);
           }
-          if(data && data.session){
-            await applyAuthenticatedSession(data.session);
+          if(setResult && setResult.data && setResult.data.session){
+            hashSession=setResult.data.session;
+          }
+          if(!hashSession){
+            const getResult=await withTimeout(supa.auth.getSession(),3000);
+            if(getResult && getResult.data && getResult.data.session){
+              hashSession=getResult.data.session;
+            }
+          }
+          if(hashSession && hashSession.user){
+            window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+            await Promise.race([
+              applyAuthenticatedSession(hashSession),
+              vertexWait(7000).then(()=>{
+                try{
+                  authUser=authFromUser(hashSession.user);
+                  window.authUser=authUser;
+                  document.body.classList.add('authenticated');
+                  document.body.classList.remove('auth-resolving','auth-ready');
+                  document.body.classList.add('auth-done','auth-show-app');
+                  try{ renderAccountMenu(); }catch(e){}
+                  try{ renderAll(); }catch(e){}
+                  try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
+                  try{ vertexRevealAuthenticatedShell(); }catch(e){}
+                }catch(e){ console.warn('OAuth fallback reveal warning:',e); }
+                return true;
+              })
+            ]);
             sessionApplied=true;
           }
         }
@@ -7491,7 +7517,6 @@ async function initAuth(){
       if(sessionApplied){
         try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
         try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
-        window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
         setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
         return;
       }

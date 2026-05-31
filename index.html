@@ -32,7 +32,8 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260531-6a39: exercise taxonomy canonicalization (merge duplicates) + welcome on-card debug readout -->
+<!-- v20260531-6a40: FIX hardcoded SW version in index.html (was stuck at 6b3a) — now synced to CACHE_NAME so workers actually update -->
+<!-- v20260531-6a39: exercise taxonomy canonicalization + welcome on-card debug readout -->
 <!-- v20260531-6a38: welcome card overlap fix + capture-phase selection -->
 <!-- v20260531-6a37: welcome buttons direct-bind fix + equipment spacing + Programs renamed Pre-Built Programs + ab wheel removed -->
 <!-- v20260531-6a36: onboarding cards 2/3 wired + balance board + mobile setup card on top + settings modal live-refresh -->
@@ -14036,7 +14037,10 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260529-6b3a-intelligence';
+/* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
+   registration URL (?cache=...), which forces the browser to install the new worker
+   and is what the "SW registered:" console line reports. Move both together every deploy. */
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260531-6a40-sw-version-sync';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

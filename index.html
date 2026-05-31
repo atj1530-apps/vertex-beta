@@ -32,7 +32,8 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260531-6a36: onboarding cards 2/3 wired + balance board + ab wheel rename + mobile setup card on top + settings modal live-refresh -->
+<!-- v20260531-6a37: welcome buttons direct-bind fix + equipment spacing + Programs renamed Pre-Built Programs + ab wheel removed -->
+<!-- v20260531-6a36: onboarding cards 2/3 wired + balance board + mobile setup card on top + settings modal live-refresh -->
 <!-- v20260531-6a35: settings realtime sync + stability-ball exercises + vertical workout setup card + removed movements-tracked hint -->
 <!-- v20260531-6a34: Supabase = source of truth for settings/goals/equipment/connections + workout memory from cloud logs -->
 <!-- v20260531-6a33: single shared Supabase client (fixes login loop from duplicate GoTrueClient instances) -->
@@ -4395,8 +4396,8 @@ window.vertexFinishBootstrap=function(){
 <div id="app">
   <aside class="sidebar">
     <div class="label">Category</div><div class="segment"><button class="seg-btn" data-env="gym">🏋️ Gym</button><button class="seg-btn" data-env="home">🏠 Home</button></div>
-    <div id="equipmentPanel"></div>
-    <div class="label">Programs (Optional)</div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="program-seg"><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div></div>
+    <div id="equipmentPanel" style="margin-bottom:14px"></div>
+    <div class="label">Pre-Built Programs</div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="program-seg"><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div></div>
     <div class="label">Workout Templates</div><div class="pill-fade-wrap"><div id="tpl-grid" class="segment pill-scroll"><button class="seg-btn" data-load-tpl="push">💪 Push Day</button><button class="seg-btn" data-load-tpl="pull">🔄 Pull Day</button><button class="seg-btn" data-load-tpl="legs">🦵 Legs Day</button><button class="seg-btn" data-load-tpl="kenpo">🥋 Kenpo X</button><button class="seg-btn" data-load-tpl="plyo">⚡ Plyometrics X</button><button class="seg-btn" data-load-tpl="yogaX">🧘 Yoga X</button><button class="seg-btn" data-load-tpl="stretch">🌀 Full Body Stretch</button><button class="seg-btn" data-load-tpl="coreMobility">🎯 Core + Mobility</button></div></div>
     <div class="label">Training Focus <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Choose Your Style</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery / Mobility">♧ Recovery / Mobility</button></div></div>
     <div class="label">Muscle Group <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Optional</span></div><div class="pill-fade-wrap"><div id="muscles" class="muscles"></div></div>
@@ -13662,29 +13663,32 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
     group.forEach(function(b){ b.classList.remove(cls); });
     btn.classList.add(cls);
   }
-  overlay.addEventListener('click', function(ev){
-    var gBtn = ev.target.closest('.welcome-goal-btn');
-    if(gBtn){
-      selGoal = gBtn.getAttribute('data-goal');
-      singleSelect(Array.from(overlay.querySelectorAll('.welcome-goal-btn')), gBtn, 'selected');
-      return;
-    }
-    var envBtn = ev.target.closest('[data-wenv]');
-    if(envBtn){
-      selEnv = envBtn.getAttribute('data-wenv');
-      singleSelect(Array.from(overlay.querySelectorAll('[data-wenv]')), envBtn, 'active');
-      return;
-    }
-    var trBtn = ev.target.closest('[data-wtraining]');
-    if(trBtn){
-      selTraining = trBtn.getAttribute('data-wtraining');
-      singleSelect(Array.from(overlay.querySelectorAll('[data-wtraining]')), trBtn, 'active');
-      return;
-    }
-  });
+  function bindWelcomeChoices(){
+    // 6A37: bind directly to each button (idempotent via onclick) so selections
+    // always register regardless of event delegation or other global click listeners.
+    overlay.querySelectorAll('.welcome-goal-btn').forEach(function(b){
+      b.onclick = function(){
+        selGoal = b.getAttribute('data-goal');
+        singleSelect(Array.from(overlay.querySelectorAll('.welcome-goal-btn')), b, 'selected');
+      };
+    });
+    overlay.querySelectorAll('[data-wenv]').forEach(function(b){
+      b.onclick = function(){
+        selEnv = b.getAttribute('data-wenv');
+        singleSelect(Array.from(overlay.querySelectorAll('[data-wenv]')), b, 'active');
+      };
+    });
+    overlay.querySelectorAll('[data-wtraining]').forEach(function(b){
+      b.onclick = function(){
+        selTraining = b.getAttribute('data-wtraining');
+        singleSelect(Array.from(overlay.querySelectorAll('[data-wtraining]')), b, 'active');
+      };
+    });
+  }
 
   function open(){
     setStep(1);
+    bindWelcomeChoices();
     document.body.classList.add('welcome-active');
     requestAnimationFrame(() => overlay.classList.add('on'));
   }
@@ -13723,7 +13727,8 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
   });
 
   // Dev helper — uncomment to force show onboarding
-  // window.__showOnboarding = open;
+  // Replay helper for testing: run window.__vertexReplayOnboarding() in the console.
+  window.__vertexReplayOnboarding = open;
 })();
 </script>
 

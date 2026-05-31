@@ -32,7 +32,8 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260531-6a40: FIX hardcoded SW version in index.html (was stuck at 6b3a) — now synced to CACHE_NAME so workers actually update -->
+<!-- v20260531-6a41: welcome cards 2 <!-- v20260531-6a40: FIX hardcoded SW version in index.html (was stuck at 6b3a) — now synced to CACHE_NAME so workers actually update --> 3 replaced with informational verbiage (Build / Track-Improve); selectors removed -->
+<!-- v20260531-6a40: FIX hardcoded SW version in index.html — now synced to CACHE_NAME -->
 <!-- v20260531-6a39: exercise taxonomy canonicalization + welcome on-card debug readout -->
 <!-- v20260531-6a38: welcome card overlap fix + capture-phase selection -->
 <!-- v20260531-6a37: welcome buttons direct-bind fix + equipment spacing + Programs renamed Pre-Built Programs + ab wheel removed -->
@@ -4331,33 +4332,18 @@ window.vertexFinishBootstrap=function(){
         <p class="welcome-body">Your training, planned and tracked in one place. Built for people who take their training seriously.</p>
       </div>
 
-      <!-- Screen 2: Goal -->
+      <!-- Screen 2: Build -->
       <div class="welcome-step" data-step="2">
-        <p class="welcome-eyebrow">Your Goal</p>
-        <h2 class="welcome-title" style="font-size:22px;margin-bottom:10px">What are you training for?</h2>
-        <div style="display:flex;flex-direction:column;gap:6px" id="welcome-goals">
-          <button class="welcome-goal-btn" data-goal="build_muscle">💪 Build Muscle</button>
-          <button class="welcome-goal-btn" data-goal="lose_fat">🔥 Lose Fat</button>
-          <button class="welcome-goal-btn" data-goal="improve_endurance">⚡ Improve Endurance</button>
-          <button class="welcome-goal-btn" data-goal="stay_active">🏃 Stay Active</button>
-        </div>
+        <p class="welcome-eyebrow" style="margin-bottom:12px">Build</p>
+        <h2 class="welcome-title" style="font-size:34px;margin-bottom:14px">Every Session, Structured</h2>
+        <p class="welcome-body">Build workouts by muscle, equipment, or goal — or load a ready-made program and start training in seconds.</p>
       </div>
 
-      <!-- Screen 3: Setup -->
+      <!-- Screen 3: Track / Improve -->
       <div class="welcome-step" data-step="3">
-        <p class="welcome-eyebrow">Your Setup</p>
-        <h2 class="welcome-title" style="font-size:28px;margin-bottom:12px">Where do you train?</h2>
-        <div style="display:flex;gap:8px;margin-bottom:16px" id="welcome-env">
-          <button class="welcome-choice-btn active" data-wenv="gym">🏋️ Gym</button>
-          <button class="welcome-choice-btn" data-wenv="home">🏠 Home</button>
-        </div>
-        <p style="font-family:'DM Mono';font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:0 0 8px">Training Focus</p>
-        <div style="display:flex;flex-wrap:wrap;gap:8px" id="welcome-training">
-          <button class="welcome-choice-btn active" data-wtraining="Strength">🏋️ Strength</button>
-          <button class="welcome-choice-btn" data-wtraining="Kettlebell">⚫ Kettlebell</button>
-          <button class="welcome-choice-btn" data-wtraining="Cardio">⚡ Cardio</button>
-          <button class="welcome-choice-btn" data-wtraining="Yoga / Pilates">🧘 Yoga</button>
-        </div>
+        <p class="welcome-eyebrow" style="margin-bottom:12px">Track · Improve</p>
+        <h2 class="welcome-title" style="font-size:34px;margin-bottom:14px">See What's Working</h2>
+        <p class="welcome-body">Log every set, watch your trends, and get recovery-aware coaching that adapts to how you're actually training.</p>
       </div>
 
     </div>
@@ -13673,14 +13659,10 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
   }
 
   function applySelections(){
-    // 6A36: onboarding now carries the user's choices into the app.
-    try {
-      if(typeof window.vertexApplyOnboarding === 'function'){
-        window.vertexApplyOnboarding({ goal:selGoal, env:selEnv, training:selTraining });
-      } else if(typeof renderAll === 'function'){
-        renderAll();
-      }
-    } catch(e){ console.warn('Onboarding apply skipped:', e); }
+    // 6A41: cards 2 and 3 are informational verbiage now, not selectors.
+    // Nothing to apply on close beyond a normal render.
+    try { if(typeof renderAll === 'function') renderAll(); }
+    catch(e){ console.warn('Onboarding close render skipped:', e); }
   }
 
   // 6A36: selection state for cards 2 (goal) and 3 (setup).
@@ -14040,7 +14022,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260531-6a40-sw-version-sync';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260531-6a41-welcome-verbiage';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

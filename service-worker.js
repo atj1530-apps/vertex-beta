@@ -1,8 +1,8 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260530-6a33-stable-home-progress-lock
+   v20260529-6a1a
    Network-first for HTML so deploys are visible immediately.
 */
-const CACHE_NAME = 'vertex-v20260530-6a33-stable-home-progress-lock-exercise-audit-lock';
+const CACHE_NAME = 'vertex-v20260529-6a3a-settings';
 const APP_SHELL = [
   './',
   './index.html',

@@ -32,7 +32,8 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260531-6a38: welcome card overlap fix (active step flows; Next no longer covers options) + capture-phase selection -->
+<!-- v20260531-6a39: exercise taxonomy canonicalization (merge duplicates) + welcome on-card debug readout -->
+<!-- v20260531-6a38: welcome card overlap fix + capture-phase selection -->
 <!-- v20260531-6a37: welcome buttons direct-bind fix + equipment spacing + Programs renamed Pre-Built Programs + ab wheel removed -->
 <!-- v20260531-6a36: onboarding cards 2/3 wired + balance board + mobile setup card on top + settings modal live-refresh -->
 <!-- v20260531-6a35: settings realtime sync + stability-ball exercises + vertical workout setup card + removed movements-tracked hint -->
@@ -5205,6 +5206,32 @@ const defaultStoreKey='vertex_v1347_planner_clean';
 const clone=o=>JSON.parse(JSON.stringify(o));
 const SUPA_URL='https://dwsrwsnzuiwnagjepgtj.supabase.co';
 const SUPA_KEY='sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E';
+/* 6A39 — Exercise taxonomy canonicalization.
+   Collapses duplicate movement names (from old logs, imports, custom adds) onto a
+   single canonical name. Applied at every read/load/display point so historical
+   analytics combine and no duplicate cards appear. */
+const EXERCISE_CANON = {
+  'standard push-up':'Push-Up', 'regular push-up':'Push-Up', 'push up':'Push-Up',
+  'step-up (step platform)':'Step-Up', 'step-up step platform':'Step-Up', 'step up':'Step-Up',
+  'incline push-up (step)':'Incline Push-Up', 'incline push-up step':'Incline Push-Up',
+  'decline push-up (step)':'Decline Push-Up', 'decline push-up step':'Decline Push-Up',
+  'bodyweight squat':'Air Squat',
+  'floor glute bridge':'Glute Bridge',
+  'forearm plank':'Plank', 'standard plank':'Plank'
+};
+function canonicalExerciseName(name){
+  if(name==null) return name;
+  var raw=String(name).trim();
+  if(!raw) return raw;
+  var key=raw.toLowerCase().replace(/\s+/g,' ');
+  return EXERCISE_CANON[key] || raw;
+}
+function canonicalizeExerciseList(arr){
+  if(!Array.isArray(arr)) return arr;
+  arr.forEach(function(e){ if(e && e.name!=null) e.name=canonicalExerciseName(e.name); });
+  return arr;
+}
+try{ window.canonicalExerciseName = canonicalExerciseName; }catch(e){}
 let _supa=null;
 let authUser=null;
 let sessionTimerId=null;
@@ -5274,10 +5301,7 @@ EXERCISES.push(
 {name:'Leg Press',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
 {name:'Bulgarian Split Squat',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Step-Up',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
-{name:'Step-Up (Step Platform)',muscle:'Legs',equip:'Step Platform',env:'home',kind:'legs',training:'Strength'},
 {name:'Lateral Step-Up',muscle:'Legs',equip:'Step Platform',env:'home',kind:'legs',training:'Strength'},
-{name:'Decline Push-Up (Step)',muscle:'Chest',equip:'Step Platform',env:'home',kind:'push',training:'Strength'},
-{name:'Incline Push-Up (Step)',muscle:'Chest',equip:'Step Platform',env:'home',kind:'push',training:'Strength'},
 {name:'Step Aerobics',muscle:'Legs',equip:'Step Platform',env:'home',kind:'cardio',training:'Cardio'},
 {name:'Step Jumps',muscle:'Legs',equip:'Step Platform',env:'home',kind:'cardio',training:'Cardio'},
 {name:'Bulgarian Split Squat (Step)',muscle:'Legs',equip:'Step Platform',env:'home',kind:'legs',training:'Strength'},
@@ -6751,7 +6775,7 @@ window.vertexApplyOnboarding=function(sel){
     if(typeof renderAll==='function') renderAll();
   }catch(e){ console.warn('applyOnboarding:', e); }
 };
-function loadCustomExercises(){try{return JSON.parse(localStorage.getItem('vertex_custom_exercises_v1')||'[]').filter(x=>x&&x.name&&x.training)}catch{return []}}
+function loadCustomExercises(){try{var arr=JSON.parse(localStorage.getItem('vertex_custom_exercises_v1')||'[]').filter(x=>x&&x.name&&x.training); var seen={}, out=[]; arr.forEach(function(x){ x.name=canonicalExerciseName(x.name); var k=String(x.name).toLowerCase(); if(seen[k]) return; seen[k]=1; out.push(x); }); return out;}catch{return []}}
 function saveCustomExercises(rows){try{localStorage.setItem('vertex_custom_exercises_v1',JSON.stringify(rows||[]))}catch{}}
 function normalizeCustomExercise(ex){return {name:String(ex.name||'').trim(),muscle:ex.muscle||'Custom',equip:ex.equip||'Other',env:ex.env||'home',kind:ex.kind||'custom',training:ex.training||'Strength',custom:true}}
 loadCustomExercises().forEach(ex=>{const clean=normalizeCustomExercise(ex); if(clean.name && !EXERCISES.some(e=>e.name.toLowerCase()===clean.name.toLowerCase())) EXERCISES.push(clean);});
@@ -7844,6 +7868,7 @@ function normalizeLogRecord(row){
     payload=Array.isArray(row.exercises)?{name:row.name||'Workout',type:row.type||'strength',exercises:row.exercises}:row.exercises;
   }
   payload=payload||{};
+  if(payload && Array.isArray(payload.exercises)) canonicalizeExerciseList(payload.exercises);
   const completed=row.completed_at||row.created_at||new Date().toISOString().split('.')[0] + 'Z';
   const base=buildWorkoutLogRecord(payload,completed);
   const metrics=row.metrics||base.metrics;
@@ -13665,14 +13690,22 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
     group.forEach(function(b){ b.classList.remove(cls); });
     btn.classList.add(cls);
   }
+  function showWelcomeDebug(){
+    try{
+      var card=overlay.querySelector('.welcome-card'); if(!card) return;
+      var dbg=document.getElementById('welcome-debug');
+      if(!dbg){ dbg=document.createElement('div'); dbg.id='welcome-debug'; dbg.style.cssText='margin-top:10px;font-family:monospace;font-size:11px;color:var(--acc);text-align:center;opacity:.8'; card.appendChild(dbg); }
+      dbg.textContent='selected → goal: '+(selGoal||'-')+'  |  '+selEnv+'  |  '+selTraining;
+    }catch(e){}
+  }
   function handleWelcomePick(t){
     if(!t || !t.closest) return false;
     var g=t.closest('.welcome-goal-btn');
-    if(g && overlay.contains(g)){ selGoal=g.getAttribute('data-goal'); singleSelect(Array.from(overlay.querySelectorAll('.welcome-goal-btn')), g, 'selected'); return true; }
+    if(g && overlay.contains(g)){ selGoal=g.getAttribute('data-goal'); singleSelect(Array.from(overlay.querySelectorAll('.welcome-goal-btn')), g, 'selected'); showWelcomeDebug(); return true; }
     var envB=t.closest('[data-wenv]');
-    if(envB && overlay.contains(envB)){ selEnv=envB.getAttribute('data-wenv'); singleSelect(Array.from(overlay.querySelectorAll('[data-wenv]')), envB, 'active'); return true; }
+    if(envB && overlay.contains(envB)){ selEnv=envB.getAttribute('data-wenv'); singleSelect(Array.from(overlay.querySelectorAll('[data-wenv]')), envB, 'active'); showWelcomeDebug(); return true; }
     var trB=t.closest('[data-wtraining]');
-    if(trB && overlay.contains(trB)){ selTraining=trB.getAttribute('data-wtraining'); singleSelect(Array.from(overlay.querySelectorAll('[data-wtraining]')), trB, 'active'); return true; }
+    if(trB && overlay.contains(trB)){ selTraining=trB.getAttribute('data-wtraining'); singleSelect(Array.from(overlay.querySelectorAll('[data-wtraining]')), trB, 'active'); showWelcomeDebug(); return true; }
     return false;
   }
   // 6A38: capture-phase listener fires before any other click handler can intercept,
@@ -13983,7 +14016,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(cues){
       const cueList=Array.isArray(ex.coach_cues)&&ex.coach_cues.length?ex.coach_cues:defaultCoachCues(ex);
       const mistakeList=Array.isArray(ex.common_mistakes)&&ex.common_mistakes.length?ex.common_mistakes:[];
-      const subList=Array.isArray(ex.substitutions)&&ex.substitutions.length?ex.substitutions:[];
+      const subList=(Array.isArray(ex.substitutions)&&ex.substitutions.length?ex.substitutions:[]).map(canonicalExerciseName).filter(function(v,i,a){return a.indexOf(v)===i;});
       const block=(label,items)=>'<div class="media-eyebrow" style="margin-top:14px">'+mediaEscape(label)+'</div><div class="media-cues">'+items.map(c=>'<div class="media-cue">'+mediaEscape(c)+'</div>').join('')+'</div>';
       cues.innerHTML=block('Coach Cues',cueList)+(mistakeList.length?block('Common Mistakes',mistakeList):'')+(subList.length?block('Substitutions',subList):'');
     }

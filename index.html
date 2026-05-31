@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260530-6a29: oauth grace + home progress lock -->
+<!-- v20260530-6a30: oauth hash setSession repair + home progress css lock -->
 <!-- v20260529-6a2b-fix: recovery intelligence engine v2; service worker/cache locked -->
 <!-- Phase 2C.1: spark SVG cleanup; no auth/boot/SW architecture changes -->
 <!-- Phase 2E: adaptive coaching polish; approachable coach tone; no architecture changes -->
@@ -7328,7 +7328,6 @@ let _hydrationInFlight=false;
 let _authApplyPromise=null;
 let _authApplyKey=null;
 let _authShellRevealedFor=null;
-let __vertexOAuthGraceUntil=0;
 
 // v13.63 helper — race a promise against a ms timeout, returning null on timeout
 function withTimeout(promise, ms){ return Promise.race([promise, new Promise(r=>setTimeout(()=>r(null),ms))]); }
@@ -7431,8 +7430,7 @@ async function initAuth(){
     if(event==='SIGNED_OUT'){
       const params=new URLSearchParams(window.location.search);
       const hash=new URLSearchParams(window.location.hash.replace('#',''));
-      const inOAuthGrace=Date.now()<__vertexOAuthGraceUntil || sessionStorage.getItem('vertex_oauth_pending')==='1' || sessionStorage.getItem('vertex_oauth_session_applied')==='1';
-      if(inOAuthGrace || params.has('code')||hash.has('access_token')||params.has('state')) return;
+      if(params.has('code')||hash.has('access_token')||params.has('state')) return;
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
       _hydratedUserId=null; _hydrationInFlight=false; _authShellRevealedFor=null;
       vertexShowUnauthenticatedShell();
@@ -7465,26 +7463,30 @@ async function initAuth(){
       console.error('OAuth return error:', msg);
       const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=msg;
     }
-    if(hasHashToken){
-      __vertexOAuthGraceUntil=Date.now()+20000;
-      console.log('[Vertex OAuth] Hash token detected — applying session directly');
-      const access_token=hashParams.get('access_token');
-      const refresh_token=hashParams.get('refresh_token');
-      if(access_token && refresh_token){
-        try{
-          const setRes=await withTimeout(supa.auth.setSession({access_token,refresh_token}), 8000);
-          if(setRes && setRes.data && setRes.data.session){
-            sessionStorage.setItem('vertex_oauth_session_applied','1');
-            await withTimeout(applyAuthenticatedSession(setRes.data.session), 7000);
-            window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
-            setTimeout(()=>{try{sessionStorage.removeItem('vertex_oauth_session_applied');}catch(e){}},15000);
-            return;
-          }
-        }catch(hashErr){ console.warn('OAuth hash setSession warning:', hashErr); }
-      }
-      // Fallback: let detectSessionInUrl + getSession handle it.
-    }
     let sessionApplied=false;
+    if(hasHashToken){
+      // Hash-token OAuth return: apply the tokens directly before any secondary Supabase client can consume/clear them.
+      console.log('[Vertex OAuth] Hash token detected — applying session directly');
+      try{
+        const access_token=hashParams.get('access_token');
+        const refresh_token=hashParams.get('refresh_token');
+        if(access_token && refresh_token){
+          const setResult=await supa.auth.setSession({access_token,refresh_token});
+          if(setResult && setResult.data && setResult.data.session){
+            await applyAuthenticatedSession(setResult.data.session);
+            sessionApplied=true;
+            try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
+            try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
+            window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+          }
+          if(setResult && setResult.error){
+            console.warn('[Vertex OAuth] setSession warning:', setResult.error.message || setResult.error);
+          }
+        }
+      }catch(hashErr){
+        console.warn('[Vertex OAuth] direct hash setSession failed:', hashErr);
+      }
+    }
     if(hasOAuthCode){
       try{
         const {data,error}=await supa.auth.exchangeCodeForSession(window.location.href);
@@ -7512,14 +7514,21 @@ async function initAuth(){
     if(sd && sd.data && sd.data.session && sd.data.session.user){
       await applyAuthenticatedSession(sd.data.session);
     } else {
-      if(hasOAuthReturn && Date.now()<__vertexOAuthGraceUntil){
-        setTimeout(()=>{ try{ initAuth(); }catch(e){} },700);
-        return;
+      // One final authenticated-user check prevents a valid OAuth return from falling back to login
+      // when getSession is slow or the hash has already been processed by Supabase.
+      let recoveredUser=null;
+      try{
+        const userResult=await withTimeout(supa.auth.getUser(), 3500);
+        recoveredUser=userResult && userResult.data && userResult.data.user ? userResult.data.user : null;
+      }catch(e){}
+      if(recoveredUser){
+        await applyAuthenticatedSession({user:recoveredUser});
+      } else {
+        try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
+        try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
+        authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
+        vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
       }
-      try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
-      try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
-      authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
-      vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
     }
   }catch(err){
     console.warn('Auth init warning:',err);
@@ -13965,7 +13974,7 @@ window.testAppleHealth = async function () {
           window.__vertexHealthSupa = window.supabase.createClient(
             'https://dwsrwsnzuiwnagjepgtj.supabase.co',
             'sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E',
-            { auth: { persistSession: true, detectSessionInUrl: true, storage: window.localStorage } }
+            { auth: { persistSession: true, detectSessionInUrl: false, storage: window.localStorage } }
           );
           return window.__vertexHealthSupa;
         }
@@ -16362,7 +16371,7 @@ window.vertexImportHKWorkout = async function(idx) {
     try{
       if(window.__vertexMacroSupa)return window.__vertexMacroSupa;
       if(window.supabase){
-        window.__vertexMacroSupa=window.supabase.createClient('https://dwsrwsnzuiwnagjepgtj.supabase.co','sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E',{auth:{persistSession:true,detectSessionInUrl:true,storage:window.localStorage}});
+        window.__vertexMacroSupa=window.supabase.createClient('https://dwsrwsnzuiwnagjepgtj.supabase.co','sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E',{auth:{persistSession:true,detectSessionInUrl:false,storage:window.localStorage}});
         return window.__vertexMacroSupa;
       }
     }catch(e){}

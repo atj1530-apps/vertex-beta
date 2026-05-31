@@ -1,8 +1,8 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260531-6a36-onboarding-board-mobile-hero
+   v20260531-6a37-welcome-bind-fix-sidebar-labels
    Network-first for HTML so deploys are visible immediately.
 */
-const CACHE_NAME = 'vertex-v20260531-6a36-onboarding-board-mobile-hero';
+const CACHE_NAME = 'vertex-v20260531-6a37-welcome-bind-fix-sidebar-labels';
 const APP_SHELL = [
   './',
   './index.html',

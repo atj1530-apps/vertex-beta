@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260531-6a41: welcome cards 2 <!-- v20260531-6a40: FIX hardcoded SW version in index.html (was stuck at 6b3a) — now synced to CACHE_NAME so workers actually update --> 3 replaced with informational verbiage (Build / Track-Improve); selectors removed -->
+<!-- v20260531-6a43: fixed broken HTML comment that pushed the CSP meta out of head; youtube allowed in frame-src -->
 <!-- v20260531-6a40: FIX hardcoded SW version in index.html — now synced to CACHE_NAME -->
 <!-- v20260531-6a39: exercise taxonomy canonicalization + welcome on-card debug readout -->
 <!-- v20260531-6a38: welcome card overlap fix + capture-phase selection -->
@@ -59,7 +59,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vertex">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.coingecko.com; img-src 'self' blob: data: https:; frame-src 'self'; worker-src 'self' blob:;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.coingecko.com; img-src 'self' blob: data: https:; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:;">
 <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -14026,7 +14026,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260531-6a42-welcome-flash-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260531-6a43-csp-head-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

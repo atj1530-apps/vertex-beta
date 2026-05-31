@@ -495,6 +495,10 @@ body.welcome-active #app{
   pointer-events:auto;
   transition:opacity 380ms ease, visibility 0s linear 0s;
 }
+/* 6A42: while onboarding is up, hide the app underneath so the home screen
+   never flashes before the welcome overlay covers it. */
+body.welcome-active #app,
+body.welcome-active #app-header{ visibility:hidden !important; }
 .welcome-card{
   width:min(440px,100%);
   background:var(--panel);
@@ -14022,7 +14026,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260531-6a41-welcome-verbiage';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260531-6a42-welcome-flash-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

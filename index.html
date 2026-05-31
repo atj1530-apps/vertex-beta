@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260530-6a26: home progress css-only lock; no JS observers -->
+<!-- v20260530-6a27: OAuth hash session lock + home progress css lock -->
 <!-- v20260529-6a2b-fix: recovery intelligence engine v2; service worker/cache locked -->
 <!-- Phase 2C.1: spark SVG cleanup; no auth/boot/SW architecture changes -->
 <!-- Phase 2E: adaptive coaching polish; approachable coach tone; no architecture changes -->
@@ -7464,11 +7464,38 @@ async function initAuth(){
       const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=msg;
     }
     if(hasHashToken){
-      // Implicit flow token in hash — let detectSessionInUrl + getSession handle it first
-      // Clean URL after getSession completes, not before
-      console.log('[Vertex OAuth] Hash token detected — letting Supabase handle via detectSessionInUrl');
+      // Implicit flow token in hash — apply it directly. Some browsers keep the
+      // hash token visible while getSession waits, which can bounce back to login.
+      console.log('[Vertex OAuth] Hash token detected — applying session directly');
     }
     let sessionApplied=false;
+    if(hasHashToken){
+      try{
+        const access_token=hashParams.get('access_token');
+        const refresh_token=hashParams.get('refresh_token');
+        if(access_token){
+          const {data,error}=await supa.auth.setSession({access_token,refresh_token});
+          if(error){
+            console.warn('OAuth hash session warning:', error.message || error);
+            const ebox=document.getElementById('landing-error');
+            if(ebox) ebox.textContent='Sign-in token failed: '+(error.message||'unknown error');
+          }
+          if(data && data.session){
+            await applyAuthenticatedSession(data.session);
+            sessionApplied=true;
+          }
+        }
+      }catch(hashErr){
+        console.error('setSession from hash threw:',hashErr);
+      }
+      if(sessionApplied){
+        try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
+        try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
+        window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+        setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
+        return;
+      }
+    }
     if(hasOAuthCode){
       try{
         const {data,error}=await supa.auth.exchangeCodeForSession(window.location.href);

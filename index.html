@@ -32,6 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
+<!-- v20260531-6a34: Supabase = source of truth for settings/goals/equipment/connections + workout memory from cloud logs -->
 <!-- v20260531-6a33: single shared Supabase client (fixes login loop from duplicate GoTrueClient instances) -->
 <!-- v20260530-6a32: oauth direct-entry fallback + home progress css-only lock -->
 <!-- v20260529-6a2b-fix: recovery intelligence engine v2; service worker/cache locked -->
@@ -5216,6 +5217,9 @@ function getSupa(){
 try{ window.getSupa = getSupa; }catch(e){}
 function defaultPage(){return 'home';}
 const state={page:defaultPage(),env:'',muscle:'',search:'',program:'Manual',training:'Strength',current:{name:'Name Your Workout',type:'strength',exercises:[],source:'manual',assignedDay:null},tracking:false,activePhase:0,planner:emptyPlanner(),pendingTemplate:null,session:{steps:[],idx:0},savedWorkouts:[],progressLogs:[],equipment:loadEquipmentProfile(),restTimerDefault:60};
+/* 6A34: expose canonical state so out-of-closure blocks (workout memory, settings sync)
+   read Supabase-hydrated data instead of device-local scrapes. */
+try{ window.state = state; }catch(e){}
 function setSyncStatus(status,label){state.syncStatus=status; state.syncLabel=label; const pill=document.getElementById('syncStatus'); const text=document.getElementById('syncStatusText'); if(!pill||!text) return; pill.className='sync-pill '+status; text.textContent=label;}
 function refreshSyncStatus(){ if(!authUser) setSyncStatus('local','Local mode'); else setSyncStatus(state.syncStatus||'synced', state.syncLabel||'Supabase synced'); }
 function markUnsaved(){ if(!hasWorkout()){ refreshSyncStatus(); return; } if(authUser) setSyncStatus('unsaved','Unsaved changes'); else setSyncStatus('local','Local mode'); }
@@ -6700,7 +6704,16 @@ window._getExerciseDemo=getExerciseDemo;
 function equipmentKey(name){return String(name||'Other').trim().toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'other'}
 function defaultEquipmentProfile(){const on=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Peloton / Exercise Bike','Treadmill','None']; const out={}; EQUIPMENT_OPTIONS.forEach(x=>out[equipmentKey(x)]=on.includes(x)); return out;}
 function loadEquipmentProfile(){try{return {...defaultEquipmentProfile(),...(JSON.parse(localStorage.getItem('vertex_home_equipment_v1')||'{}'))}}catch{return defaultEquipmentProfile()}}
-function saveEquipmentProfile(){try{localStorage.setItem('vertex_home_equipment_v1',JSON.stringify(state.equipment||{}))}catch{}}
+function saveEquipmentProfile(){try{localStorage.setItem('vertex_home_equipment_v1',JSON.stringify(state.equipment||{}))}catch{} try{window.VertexSettingsSync&&window.VertexSettingsSync.pushSoon()}catch(e){}}
+/* 6A34: re-apply settings into live state + UI after a cloud pull overwrites localStorage. */
+window.vertexRehydrateAfterSettingsPull=function(){
+  try{ state.equipment=loadEquipmentProfile(); }catch(e){}
+  try{ if(typeof vertexApplySettings==='function') vertexApplySettings(); }catch(e){}
+  try{ if(typeof renderGoalTracker==='function') renderGoalTracker(); }catch(e){}
+  try{ if(typeof renderEquipmentModalBody==='function') renderEquipmentModalBody(); }catch(e){}
+  try{ if(typeof renderSidebar==='function') renderSidebar(); }catch(e){}
+  try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
+};
 function loadCustomExercises(){try{return JSON.parse(localStorage.getItem('vertex_custom_exercises_v1')||'[]').filter(x=>x&&x.name&&x.training)}catch{return []}}
 function saveCustomExercises(rows){try{localStorage.setItem('vertex_custom_exercises_v1',JSON.stringify(rows||[]))}catch{}}
 function normalizeCustomExercise(ex){return {name:String(ex.name||'').trim(),muscle:ex.muscle||'Custom',equip:ex.equip||'Other',env:ex.env||'home',kind:ex.kind||'custom',training:ex.training||'Strength',custom:true}}
@@ -11934,6 +11947,7 @@ function vertexGetSettings(){
 }
 function vertexSaveSettings(s){
   try{ localStorage.setItem('vertex_settings', JSON.stringify(s)); }catch(e){}
+  try{ window.VertexSettingsSync&&window.VertexSettingsSync.pushSoon(); }catch(e){}
 }
 function vertexSetSetting(key, val){
   const s = vertexGetSettings();
@@ -12689,7 +12703,7 @@ window.renderHomeSparklines=renderHomeSparklines;
 // ── GOAL TRACKER ──────────────────────────────────────────────────────────────
 const GOAL_KEY='vertex_goals';
 function getGoals(){try{return JSON.parse(localStorage.getItem(GOAL_KEY)||'{}');}catch(e){return {};}}
-function saveGoals(g){try{localStorage.setItem(GOAL_KEY,JSON.stringify(g));}catch(e){}}
+function saveGoals(g){try{localStorage.setItem(GOAL_KEY,JSON.stringify(g));}catch(e){} try{window.VertexSettingsSync&&window.VertexSettingsSync.pushSoon()}catch(e){}}
 function renderGoalTracker(){
   const el=document.getElementById('vertex-goal-tracker-card');
   if(!el) return;
@@ -19338,6 +19352,49 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   }
 
   function buildWorkoutPersistenceSummary(){
+    // 6A34: prefer canonical Supabase-hydrated logs so the count is identical across devices.
+    try{
+      var st = window.state;
+      if(st && Array.isArray(st.progressLogs) && st.progressLogs.length){
+        var byName = {};
+        var totalSets = 0;
+        var totalSessions = st.progressLogs.length;
+        st.progressLogs.forEach(function(log){
+          var pl = (log && log.workout_payload) ? log.workout_payload : {};
+          var exs = Array.isArray(pl.exercises) ? pl.exercises : [];
+          exs.forEach(function(ex){
+            var nm = (ex && (ex.name || ex.exercise)) ? String(ex.name || ex.exercise).trim() : '';
+            if(!nm) return;
+            if(!byName[nm]) byName[nm] = { name:nm, sets:0, estimatedVolume:0 };
+            var setArr = Array.isArray(ex.sets) ? ex.sets : [];
+            var setCount = setArr.length || (Number(ex.sets) || 0);
+            byName[nm].sets += setCount;
+            totalSets += setCount;
+            setArr.forEach(function(s){
+              var w = parseFloat(s && s.weight) || 0;
+              var r = parseFloat(s && s.reps) || 0;
+              byName[nm].estimatedVolume += w * r;
+            });
+          });
+        });
+        var keys = Object.keys(byName);
+        if(keys.length){
+          var topC = keys.map(function(n){ return byName[n]; }).sort(function(a,b){ return b.sets - a.sets; })[0] || null;
+          var bestVolC = keys.map(function(n){ return byName[n]; }).sort(function(a,b){ return b.estimatedVolume - a.estimatedVolume; })[0] || null;
+          return {
+            exercises:keys.length,
+            totalSets:totalSets,
+            totalSessions:totalSessions,
+            topExercise:topC,
+            bestVolume:bestVolC,
+            lastSync:nowIso(),
+            source:'supabase'
+          };
+        }
+      }
+    }catch(e){}
+
+    // Fallback: legacy device-local scrape (offline / not signed in).
     var history = safeJson('vertexWorkoutExerciseHistory', {});
     var names = Object.keys(history);
     var totalSets = names.reduce(function(sum,n){ return sum + Number(history[n].sets || 0); }, 0);
@@ -21264,9 +21321,13 @@ function stravaGetToken() {
 }
 function stravaSetToken(t) {
   try { localStorage.setItem('vertex_strava_token', JSON.stringify(t)); } catch(e) {}
+  try { localStorage.setItem('vertex_strava_connected', '1'); } catch(e) {}
+  try { window.VertexSettingsSync && window.VertexSettingsSync.pushSoon(); } catch(e) {}
 }
 function stravaClearToken() {
   try { localStorage.removeItem('vertex_strava_token'); } catch(e) {}
+  try { localStorage.removeItem('vertex_strava_connected'); } catch(e) {}
+  try { window.VertexSettingsSync && window.VertexSettingsSync.pushSoon(); } catch(e) {}
 }
 function stravaIsConnected() {
   const t = stravaGetToken();
@@ -22195,3 +22256,97 @@ body.app-page-home .vertex-training-snapshot{
 body.app-page-home #home-dashboard{display:block!important;}
 </style>
 
+
+<script>
+/* ============================================================
+   6A34 — Cross-device settings sync (Supabase = source of truth)
+   Table: public.vertex_user_settings (user_id uuid PK, settings jsonb, updated_at timestamptz)
+     - On sign-in: pull cloud, overwrite local (Supabase wins), then rehydrate UI.
+     - On save:    push local to cloud (debounced).
+     - Tokens are never synced; only a connection boolean travels.
+   ============================================================ */
+(function(){
+  'use strict';
+  var TABLE = 'vertex_user_settings';
+  var LS_KEYS = ['vertex_goals','vertex_home_equipment_v1','vertex_settings','wc_goal_weight'];
+
+  function supa(){ try{ return (typeof window.getSupa==='function') ? window.getSupa() : (window._supa||null); }catch(e){ return null; } }
+  function uid(){ try{ return (window.authUser && window.authUser.id) ? window.authUser.id : null; }catch(e){ return null; } }
+
+  function stravaConnectedLocally(){
+    try{
+      var keys=['vertex_strava_connected','vertex_strava_token','vertex_strava_access_token','strava_access_token','stravaToken'];
+      for(var i=0;i<keys.length;i++){ var v=localStorage.getItem(keys[i]); if(v && v!=='null' && v!=='false' && v!=='0' && v!=='{}') return true; }
+    }catch(e){}
+    return false;
+  }
+
+  function collect(){
+    var ls={};
+    LS_KEYS.forEach(function(k){ try{ var v=localStorage.getItem(k); if(v!==null) ls[k]=v; }catch(e){} });
+    return { _v:1, _ts:Date.now(), ls:ls, connections:{ strava:stravaConnectedLocally() } };
+  }
+
+  function applyCloud(obj){
+    if(!obj || typeof obj!=='object') return;
+    try{
+      var ls=obj.ls||{};
+      Object.keys(ls).forEach(function(k){
+        if(LS_KEYS.indexOf(k)===-1) return;
+        try{ if(typeof ls[k]==='string') localStorage.setItem(k, ls[k]); }catch(e){}
+      });
+      var c=obj.connections||{};
+      if(c.strava===true){ try{ localStorage.setItem('vertex_strava_connected','1'); }catch(e){} }
+      else if(c.strava===false){
+        try{ if(!localStorage.getItem('vertex_strava_token')) localStorage.removeItem('vertex_strava_connected'); }catch(e){}
+      }
+    }catch(e){}
+    try{ if(typeof window.vertexRehydrateAfterSettingsPull==='function') window.vertexRehydrateAfterSettingsPull(); }catch(e){}
+  }
+
+  var _pulling=false, _pushTimer=null, _lastPushJson='';
+
+  async function pull(){
+    var s=supa(), u=uid();
+    if(!s || !u || _pulling) return;
+    _pulling=true;
+    try{
+      var res=await s.from(TABLE).select('settings').eq('user_id',u).maybeSingle();
+      if(res && !res.error && res.data && res.data.settings){
+        applyCloud(res.data.settings);            // Supabase wins
+      } else if(res && !res.error && !res.data){
+        await push(true);                          // first device seeds the cloud
+      } else if(res && res.error){
+        console.warn('[VertexSettingsSync] pull error:', res.error.message||res.error);
+      }
+    }catch(e){ console.warn('[VertexSettingsSync] pull threw:', e); }
+    finally{ _pulling=false; }
+  }
+
+  async function push(force){
+    var s=supa(), u=uid();
+    if(!s || !u) return;
+    var payload=collect();
+    var json=JSON.stringify(payload.ls)+'|'+JSON.stringify(payload.connections);
+    if(!force && json===_lastPushJson) return;
+    _lastPushJson=json;
+    try{
+      var res=await s.from(TABLE).upsert({ user_id:u, settings:payload, updated_at:new Date().toISOString() }, { onConflict:'user_id' });
+      if(res && res.error) console.warn('[VertexSettingsSync] push error:', res.error.message||res.error);
+    }catch(e){ console.warn('[VertexSettingsSync] push threw:', e); }
+  }
+
+  function pushSoon(){
+    if(!uid()) return;
+    clearTimeout(_pushTimer);
+    _pushTimer=setTimeout(function(){ push(false); }, 800);
+  }
+
+  window.VertexSettingsSync={ pull:pull, push:push, pushSoon:pushSoon };
+
+  // Pull whenever the app reports an authenticated session.
+  window.addEventListener('vertex:authenticated', function(){ setTimeout(pull, 400); });
+  // Re-pull on tab focus so another device's change appears after a refresh/return.
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden && uid()) setTimeout(pull, 300); });
+})();
+</script>

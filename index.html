@@ -41,6 +41,7 @@
 <!-- Phase 2E.3C.1: intelligence language refinement repair; semantic differentiation + density polish; SW/cache untouched -->
 <!-- Phase 2E.3C.2: SVG/time binding console stabilization; visual language preserved; SW/cache untouched -->
 <!-- Phase 2F: confidence + signal evolution layer; SW/cache untouched -->
+<!-- Phase 6A23: route lock + equipment grouping + wellness chart repair -->
   <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0b0f0c">
@@ -8113,7 +8114,7 @@ function renderProgressPage(){
   const rows=progressRows(); const sum=progressSummary(rows); const perf=performanceSummary(rows);
 
   try{
-    document.body.classList.add('app-page-progress');
+    document.body.classList.toggle('app-page-progress', state && state.page === 'progress');
     page.classList.add('vertex-phase5a4-progress-single-intel');
   }catch(e){}
 
@@ -10464,6 +10465,119 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 
 
 
+
+
+<!-- Vertex Phase 6A23 surgical fixes: Home route lock, Workout equipment grouping, Wellness charts -->
+<style id="vertex-phase6a23-route-chart-fixes">
+  body.app-page-home #progressPage,
+  body.app-page-home #vertexB2ProgressDeck,
+  body.app-page-home .vertex-b2-section-label,
+  body.app-page-home .vertex-b2-row,
+  body.app-page-home .vertex-training-snapshot,
+  body.app-page-home #progressTabContent,
+  body.app-page-home #progressSummary,
+  body.app-page-home .progress-tabs{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+  body:not(.app-page-progress) #progressPage{display:none!important;}
+  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
+  .vertex-sparkline-card svg{display:block;width:92px;max-width:92px;height:32px;overflow:visible;}
+</style>
+<script id="vertex-phase6a23-wellness-chart-fixes">
+(function(){
+  if(window.__vertexPhase6A23Fixes) return;
+  window.__vertexPhase6A23Fixes = true;
+
+  function toNum(v){ var n=Number(v); return Number.isFinite(n)?n:null; }
+  function dayKey(d){ return String(d||'').slice(0,10); }
+  function esc(s){ try{return escapeHtml(String(s||''));}catch(e){return String(s||'').replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});} }
+
+  window.vertexBuildWeightSeries = function(){
+    var rows=[];
+    try{ if(typeof loadHealthEntries==='function') (loadHealthEntries()||[]).forEach(function(r){ var w=toNum(r.bodyWeight); if(r&&r.date&&w) rows.push({date:dayKey(r.date),weight:w,src:'health'}); }); }catch(e){}
+    try{ if(Array.isArray(window.wcLogs)) window.wcLogs.forEach(function(r){ var w=toNum(r.weight); if(r&&r.date&&w) rows.push({date:dayKey(r.date),weight:w,src:'checkin'}); }); }catch(e){}
+    var by={};
+    rows.forEach(function(r){ if(!r.date||!r.weight) return; by[r.date]=r; });
+    return Object.keys(by).sort().map(function(k){return by[k];}).filter(function(r){ return r.weight>80 && r.weight<500; });
+  };
+
+  window.vertexMiniLine = function(vals,color){
+    var clean=(vals||[]).map(toNum).filter(function(v){return v!==null;});
+    if(clean.length<2) return '<div style="width:92px;height:32px;display:flex;align-items:center;color:var(--muted);font-size:10px">—</div>';
+    var mn=Math.min.apply(null,clean), mx=Math.max.apply(null,clean), rng=(mx-mn)||1;
+    var pts=clean.map(function(v,i){ var x=clean.length===1?46:(i/(clean.length-1))*88+2; var y=30-((v-mn)/rng)*26; return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+    return '<svg viewBox="0 0 92 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="'+pts.split(' ').pop().split(',')[0]+'" cy="'+pts.split(' ').pop().split(',')[1]+'" r="2.4" fill="'+color+'"/></svg>';
+  };
+
+  window.renderHomeSparklines = function(){
+    var el=document.getElementById('vertex-sparklines-row'); if(!el) return;
+    var healthRows=[]; try{ healthRows=typeof loadHealthEntries==='function'?loadHealthEntries():[]; }catch(e){}
+    var last7=healthRows.filter(function(r){return r&&r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000;}).slice(0,7).reverse();
+    var weights=window.vertexBuildWeightSeries().slice(-7);
+    function latest(vals,dec){ var c=(vals||[]).map(toNum).filter(function(v){return v!==null;}); if(!c.length)return null; return dec?c[c.length-1].toFixed(dec):Math.round(c[c.length-1]); }
+    var cards=[
+      {label:'Weight',unit:'lb',color:'var(--acc)',vals:weights.map(function(r){return r.weight;}),latest:weights.length?weights[weights.length-1].weight.toFixed(1):null},
+      {label:'Sleep',unit:'h',color:'#48d0ff',vals:last7.map(function(r){return r.sleepHours;}),latest:latest(last7.map(function(r){return r.sleepHours;}),1)},
+      {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(function(r){return r.hrv;}),latest:latest(last7.map(function(r){return r.hrv;}),0)},
+      {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(function(r){return r.readinessScore||r.readiness;}),latest:latest(last7.map(function(r){return r.readinessScore||r.readiness;}),0)}
+    ];
+    el.innerHTML=cards.map(function(c){return '<div class="vertex-sparkline-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div class="label" style="margin-bottom:4px">'+esc(c.label)+'</div><div style="font-family:Bebas Neue,sans-serif;font-size:25px;color:var(--text);line-height:1">'+(c.latest||'—')+'<span style="font-family:DM Sans,sans-serif;font-size:10px;color:var(--muted);margin-left:3px">'+esc(c.unit)+'</span></div></div>'+window.vertexMiniLine(c.vals,c.color)+'</div>';}).join('');
+  };
+
+  var oldSetPage=window.setPage;
+  if(typeof oldSetPage==='function' && !oldSetPage.__vertexPhase6A23Wrapped){
+    window.setPage=function(page){
+      var out=oldSetPage.apply(this,arguments);
+      try{
+        document.body.classList.toggle('app-page-progress', state&&state.page==='progress');
+        document.body.classList.toggle('app-page-wellness', state&&state.page==='wellness');
+        var pp=document.getElementById('progressPage'); if(pp) pp.style.display=(state&&state.page==='progress')?'block':'none';
+        var wp=document.getElementById('wellnessPage'); if(wp) wp.style.display=(state&&state.page==='wellness')?'block':'none';
+      }catch(e){}
+      return out;
+    };
+    window.setPage.__vertexPhase6A23Wrapped=true;
+  }
+
+  var oldWc=window.wcRenderDashboard || (typeof wcRenderDashboard==='function'?wcRenderDashboard:null);
+  if(typeof oldWc==='function' && !oldWc.__vertexPhase6A23Wrapped){
+    window.wcRenderDashboard = wcRenderDashboard = function(){
+      var out=oldWc.apply(this,arguments);
+      try{
+        var series=window.vertexBuildWeightSeries();
+        var el=document.getElementById('wc-dc-weight');
+        if(el && series.length){
+          if(typeof wcDestroyChart==='function') wcDestroyChart('wc-dc-weight');
+          var actual=series.slice(-16);
+          var labels=actual.map(function(r){var p=r.date.split('-'); return p[1]+'/'+p[2];});
+          var data=actual.map(function(r){return r.weight;});
+          var projLabels=labels.slice(), proj=data.map(function(){return null;});
+          var rate=null;
+          if(actual.length>=2){
+            var first=actual[0], last=actual[actual.length-1];
+            var span=Math.max(1,(new Date(last.date+'T12:00:00')-new Date(first.date+'T12:00:00'))/86400000);
+            var raw=(first.weight-last.weight)/(span/7);
+            if(raw>0.05) rate=Math.min(raw,2.0);
+          }
+          if(rate){
+            var last=actual[actual.length-1];
+            for(var i=1;i<=8;i++){
+              var d=new Date(last.date+'T12:00:00'); d.setDate(d.getDate()+i*7);
+              projLabels.push(String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'));
+              data.push(null); proj.push(Math.max((typeof wcGetGoalWeight==='function'?wcGetGoalWeight():195), +(last.weight-rate*i).toFixed(1)));
+            }
+          }
+          if(typeof Chart!=='undefined') window._wcCharts=window._wcCharts||{};
+          if(typeof Chart!=='undefined') _wcCharts['wc-dc-weight']=new Chart(el.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:[{label:'Actual',data:data,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:.25,spanGaps:false}].concat(rate?[{label:'Projected',data:proj,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:.25,spanGaps:true}]:[])},options:(typeof WC_CHART_OPTS==='object'?{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:!!rate,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}}}:{responsive:true,maintainAspectRatio:false})});
+        }
+      }catch(e){console.warn('[Vertex 6A23] weight chart repair failed',e);}
+      return out;
+    };
+    wcRenderDashboard.__vertexPhase6A23Wrapped=true;
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){ setTimeout(function(){try{if(typeof renderHomeSparklines==='function')renderHomeSparklines();}catch(e){}},300); });
+})();
+</script>
+
 </body></html>`;
         const w = window.open('','_blank');
         if(w){ w.document.write(html); w.document.close(); w.print(); }
@@ -11383,11 +11497,11 @@ function renderSidebar(){
   let html = '' + recentHtml;
   if(!list.length){
     html += '<div style="color:var(--dim);padding:10px">No matching exercises. Try search or another training focus.</div>';
-  } else if(state.muscle !== 'All' || q){
-    // Filtered or searching — flat list, no headers
+  } else if(q){
+    // Searching — flat list keeps results compact.
     html += list.map(e=>exCard(e,true)).join('');
   } else {
-    // All exercises — group by equipment for quick scanning/jump.
+    // Group by equipment for quick scanning/jump, including selected muscle groups.
     equipNames.forEach(eq => {
       const items = equipGroups[eq];
       if(!items || !items.length) return;
@@ -12155,6 +12269,119 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
+
+
+<!-- Vertex Phase 6A23 surgical fixes: Home route lock, Workout equipment grouping, Wellness charts -->
+<style id="vertex-phase6a23-route-chart-fixes">
+  body.app-page-home #progressPage,
+  body.app-page-home #vertexB2ProgressDeck,
+  body.app-page-home .vertex-b2-section-label,
+  body.app-page-home .vertex-b2-row,
+  body.app-page-home .vertex-training-snapshot,
+  body.app-page-home #progressTabContent,
+  body.app-page-home #progressSummary,
+  body.app-page-home .progress-tabs{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+  body:not(.app-page-progress) #progressPage{display:none!important;}
+  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
+  .vertex-sparkline-card svg{display:block;width:92px;max-width:92px;height:32px;overflow:visible;}
+</style>
+<script id="vertex-phase6a23-wellness-chart-fixes">
+(function(){
+  if(window.__vertexPhase6A23Fixes) return;
+  window.__vertexPhase6A23Fixes = true;
+
+  function toNum(v){ var n=Number(v); return Number.isFinite(n)?n:null; }
+  function dayKey(d){ return String(d||'').slice(0,10); }
+  function esc(s){ try{return escapeHtml(String(s||''));}catch(e){return String(s||'').replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});} }
+
+  window.vertexBuildWeightSeries = function(){
+    var rows=[];
+    try{ if(typeof loadHealthEntries==='function') (loadHealthEntries()||[]).forEach(function(r){ var w=toNum(r.bodyWeight); if(r&&r.date&&w) rows.push({date:dayKey(r.date),weight:w,src:'health'}); }); }catch(e){}
+    try{ if(Array.isArray(window.wcLogs)) window.wcLogs.forEach(function(r){ var w=toNum(r.weight); if(r&&r.date&&w) rows.push({date:dayKey(r.date),weight:w,src:'checkin'}); }); }catch(e){}
+    var by={};
+    rows.forEach(function(r){ if(!r.date||!r.weight) return; by[r.date]=r; });
+    return Object.keys(by).sort().map(function(k){return by[k];}).filter(function(r){ return r.weight>80 && r.weight<500; });
+  };
+
+  window.vertexMiniLine = function(vals,color){
+    var clean=(vals||[]).map(toNum).filter(function(v){return v!==null;});
+    if(clean.length<2) return '<div style="width:92px;height:32px;display:flex;align-items:center;color:var(--muted);font-size:10px">—</div>';
+    var mn=Math.min.apply(null,clean), mx=Math.max.apply(null,clean), rng=(mx-mn)||1;
+    var pts=clean.map(function(v,i){ var x=clean.length===1?46:(i/(clean.length-1))*88+2; var y=30-((v-mn)/rng)*26; return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+    return '<svg viewBox="0 0 92 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="'+pts.split(' ').pop().split(',')[0]+'" cy="'+pts.split(' ').pop().split(',')[1]+'" r="2.4" fill="'+color+'"/></svg>';
+  };
+
+  window.renderHomeSparklines = function(){
+    var el=document.getElementById('vertex-sparklines-row'); if(!el) return;
+    var healthRows=[]; try{ healthRows=typeof loadHealthEntries==='function'?loadHealthEntries():[]; }catch(e){}
+    var last7=healthRows.filter(function(r){return r&&r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000;}).slice(0,7).reverse();
+    var weights=window.vertexBuildWeightSeries().slice(-7);
+    function latest(vals,dec){ var c=(vals||[]).map(toNum).filter(function(v){return v!==null;}); if(!c.length)return null; return dec?c[c.length-1].toFixed(dec):Math.round(c[c.length-1]); }
+    var cards=[
+      {label:'Weight',unit:'lb',color:'var(--acc)',vals:weights.map(function(r){return r.weight;}),latest:weights.length?weights[weights.length-1].weight.toFixed(1):null},
+      {label:'Sleep',unit:'h',color:'#48d0ff',vals:last7.map(function(r){return r.sleepHours;}),latest:latest(last7.map(function(r){return r.sleepHours;}),1)},
+      {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(function(r){return r.hrv;}),latest:latest(last7.map(function(r){return r.hrv;}),0)},
+      {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(function(r){return r.readinessScore||r.readiness;}),latest:latest(last7.map(function(r){return r.readinessScore||r.readiness;}),0)}
+    ];
+    el.innerHTML=cards.map(function(c){return '<div class="vertex-sparkline-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div class="label" style="margin-bottom:4px">'+esc(c.label)+'</div><div style="font-family:Bebas Neue,sans-serif;font-size:25px;color:var(--text);line-height:1">'+(c.latest||'—')+'<span style="font-family:DM Sans,sans-serif;font-size:10px;color:var(--muted);margin-left:3px">'+esc(c.unit)+'</span></div></div>'+window.vertexMiniLine(c.vals,c.color)+'</div>';}).join('');
+  };
+
+  var oldSetPage=window.setPage;
+  if(typeof oldSetPage==='function' && !oldSetPage.__vertexPhase6A23Wrapped){
+    window.setPage=function(page){
+      var out=oldSetPage.apply(this,arguments);
+      try{
+        document.body.classList.toggle('app-page-progress', state&&state.page==='progress');
+        document.body.classList.toggle('app-page-wellness', state&&state.page==='wellness');
+        var pp=document.getElementById('progressPage'); if(pp) pp.style.display=(state&&state.page==='progress')?'block':'none';
+        var wp=document.getElementById('wellnessPage'); if(wp) wp.style.display=(state&&state.page==='wellness')?'block':'none';
+      }catch(e){}
+      return out;
+    };
+    window.setPage.__vertexPhase6A23Wrapped=true;
+  }
+
+  var oldWc=window.wcRenderDashboard || (typeof wcRenderDashboard==='function'?wcRenderDashboard:null);
+  if(typeof oldWc==='function' && !oldWc.__vertexPhase6A23Wrapped){
+    window.wcRenderDashboard = wcRenderDashboard = function(){
+      var out=oldWc.apply(this,arguments);
+      try{
+        var series=window.vertexBuildWeightSeries();
+        var el=document.getElementById('wc-dc-weight');
+        if(el && series.length){
+          if(typeof wcDestroyChart==='function') wcDestroyChart('wc-dc-weight');
+          var actual=series.slice(-16);
+          var labels=actual.map(function(r){var p=r.date.split('-'); return p[1]+'/'+p[2];});
+          var data=actual.map(function(r){return r.weight;});
+          var projLabels=labels.slice(), proj=data.map(function(){return null;});
+          var rate=null;
+          if(actual.length>=2){
+            var first=actual[0], last=actual[actual.length-1];
+            var span=Math.max(1,(new Date(last.date+'T12:00:00')-new Date(first.date+'T12:00:00'))/86400000);
+            var raw=(first.weight-last.weight)/(span/7);
+            if(raw>0.05) rate=Math.min(raw,2.0);
+          }
+          if(rate){
+            var last=actual[actual.length-1];
+            for(var i=1;i<=8;i++){
+              var d=new Date(last.date+'T12:00:00'); d.setDate(d.getDate()+i*7);
+              projLabels.push(String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'));
+              data.push(null); proj.push(Math.max((typeof wcGetGoalWeight==='function'?wcGetGoalWeight():195), +(last.weight-rate*i).toFixed(1)));
+            }
+          }
+          if(typeof Chart!=='undefined') window._wcCharts=window._wcCharts||{};
+          if(typeof Chart!=='undefined') _wcCharts['wc-dc-weight']=new Chart(el.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:[{label:'Actual',data:data,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:.25,spanGaps:false}].concat(rate?[{label:'Projected',data:proj,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:.25,spanGaps:true}]:[])},options:(typeof WC_CHART_OPTS==='object'?{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:!!rate,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}}}:{responsive:true,maintainAspectRatio:false})});
+        }
+      }catch(e){console.warn('[Vertex 6A23] weight chart repair failed',e);}
+      return out;
+    };
+    wcRenderDashboard.__vertexPhase6A23Wrapped=true;
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){ setTimeout(function(){try{if(typeof renderHomeSparklines==='function')renderHomeSparklines();}catch(e){}},300); });
+})();
+</script>
+
 </body></html>`;
 
     const w = window.open('','_blank');
@@ -12476,6 +12703,119 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 </style>
 
 
+
+
+<!-- Vertex Phase 6A23 surgical fixes: Home route lock, Workout equipment grouping, Wellness charts -->
+<style id="vertex-phase6a23-route-chart-fixes">
+  body.app-page-home #progressPage,
+  body.app-page-home #vertexB2ProgressDeck,
+  body.app-page-home .vertex-b2-section-label,
+  body.app-page-home .vertex-b2-row,
+  body.app-page-home .vertex-training-snapshot,
+  body.app-page-home #progressTabContent,
+  body.app-page-home #progressSummary,
+  body.app-page-home .progress-tabs{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+  body:not(.app-page-progress) #progressPage{display:none!important;}
+  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
+  .vertex-sparkline-card svg{display:block;width:92px;max-width:92px;height:32px;overflow:visible;}
+</style>
+<script id="vertex-phase6a23-wellness-chart-fixes">
+(function(){
+  if(window.__vertexPhase6A23Fixes) return;
+  window.__vertexPhase6A23Fixes = true;
+
+  function toNum(v){ var n=Number(v); return Number.isFinite(n)?n:null; }
+  function dayKey(d){ return String(d||'').slice(0,10); }
+  function esc(s){ try{return escapeHtml(String(s||''));}catch(e){return String(s||'').replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});} }
+
+  window.vertexBuildWeightSeries = function(){
+    var rows=[];
+    try{ if(typeof loadHealthEntries==='function') (loadHealthEntries()||[]).forEach(function(r){ var w=toNum(r.bodyWeight); if(r&&r.date&&w) rows.push({date:dayKey(r.date),weight:w,src:'health'}); }); }catch(e){}
+    try{ if(Array.isArray(window.wcLogs)) window.wcLogs.forEach(function(r){ var w=toNum(r.weight); if(r&&r.date&&w) rows.push({date:dayKey(r.date),weight:w,src:'checkin'}); }); }catch(e){}
+    var by={};
+    rows.forEach(function(r){ if(!r.date||!r.weight) return; by[r.date]=r; });
+    return Object.keys(by).sort().map(function(k){return by[k];}).filter(function(r){ return r.weight>80 && r.weight<500; });
+  };
+
+  window.vertexMiniLine = function(vals,color){
+    var clean=(vals||[]).map(toNum).filter(function(v){return v!==null;});
+    if(clean.length<2) return '<div style="width:92px;height:32px;display:flex;align-items:center;color:var(--muted);font-size:10px">—</div>';
+    var mn=Math.min.apply(null,clean), mx=Math.max.apply(null,clean), rng=(mx-mn)||1;
+    var pts=clean.map(function(v,i){ var x=clean.length===1?46:(i/(clean.length-1))*88+2; var y=30-((v-mn)/rng)*26; return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+    return '<svg viewBox="0 0 92 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="'+pts.split(' ').pop().split(',')[0]+'" cy="'+pts.split(' ').pop().split(',')[1]+'" r="2.4" fill="'+color+'"/></svg>';
+  };
+
+  window.renderHomeSparklines = function(){
+    var el=document.getElementById('vertex-sparklines-row'); if(!el) return;
+    var healthRows=[]; try{ healthRows=typeof loadHealthEntries==='function'?loadHealthEntries():[]; }catch(e){}
+    var last7=healthRows.filter(function(r){return r&&r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000;}).slice(0,7).reverse();
+    var weights=window.vertexBuildWeightSeries().slice(-7);
+    function latest(vals,dec){ var c=(vals||[]).map(toNum).filter(function(v){return v!==null;}); if(!c.length)return null; return dec?c[c.length-1].toFixed(dec):Math.round(c[c.length-1]); }
+    var cards=[
+      {label:'Weight',unit:'lb',color:'var(--acc)',vals:weights.map(function(r){return r.weight;}),latest:weights.length?weights[weights.length-1].weight.toFixed(1):null},
+      {label:'Sleep',unit:'h',color:'#48d0ff',vals:last7.map(function(r){return r.sleepHours;}),latest:latest(last7.map(function(r){return r.sleepHours;}),1)},
+      {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(function(r){return r.hrv;}),latest:latest(last7.map(function(r){return r.hrv;}),0)},
+      {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(function(r){return r.readinessScore||r.readiness;}),latest:latest(last7.map(function(r){return r.readinessScore||r.readiness;}),0)}
+    ];
+    el.innerHTML=cards.map(function(c){return '<div class="vertex-sparkline-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div class="label" style="margin-bottom:4px">'+esc(c.label)+'</div><div style="font-family:Bebas Neue,sans-serif;font-size:25px;color:var(--text);line-height:1">'+(c.latest||'—')+'<span style="font-family:DM Sans,sans-serif;font-size:10px;color:var(--muted);margin-left:3px">'+esc(c.unit)+'</span></div></div>'+window.vertexMiniLine(c.vals,c.color)+'</div>';}).join('');
+  };
+
+  var oldSetPage=window.setPage;
+  if(typeof oldSetPage==='function' && !oldSetPage.__vertexPhase6A23Wrapped){
+    window.setPage=function(page){
+      var out=oldSetPage.apply(this,arguments);
+      try{
+        document.body.classList.toggle('app-page-progress', state&&state.page==='progress');
+        document.body.classList.toggle('app-page-wellness', state&&state.page==='wellness');
+        var pp=document.getElementById('progressPage'); if(pp) pp.style.display=(state&&state.page==='progress')?'block':'none';
+        var wp=document.getElementById('wellnessPage'); if(wp) wp.style.display=(state&&state.page==='wellness')?'block':'none';
+      }catch(e){}
+      return out;
+    };
+    window.setPage.__vertexPhase6A23Wrapped=true;
+  }
+
+  var oldWc=window.wcRenderDashboard || (typeof wcRenderDashboard==='function'?wcRenderDashboard:null);
+  if(typeof oldWc==='function' && !oldWc.__vertexPhase6A23Wrapped){
+    window.wcRenderDashboard = wcRenderDashboard = function(){
+      var out=oldWc.apply(this,arguments);
+      try{
+        var series=window.vertexBuildWeightSeries();
+        var el=document.getElementById('wc-dc-weight');
+        if(el && series.length){
+          if(typeof wcDestroyChart==='function') wcDestroyChart('wc-dc-weight');
+          var actual=series.slice(-16);
+          var labels=actual.map(function(r){var p=r.date.split('-'); return p[1]+'/'+p[2];});
+          var data=actual.map(function(r){return r.weight;});
+          var projLabels=labels.slice(), proj=data.map(function(){return null;});
+          var rate=null;
+          if(actual.length>=2){
+            var first=actual[0], last=actual[actual.length-1];
+            var span=Math.max(1,(new Date(last.date+'T12:00:00')-new Date(first.date+'T12:00:00'))/86400000);
+            var raw=(first.weight-last.weight)/(span/7);
+            if(raw>0.05) rate=Math.min(raw,2.0);
+          }
+          if(rate){
+            var last=actual[actual.length-1];
+            for(var i=1;i<=8;i++){
+              var d=new Date(last.date+'T12:00:00'); d.setDate(d.getDate()+i*7);
+              projLabels.push(String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'));
+              data.push(null); proj.push(Math.max((typeof wcGetGoalWeight==='function'?wcGetGoalWeight():195), +(last.weight-rate*i).toFixed(1)));
+            }
+          }
+          if(typeof Chart!=='undefined') window._wcCharts=window._wcCharts||{};
+          if(typeof Chart!=='undefined') _wcCharts['wc-dc-weight']=new Chart(el.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:[{label:'Actual',data:data,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:.25,spanGaps:false}].concat(rate?[{label:'Projected',data:proj,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:.25,spanGaps:true}]:[])},options:(typeof WC_CHART_OPTS==='object'?{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:!!rate,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}}}:{responsive:true,maintainAspectRatio:false})});
+        }
+      }catch(e){console.warn('[Vertex 6A23] weight chart repair failed',e);}
+      return out;
+    };
+    wcRenderDashboard.__vertexPhase6A23Wrapped=true;
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){ setTimeout(function(){try{if(typeof renderHomeSparklines==='function')renderHomeSparklines();}catch(e){}},300); });
+})();
+</script>
+
 </body></html>`);
     w.document.close();
   };
@@ -12756,6 +13096,119 @@ body.app-page-workout .sidebar #training-seg button[data-training]:focus-visible
 }
 </style>
 
+
+
+
+<!-- Vertex Phase 6A23 surgical fixes: Home route lock, Workout equipment grouping, Wellness charts -->
+<style id="vertex-phase6a23-route-chart-fixes">
+  body.app-page-home #progressPage,
+  body.app-page-home #vertexB2ProgressDeck,
+  body.app-page-home .vertex-b2-section-label,
+  body.app-page-home .vertex-b2-row,
+  body.app-page-home .vertex-training-snapshot,
+  body.app-page-home #progressTabContent,
+  body.app-page-home #progressSummary,
+  body.app-page-home .progress-tabs{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+  body:not(.app-page-progress) #progressPage{display:none!important;}
+  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
+  .vertex-sparkline-card svg{display:block;width:92px;max-width:92px;height:32px;overflow:visible;}
+</style>
+<script id="vertex-phase6a23-wellness-chart-fixes">
+(function(){
+  if(window.__vertexPhase6A23Fixes) return;
+  window.__vertexPhase6A23Fixes = true;
+
+  function toNum(v){ var n=Number(v); return Number.isFinite(n)?n:null; }
+  function dayKey(d){ return String(d||'').slice(0,10); }
+  function esc(s){ try{return escapeHtml(String(s||''));}catch(e){return String(s||'').replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});} }
+
+  window.vertexBuildWeightSeries = function(){
+    var rows=[];
+    try{ if(typeof loadHealthEntries==='function') (loadHealthEntries()||[]).forEach(function(r){ var w=toNum(r.bodyWeight); if(r&&r.date&&w) rows.push({date:dayKey(r.date),weight:w,src:'health'}); }); }catch(e){}
+    try{ if(Array.isArray(window.wcLogs)) window.wcLogs.forEach(function(r){ var w=toNum(r.weight); if(r&&r.date&&w) rows.push({date:dayKey(r.date),weight:w,src:'checkin'}); }); }catch(e){}
+    var by={};
+    rows.forEach(function(r){ if(!r.date||!r.weight) return; by[r.date]=r; });
+    return Object.keys(by).sort().map(function(k){return by[k];}).filter(function(r){ return r.weight>80 && r.weight<500; });
+  };
+
+  window.vertexMiniLine = function(vals,color){
+    var clean=(vals||[]).map(toNum).filter(function(v){return v!==null;});
+    if(clean.length<2) return '<div style="width:92px;height:32px;display:flex;align-items:center;color:var(--muted);font-size:10px">—</div>';
+    var mn=Math.min.apply(null,clean), mx=Math.max.apply(null,clean), rng=(mx-mn)||1;
+    var pts=clean.map(function(v,i){ var x=clean.length===1?46:(i/(clean.length-1))*88+2; var y=30-((v-mn)/rng)*26; return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+    return '<svg viewBox="0 0 92 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="'+pts.split(' ').pop().split(',')[0]+'" cy="'+pts.split(' ').pop().split(',')[1]+'" r="2.4" fill="'+color+'"/></svg>';
+  };
+
+  window.renderHomeSparklines = function(){
+    var el=document.getElementById('vertex-sparklines-row'); if(!el) return;
+    var healthRows=[]; try{ healthRows=typeof loadHealthEntries==='function'?loadHealthEntries():[]; }catch(e){}
+    var last7=healthRows.filter(function(r){return r&&r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000;}).slice(0,7).reverse();
+    var weights=window.vertexBuildWeightSeries().slice(-7);
+    function latest(vals,dec){ var c=(vals||[]).map(toNum).filter(function(v){return v!==null;}); if(!c.length)return null; return dec?c[c.length-1].toFixed(dec):Math.round(c[c.length-1]); }
+    var cards=[
+      {label:'Weight',unit:'lb',color:'var(--acc)',vals:weights.map(function(r){return r.weight;}),latest:weights.length?weights[weights.length-1].weight.toFixed(1):null},
+      {label:'Sleep',unit:'h',color:'#48d0ff',vals:last7.map(function(r){return r.sleepHours;}),latest:latest(last7.map(function(r){return r.sleepHours;}),1)},
+      {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(function(r){return r.hrv;}),latest:latest(last7.map(function(r){return r.hrv;}),0)},
+      {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(function(r){return r.readinessScore||r.readiness;}),latest:latest(last7.map(function(r){return r.readinessScore||r.readiness;}),0)}
+    ];
+    el.innerHTML=cards.map(function(c){return '<div class="vertex-sparkline-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div class="label" style="margin-bottom:4px">'+esc(c.label)+'</div><div style="font-family:Bebas Neue,sans-serif;font-size:25px;color:var(--text);line-height:1">'+(c.latest||'—')+'<span style="font-family:DM Sans,sans-serif;font-size:10px;color:var(--muted);margin-left:3px">'+esc(c.unit)+'</span></div></div>'+window.vertexMiniLine(c.vals,c.color)+'</div>';}).join('');
+  };
+
+  var oldSetPage=window.setPage;
+  if(typeof oldSetPage==='function' && !oldSetPage.__vertexPhase6A23Wrapped){
+    window.setPage=function(page){
+      var out=oldSetPage.apply(this,arguments);
+      try{
+        document.body.classList.toggle('app-page-progress', state&&state.page==='progress');
+        document.body.classList.toggle('app-page-wellness', state&&state.page==='wellness');
+        var pp=document.getElementById('progressPage'); if(pp) pp.style.display=(state&&state.page==='progress')?'block':'none';
+        var wp=document.getElementById('wellnessPage'); if(wp) wp.style.display=(state&&state.page==='wellness')?'block':'none';
+      }catch(e){}
+      return out;
+    };
+    window.setPage.__vertexPhase6A23Wrapped=true;
+  }
+
+  var oldWc=window.wcRenderDashboard || (typeof wcRenderDashboard==='function'?wcRenderDashboard:null);
+  if(typeof oldWc==='function' && !oldWc.__vertexPhase6A23Wrapped){
+    window.wcRenderDashboard = wcRenderDashboard = function(){
+      var out=oldWc.apply(this,arguments);
+      try{
+        var series=window.vertexBuildWeightSeries();
+        var el=document.getElementById('wc-dc-weight');
+        if(el && series.length){
+          if(typeof wcDestroyChart==='function') wcDestroyChart('wc-dc-weight');
+          var actual=series.slice(-16);
+          var labels=actual.map(function(r){var p=r.date.split('-'); return p[1]+'/'+p[2];});
+          var data=actual.map(function(r){return r.weight;});
+          var projLabels=labels.slice(), proj=data.map(function(){return null;});
+          var rate=null;
+          if(actual.length>=2){
+            var first=actual[0], last=actual[actual.length-1];
+            var span=Math.max(1,(new Date(last.date+'T12:00:00')-new Date(first.date+'T12:00:00'))/86400000);
+            var raw=(first.weight-last.weight)/(span/7);
+            if(raw>0.05) rate=Math.min(raw,2.0);
+          }
+          if(rate){
+            var last=actual[actual.length-1];
+            for(var i=1;i<=8;i++){
+              var d=new Date(last.date+'T12:00:00'); d.setDate(d.getDate()+i*7);
+              projLabels.push(String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'));
+              data.push(null); proj.push(Math.max((typeof wcGetGoalWeight==='function'?wcGetGoalWeight():195), +(last.weight-rate*i).toFixed(1)));
+            }
+          }
+          if(typeof Chart!=='undefined') window._wcCharts=window._wcCharts||{};
+          if(typeof Chart!=='undefined') _wcCharts['wc-dc-weight']=new Chart(el.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:[{label:'Actual',data:data,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:.25,spanGaps:false}].concat(rate?[{label:'Projected',data:proj,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:.25,spanGaps:true}]:[])},options:(typeof WC_CHART_OPTS==='object'?{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:!!rate,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}}}:{responsive:true,maintainAspectRatio:false})});
+        }
+      }catch(e){console.warn('[Vertex 6A23] weight chart repair failed',e);}
+      return out;
+    };
+    wcRenderDashboard.__vertexPhase6A23Wrapped=true;
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){ setTimeout(function(){try{if(typeof renderHomeSparklines==='function')renderHomeSparklines();}catch(e){}},300); });
+})();
+</script>
 
 </body></html>`);
   w.document.close();
@@ -21114,6 +21567,119 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
 </script>
+
+
+<!-- Vertex Phase 6A23 surgical fixes: Home route lock, Workout equipment grouping, Wellness charts -->
+<style id="vertex-phase6a23-route-chart-fixes">
+  body.app-page-home #progressPage,
+  body.app-page-home #vertexB2ProgressDeck,
+  body.app-page-home .vertex-b2-section-label,
+  body.app-page-home .vertex-b2-row,
+  body.app-page-home .vertex-training-snapshot,
+  body.app-page-home #progressTabContent,
+  body.app-page-home #progressSummary,
+  body.app-page-home .progress-tabs{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+  body:not(.app-page-progress) #progressPage{display:none!important;}
+  body:not(.app-page-wellness) #wellnessPage{display:none!important;}
+  .vertex-sparkline-card svg{display:block;width:92px;max-width:92px;height:32px;overflow:visible;}
+</style>
+<script id="vertex-phase6a23-wellness-chart-fixes">
+(function(){
+  if(window.__vertexPhase6A23Fixes) return;
+  window.__vertexPhase6A23Fixes = true;
+
+  function toNum(v){ var n=Number(v); return Number.isFinite(n)?n:null; }
+  function dayKey(d){ return String(d||'').slice(0,10); }
+  function esc(s){ try{return escapeHtml(String(s||''));}catch(e){return String(s||'').replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});} }
+
+  window.vertexBuildWeightSeries = function(){
+    var rows=[];
+    try{ if(typeof loadHealthEntries==='function') (loadHealthEntries()||[]).forEach(function(r){ var w=toNum(r.bodyWeight); if(r&&r.date&&w) rows.push({date:dayKey(r.date),weight:w,src:'health'}); }); }catch(e){}
+    try{ if(Array.isArray(window.wcLogs)) window.wcLogs.forEach(function(r){ var w=toNum(r.weight); if(r&&r.date&&w) rows.push({date:dayKey(r.date),weight:w,src:'checkin'}); }); }catch(e){}
+    var by={};
+    rows.forEach(function(r){ if(!r.date||!r.weight) return; by[r.date]=r; });
+    return Object.keys(by).sort().map(function(k){return by[k];}).filter(function(r){ return r.weight>80 && r.weight<500; });
+  };
+
+  window.vertexMiniLine = function(vals,color){
+    var clean=(vals||[]).map(toNum).filter(function(v){return v!==null;});
+    if(clean.length<2) return '<div style="width:92px;height:32px;display:flex;align-items:center;color:var(--muted);font-size:10px">—</div>';
+    var mn=Math.min.apply(null,clean), mx=Math.max.apply(null,clean), rng=(mx-mn)||1;
+    var pts=clean.map(function(v,i){ var x=clean.length===1?46:(i/(clean.length-1))*88+2; var y=30-((v-mn)/rng)*26; return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+    return '<svg viewBox="0 0 92 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="'+pts.split(' ').pop().split(',')[0]+'" cy="'+pts.split(' ').pop().split(',')[1]+'" r="2.4" fill="'+color+'"/></svg>';
+  };
+
+  window.renderHomeSparklines = function(){
+    var el=document.getElementById('vertex-sparklines-row'); if(!el) return;
+    var healthRows=[]; try{ healthRows=typeof loadHealthEntries==='function'?loadHealthEntries():[]; }catch(e){}
+    var last7=healthRows.filter(function(r){return r&&r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000;}).slice(0,7).reverse();
+    var weights=window.vertexBuildWeightSeries().slice(-7);
+    function latest(vals,dec){ var c=(vals||[]).map(toNum).filter(function(v){return v!==null;}); if(!c.length)return null; return dec?c[c.length-1].toFixed(dec):Math.round(c[c.length-1]); }
+    var cards=[
+      {label:'Weight',unit:'lb',color:'var(--acc)',vals:weights.map(function(r){return r.weight;}),latest:weights.length?weights[weights.length-1].weight.toFixed(1):null},
+      {label:'Sleep',unit:'h',color:'#48d0ff',vals:last7.map(function(r){return r.sleepHours;}),latest:latest(last7.map(function(r){return r.sleepHours;}),1)},
+      {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(function(r){return r.hrv;}),latest:latest(last7.map(function(r){return r.hrv;}),0)},
+      {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(function(r){return r.readinessScore||r.readiness;}),latest:latest(last7.map(function(r){return r.readinessScore||r.readiness;}),0)}
+    ];
+    el.innerHTML=cards.map(function(c){return '<div class="vertex-sparkline-card" style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div class="label" style="margin-bottom:4px">'+esc(c.label)+'</div><div style="font-family:Bebas Neue,sans-serif;font-size:25px;color:var(--text);line-height:1">'+(c.latest||'—')+'<span style="font-family:DM Sans,sans-serif;font-size:10px;color:var(--muted);margin-left:3px">'+esc(c.unit)+'</span></div></div>'+window.vertexMiniLine(c.vals,c.color)+'</div>';}).join('');
+  };
+
+  var oldSetPage=window.setPage;
+  if(typeof oldSetPage==='function' && !oldSetPage.__vertexPhase6A23Wrapped){
+    window.setPage=function(page){
+      var out=oldSetPage.apply(this,arguments);
+      try{
+        document.body.classList.toggle('app-page-progress', state&&state.page==='progress');
+        document.body.classList.toggle('app-page-wellness', state&&state.page==='wellness');
+        var pp=document.getElementById('progressPage'); if(pp) pp.style.display=(state&&state.page==='progress')?'block':'none';
+        var wp=document.getElementById('wellnessPage'); if(wp) wp.style.display=(state&&state.page==='wellness')?'block':'none';
+      }catch(e){}
+      return out;
+    };
+    window.setPage.__vertexPhase6A23Wrapped=true;
+  }
+
+  var oldWc=window.wcRenderDashboard || (typeof wcRenderDashboard==='function'?wcRenderDashboard:null);
+  if(typeof oldWc==='function' && !oldWc.__vertexPhase6A23Wrapped){
+    window.wcRenderDashboard = wcRenderDashboard = function(){
+      var out=oldWc.apply(this,arguments);
+      try{
+        var series=window.vertexBuildWeightSeries();
+        var el=document.getElementById('wc-dc-weight');
+        if(el && series.length){
+          if(typeof wcDestroyChart==='function') wcDestroyChart('wc-dc-weight');
+          var actual=series.slice(-16);
+          var labels=actual.map(function(r){var p=r.date.split('-'); return p[1]+'/'+p[2];});
+          var data=actual.map(function(r){return r.weight;});
+          var projLabels=labels.slice(), proj=data.map(function(){return null;});
+          var rate=null;
+          if(actual.length>=2){
+            var first=actual[0], last=actual[actual.length-1];
+            var span=Math.max(1,(new Date(last.date+'T12:00:00')-new Date(first.date+'T12:00:00'))/86400000);
+            var raw=(first.weight-last.weight)/(span/7);
+            if(raw>0.05) rate=Math.min(raw,2.0);
+          }
+          if(rate){
+            var last=actual[actual.length-1];
+            for(var i=1;i<=8;i++){
+              var d=new Date(last.date+'T12:00:00'); d.setDate(d.getDate()+i*7);
+              projLabels.push(String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'));
+              data.push(null); proj.push(Math.max((typeof wcGetGoalWeight==='function'?wcGetGoalWeight():195), +(last.weight-rate*i).toFixed(1)));
+            }
+          }
+          if(typeof Chart!=='undefined') window._wcCharts=window._wcCharts||{};
+          if(typeof Chart!=='undefined') _wcCharts['wc-dc-weight']=new Chart(el.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:[{label:'Actual',data:data,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:.25,spanGaps:false}].concat(rate?[{label:'Projected',data:proj,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:.25,spanGaps:true}]:[])},options:(typeof WC_CHART_OPTS==='object'?{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:!!rate,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}}}:{responsive:true,maintainAspectRatio:false})});
+        }
+      }catch(e){console.warn('[Vertex 6A23] weight chart repair failed',e);}
+      return out;
+    };
+    wcRenderDashboard.__vertexPhase6A23Wrapped=true;
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){ setTimeout(function(){try{if(typeof renderHomeSparklines==='function')renderHomeSparklines();}catch(e){}},300); });
+})();
+</script>
+
 </body>
 </html>
 

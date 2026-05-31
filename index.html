@@ -32,6 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
+<!-- v20260531-6a35: settings realtime sync + stability-ball exercises + vertical workout setup card + removed movements-tracked hint -->
 <!-- v20260531-6a34: Supabase = source of truth for settings/goals/equipment/connections + workout memory from cloud logs -->
 <!-- v20260531-6a33: single shared Supabase client (fixes login loop from duplicate GoTrueClient instances) -->
 <!-- v20260530-6a32: oauth direct-entry fallback + home progress css-only lock -->
@@ -4278,8 +4279,8 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
 
 
 <style id="vertex-6a20-css">
-  .vertex-workout-hero-grid{display:grid;grid-template-columns:1.1fr .9fr 2fr;gap:18px;align-items:center}
-  .vertex-workout-hero-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .vertex-workout-hero-grid{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+  .vertex-workout-hero-steps{display:grid;grid-template-columns:1fr;gap:10px}
   .vertex-equipment-chip{white-space:nowrap}
   .ex-group-label[data-equip-section]{scroll-margin-top:88px}
   @media(max-width:980px){.vertex-workout-hero-grid{grid-template-columns:1fr}.vertex-workout-hero-steps{grid-template-columns:1fr}}
@@ -5203,7 +5204,7 @@ const SUPA_KEY='sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E';
 let _supa=null;
 let authUser=null;
 let sessionTimerId=null;
-const EQUIPMENT_OPTIONS=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Foam Roller','Step Platform','Stability Platform','Cable','Machine','Barbell','Peloton / Exercise Bike','Road Bike','Treadmill','Rower','Other'];
+const EQUIPMENT_OPTIONS=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Foam Roller','Step Platform','Stability Platform','Stability Ball','Cable','Machine','Barbell','Peloton / Exercise Bike','Road Bike','Treadmill','Rower','Other'];
 function getSupa(){
   if(window._supa) { _supa = window._supa; return _supa; }
   if(_supa) { window._supa = _supa; return _supa; }
@@ -5293,6 +5294,20 @@ EXERCISES.push(
 {name:'Plank',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
 {name:'Dead Bug',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
 {name:'Pallof Press',muscle:'Core',equip:'Cable/Band',env:'gym',kind:'core',training:'Strength'},
+{name:'Stability Ball Crunch',muscle:'Core',equip:'Stability Ball',env:'home',kind:'core',training:'Strength'},
+{name:'Stability Ball Plank',muscle:'Core',equip:'Stability Ball',env:'home',kind:'core',training:'Strength'},
+{name:'Stability Ball Pike',muscle:'Core',equip:'Stability Ball',env:'home',kind:'core',training:'Strength'},
+{name:'Stability Ball Knee Tuck',muscle:'Core',equip:'Stability Ball',env:'home',kind:'core',training:'Strength'},
+{name:'Stability Ball Russian Twist',muscle:'Core',equip:'Stability Ball',env:'home',kind:'core',training:'Strength'},
+{name:'Stability Ball Dead Bug',muscle:'Core',equip:'Stability Ball',env:'home',kind:'core',training:'Strength'},
+{name:'Stability Ball Hamstring Curl',muscle:'Legs',equip:'Stability Ball',env:'home',kind:'legs',training:'Strength'},
+{name:'Stability Ball Wall Squat',muscle:'Legs',equip:'Stability Ball',env:'home',kind:'legs',training:'Strength'},
+{name:'Stability Ball Glute Bridge',muscle:'Legs',equip:'Stability Ball',env:'home',kind:'legs',training:'Strength'},
+{name:'Stability Ball Back Extension',muscle:'Back',equip:'Stability Ball',env:'home',kind:'pull',training:'Strength'},
+{name:'Stability Ball Push-Up',muscle:'Chest',equip:'Stability Ball',env:'home',kind:'push',training:'Strength'},
+{name:'Stability Ball Thoracic Extension',muscle:'Recovery',equip:'Stability Ball',env:'home',kind:'recovery',training:'Recovery'},
+{name:'Stability Ball Lumbar Decompression',muscle:'Recovery',equip:'Stability Ball',env:'home',kind:'recovery',training:'Recovery'},
+{name:'Stability Ball Hip Flexor Stretch',muscle:'Legs',equip:'Stability Ball',env:'home',kind:'stretch',training:'Stretching'},
 {name:'Russian Twist',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
 {name:'Kettlebell Swing',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Kettlebell Goblet Squat',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
@@ -19463,21 +19478,10 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   }
 
   function improveWorkoutPageMemoryHint(){
-    try{
-      var empty = Array.from(document.querySelectorAll('div')).find(function(el){
-        return /No exercises added yet/i.test(String(el.textContent || ''));
-      });
-      if(!empty || document.getElementById('vertexWorkoutMemoryHint')) return;
-
-      var s = buildWorkoutPersistenceSummary();
-      if(!s.exercises) return;
-
-      var hint = document.createElement('div');
-      hint.id = 'vertexWorkoutMemoryHint';
-      hint.style.cssText = 'margin-top:12px;color:var(--muted);font-size:13px;text-align:center';
-      hint.innerHTML = 'Workout memory active · ' + s.exercises + ' movements tracked';
-      empty.appendChild(hint);
-    }catch(e){}
+    // 6A35: removed the "Workout memory active · N movements tracked" line.
+    // It read from a per-device cache and showed different numbers on each device,
+    // which was confusing and added no real value here.
+    try{ var stale=document.getElementById('vertexWorkoutMemoryHint'); if(stale) stale.remove(); }catch(e){}
   }
 
   function run(){
@@ -22344,8 +22348,21 @@ body.app-page-home #home-dashboard{display:block!important;}
 
   window.VertexSettingsSync={ pull:pull, push:push, pushSoon:pushSoon };
 
+  // Realtime: when this user's settings row changes from any device, pull immediately.
+  function subscribeRealtime(){
+    var s=supa(), u=uid();
+    if(!s || !u || window.__vertexSettingsRtSub) return;
+    try{
+      // No user_id filter on purpose: filtered postgres_changes can silently drop events.
+      // RLS already restricts the row to this user, so an unfiltered channel is safe.
+      window.__vertexSettingsRtSub = s.channel('vertex_user_settings_rt')
+        .on('postgres_changes', { event:'*', schema:'public', table:TABLE }, function(){ setTimeout(pull, 150); })
+        .subscribe();
+    }catch(e){ console.warn('[VertexSettingsSync] realtime subscribe failed:', e); }
+  }
+
   // Pull whenever the app reports an authenticated session.
-  window.addEventListener('vertex:authenticated', function(){ setTimeout(pull, 400); });
+  window.addEventListener('vertex:authenticated', function(){ setTimeout(pull, 400); setTimeout(subscribeRealtime, 700); });
   // Re-pull on tab focus so another device's change appears after a refresh/return.
   document.addEventListener('visibilitychange', function(){ if(!document.hidden && uid()) setTimeout(pull, 300); });
 })();

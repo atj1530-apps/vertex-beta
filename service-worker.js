@@ -1,8 +1,8 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260531-6a38-welcome-overlap-fix
+   v20260531-6a39-taxonomy-canon-welcome-debug
    Network-first for HTML so deploys are visible immediately.
 */
-const CACHE_NAME = 'vertex-v20260531-6a38-welcome-overlap-fix';
+const CACHE_NAME = 'vertex-v20260531-6a39-taxonomy-canon-welcome-debug';
 const APP_SHELL = [
   './',
   './index.html',

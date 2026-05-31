@@ -1,63 +1,47 @@
-/* Vertex Workout Builder — PWA Service Worker
-   v20260531-6a34-supabase-source-of-truth
-   Network-first for HTML so deploys are visible immediately.
-*/
-const CACHE_NAME = 'vertex-v20260531-6a34-supabase-source-of-truth';
-const APP_SHELL = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
-];
+-- 6A34 — Cross-device settings table (Supabase = source of truth)
+-- Project: dwsrwsnzuiwnagjepgtj  (Vertex Beta)
+-- Run this once in: Supabase Dashboard -> SQL Editor -> New query -> Run
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL).catch(() => undefined))
-      .then(() => self.skipWaiting())
-  );
-});
+create table if not exists public.vertex_user_settings (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  settings   jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim())
-  );
-});
+alter table public.vertex_user_settings enable row level security;
 
-self.addEventListener('fetch', (event) => {
-  const req = event.request;
-  const url = new URL(req.url);
+drop policy if exists "vertex_user_settings own select" on public.vertex_user_settings;
+drop policy if exists "vertex_user_settings own insert" on public.vertex_user_settings;
+drop policy if exists "vertex_user_settings own update" on public.vertex_user_settings;
+drop policy if exists "vertex_user_settings own delete" on public.vertex_user_settings;
 
-  if (url.hostname.includes('supabase') ||
-      url.hostname.includes('anthropic') ||
-      url.hostname.includes('unpkg.com') ||
-      url.hostname.includes('cdnjs.cloudflare.com') ||
-      url.hostname.includes('fonts.googleapis.com') ||
-      url.hostname.includes('fonts.gstatic.com')) {
-    return;
-  }
+create policy "vertex_user_settings own select"
+  on public.vertex_user_settings for select
+  using (auth.uid() = user_id);
 
-  if (req.mode === 'navigate' || req.destination === 'document') {
-    event.respondWith(
-      fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => undefined);
-        return res;
-      }).catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
-    );
-    return;
-  }
+create policy "vertex_user_settings own insert"
+  on public.vertex_user_settings for insert
+  with check (auth.uid() = user_id);
 
-  event.respondWith(
-    caches.match(req).then((cached) => cached || fetch(req).then((res) => {
-      if (req.method === 'GET' && res && res.status === 200) {
-        const copy = res.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => undefined);
-      }
-      return res;
-    }).catch(() => cached))
-  );
-});
+create policy "vertex_user_settings own update"
+  on public.vertex_user_settings for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy "vertex_user_settings own delete"
+  on public.vertex_user_settings for delete
+  using (auth.uid() = user_id);
+
+-- 6A35 — enable Realtime on the settings table (idempotent).
+-- Lets a change on one device update the other within a second or two, no refresh needed.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'vertex_user_settings'
+  ) then
+    execute 'alter publication supabase_realtime add table public.vertex_user_settings';
+  end if;
+end $$;

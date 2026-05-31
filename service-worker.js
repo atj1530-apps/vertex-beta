@@ -1,8 +1,8 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260530-6a23
+   v20260530-6a24
    Network-first for HTML so deploys are visible immediately.
 */
-const CACHE_NAME = 'vertex-v20260530-6a23';
+const CACHE_NAME = 'vertex-v20260530-6a24';
 const APP_SHELL = [
   './',
   './index.html',

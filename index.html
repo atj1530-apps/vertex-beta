@@ -32,6 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
+<!-- v20260531-6a36: onboarding cards 2/3 wired + balance board + ab wheel rename + mobile setup card on top + settings modal live-refresh -->
 <!-- v20260531-6a35: settings realtime sync + stability-ball exercises + vertical workout setup card + removed movements-tracked hint -->
 <!-- v20260531-6a34: Supabase = source of truth for settings/goals/equipment/connections + workout memory from cloud logs -->
 <!-- v20260531-6a33: single shared Supabase client (fixes login loop from duplicate GoTrueClient instances) -->
@@ -5204,7 +5205,7 @@ const SUPA_KEY='sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E';
 let _supa=null;
 let authUser=null;
 let sessionTimerId=null;
-const EQUIPMENT_OPTIONS=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Foam Roller','Step Platform','Stability Platform','Stability Ball','Cable','Machine','Barbell','Peloton / Exercise Bike','Road Bike','Treadmill','Rower','Other'];
+const EQUIPMENT_OPTIONS=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Foam Roller','Step Platform','Balance Board','Stability Ball','Cable','Machine','Barbell','Peloton / Exercise Bike','Road Bike','Treadmill','Rower','Other'];
 function getSupa(){
   if(window._supa) { _supa = window._supa; return _supa; }
   if(_supa) { window._supa = _supa; return _supa; }
@@ -5308,6 +5309,12 @@ EXERCISES.push(
 {name:'Stability Ball Thoracic Extension',muscle:'Recovery',equip:'Stability Ball',env:'home',kind:'recovery',training:'Recovery'},
 {name:'Stability Ball Lumbar Decompression',muscle:'Recovery',equip:'Stability Ball',env:'home',kind:'recovery',training:'Recovery'},
 {name:'Stability Ball Hip Flexor Stretch',muscle:'Legs',equip:'Stability Ball',env:'home',kind:'stretch',training:'Stretching'},
+{name:'Balance Board Squat',muscle:'Legs',equip:'Balance Board',env:'home',kind:'legs',training:'Strength'},
+{name:'Balance Board Calf Raise',muscle:'Legs',equip:'Balance Board',env:'home',kind:'legs',training:'Strength'},
+{name:'Balance Board Single-Leg Balance',muscle:'Legs',equip:'Balance Board',env:'home',kind:'core',training:'Strength'},
+{name:'Balance Board Plank',muscle:'Core',equip:'Balance Board',env:'home',kind:'core',training:'Strength'},
+{name:'Balance Board Push-Up',muscle:'Chest',equip:'Balance Board',env:'home',kind:'push',training:'Strength'},
+{name:'Balance Board Standing Balance Hold',muscle:'Recovery',equip:'Balance Board',env:'home',kind:'recovery',training:'Recovery'},
 {name:'Russian Twist',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
 {name:'Kettlebell Swing',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Kettlebell Goblet Squat',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
@@ -5431,9 +5438,9 @@ const V13539_LIBRARY_BALANCE=[
 {name:'Cable Lateral Raise',muscle:'Shoulders',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'Rear Delt Cable Fly',muscle:'Shoulders',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
 {name:'Machine Lateral Raise',muscle:'Shoulders',equip:'Machine',env:'gym',kind:'push',training:'Strength'},
-{name:'Dumbbell Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},,
+{name:'Dumbbell Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Cross-Body Hammer Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Spider Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},,
+{name:'Spider Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Cable Rope Curl',muscle:'Arms',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
 {name:'Machine Curl',muscle:'Arms',equip:'Machine',env:'gym',kind:'pull',training:'Strength'},
 {name:'Diamond Push-Up',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
@@ -5442,7 +5449,6 @@ const V13539_LIBRARY_BALANCE=[
 {name:'Rope Pushdown',muscle:'Triceps',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'Single-Arm Cable Pushdown',muscle:'Triceps',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'Overhead Cable Extension',muscle:'Triceps',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
-{name:'Ab Wheel Rollout',muscle:'Core',equip:'Wheel',env:'home',kind:'core',training:'Strength'},,
 {name:'Bird Dog',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
 {name:'Hollow Body Hold',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
 {name:'Suitcase Carry',muscle:'Core',equip:'Dumbbell',env:'home',kind:'core',training:'Strength'},
@@ -5563,11 +5569,11 @@ EXERCISES.forEach(ex=>{if(V13539_RETAG[ex.name] && ['Cardio','Recovery','Stretch
 
 // v13.54.0 home strength completion — appended after library balance, auth untouched.
 const V13540_HOME_STRENGTH=[
-{name:'Resistance Band Lat Pulldown',muscle:'Back',equip:'Band',env:'home',kind:'pull',training:'Strength'},,
+{name:'Resistance Band Lat Pulldown',muscle:'Back',equip:'Band',env:'home',kind:'pull',training:'Strength'},
 {name:'Doorframe Row',muscle:'Back',equip:'Bodyweight',env:'home',kind:'pull',training:'Strength'},
 {name:'Towel Row',muscle:'Back',equip:'Bodyweight',env:'home',kind:'pull',training:'Strength'},
 {name:'Floor Superman Hold',muscle:'Back',equip:'Bodyweight',env:'home',kind:'pull',training:'Strength'},
-{name:'Band Straight-Arm Pulldown',muscle:'Back',equip:'Band',env:'home',kind:'pull',training:'Strength'},,
+{name:'Band Straight-Arm Pulldown',muscle:'Back',equip:'Band',env:'home',kind:'pull',training:'Strength'},
 {name:'Decline Push-Up',muscle:'Chest',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Tempo Push-Up',muscle:'Chest',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Paused Push-Up',muscle:'Chest',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
@@ -5579,13 +5585,13 @@ const V13540_HOME_STRENGTH=[
 {name:'Band Lateral Raise',muscle:'Shoulders',equip:'Band',env:'home',kind:'push',training:'Strength'},
 {name:'Dumbbell Y Raise',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Band Curl',muscle:'Arms',equip:'Band',env:'home',kind:'pull',training:'Strength'},
-{name:'Isometric Curl Hold',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},,
+{name:'Isometric Curl Hold',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Seated Dumbbell Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Bench Dip (Feet Elevated)',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Band Tricep Extension',muscle:'Triceps',equip:'Band',env:'home',kind:'push',training:'Strength'},
 {name:'Close-Grip Floor Press',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Dumbbell Tate Press',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Bodyweight Tricep Extension',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},,,,,
+{name:'Bodyweight Tricep Extension',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Marching Glute Bridge',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
 {name:'Reverse Crunch',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
 {name:'Wall Sit',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
@@ -5606,7 +5612,7 @@ const V1362_LIBRARY_ADDITIONS=[
 {name:'Gorilla Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Single-Arm Dumbbell Row',muscle:'Back',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
 {name:'Dumbbell Bent-Over Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Lawnmower Row',muscle:'Back',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},,
+{name:'Lawnmower Row',muscle:'Back',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
 {name:'Plank Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Heavy Pants',muscle:'Back',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
 {name:'Renegade Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
@@ -6728,6 +6734,19 @@ window.vertexRehydrateAfterSettingsPull=function(){
   try{ if(typeof renderEquipmentModalBody==='function') renderEquipmentModalBody(); }catch(e){}
   try{ if(typeof renderSidebar==='function') renderSidebar(); }catch(e){}
   try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
+  // 6A36: if the Settings modal is open during a live pull, re-render it so the
+  // values update in place without the user having to close and reopen it.
+  try{ var sm=document.getElementById('settingsModal'); if(sm && sm.classList.contains('on') && typeof openSettingsModal==='function') openSettingsModal(); }catch(e){}
+};
+// 6A36: apply onboarding (welcome) selections with proper in-closure scope.
+window.vertexApplyOnboarding=function(sel){
+  try{
+    sel=sel||{};
+    if(sel.env) state.env=sel.env;
+    if(sel.training) state.training=sel.training;
+    if(sel.goal){ var g=getGoals(); g.goalType=sel.goal; saveGoals(g); }
+    if(typeof renderAll==='function') renderAll();
+  }catch(e){ console.warn('applyOnboarding:', e); }
 };
 function loadCustomExercises(){try{return JSON.parse(localStorage.getItem('vertex_custom_exercises_v1')||'[]').filter(x=>x&&x.name&&x.training)}catch{return []}}
 function saveCustomExercises(rows){try{localStorage.setItem('vertex_custom_exercises_v1',JSON.stringify(rows||[]))}catch{}}
@@ -6743,7 +6762,7 @@ function isEquipmentAllowed(e){
   if(key==='dumbbell' && state.equipment['dumbbells']) return true;
   if(key==='dumbbells' && state.equipment['dumbbell']) return true;
   if(key==='pull_up_bar' && (state.equipment['pullup_bar']||state.equipment['pull_up'])) return true;
-  if(key==='stability_platform' && (state.equipment['step_platform']||state.equipment['stability_ball'])) return true;
+  if(key==='balance_board' && (state.equipment['stability_platform']||state.equipment['step_platform'])) return true;
   if(key==='peloton_exercise_bike' && (state.equipment['bike']||state.equipment['exercise_bike'])) return true;
   return false;
 }
@@ -13625,12 +13644,44 @@ window.vertexLoadAiWorkout = function(exerciseNames, workoutName){
   }
 
   function applySelections(){
-    // v20260526-p: onboarding is orientation only.
-    // Do not preselect workout builder filters from the welcome flow.
+    // 6A36: onboarding now carries the user's choices into the app.
     try {
-      if(typeof renderAll === 'function') renderAll();
-    } catch(e){ console.warn('Onboarding close render skipped:', e); }
+      if(typeof window.vertexApplyOnboarding === 'function'){
+        window.vertexApplyOnboarding({ goal:selGoal, env:selEnv, training:selTraining });
+      } else if(typeof renderAll === 'function'){
+        renderAll();
+      }
+    } catch(e){ console.warn('Onboarding apply skipped:', e); }
   }
+
+  // 6A36: selection state for cards 2 (goal) and 3 (setup).
+  var selGoal = null;
+  var selEnv = 'gym';
+  var selTraining = 'Strength';
+  function singleSelect(group, btn, cls){
+    group.forEach(function(b){ b.classList.remove(cls); });
+    btn.classList.add(cls);
+  }
+  overlay.addEventListener('click', function(ev){
+    var gBtn = ev.target.closest('.welcome-goal-btn');
+    if(gBtn){
+      selGoal = gBtn.getAttribute('data-goal');
+      singleSelect(Array.from(overlay.querySelectorAll('.welcome-goal-btn')), gBtn, 'selected');
+      return;
+    }
+    var envBtn = ev.target.closest('[data-wenv]');
+    if(envBtn){
+      selEnv = envBtn.getAttribute('data-wenv');
+      singleSelect(Array.from(overlay.querySelectorAll('[data-wenv]')), envBtn, 'active');
+      return;
+    }
+    var trBtn = ev.target.closest('[data-wtraining]');
+    if(trBtn){
+      selTraining = trBtn.getAttribute('data-wtraining');
+      singleSelect(Array.from(overlay.querySelectorAll('[data-wtraining]')), trBtn, 'active');
+      return;
+    }
+  });
 
   function open(){
     setStep(1);
@@ -22365,5 +22416,40 @@ body.app-page-home #home-dashboard{display:block!important;}
   window.addEventListener('vertex:authenticated', function(){ setTimeout(pull, 400); setTimeout(subscribeRealtime, 700); });
   // Re-pull on tab focus so another device's change appears after a refresh/return.
   document.addEventListener('visibilitychange', function(){ if(!document.hidden && uid()) setTimeout(pull, 300); });
+})();
+</script>
+
+<script>
+/* 6A36 — On mobile, lift the "Ready to Start a Workout?" setup card to the top of
+   the Workout page. On desktop it stays in its original spot. The card hides itself
+   once the user picks options, so on mobile it needs to be seen first. */
+(function(){
+  var hero, origParent, origNext;
+  function cache(){
+    if(!hero) hero=document.getElementById('workoutStartGuide');
+    if(hero && !origParent){ origParent=hero.parentElement; origNext=hero.nextElementSibling; }
+  }
+  function placeHero(){
+    cache();
+    var app=document.getElementById('app');
+    if(!hero || !app) return;
+    var isMobile=window.matchMedia('(max-width:760px)').matches;
+    var onWorkout=document.body.classList.contains('app-page-workout');
+    if(isMobile && onWorkout){
+      if(app.firstElementChild!==hero){ app.insertBefore(hero, app.firstElementChild); }
+    } else if(origParent && hero.parentElement!==origParent){
+      if(origNext && origNext.parentElement===origParent){ origParent.insertBefore(hero, origNext); }
+      else origParent.appendChild(hero);
+    }
+  }
+  function schedule(){ setTimeout(placeHero,60); setTimeout(placeHero,400); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', schedule); else schedule();
+  window.addEventListener('load', schedule);
+  window.addEventListener('resize', function(){ setTimeout(placeHero,150); });
+  try{
+    var mo=new MutationObserver(function(){ placeHero(); });
+    function obs(){ if(document.body) mo.observe(document.body,{attributes:true,attributeFilter:['class']}); }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', obs); else obs();
+  }catch(e){}
 })();
 </script>

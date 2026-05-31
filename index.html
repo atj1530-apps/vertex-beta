@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260530-6a30: oauth hash setSession repair + home progress css lock -->
+<!-- v20260530-6a31: stable auth rollback + home progress css lock -->
 <!-- v20260529-6a2b-fix: recovery intelligence engine v2; service worker/cache locked -->
 <!-- Phase 2C.1: spark SVG cleanup; no auth/boot/SW architecture changes -->
 <!-- Phase 2E: adaptive coaching polish; approachable coach tone; no architecture changes -->
@@ -4274,14 +4274,6 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   }
 </style>
 
-
-<style id="vertex-6a20-css">
-  .vertex-workout-hero-grid{display:grid;grid-template-columns:1.1fr .9fr 2fr;gap:18px;align-items:center}
-  .vertex-workout-hero-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .vertex-equipment-chip{white-space:nowrap}
-  .ex-group-label[data-equip-section]{scroll-margin-top:88px}
-  @media(max-width:980px){.vertex-workout-hero-grid{grid-template-columns:1fr}.vertex-workout-hero-steps{grid-template-columns:1fr}}
-</style>
 </head>
 <body class="auth-resolving">
 
@@ -4396,7 +4388,6 @@ window.vertexFinishBootstrap=function(){
     <div class="label">Workout Templates</div><div class="pill-fade-wrap"><div id="tpl-grid" class="segment pill-scroll"><button class="seg-btn" data-load-tpl="push">💪 Push Day</button><button class="seg-btn" data-load-tpl="pull">🔄 Pull Day</button><button class="seg-btn" data-load-tpl="legs">🦵 Legs Day</button><button class="seg-btn" data-load-tpl="kenpo">🥋 Kenpo X</button><button class="seg-btn" data-load-tpl="plyo">⚡ Plyometrics X</button><button class="seg-btn" data-load-tpl="yogaX">🧘 Yoga X</button><button class="seg-btn" data-load-tpl="stretch">🌀 Full Body Stretch</button><button class="seg-btn" data-load-tpl="coreMobility">🎯 Core + Mobility</button></div></div>
     <div class="label">Training Focus <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Choose Your Style</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery / Mobility">♧ Recovery / Mobility</button></div></div>
     <div class="label">Muscle Group <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Optional</span></div><div class="pill-fade-wrap"><div id="muscles" class="muscles"></div></div>
-    <div class="label">Equipment <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Quick Jump</span></div><div class="pill-fade-wrap"><div id="equipmentSubFilter" class="muscles"></div></div>
     <input id="search" class="search" placeholder="Search exercises..." />
     <button id="btn-add-library" class="btn acc" style="width:100%;margin:0 0 8px">+ Add Exercise to Library</button>
     <button id="btn-manual-entry" class="btn acc" style="width:100%;margin:0 0 10px">+ Lightweight Manual Entry</button>
@@ -4781,15 +4772,14 @@ window.vertexFinishBootstrap=function(){
     <section id="plannerAcc" class="panel planner-panel open"><div class="acc-body" style="display:block"><div class="label">Weekly Planner v2 · Start Today Flow</div><p style="color:var(--muted);margin:8px 0 14px">Build custom workouts from the library for each day, then start <b style="color:var(--acc)">today’s workout.</b></p><div style="overflow-x:auto;margin:0 -8px;padding:0 8px 0 8px;box-sizing:border-box"><div id="planner" class="planner-grid"></div></div></div></section>
 
 
-    <section id="workoutStartGuide" class="panel hl today-card vertex-workout-hero" style="padding:18px 22px;margin-bottom:16px;display:none">
-      <div class="vertex-workout-hero-grid">
-        <div><div class="label" style="color:var(--acc);margin-bottom:8px">WORKOUT SETUP</div><h2 style="margin:0;font-size:24px;line-height:1.15">Ready to Start a Workout?</h2></div>
-        <div><p style="color:#b8c0cc;margin:0;font-size:14px;line-height:1.5">Use the left panel to choose how you want to train today.</p></div>
-        <div class="vertex-workout-hero-steps">
-          <div class="panel" style="margin:0"><b>🏠 Step 1</b><br><span style="color:var(--muted)">Choose Gym or Home.</span></div>
-          <div class="panel" style="margin:0"><b>📋 Step 2</b><br><span style="color:var(--muted)">Select a program, template, or focus.</span></div>
-          <div class="panel" style="margin:0"><b>🏋️ Step 3</b><br><span style="color:var(--muted)">Build the workout and start training.</span></div>
-        </div>
+    <section id="workoutStartGuide" class="panel hl today-card" style="display:block;padding:24px 26px;margin-bottom:16px;display:none">
+      <div class="label" style="color:var(--acc);margin-bottom:10px">Workout Setup</div>
+      <h2 style="margin:0 0 10px;font-size:30px;letter-spacing:.3px">Ready to Start a Workout?</h2>
+      <p style="color:var(--muted);margin:0 0 18px;font-size:15px;line-height:1.45">Use the left panel to choose how you want to train today.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+        <div class="panel" style="margin:0"><b>Step 1</b><br><span style="color:var(--muted)">Choose Gym or Home.</span></div>
+        <div class="panel" style="margin:0"><b>Step 2</b><br><span style="color:var(--muted)">Pick a program, template, or training focus.</span></div>
+        <div class="panel" style="margin:0"><b>Step 3</b><br><span style="color:var(--muted)">Build the workout and start training.</span></div>
       </div>
     </section>
 
@@ -7463,30 +7453,12 @@ async function initAuth(){
       console.error('OAuth return error:', msg);
       const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=msg;
     }
-    let sessionApplied=false;
     if(hasHashToken){
-      // Hash-token OAuth return: apply the tokens directly before any secondary Supabase client can consume/clear them.
-      console.log('[Vertex OAuth] Hash token detected — applying session directly');
-      try{
-        const access_token=hashParams.get('access_token');
-        const refresh_token=hashParams.get('refresh_token');
-        if(access_token && refresh_token){
-          const setResult=await supa.auth.setSession({access_token,refresh_token});
-          if(setResult && setResult.data && setResult.data.session){
-            await applyAuthenticatedSession(setResult.data.session);
-            sessionApplied=true;
-            try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
-            try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
-            window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
-          }
-          if(setResult && setResult.error){
-            console.warn('[Vertex OAuth] setSession warning:', setResult.error.message || setResult.error);
-          }
-        }
-      }catch(hashErr){
-        console.warn('[Vertex OAuth] direct hash setSession failed:', hashErr);
-      }
+      // Implicit flow token in hash — let detectSessionInUrl + getSession handle it first
+      // Clean URL after getSession completes, not before
+      console.log('[Vertex OAuth] Hash token detected — letting Supabase handle via detectSessionInUrl');
     }
+    let sessionApplied=false;
     if(hasOAuthCode){
       try{
         const {data,error}=await supa.auth.exchangeCodeForSession(window.location.href);
@@ -7514,21 +7486,10 @@ async function initAuth(){
     if(sd && sd.data && sd.data.session && sd.data.session.user){
       await applyAuthenticatedSession(sd.data.session);
     } else {
-      // One final authenticated-user check prevents a valid OAuth return from falling back to login
-      // when getSession is slow or the hash has already been processed by Supabase.
-      let recoveredUser=null;
-      try{
-        const userResult=await withTimeout(supa.auth.getUser(), 3500);
-        recoveredUser=userResult && userResult.data && userResult.data.user ? userResult.data.user : null;
-      }catch(e){}
-      if(recoveredUser){
-        await applyAuthenticatedSession({user:recoveredUser});
-      } else {
-        try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
-        try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
-        authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
-        vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
-      }
+      try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
+      try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
+      authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
+      vertexShowUnauthenticatedShell(); renderAccountMenu(); refreshSyncStatus(); clearLoginInputs(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
     }
   }catch(err){
     console.warn('Auth init warning:',err);
@@ -9010,33 +8971,46 @@ function wcRenderDashboard(){
   // Goal weight input
   const gwEl=document.getElementById('wc-goal-weight');if(gwEl&&!gwEl.value)gwEl.value=TARGET;
 
-  // Weight chart — 6A24: chronological actuals only; projection starts from latest actual.
+  // Weight chart — merge Apple Health daily weight with check-in weight
   wcDestroyChart('wc-dc-weight');
   const healthRows2 = typeof loadHealthEntries === 'function' ? loadHealthEntries() : [];
-  const weightMap = {};
-  sorted.forEach(e => { if(e.date && e.weight != null) weightMap[e.date] = {weight:Number(e.weight), priority:1}; });
-  healthRows2.forEach(r => { if(r.date && r.bodyWeight != null) weightMap[r.date] = {weight:Number(r.bodyWeight), priority:2}; });
-  const actualRows = Object.entries(weightMap)
-    .map(([date,obj]) => ({date, weight:Number(obj.weight)}))
-    .filter(r => r.date && Number.isFinite(r.weight) && r.weight > 0)
-    .sort((a,b)=>a.date.localeCompare(b.date))
-    .slice(-18);
-  const wLabels = actualRows.map(r => { const [,m,dy] = r.date.split('-'); return `${m}/${dy}`; });
-  const wData = actualRows.map(r => r.weight);
+  const ahWeightMap = {};
+  healthRows2.forEach(r => { if(r.date && r.bodyWeight != null) ahWeightMap[r.date] = Number(r.bodyWeight); });
+  const allWeightDates = [...new Set([...sorted.map(e=>e.date), ...Object.keys(ahWeightMap)])].sort();
+  const wLabels = allWeightDates.map(d => { const [,m,dy] = d.split('-'); return `${m}/${dy}`; });
+  const wData = allWeightDates.map(d => ahWeightMap[d] ?? (sorted.find(e=>e.date===d)?.weight ?? null));
+
+  // Rolling rate: use Apple Health daily weights over last 28 days for a realistic trend
+  // Anchors projection from today's AH weight forward
+  const todayIsoStr = typeof todayIso==='function' ? todayIso() : new Date().toISOString().split('T')[0];
+  const ahWeightEntries = Object.entries(ahWeightMap).sort((a,b)=>a[0].localeCompare(b[0]));
+  const last28AH = ahWeightEntries.filter(([d])=>(Date.now()-new Date(d+'T12:00:00').getTime())<28*86400000);
   let rolling = null;
+  let projAnchorWeight = ahWeightMap[todayIsoStr] ?? latest.weight;
+  let projAnchorDate = todayIsoStr;
   let _rawRate = null;
-  const projLabels=[...wLabels];
-  const projData=wData.map(()=>null);
-  let projAnchorWeight = actualRows.length ? actualRows[actualRows.length-1].weight : latest.weight;
-  let projAnchorDate = actualRows.length ? actualRows[actualRows.length-1].date : latest.date;
-  if(actualRows.length >= 2){
-    const recent = actualRows.slice(-8);
-    const first = recent[0], last = recent[recent.length-1];
-    const spanDays = Math.max(1, Math.round((new Date(last.date+'T12:00:00')-new Date(first.date+'T12:00:00'))/86400000));
-    const rate = (first.weight - last.weight) / (spanDays / 7);
-    if(rate > 0.05){ _rawRate = Math.round(rate*100)/100; rolling = Math.min(_rawRate, 2.0); }
+  if(last28AH.length >= 4){
+    const firstAH = last28AH[0]; const lastAH = last28AH[last28AH.length-1];
+    const ahSpanDays = Math.round((new Date(lastAH[0]+'T12:00:00')-new Date(firstAH[0]+'T12:00:00'))/86400000);
+    if(ahSpanDays >= 7) {
+      const ahRate = (Number(firstAH[1]) - Number(lastAH[1])) / (ahSpanDays / 7);
+      if(ahRate > 0.05) _rawRate = Math.round(ahRate * 100) / 100;
+    }
   }
-  const _rateExceedsSafe = _rawRate && _rawRate > 2.0;
+  // Fallback to check-in trend if not enough AH data
+  if(!_rawRate && sorted.length >= 2){
+    const _spanDays = Math.round((new Date(sorted[sorted.length-1].date)-new Date(sorted[0].date))/86400000);
+    if(_spanDays >= 14){
+      const ciRate = (sorted[0].weight - sorted[sorted.length-1].weight) / (_spanDays / 7);
+      if(ciRate > 0.05) _rawRate = Math.round(ciRate * 100) / 100;
+    }
+  }
+  // Cap at 2 lb/wk (Mayo Clinic / Johns Hopkins safe guideline) — chart uses capped rate
+  const SAFE_MAX_RATE = 2.0;
+  const _rateExceedsSafe = _rawRate && _rawRate > SAFE_MAX_RATE;
+  rolling = _rawRate ? Math.min(_rawRate, SAFE_MAX_RATE) : null;
+
+  const projLabels=[...wLabels]; const projData=wData.map(()=>null);
   if(rolling&&rolling>0){
     for(let i=1;i<=8;i++){
       const d=new Date(projAnchorDate+'T12:00:00');
@@ -9049,8 +9023,8 @@ function wcRenderDashboard(){
   }
   const wcEl=document.getElementById('wc-dc-weight');
   const _hasProjection=rolling&&rolling>0;
-  const _wcDatasets=[{label:'Actual',data:wData,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.06)',borderWidth:2.5,pointRadius:3,fill:false,tension:0,spanGaps:false}];
-  if(_hasProjection) _wcDatasets.push({label:'Projected',data:projData,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:0,spanGaps:true});
+  const _wcDatasets=[{label:'Actual',data:wData,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:0.35,spanGaps:false}];
+  if(_hasProjection) _wcDatasets.push({label:'Projected',data:projData,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:0.35,spanGaps:true});
   if(wcEl)_wcCharts['wc-dc-weight']=new Chart(wcEl.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:_wcDatasets},options:{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:_hasProjection,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}}}});
 
   // Progress
@@ -10793,7 +10767,7 @@ function setPage(page){
   // Sidebar (library) — Workout tab only
   // Right panel (saved workouts/stats) — Workout tab only (on Home, Saved Workouts is moved into main)
   document.querySelectorAll('.sidebar').forEach(el=>{el.style.display=onWorkout?'':'none';});
-  document.querySelectorAll('.right').forEach(el=>{el.style.display=(onWorkout && hasWorkout())?'':'none';});
+  document.querySelectorAll('.right').forEach(el=>{el.style.display=onWorkout?'':'none';});
   // On Home, hide the builder-tied sections of the right panel (Coach Reco / Volume Stats / Muscle Volume).
   document.querySelectorAll('.right .home-hide').forEach(el=>{el.style.display=onHome?'none':'';});
   // v13.63 — Saved Workouts lives in the right column on Workout tab only.
@@ -10805,10 +10779,6 @@ function setPage(page){
   // Other tabbed pages (Progress / Health / AI)
   const pageMap={progress:'progressPage',wellness:'wellnessPage',health:'wellnessPage',ai:'aiPage'};
   ['progressPage','wellnessPage','aiPage'].forEach(id=>{const el=document.getElementById(id); if(!el) return; const show=pageMap[state.page]===id; el.style.display=show?'block':'none'; if(show){el.classList.remove('page-entering'); void el.offsetWidth; el.classList.add('page-entering');}});
-  // 6A24 route lock: Home must never show Progress/Wellness/AI content.
-  if(state.page==='home'){
-    ['progressPage','wellnessPage','aiPage'].forEach(id=>{const el=document.getElementById(id); if(el) el.style.display='none';});
-  }
   if(state.page==='progress'){ renderProgressPage(); }
 
   const todayEl=document.getElementById('today'); if(todayEl) todayEl.style.display='none';
@@ -10830,8 +10800,7 @@ function setPage(page){
   // Workout tab: show builder, intel, coach, name/meta, builder
   ['savedAcc','statsAcc','coachAcc'].forEach(id=>{const el=document.getElementById(id); if(el) el.style.display=onWorkout?'':'none';});
   // intelAcc now lives in Home dashboard — rendered by renderHomeDashboard, not shown here
-  document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=(onWorkout && hasWorkout())?'':'none';});
-  const _wguide=document.getElementById('workoutStartGuide'); if(_wguide) _wguide.style.display=(onWorkout && !hasWorkout())?'block':'none';
+  document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=onWorkout?'':'none';});
 
   // homePage is legacy scaffold — always hidden, home-dashboard is the real content
   const homePh=document.getElementById('homePage'); if(homePh) homePh.style.display='none';
@@ -11165,21 +11134,11 @@ ${dueToday.length ? `
   }
 }
 
-function vertexWorkoutHasContent(){
-  try{return !!hasWorkout(state.current);}catch(e){return false;}
-}
-function vertexApplyWorkoutEmptyState(){
-  const onWorkout=(state.page||defaultPage())==='workout';
-  const hasContent=vertexWorkoutHasContent();
-  const guide=document.getElementById('workoutStartGuide');
-  if(guide) guide.style.display=(onWorkout && !hasContent)?'block':'none';
-  document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=(onWorkout && hasContent)?'':'none';});
-  document.querySelectorAll('.right').forEach(el=>{el.style.display=(onWorkout && hasContent)?'':'none';});
-}
 function renderAll(){
   const pg=state.page||defaultPage();
+  const guide=document.getElementById('workoutStartGuide');
+  if(guide) guide.style.display=(pg==='workout'?'':'none');
   renderControls(); setPage(pg);
-  vertexApplyWorkoutEmptyState();
   const logBtn=document.getElementById('btn-log');
   if(logBtn) logBtn.classList.toggle('armed',!!hasWorkout());
   refreshSaveButton(); updateWorkoutBottomBar();
@@ -11306,9 +11265,7 @@ function renderSidebar(){
   if(!groups.includes(state.muscle)) state.muscle='';
   document.getElementById('muscles').innerHTML=groups.filter(m=>m!=='All').map(m=>{const on=state.muscle===m; return `<button class="chip ${on?'on active':''}" data-muscle="${m}" aria-selected="${on?'true':'false'}">${m}</button>`;}).join('');
   const envPicked=!!document.querySelector('[data-env]')?.closest('.segment')?.classList.contains('user-picked');
-  const equipSub=document.getElementById('equipmentSubFilter');
   if(!envPicked || !state.env){
-    if(equipSub) equipSub.innerHTML='';
     document.getElementById('ex-count').textContent='0';
     document.getElementById('exercise-list').innerHTML='<div style="color:var(--dim);padding:12px;border:1px dashed var(--line2);border-radius:12px">Choose Gym or Home to view exercises.</div>';
     return;
@@ -11325,11 +11282,6 @@ function renderSidebar(){
   const seen=new Set();
   list=list.filter(e=>{const key=e.name.toLowerCase(); if(seen.has(key)) return false; seen.add(key); return true;}).sort((a,b)=>a.name.localeCompare(b.name));
   document.getElementById('ex-count').textContent=list.length;
-  const EQUIP_ORDER=['Bodyweight','Dumbbells','Barbell','Cable','Machine','Kettlebell','Band','Bench','Pull-Up Bar','Mat','Cardio','Other'];
-  const equipGroups={};
-  list.forEach(e=>{const raw=String(e.equipment_type||e.equipment||e.equip||'Other').trim()||'Other'; const k=/dumbbell/i.test(raw)?'Dumbbells':/barbell/i.test(raw)?'Barbell':/cable/i.test(raw)?'Cable':/machine/i.test(raw)?'Machine':/kettlebell/i.test(raw)?'Kettlebell':/bodyweight|none/i.test(raw)?'Bodyweight':/band/i.test(raw)?'Band':/bench/i.test(raw)?'Bench':/pull/i.test(raw)?'Pull-Up Bar':/mat|yoga/i.test(raw)?'Mat':/bike|treadmill|rower|cardio/i.test(raw)?'Cardio':raw; (equipGroups[k]||(equipGroups[k]=[])).push(e);});
-  const equipNames=EQUIP_ORDER.filter(k=>equipGroups[k]?.length).concat(Object.keys(equipGroups).filter(k=>!EQUIP_ORDER.includes(k)).sort());
-  if(equipSub) equipSub.innerHTML=equipNames.map(k=>`<button class="chip vertex-equipment-chip" data-equip-jump="${escapeAttr(k)}">${escapeHtml(k)} <span style="color:var(--dim);font-size:10px">${equipGroups[k].length}</span></button>`).join('');
   const MUSCLE_COLORS={
     'Chest':'#ff6b6b','Pecs':'#ff6b6b','Back':'#4bbdff','Lats':'#4bbdff',
     'Shoulders':'#ffb047','Legs':'#48ff8a','Quads':'#48ff8a','Hamstrings':'#48ff8a',
@@ -11404,31 +11356,29 @@ function renderSidebar(){
   let html = '' + recentHtml;
   if(!list.length){
     html += '<div style="color:var(--dim);padding:10px">No matching exercises. Try search or another training focus.</div>';
-  } else if(q){
-    // Searching stays flat so results are immediate.
+  } else if(state.muscle !== 'All' || q){
+    // Filtered or searching — flat list, no headers
     html += list.map(e=>exCard(e,true)).join('');
   } else {
-    // Muscle-filtered and all-exercise views group by equipment for quick scanning/jump.
-    equipNames.forEach(eq => {
-      const items = equipGroups[eq];
+    // All muscles — group by muscle with headers
+    const muscleOrder = groups.filter(m => m !== 'All');
+    const grouped = {};
+    muscleOrder.forEach(m => { grouped[m] = []; });
+    list.forEach(e => {
+      const m = e.muscle || 'Other';
+      if(grouped[m]) grouped[m].push(e);
+      else { grouped[m] = grouped[m]||[]; grouped[m].push(e); }
+    });
+    muscleOrder.forEach(m => {
+      const items = grouped[m];
       if(!items || !items.length) return;
-      html += `<div class="ex-group-label" data-equip-section="${escapeAttr(eq)}" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--acc);display:inline-block;flex-shrink:0"></span>${escapeHtml(eq)} <span style="color:var(--dim);font-size:10px">${items.length}</span></div>`;
-      html += items.sort((a,b)=>a.name.localeCompare(b.name)).map(e=>exCard(e,false)).join('');
+      const dot = muscleColor(m);
+      html += `<div class="ex-group-label" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${dot};display:inline-block;flex-shrink:0"></span>${escapeHtml(m)} <span style="color:var(--dim);font-size:10px">${items.length}</span></div>`;
+    html += items.map(e=>exCard(e,false)).join('');
     });
   }
   document.getElementById('exercise-list').innerHTML=html;
 }
-  if(!window.vertexEquipmentJumpBound){
-    window.vertexEquipmentJumpBound=true;
-    document.addEventListener('click',function(ev){
-      const chip=ev.target.closest&&ev.target.closest('[data-equip-jump]');
-      if(!chip) return;
-      const key=chip.getAttribute('data-equip-jump');
-      const sec=document.querySelector('[data-equip-section="'+CSS.escape(key)+'"]');
-      if(sec) sec.scrollIntoView({behavior:'smooth',block:'start'});
-    });
-  }
-
 function renderToday(){const saved=state.planner[todayKey]; const draft=(state.current.assignedDay===todayKey && hasWorkout(state.current))?state.current:null; const w=saved||draft; if(w){const isDraft=!saved&&draft; document.getElementById('today').innerHTML=`<div><div class="today-title">${isDraft?'Unsaved ':'Today&#39;s '}Workout: ${escapeHtml(w.name)}</div><div class="today-sub">${DAY_LABEL[todayKey]} · ${summary(w)}${isDraft?' · Save to planner when ready':''}</div></div><div>${isDraft?`<button class="btn acc" data-save-day="${todayKey}">Save Today</button>`:`<button class="btn acc" data-start-day="${todayKey}">Start Today</button>`} <button class="btn" data-edit-day="${todayKey}">Load / Edit</button></div>`; return;} document.getElementById('today').innerHTML=`<div><div class="today-title">No workout planned for ${DAY_LABEL[todayKey]}</div><div class="today-sub">Click Edit on today, build from the library or load a template, then Save.</div></div><button class="btn acc" data-edit-day="${todayKey}">Build Today</button>`;}
 function renderPlanner(){document.getElementById('planner').innerHTML=DAYS.map(d=>{const w=state.planner[d]; return `<div class="day-card ${d===todayKey?'today':''}"><div class="day-name">${DAY_LABEL[d]} <span class="day-count">${w?stats(w).moves:0} EX</span></div>${w?`<div class="day-workout">${escapeHtml(w.name)}</div><div class="day-preview">${preview(w)}</div>`:`<div class="day-preview">Empty. Click Edit, build from the library, then Save Day.</div>`}<div class="day-actions"><button class="btn acc small" data-save-day="${d}">Save</button><button class="btn small" data-edit-day="${d}">Edit</button><button class="btn small" ${w?'':'disabled'} data-start-day="${d}">Start</button><button class="btn small" ${w?'':'disabled'} data-copy-day="${d}">Copy</button><button class="btn red small" data-clear-day="${d}">Clear</button></div></div>`}).join('')}
 function templatePreview(t){if(t.type==='strength') return t.exercises.join(', '); if(t.type==='mobility_strength_hybrid') return `${t.displayType||'Recovery / Mobility Day'} · ${t.duration} min · ${(t.phases||[]).length} phases · volume excluded`; return `${t.duration} min · ${t.moves.slice(0,5).join(', ')}${t.moves.length>5?'…':''}`}
@@ -12579,21 +12529,16 @@ function renderHomeSparklines(){
   const last7=healthRows.filter(r=>r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000).slice(0,7).reverse();
   const allW=[];
   Object.keys(localStorage).filter(k=>k.startsWith('vertex_health_entries')).forEach(k=>{try{JSON.parse(localStorage.getItem(k)||'[]').forEach(r=>{if(r&&r.bodyWeight&&r.date)allW.push(r);});}catch(e){}});
-  const wByDate={}; allW.forEach(r=>{if(r.date&&r.bodyWeight)wByDate[r.date]=Number(r.bodyWeight);});
+  const wByDate={};allW.forEach(r=>{if(r.date&&r.bodyWeight)wByDate[r.date]=r.bodyWeight;});
   const wRows=Object.entries(wByDate).sort((a,b)=>a[0].localeCompare(b[0])).slice(-7);
-  const safeNum=(v)=>{const n=Number(v);return Number.isFinite(n)?n:null;};
+  const safeNum=(v,fallback)=>{const n=Number(v);return Number.isFinite(n)?n:fallback;};
   const sparkSVG=(vals,color)=>{
-    const clean=vals.map(safeNum).filter(v=>v!=null);
-    if(clean.length<2) return '<svg width="86" height="34" viewBox="0 0 86 34" aria-hidden="true"><line x1="8" y1="17" x2="78" y2="17" stroke="rgba(255,255,255,.22)" stroke-width="2" stroke-linecap="round"/></svg>';
-    const mn=Math.min(...clean), mx=Math.max(...clean), rng=(mx-mn)||1;
-    const pts=clean.map((v,i)=>{
-      const x=6+(i*(74/Math.max(1,clean.length-1)));
-      const y=28-((v-mn)/rng)*22;
-      return [x,y];
-    });
-    const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
-    const circles=pts.map(p=>'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2" fill="'+color+'"/>').join('');
-    return '<svg width="86" height="34" viewBox="0 0 86 34" aria-hidden="true"><path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'+circles+'</svg>';
+    const clean=vals.map(v=>safeNum(v,NaN)).filter(v=>Number.isFinite(v));
+    if(clean.length<2) return '<div style="width:80px;height:28px;display:flex;align-items:center;color:var(--muted);font-size:10px">—</div>';
+    const mn=Math.min.apply(null,clean), mx=Math.max.apply(null,clean), rng=(mx-mn)||1;
+    return '<div style="width:80px;height:28px;display:flex;align-items:flex-end;gap:3px;overflow:hidden">'
+      + clean.map(v=>'<span style="display:block;flex:1;min-width:3px;height:'+Math.max(3, Math.round(((v-mn)/rng)*24+3))+'px;border-radius:999px;background:'+color+';opacity:.85"></span>').join('')
+      + '</div>';
   };
   const cards=[
     {label:'Weight',unit:'lb',color:'var(--acc)',vals:wRows.map(r=>r[1]),latest:wRows.length?Number(wRows[wRows.length-1][1]).toFixed(1):null},
@@ -12601,7 +12546,7 @@ function renderHomeSparklines(){
     {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(r=>r.hrv),latest:last7.length&&last7[last7.length-1]?.hrv!=null?Math.round(last7[last7.length-1].hrv):null},
     {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(r=>r.readiness||r.readinessScore),latest:last7.length&&(last7[last7.length-1]?.readiness||last7[last7.length-1]?.readinessScore)!=null?(last7[last7.length-1].readiness||last7[last7.length-1].readinessScore):null}
   ];
-  el.innerHTML=cards.map(c=>'<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">'+c.label+'</div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div><span class="vertex-sparkline-val" style="color:'+c.color+'">'+(c.latest??'—')+'</span>'+(c.unit?'<span style="font-size:9px;color:var(--muted);margin-left:1px">'+c.unit+'</span>':'')+'</div>'+sparkSVG(c.vals,c.color)+'</div></div>').join('');
+  el.innerHTML=cards.map(c=>'<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">'+c.label+'</div><div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px"><div><span class="vertex-sparkline-val" style="color:'+c.color+'">'+(c.latest??'—')+'</span>'+(c.unit?'<span style="font-size:9px;color:var(--muted);margin-left:1px">'+c.unit+'</span>':'')+'</div>'+sparkSVG(c.vals,c.color)+'</div></div>').join('');
 }
 window.renderHomeSparklines=renderHomeSparklines;
 
@@ -13098,13 +13043,6 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{if(e.target.id==='search'){state.search=e.target.value; renderSidebar(); return} const r=e.target.getAttribute('data-reps'); if(r){const [i,j]=r.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].reps=Number(e.target.value)||0; renderRight(); renderBuilderMetaOnly(); return} const w=e.target.getAttribute('data-weight'); if(w){const [i,j]=w.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].weight=e.target.value; return}});
  document.addEventListener('click',e=>{
-  const equipJump=e.target&&e.target.closest?e.target.closest('[data-equip-jump]'):null;
-  if(equipJump){
-    const eq=equipJump.getAttribute('data-equip-jump');
-    const target=document.querySelector(`.ex-group-label[data-equip-section="${CSS.escape(eq)}"]`);
-    if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
-    return;
-  }
   const muscleBtn=e.target&&e.target.closest?e.target.closest('[data-muscle]'):null;
   if(muscleBtn){
     const m=muscleBtn.getAttribute('data-muscle');
@@ -13974,7 +13912,7 @@ window.testAppleHealth = async function () {
           window.__vertexHealthSupa = window.supabase.createClient(
             'https://dwsrwsnzuiwnagjepgtj.supabase.co',
             'sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E',
-            { auth: { persistSession: true, detectSessionInUrl: false, storage: window.localStorage } }
+            { auth: { persistSession: true, detectSessionInUrl: true, storage: window.localStorage } }
           );
           return window.__vertexHealthSupa;
         }
@@ -16234,14 +16172,14 @@ window.vertexImportHKWorkout = async function(idx) {
 /* v13.61.15 — Home readiness alignment lock */
 @media (min-width: 901px){
   body.app-page-home #homePage .progress-head,
-  body.app-page-home #home-dashboard .progress-head{
+  body.app-page-home .progress-head{
     display:grid !important;
     grid-template-columns:1fr minmax(360px, 440px) 1fr !important;
     align-items:center !important;
     gap:16px !important;
   }
   body.app-page-home #homePage .progress-head > *:first-child,
-  body.app-page-home #home-dashboard .progress-head > *:first-child{
+  body.app-page-home .progress-head > *:first-child{
     justify-self:start !important;
   }
   body.app-page-home #vertex-home-readiness{
@@ -16250,7 +16188,7 @@ window.vertexImportHKWorkout = async function(idx) {
     max-width:440px !important;
   }
   body.app-page-home #homePage .progress-head .btn,
-  body.app-page-home #home-dashboard .progress-head .btn{
+  body.app-page-home .progress-head .btn{
     justify-self:end !important;
   }
 }
@@ -16371,7 +16309,7 @@ window.vertexImportHKWorkout = async function(idx) {
     try{
       if(window.__vertexMacroSupa)return window.__vertexMacroSupa;
       if(window.supabase){
-        window.__vertexMacroSupa=window.supabase.createClient('https://dwsrwsnzuiwnagjepgtj.supabase.co','sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E',{auth:{persistSession:true,detectSessionInUrl:false,storage:window.localStorage}});
+        window.__vertexMacroSupa=window.supabase.createClient('https://dwsrwsnzuiwnagjepgtj.supabase.co','sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E',{auth:{persistSession:true,detectSessionInUrl:true,storage:window.localStorage}});
         return window.__vertexMacroSupa;
       }
     }catch(e){}
@@ -21152,11 +21090,17 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
 })();
 </script>
 
-<style id="vertex-phase6A24-hard-lock">
-body.app-page-home #progressPage,body.app-page-home #wellnessPage,body.app-page-home #aiPage{display:none!important;}
-body.app-page-workout #progressPage,body.app-page-workout #wellnessPage,body.app-page-workout #aiPage,body.app-page-workout #home-dashboard,body.app-page-workout #homePage{display:none!important;}
-body.app-page-progress #home-dashboard,body.app-page-progress #homePage,body.app-page-progress #wellnessPage,body.app-page-progress #aiPage{display:none!important;}
-body.app-page-wellness #home-dashboard,body.app-page-wellness #homePage,body.app-page-wellness #progressPage,body.app-page-wellness #aiPage{display:none!important;}
+<style id="vertex-phase6a31-home-progress-css-lock">
+/* Phase 6A31: hide Progress-only surfaces while Home is active. CSS only; auth reverted to stable 6A12. */
+body.app-page-home #progressPage,
+body.app-page-home #vertexB2ProgressDeck,
+body.app-page-home .vertex-b2-progress-deck,
+body.app-page-home .vertex-b2-section-label,
+body.app-page-home .vertex-b2-row,
+body.app-page-home .vertex-training-snapshot{
+  display:none!important;
+  visibility:hidden!important;
+}
 body.app-page-home #home-dashboard{display:block!important;}
 </style>
 </body>
@@ -22092,17 +22036,3 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   });
 })();
 </script>
-<style id="vertex-phase6a26-home-progress-css-only-lock">
-/* Phase 6A26: Home-only Progress isolation. CSS only; no render hooks. */
-body.app-page-home #progressPage,
-body.app-page-home #vertexB2ProgressDeck,
-body.app-page-home .vertex-b2-progress-deck,
-body.app-page-home .vertex-b2-section-label,
-body.app-page-home .vertex-b2-row,
-body.app-page-home .vertex-training-snapshot{
-  display:none!important;
-  visibility:hidden!important;
-}
-body.app-page-home #home-dashboard{display:block!important;}
-</style>
-

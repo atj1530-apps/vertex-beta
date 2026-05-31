@@ -32,6 +32,8 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
+<!-- v20260531-6a33: single shared Supabase client (fixes login loop from duplicate GoTrueClient instances) -->
+<!-- v20260530-6a32: oauth direct-entry fallback + home progress css-only lock -->
 <!-- v20260529-6a2b-fix: recovery intelligence engine v2; service worker/cache locked -->
 <!-- Phase 2C.1: spark SVG cleanup; no auth/boot/SW architecture changes -->
 <!-- Phase 2E: adaptive coaching polish; approachable coach tone; no architecture changes -->
@@ -49,7 +51,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vertex">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.coingecko.com; img-src 'self' blob: data: https:; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com; worker-src 'self' blob:;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.coingecko.com; img-src 'self' blob: data: https:; frame-src 'self'; worker-src 'self' blob:;">
 <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -4180,6 +4182,107 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   }
 </style>
 
+
+<style id="vertex-6b1-media-foundation-css">
+  .media-detail-card{max-width:760px;width:min(760px,calc(100vw - 32px));max-height:88vh;overflow-y:auto;box-sizing:border-box}
+  .media-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+  .media-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:6px}
+  .media-title{font-size:30px;line-height:1.05;margin:0;color:var(--text)}
+  .media-meta{color:var(--muted);font-size:12px;margin-top:6px}
+  .media-stage{border:1px solid rgba(232,255,71,.25);background:linear-gradient(135deg,rgba(232,255,71,.08),rgba(255,255,255,.02));border-radius:14px;min-height:220px;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px;margin:14px 0}
+  .media-stage b{display:block;color:var(--text);font-size:18px;margin-bottom:6px}
+  .media-stage span{display:block;color:var(--muted);font-size:13px;line-height:1.45;max-width:460px}
+  .media-field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+  .media-field{border:1px solid var(--line2);background:var(--panel2);border-radius:10px;padding:11px}
+  .media-field .k{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.4px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+  .media-field .v{font-size:13px;color:var(--text);word-break:break-word}
+  .media-cues{display:grid;gap:8px;margin-top:12px}
+  .media-cue{border:1px solid var(--line2);background:rgba(255,255,255,.025);border-radius:10px;padding:10px 12px;color:var(--muted);font-size:13px;line-height:1.45}
+  .ex-item{cursor:pointer}
+  .ex-item:hover{border-color:rgba(232,255,71,.28)}
+  @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
+</style>
+
+<style id="vertex-6a11b-sidebar-fix">
+  #recent-list, .recent-list, .recently-used, [data-section="recently-used"]{
+    position:relative!important;
+    top:auto!important;
+    bottom:auto!important;
+    z-index:1!important;
+    max-height:none!important;
+  }
+  #sidebar, .sidebar, .workout-sidebar, aside{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+</style>
+
+
+<style id="vertex-6a11f-sidebar-hard-fix">
+  .side, .sidebar, aside, #sidebar, .workout-sidebar{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    contain:layout!important;
+  }
+  .side *{
+    position:relative;
+  }
+  .side [style*="position: sticky"],
+  .side [style*="position:sticky"],
+  .side [style*="position: fixed"],
+  .side [style*="position:fixed"],
+  .recently-used,
+  .recent-list,
+  #recent-list,
+  [data-section="recently-used"],
+  [data-recent],
+  .recent-header,
+  .recent-title{
+    position:relative!important;
+    top:auto!important;
+    bottom:auto!important;
+    left:auto!important;
+    right:auto!important;
+    z-index:1!important;
+  }
+  .recently-used,
+  .recent-list,
+  #recent-list{
+    display:block!important;
+    transform:none!important;
+    margin-top:10px!important;
+  }
+</style>
+
+
+<style id="vertex-6a12-recently-used-flow-fix">
+  #exercise-list .vertex-recent-flow,
+  #exercise-list .vertex-recent-flow *,
+  #exercise-list .ex-group-label{
+    position:static!important;
+    top:auto!important;
+    bottom:auto!important;
+    left:auto!important;
+    right:auto!important;
+    transform:none!important;
+    z-index:auto!important;
+  }
+  #exercise-list .vertex-recent-flow{
+    display:block!important;
+    margin:0 0 8px 0!important;
+    padding:0!important;
+    contain:content!important;
+  }
+</style>
+
+
+<style id="vertex-6a20-css">
+  .vertex-workout-hero-grid{display:grid;grid-template-columns:1.1fr .9fr 2fr;gap:18px;align-items:center}
+  .vertex-workout-hero-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .vertex-equipment-chip{white-space:nowrap}
+  .ex-group-label[data-equip-section]{scroll-margin-top:88px}
+  @media(max-width:980px){.vertex-workout-hero-grid{grid-template-columns:1fr}.vertex-workout-hero-steps{grid-template-columns:1fr}}
+</style>
 </head>
 <body class="auth-resolving">
 
@@ -4289,10 +4392,12 @@ window.vertexFinishBootstrap=function(){
 <div id="app">
   <aside class="sidebar">
     <div class="label">Category</div><div class="segment"><button class="seg-btn" data-env="gym">🏋️ Gym</button><button class="seg-btn" data-env="home">🏠 Home</button></div>
+    <div id="equipmentPanel"></div>
     <div class="label">Programs (Optional)</div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="program-seg"><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div></div>
     <div class="label">Workout Templates</div><div class="pill-fade-wrap"><div id="tpl-grid" class="segment pill-scroll"><button class="seg-btn" data-load-tpl="push">💪 Push Day</button><button class="seg-btn" data-load-tpl="pull">🔄 Pull Day</button><button class="seg-btn" data-load-tpl="legs">🦵 Legs Day</button><button class="seg-btn" data-load-tpl="kenpo">🥋 Kenpo X</button><button class="seg-btn" data-load-tpl="plyo">⚡ Plyometrics X</button><button class="seg-btn" data-load-tpl="yogaX">🧘 Yoga X</button><button class="seg-btn" data-load-tpl="stretch">🌀 Full Body Stretch</button><button class="seg-btn" data-load-tpl="coreMobility">🎯 Core + Mobility</button></div></div>
     <div class="label">Training Focus <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Choose Your Style</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery / Mobility">♧ Recovery / Mobility</button></div></div>
     <div class="label">Muscle Group <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Optional</span></div><div class="pill-fade-wrap"><div id="muscles" class="muscles"></div></div>
+    <div class="label">Equipment <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Quick Jump</span></div><div class="pill-fade-wrap"><div id="equipmentSubFilter" class="muscles"></div></div>
     <input id="search" class="search" placeholder="Search exercises..." />
     <button id="btn-add-library" class="btn acc" style="width:100%;margin:0 0 8px">+ Add Exercise to Library</button>
     <button id="btn-manual-entry" class="btn acc" style="width:100%;margin:0 0 10px">+ Lightweight Manual Entry</button>
@@ -4677,14 +4782,15 @@ window.vertexFinishBootstrap=function(){
     <section id="plannerAcc" class="panel planner-panel open"><div class="acc-body" style="display:block"><div class="label">Weekly Planner v2 · Start Today Flow</div><p style="color:var(--muted);margin:8px 0 14px">Build custom workouts from the library for each day, then start <b style="color:var(--acc)">today’s workout.</b></p><div style="overflow-x:auto;margin:0 -8px;padding:0 8px 0 8px;box-sizing:border-box"><div id="planner" class="planner-grid"></div></div></div></section>
 
 
-    <section id="workoutStartGuide" class="panel hl today-card" style="display:block;padding:24px 26px;margin-bottom:16px">
-      <div class="label" style="color:var(--acc);margin-bottom:10px">Workout Setup</div>
-      <h2 style="margin:0 0 10px;font-size:30px;letter-spacing:.3px">Ready to Start a Workout?</h2>
-      <p style="color:var(--muted);margin:0 0 18px;font-size:15px;line-height:1.45">Use the left panel to choose how you want to train today.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
-        <div class="panel" style="margin:0"><b>Step 1</b><br><span style="color:var(--muted)">Choose Gym or Home.</span></div>
-        <div class="panel" style="margin:0"><b>Step 2</b><br><span style="color:var(--muted)">Pick a program, template, or training focus.</span></div>
-        <div class="panel" style="margin:0"><b>Step 3</b><br><span style="color:var(--muted)">Build the workout and start training.</span></div>
+    <section id="workoutStartGuide" class="panel hl today-card vertex-workout-hero" style="padding:18px 22px;margin-bottom:16px;display:none">
+      <div class="vertex-workout-hero-grid">
+        <div><div class="label" style="color:var(--acc);margin-bottom:8px">WORKOUT SETUP</div><h2 style="margin:0;font-size:24px;line-height:1.15">Ready to Start a Workout?</h2></div>
+        <div><p style="color:#b8c0cc;margin:0;font-size:14px;line-height:1.5">Use the left panel to choose how you want to train today.</p></div>
+        <div class="vertex-workout-hero-steps">
+          <div class="panel" style="margin:0"><b>🏠 Step 1</b><br><span style="color:var(--muted)">Choose Gym or Home.</span></div>
+          <div class="panel" style="margin:0"><b>📋 Step 2</b><br><span style="color:var(--muted)">Select a program, template, or focus.</span></div>
+          <div class="panel" style="margin:0"><b>🏋️ Step 3</b><br><span style="color:var(--muted)">Build the workout and start training.</span></div>
+        </div>
       </div>
     </section>
 
@@ -4814,6 +4920,30 @@ window.vertexFinishBootstrap=function(){
   </div>
 </div>
 
+
+<div id="mediaDetailModal" class="modal-overlay" data-close-on-backdrop="1">
+  <div class="modal media-detail-card">
+    <div class="media-detail-head">
+      <div>
+        <div class="media-eyebrow">Exercise Intelligence</div>
+        <h2 id="mediaDetailTitle" class="media-title">Exercise</h2>
+        <div id="mediaDetailMeta" class="media-meta"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+        <button id="mediaDetailAdd" class="btn small acc">+ Add Exercise</button>
+        <button id="mediaDetailClose" class="btn small red">✕ Close</button>
+      </div>
+    </div>
+    <div id="mediaDetailStage" class="media-stage">
+      <div><b>Exercise Image Coming Soon</b><span>Exercise intelligence is available now. Images and Bunny media can be added later without changing this screen.</span></div>
+    </div>
+    <div class="media-field-grid" id="mediaDetailFields"></div>
+    <div>
+      <div id="mediaDetailCues"></div>
+    </div>
+  </div>
+</div>
+
 <!-- v13.62 Copy Day modal — duplicate a day's workout to another day -->
 <div id="copyDayModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Copy Workout</div><h2 id="copyDayTitle">Copy to which day?</h2><p id="copyDaySubtitle" style="color:var(--muted);margin-top:4px">Pick a destination. The workout will be duplicated — the source day stays unchanged.</p><select id="copyDayTarget" style="margin-top:10px"><option value="monday">Monday</option><option value="tuesday">Tuesday</option><option value="wednesday">Wednesday</option><option value="thursday">Thursday</option><option value="friday">Friday</option><option value="saturday">Saturday</option><option value="sunday">Sunday</option></select><div id="copyDayWarning" style="display:none;color:var(--acc);font-size:12px;margin-top:8px;padding:8px;background:rgba(232,255,71,.08);border-radius:4px"></div><div class="modal-grid" style="margin-top:14px"><button id="copyDayConfirm" class="btn acc">Copy Workout</button><button id="copyDayCancel" class="btn red">Cancel</button></div></div></div>
 
@@ -4825,7 +4955,7 @@ window.vertexFinishBootstrap=function(){
 <div id="libraryModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)" id="libraryModalLabel">Add Exercise to Library</div><h2 id="libraryModalTitle">Add Exercise</h2><p id="libraryModalDesc">Create a new exercise and keep it in your library going forward. Custom exercises are saved in this browser.</p><div class="manual-grid"><label><span class="label">Category</span><select id="libraryEnv"><option value="home">Home</option><option value="gym">Gym</option></select></label><label><span class="label">Training Focus</span><select id="libraryTraining"><option>Strength</option><option>Kettlebell</option><option>Yoga / Pilates</option><option>Cardio</option><option>Recovery / Mobility</option></select></label><label class="wide"><span class="label">Exercise Name</span><input id="libraryName" placeholder="e.g., Band Face Pull"></label><label><span class="label">Muscle Group / Subcategory</span><select id="libraryMuscle"></select></label><label><span class="label">Equipment</span><select id="libraryEquip"><option>Dumbbells</option><option>Bodyweight</option><option>Band</option><option>Bench</option><option>Pull-Up Bar</option><option>Kettlebell</option><option>Mat</option><option>Cable</option><option>Machine</option><option>Barbell</option><option>Bike</option><option>Treadmill</option><option>Rower</option><option>None</option><option>Other</option></select></label><label><span class="label">Movement Type</span><select id="libraryKind"><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="core">Core</option><option value="cardio">Cardio</option><option value="recovery">Recovery</option><option value="stretch">Stretch</option><option value="kettlebell">Kettlebell</option><option value="mobility">Mobility</option><option value="custom">Custom</option></select></label></div><div class="manual-help">Saved exercises appear in the sidebar after refresh and follow the same filters as built-in exercises.</div><div class="modal-grid"><button id="librarySave" class="btn acc">Save to Library</button><button id="libraryCancel" class="btn red">Cancel</button></div></div></div>
 <div id="manualModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Lightweight Manual Entry</div><h2>Add Custom Move</h2><p>Add a one-off exercise without expanding the library. Good for substitutes, rehab moves, carries, machine variants, or quick notes.</p><div class="manual-grid"><label class="wide"><span class="label">Exercise Name</span><input id="manualName" placeholder="e.g., Seated Cable Row"></label><label><span class="label">Muscle Group</span><select id="manualMuscle"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Legs</option><option>Arms</option><option>Triceps</option><option>Core</option><option>Recovery</option></select></label><label><span class="label">Equipment</span><input id="manualEquip" placeholder="Dumbbells, Machine, Bodyweight"></label><label><span class="label">Sets</span><input id="manualSets" type="number" min="1" max="12" value="3"></label><label><span class="label">Reps</span><input id="manualReps" type="number" min="0" max="200" value="8"></label><label><span class="label">Weight</span><input id="manualWeight" placeholder="optional"></label><label><span class="label">Type</span><select id="manualKind"><option value="custom">Custom</option><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="recovery">Recovery</option></select></label></div><div class="manual-help">This adds directly to the current workout only. It does not permanently change the main exercise library.</div><div class="modal-grid"><button id="manualAdd" class="btn acc">Add to Workout</button><button id="manualCancel" class="btn red">Cancel</button></div></div></div>
 
-<div id="equipmentModal" class="modal-overlay" data-close-on-backdrop="1"><div class="modal"><div class="label" style="color:var(--acc)">Home Equipment</div><h2>Available Equipment</h2><p>Toggle the equipment you have access to. The exercise list updates to match.</p><div id="equipmentModalBody" style="margin-top:14px"></div><div class="modal-grid"><button id="equipmentAllOn" class="btn">All On</button><button id="equipmentDone" class="btn acc">Done</button></div></div></div>
+<div id="equipmentModal" class="modal-overlay" data-close-on-backdrop="1"><div class="modal"><div class="label" style="color:var(--acc)">⚡ Home Equipment</div><h2>Available Equipment</h2><p>Toggle the equipment you have access to. The exercise list updates to match.</p><div id="equipmentModalBody" style="margin-top:14px"></div><div class="modal-grid"><button id="equipmentAllOn" class="btn">All On</button><button id="equipmentClearAll" class="btn red">Clear All</button><button id="equipmentDone" class="btn acc">Done</button></div></div></div>
 
 <!-- SUPPLEMENT ADD/EDIT MODAL -->
 <!-- SUPPLEMENT / PROTOCOL ADD MODAL -->
@@ -5072,7 +5202,7 @@ const SUPA_KEY='sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E';
 let _supa=null;
 let authUser=null;
 let sessionTimerId=null;
-const EQUIPMENT_OPTIONS=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Foam Roller','Step Platform','Cable','Machine','Barbell','Peloton / Exercise Bike','Road Bike','Treadmill','Rower','None','Other'];
+const EQUIPMENT_OPTIONS=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Foam Roller','Step Platform','Stability Platform','Cable','Machine','Barbell','Peloton / Exercise Bike','Road Bike','Treadmill','Rower','Other'];
 function getSupa(){
   if(window._supa) { _supa = window._supa; return _supa; }
   if(_supa) { window._supa = _supa; return _supa; }
@@ -5081,17 +5211,20 @@ function getSupa(){
   window._supa = _supa;
   return _supa;
 }
+/* Expose the canonical client so script blocks outside this IIFE reuse it
+   instead of minting their own GoTrueClient on the same storage key. */
+try{ window.getSupa = getSupa; }catch(e){}
 function defaultPage(){return 'home';}
-const state={page:defaultPage(),env:'home',muscle:'All',search:'',program:'Manual',training:'Strength',current:{name:'Name Your Workout',type:'strength',exercises:[],source:'manual',assignedDay:null},tracking:false,activePhase:0,planner:emptyPlanner(),pendingTemplate:null,session:{steps:[],idx:0},savedWorkouts:[],progressLogs:[],equipment:loadEquipmentProfile(),restTimerDefault:60};
+const state={page:defaultPage(),env:'',muscle:'',search:'',program:'Manual',training:'Strength',current:{name:'Name Your Workout',type:'strength',exercises:[],source:'manual',assignedDay:null},tracking:false,activePhase:0,planner:emptyPlanner(),pendingTemplate:null,session:{steps:[],idx:0},savedWorkouts:[],progressLogs:[],equipment:loadEquipmentProfile(),restTimerDefault:60};
 function setSyncStatus(status,label){state.syncStatus=status; state.syncLabel=label; const pill=document.getElementById('syncStatus'); const text=document.getElementById('syncStatusText'); if(!pill||!text) return; pill.className='sync-pill '+status; text.textContent=label;}
 function refreshSyncStatus(){ if(!authUser) setSyncStatus('local','Local mode'); else setSyncStatus(state.syncStatus||'synced', state.syncLabel||'Supabase synced'); }
 function markUnsaved(){ if(!hasWorkout()){ refreshSyncStatus(); return; } if(authUser) setSyncStatus('unsaved','Unsaved changes'); else setSyncStatus('local','Local mode'); }
 const EXERCISES=[
 {name:'Alternating Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Bench Press',muscle:'Chest',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
-{name:'Bench Press (Normal)',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Incline Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Decline Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'Bench Press (Normal)',muscle:'Chest',equip:'Barbell',env:'home',kind:'push',training:'Strength'},
+{name:'Incline Bench Press',muscle:'Chest',equip:'Barbell',env:'home',kind:'push',training:'Strength'},
+{name:'Decline Bench Press',muscle:'Chest',equip:'Barbell',env:'home',kind:'push',training:'Strength'},
 {name:'Dumbbell Fly',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Overhead Press',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Lateral Raise',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
@@ -5500,7 +5633,7 @@ const V1362_LIBRARY_ADDITIONS=[
 
 // --- LEGS ---
 
-{name:'Sissy Squat',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
+{name:'Narrow-Stance Squat',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
 {name:'Reverse Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Curtsy Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Belt Squat',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
@@ -5514,6 +5647,13 @@ V1362_LIBRARY_ADDITIONS.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EX
 // To add a new exercise: find a good YouTube video, grab the ID from the URL
 // (e.g. youtube.com/watch?v=rT7DgCr-3pg → ID is "rT7DgCr-3pg"), add an entry below.
 const EXERCISE_DEMOS={
+  'Dumbbell Bench Press':{
+    demoUrl:'rT7DgCr-3pg',
+    formCues:[{label:'SETUP',text:'Dumbbells start stacked over chest, feet planted'},{label:'DESCENT',text:'Lower with elbows slightly tucked'},{label:'PRESS',text:'Press up and slightly together without clanking'},{label:'CONTROL',text:'Keep shoulder blades set throughout'}],
+    mistakes:['Letting dumbbells drift too wide','Cutting the range short','Overarching the low back','Losing wrist position'],
+    muscles:['Chest','Front delts','Triceps'],
+    tip:'Keep the dumbbells stacked over the wrists and control the bottom position.'
+  },
   'Bench Press':{
     demoUrl:'rT7DgCr-3pg',
     formCues:[{label:'SETUP',text:'Flat back, feet planted, eyes under the bar'},{label:'GRIP',text:'Slightly wider than shoulder-width, full grip'},{label:'DESCENT',text:'Bar to mid-chest, elbows 45–75° from torso'},{label:'PRESS',text:'Drive through chest, full lockout at top'}],
@@ -5889,7 +6029,329 @@ function getExerciseDemo(name){
 // Phase 6A.1 — Exercise Library Normalization
 // Purpose: add stable IDs, Bunny-ready paths, thumbnail paths, media category mapping, movement patterns,
 // and demo lookup support without changing the Progress module or visible UI.
-const VERTEX_LIBRARY_PHASE='6A.1';
+
+// Phase 6A.4 — Exercise Filter Repair
+(function vertexFilterRepair(){
+  if (!Array.isArray(window.EXERCISES) && typeof EXERCISES === "undefined") return;
+  const list = Array.isArray(window.EXERCISES) ? window.EXERCISES : EXERCISES;
+
+  const chestMap = {
+    "bench press": "Barbell",
+    "bench press normal": "Barbell",
+    "bench press (normal)": "Barbell",
+    "incline bench press": "Barbell",
+    "decline bench press": "Barbell",
+    "dumbbell bench press": "Dumbbells",
+    "incline dumbbell bench press": "Dumbbells",
+    "decline dumbbell bench press": "Dumbbells",
+    "dumbbell fly": "Dumbbells",
+    "dumbbell floor press": "Dumbbells",
+    "hex press": "Dumbbells",
+    "cable chest press": "Cable",
+    "machine chest press": "Machine",
+    "push-up": "Bodyweight",
+    "push up": "Bodyweight",
+    "incline push-up": "Bodyweight",
+    "decline push-up": "Bodyweight",
+    "diamond push-up": "Bodyweight",
+    "paused push-up": "Bodyweight",
+    "tempo push-up": "Bodyweight",
+    "single-arm assisted push-up": "Bodyweight",
+    "squeeze press": "Dumbbells"
+  };
+
+  const ensureExercise = (name, muscle, equip, training="Strength") => {
+    const key = String(name).toLowerCase();
+    let ex = list.find(e => String(e?.name || "").toLowerCase() === key);
+    if (!ex) {
+      ex = { name, muscle, equip, training };
+      list.push(ex);
+    }
+    ex.training = ex.training || training;
+    ex.muscle = muscle;
+    ex.category = ex.category || muscle;
+    ex.target = ex.target || muscle;
+    ex.targetArea = ex.targetArea || muscle;
+    ex.equip = ex.equip || equip;
+    ex.equipment = ex.equipment || equip;
+    if (typeof vertexId === "function" && !ex.id) ex.id = vertexId(name);
+    return ex;
+  };
+
+  Object.entries(chestMap).forEach(([rawName, equip]) => {
+    const title = rawName
+      .replace(/\b\w/g, c => c.toUpperCase())
+      .replace("Push-Up", "Push-Up")
+      .replace("(Normal)", "(Normal)");
+    ensureExercise(title, "Chest", equip);
+  });
+
+  // Normalize all likely chest records already present so filter/search catches them.
+  list.forEach(ex => {
+    const n = String(ex?.name || "").toLowerCase();
+    const isChest =
+      /bench|chest press|push[- ]?up|fly|hex press|squeeze press|dip/.test(n) ||
+      String(ex?.muscle || "").toLowerCase() === "chest";
+    if (isChest) {
+      ex.training = ex.training || "Strength";
+      ex.muscle = "Chest";
+      ex.category = ex.category || "Chest";
+      ex.target = ex.target || "Chest";
+      ex.targetArea = ex.targetArea || "Chest";
+      if (!ex.equip && !ex.equipment) {
+        if (/cable/.test(n)) ex.equip = "Cable";
+        else if (/dumbbell|hex|fly|squeeze/.test(n)) ex.equip = "Dumbbells";
+        else if (/machine/.test(n)) ex.equip = "Machine";
+        else if (/push[- ]?up|dip/.test(n)) ex.equip = "Bodyweight";
+        else ex.equip = "Barbell";
+      }
+      ex.equipment = ex.equipment || ex.equip;
+    }
+  });
+
+  window.VERTEX_FILTER_REPAIR = {
+    phase: "6A.4",
+    total: list.length,
+    chest: list.filter(e => String(e?.muscle || "").toLowerCase() === "chest").map(e => e.name)
+  };
+})();
+
+
+// Phase 6A.5 — Full Category Audit + Cleanup
+(function vertexFullCategoryAuditCleanup(){
+  const list = (typeof EXERCISES !== "undefined" && Array.isArray(EXERCISES)) ? EXERCISES : (Array.isArray(window.EXERCISES) ? window.EXERCISES : null);
+  if (!list) return;
+
+  const rules = [
+    {re:/bench cohen curl|cohen curl|spider curl|preacher curl|hammer curl|alternating curl|bicep curl|barbell curl|concentration curl|incline curl|curl/i, muscle:"Biceps", equip:"Dumbbells"},
+    {re:/tricep|pushdown|skull crusher|overhead extension|kickback/i, muscle:"Triceps"},
+    {re:/rear delt|reverse fly|face pull|lateral raise|front raise|arnold press|shoulder press|overhead press|handstand push|pike push/i, muscle:"Shoulders"},
+    {re:/lat pulldown|pull-up|pull up|chin-up|chin up|row|pullover|meadows row|t-bar|inverted row/i, muscle:"Back"},
+    {re:/squat|lunge|leg press|deadlift|rdl|romanian|calf|step-up|step up|hack squat|belt squat|split squat|hip thrust|glute bridge|hamstring curl|leg extension/i, muscle:"Legs"},
+    {re:/plank|dead bug|crunch|leg raise|russian twist|sit-up|hollow|bird dog|pallof|woodchop/i, muscle:"Core"},
+    {re:/bench press|chest press|push[- ]?up|fly|hex press|squeeze press|chest dip|dip/i, muscle:"Chest"},
+  ];
+
+  const equipmentRules = [
+    {re:/barbell|bench press$|bench press \(normal\)|incline bench press|decline bench press|squat$|deadlift$|romanian deadlift|rdl|overhead press|barbell row|barbell curl/i, equip:"Barbell"},
+    {re:/cable|pushdown|pallof|woodchop/i, equip:"Cable"},
+    {re:/dumbbell|db |hex press|fly|floor press|hammer curl|alternating curl|lateral raise|rear delt fly|reverse fly|goblet/i, equip:"Dumbbells"},
+    {re:/machine|leg press|hack squat|lat pulldown|seated cable row/i, equip:"Machine"},
+    {re:/push[- ]?up|pull[- ]?up|chin[- ]?up|plank|crunch|dip|handstand|pike|dead bug|leg raise|russian twist|child|downward|stretch|mobility/i, equip:"Bodyweight"},
+    {re:/kettlebell|kb |swing|turkish|get-up|snatch|clean|halo|windmill/i, equip:"Kettlebell"}
+  ];
+
+  const recoveryRe = /stretch|mobility|child.?s pose|downward dog|hip flexor|hamstring stretch|thoracic|yoga|pose|breath|recovery/i;
+  const kettlebellRe = /kettlebell|kb |swing|turkish|get-up|snatch|clean|halo|windmill/i;
+  const cardioRe = /run|walk|bike|rower|jump rope|burpee|mountain climber|cardio|sprint/i;
+
+  const normalizeTitle = s => String(s || "").replace(/\s+/g," ").trim();
+
+  list.forEach(ex => {
+    if (!ex || !ex.name) return;
+    ex.name = normalizeTitle(ex.name);
+    const n = ex.name.toLowerCase();
+
+    let muscle = "";
+    for (const r of rules) {
+      if (r.re.test(n)) { muscle = r.muscle; break; }
+    }
+
+    if (muscle) {
+      ex.muscle = muscle;
+      ex.category = muscle;
+      ex.target = muscle;
+      ex.targetArea = muscle;
+      ex.training = "Strength";
+    }
+
+    if (kettlebellRe.test(n) || String(ex.training||"").toLowerCase()==="kettlebell") {
+      ex.training = "Kettlebell";
+      ex.muscle = ex.muscle || "Kettlebell";
+      ex.category = ex.category || "Kettlebell";
+      ex.target = ex.target || "Kettlebell";
+      ex.targetArea = ex.targetArea || "Kettlebell";
+    }
+
+    if (recoveryRe.test(n) || /recovery|stretch|mobility|yoga|pilates/i.test(String(ex.training||""))) {
+      ex.training = "Recovery / Mobility";
+      ex.muscle = ex.muscle || "Recovery / Mobility";
+      ex.category = ex.category || "Recovery / Mobility";
+      ex.target = ex.target || "Recovery / Mobility";
+      ex.targetArea = ex.targetArea || "Recovery / Mobility";
+    }
+
+    if (cardioRe.test(n) || /cardio/i.test(String(ex.training||""))) {
+      ex.training = "Cardio";
+      ex.muscle = ex.muscle || "Cardio";
+      ex.category = ex.category || "Cardio";
+      ex.target = ex.target || "Cardio";
+      ex.targetArea = ex.targetArea || "Cardio";
+    }
+
+    let equip = "";
+    for (const r of equipmentRules) {
+      if (r.re.test(n)) { equip = r.equip; break; }
+    }
+    if (equip) {
+      ex.equip = equip;
+      ex.equipment = equip;
+      ex.equipment_type = equip;
+    } else {
+      ex.equipment = ex.equipment || ex.equip || ex.equipment_type || "Bodyweight";
+      ex.equip = ex.equip || ex.equipment;
+      ex.equipment_type = ex.equipment_type || ex.equipment;
+    }
+
+    if (typeof vertexId === "function" && !ex.id) ex.id = vertexId(ex.name);
+  });
+
+  // Deduplicate exact-name duplicates while preserving first record and memory fields.
+  const seen = new Map();
+  for (let i=list.length-1; i>=0; i--) {
+    const key = String(list[i]?.name || "").toLowerCase().trim();
+    if (!key) continue;
+    if (seen.has(key)) {
+      list.splice(i,1);
+    } else {
+      seen.set(key,true);
+    }
+  }
+
+  const counts = {};
+  const equipmentCounts = {};
+  list.forEach(ex => {
+    const k = ex.muscle || ex.category || ex.training || "Unclassified";
+    counts[k] = (counts[k]||0)+1;
+    const eq = ex.equipment || ex.equip || "Unknown";
+    equipmentCounts[eq] = (equipmentCounts[eq]||0)+1;
+  });
+
+  window.VERTEX_CATEGORY_AUDIT = {
+    phase:"6A.5",
+    total:list.length,
+    counts,
+    equipmentCounts,
+    chest:list.filter(e=>e.muscle==="Chest").map(e=>e.name),
+    biceps:list.filter(e=>e.muscle==="Biceps").map(e=>e.name),
+    shoulders:list.filter(e=>e.muscle==="Shoulders").map(e=>e.name),
+    repaired:true
+  };
+})();
+
+
+// Phase 6A.6 Library Deep Clean
+(function(){
+ const list=(typeof EXERCISES!=='undefined')?EXERCISES:(window.EXERCISES||[]);
+ if(!Array.isArray(list)) return;
+
+ // normalize duplicate bench names
+ list.forEach(ex=>{
+   const n=(ex.name||'').trim();
+   if(n==='Bench Press (Normal)'||n==='Bench Press Normal') ex.name='Bench Press';
+ });
+
+ // dedupe
+ const seen=new Set();
+ for(let i=list.length-1;i>=0;i--){
+   const k=(list[i].name||'').toLowerCase();
+   if(seen.has(k)) list.splice(i,1); else seen.add(k);
+ }
+
+ // ensure dumbbell bench variants
+ const add=(name,muscle,equip)=>{
+   if(!list.find(x=>(x.name||'').toLowerCase()===name.toLowerCase())){
+      list.push({name,muscle,category:muscle,targetArea:muscle,equip,equipment:equip,training:'Strength'});
+   }
+ };
+ add('Dumbbell Bench Press','Chest','Dumbbells');
+ add('Incline Dumbbell Bench Press','Chest','Dumbbells');
+ add('Decline Dumbbell Bench Press','Chest','Dumbbells');
+
+ window.VERTEX_66_READY=true;
+})();
+
+
+// Phase 6A.7 — Filter Engine + Library Classification Fix
+(function vertexFilterEngineFix(){
+  const list = (typeof EXERCISES !== "undefined" && Array.isArray(EXERCISES)) ? EXERCISES : null;
+  if(!list) return;
+
+  const setCat=(ex,muscle,equip,training="Strength")=>{
+    ex.muscle=muscle; ex.category=muscle; ex.target=muscle; ex.targetArea=muscle; ex.training=training;
+    if(equip){ ex.equip=equip; ex.equipment=equip; ex.equipment_type=equip; }
+  };
+
+  list.forEach(ex=>{
+    if(!ex || !ex.name) return;
+    const n=String(ex.name).toLowerCase().trim();
+
+    if(/cohen curl|preacher curl|spider curl|concentration curl|hammer curl|alternating curl|bicep curl|barbell curl|incline curl|\bcurl\b/.test(n)) setCat(ex,"Biceps",/barbell/.test(n)?"Barbell":"Dumbbells");
+    else if(/rear delt|reverse fly|face pull/.test(n)) setCat(ex,"Shoulders",/cable|face pull/.test(n)?"Cable":"Dumbbells");
+    else if(/handstand push|pike push/.test(n)) setCat(ex,"Shoulders","Bodyweight");
+    else if(/tricep|pushdown|skull crusher|kickback|overhead extension/.test(n)) setCat(ex,"Triceps",/cable|pushdown/.test(n)?"Cable":(/barbell|skull/.test(n)?"Barbell":"Dumbbells"));
+    else if(/lat pulldown|pull-up|pull up|chin-up|chin up|row|pullover|meadows|t-bar|inverted row/.test(n)) setCat(ex,"Back",/cable|pulldown|seated/.test(n)?"Cable":(/barbell|t-bar/.test(n)?"Barbell":(/pull|chin|inverted/.test(n)?"Bodyweight":"Dumbbells")));
+    else if(/squat|lunge|leg press|deadlift|romanian|rdl|calf|step-up|step up|split squat|hip thrust|glute bridge|hamstring curl|leg extension/.test(n)) setCat(ex,"Legs",/dumbbell|goblet/.test(n)?"Dumbbells":(/machine|leg press|hack/.test(n)?"Machine":(/bodyweight|lunge|step/.test(n)?"Bodyweight":"Barbell")));
+    else if(/plank|dead bug|crunch|leg raise|russian twist|sit-up|hollow|bird dog|pallof|woodchop/.test(n)) setCat(ex,"Core",/cable|pallof|woodchop/.test(n)?"Cable":"Bodyweight");
+    else if(/bench press|chest press|push[- ]?up|fly|hex press|squeeze press|chest dip|bench dip|dip/.test(n)) {
+      let eq="Barbell";
+      if(/dumbbell|hex|fly|floor|squeeze/.test(n)) eq="Dumbbells";
+      else if(/cable/.test(n)) eq="Cable";
+      else if(/machine/.test(n)) eq="Machine";
+      else if(/push[- ]?up|dip/.test(n)) eq="Bodyweight";
+      setCat(ex,"Chest",eq);
+    }
+
+    if(!ex.env && !ex.environments && !ex.environment){
+      const eq=String(ex.equip||ex.equipment||"").toLowerCase();
+      ex.env=(eq==="bodyweight" || eq==="dumbbells" || eq==="kettlebell" || eq==="mat") ? "home" : "gym";
+    }
+  });
+
+  // Canonicalize bench duplicates.
+  const canonical = {
+    "bench press normal":"Bench Press",
+    "bench press (normal)":"Bench Press",
+    "push up":"Push-Up"
+  };
+  list.forEach(ex=>{
+    const k=String(ex.name||"").toLowerCase().trim();
+    if(canonical[k]) ex.name=canonical[k];
+  });
+
+  const seen=new Set();
+  for(let i=list.length-1;i>=0;i--){
+    const ex=list[i];
+    const key=String(ex?.name||"").toLowerCase().trim();
+    if(!key) continue;
+    if(seen.has(key)) list.splice(i,1);
+    else seen.add(key);
+  }
+
+  const ensure=(name,muscle,equip,env="gym")=>{
+    if(list.some(e=>String(e.name||"").toLowerCase()===name.toLowerCase())) return;
+    list.push({name,training:"Strength",muscle,category:muscle,target:muscle,targetArea:muscle,equip,equipment:equip,equipment_type:equip,env});
+  };
+
+  ensure("Bench Press","Chest","Barbell","gym");
+  ensure("Incline Bench Press","Chest","Barbell","gym");
+  ensure("Decline Bench Press","Chest","Barbell","gym");
+  ensure("Dumbbell Bench Press","Chest","Dumbbells","home");
+  ensure("Incline Dumbbell Bench Press","Chest","Dumbbells","home");
+  ensure("Decline Dumbbell Bench Press","Chest","Dumbbells","home");
+  ensure("Cable Chest Press","Chest","Cable","gym");
+  ensure("Machine Chest Press","Chest","Machine","gym");
+
+  window.VERTEX_FILTER_AUDIT={
+    phase:"6A.7",
+    total:list.length,
+    chest:list.filter(e=>e.muscle==="Chest").map(e=>e.name).sort(),
+    biceps:list.filter(e=>e.muscle==="Biceps").map(e=>e.name).sort(),
+    shoulders:list.filter(e=>e.muscle==="Shoulders").map(e=>e.name).sort()
+  };
+})();
+
+const VERTEX_LIBRARY_PHASE='6B.3A';
 function vertexSlug(value){
   return String(value||'')
     .normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
@@ -6027,7 +6489,207 @@ function normalizeVertexExerciseLibrary(){
     mediaCategories:EXERCISES.reduce((a,ex)=>{const k=ex.media_category||'uncategorized'; a[k]=(a[k]||0)+1; return a;},{})
   };
 }
+
 normalizeVertexExerciseLibrary();
+
+// Phase 6A.12 — Exercise Library Audit Lock
+// Scope: Exercise Library only. Progress module remains untouched/frozen.
+(function vertexPhase6A12ExerciseAuditLock(){
+  const list=(typeof EXERCISES!=='undefined' && Array.isArray(EXERCISES)) ? EXERCISES : (Array.isArray(window.EXERCISES)?window.EXERCISES:null);
+  if(!list) return;
+  const norm=s=>String(s||'').toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  const title=s=>String(s||'').replace(/\s+/g,' ').trim();
+  const setStrength=(ex,muscle,equip,env)=>{
+    ex.training='Strength';
+    ex.muscle=muscle; ex.category=muscle; ex.target=muscle; ex.targetArea=muscle; ex.primary_muscle=muscle;
+    ex.equip=equip; ex.equipment=equip; ex.equipment_type=equip;
+    ex.env=env||ex.env||'home';
+    ex.kind=ex.kind||vertexMovementPattern(ex).toLowerCase().replace(/[^a-z0-9]+/g,'_');
+    ex.id=ex.id||vertexId(ex.name);
+    return ex;
+  };
+  // Rename offensive/legacy label everywhere it may appear.
+  list.forEach(ex=>{
+    if(!ex||!ex.name) return;
+    ex.name=title(ex.name);
+    const k=norm(ex.name);
+    if(k==='sissy squat') ex.name='Narrow-Stance Squat';
+  });
+  // Guarantee Narrow-Stance Squat appears under Strength → Legs, Home/Gym-safe.
+  let narrow=list.find(ex=>norm(ex.name)==='narrow stance squat');
+  if(!narrow){
+    narrow={name:'Narrow-Stance Squat'};
+    list.push(narrow);
+  }
+  setStrength(narrow,'Legs','Bodyweight','home');
+  narrow.movement_pattern='Squat';
+  narrow.media_category='strength';
+  narrow.bunny_path='exercises/strength/narrow-stance-squat.mp4';
+  narrow.thumbnail_path='thumbnails/strength/narrow-stance-squat.jpg';
+  // Correct cable classification lock.
+  list.forEach(ex=>{
+    const k=norm(ex.name);
+    if(k==='high cable fly' || k==='low cable fly' || k==='cable chest press'){
+      setStrength(ex,'Chest','Cable','gym');
+      ex.movement_pattern='Horizontal Push';
+    }
+    if(/\bsquat\b|leg press|hack squat|belt squat|lunge|step up|step-up|rdl|deadlift|hip thrust|glute bridge|calf/.test(k)){
+      if(ex.training==='Strength'){
+        ex.muscle='Legs'; ex.category='Legs'; ex.target='Legs'; ex.targetArea='Legs'; ex.primary_muscle='Legs';
+        ex.movement_pattern=vertexMovementPattern(ex);
+      }
+    }
+  });
+  // Add safe demo aliases for audited items using existing approved demo records.
+  if(typeof EXERCISE_DEMOS!=='undefined'){
+    if(EXERCISE_DEMOS['Squat'] && !EXERCISE_DEMOS['Narrow-Stance Squat']) EXERCISE_DEMOS['Narrow-Stance Squat']=EXERCISE_DEMOS['Squat'];
+    if(EXERCISE_DEMOS['Dumbbell Fly'] && !EXERCISE_DEMOS['High Cable Fly']) EXERCISE_DEMOS['High Cable Fly']=EXERCISE_DEMOS['Dumbbell Fly'];
+    if(EXERCISE_DEMOS['Dumbbell Fly'] && !EXERCISE_DEMOS['Low Cable Fly']) EXERCISE_DEMOS['Low Cable Fly']=EXERCISE_DEMOS['Dumbbell Fly'];
+  }
+  // Deduplicate by normalized name, keeping the most complete/canonical first record.
+  const seen=new Map();
+  for(let i=list.length-1;i>=0;i--){
+    const ex=list[i]; const key=norm(ex&&ex.name);
+    if(!key){ list.splice(i,1); continue; }
+    if(seen.has(key)) list.splice(i,1); else seen.set(key,true);
+  }
+  // Recompute media fields after audit changes.
+  if(typeof normalizeVertexExerciseLibrary==='function') normalizeVertexExerciseLibrary();
+  const dups={}; list.forEach(ex=>{const k=norm(ex.name); dups[k]=(dups[k]||0)+1;});
+  const duplicateNames=list.filter(ex=>dups[norm(ex.name)]>1).map(ex=>ex.name);
+  const byTraining=list.reduce((a,ex)=>{const k=ex.training||'Unclassified'; a[k]=(a[k]||0)+1; return a;},{});
+  const byEquipment=list.reduce((a,ex)=>{const k=ex.equipment_type||ex.equipment||ex.equip||'Unknown'; a[k]=(a[k]||0)+1; return a;},{});
+  const byPattern=list.reduce((a,ex)=>{const k=ex.movement_pattern||vertexMovementPattern(ex)||'Unclassified'; a[k]=(a[k]||0)+1; return a;},{});
+  const demoResolver=(ex)=> (typeof getExerciseDemo==='function' ? getExerciseDemo(ex.name) : (EXERCISE_DEMOS&&EXERCISE_DEMOS[ex.name]));
+  const withDemo=list.filter(ex=>!!demoResolver(ex));
+  window.VERTEX_PHASE6A12_AUDIT={
+    phase:'6A.12',
+    scope:'exercise-library-only',
+    total:list.length,
+    byTraining,
+    byEquipment,
+    byPattern,
+    withDemo:withDemo.length,
+    withoutDemo:list.length-withDemo.length,
+    duplicateNames,
+    narrowStanceSquatVisible:list.some(ex=>ex.name==='Narrow-Stance Squat' && ex.training==='Strength' && ex.muscle==='Legs'),
+    highCableFlyEquipment:(list.find(ex=>ex.name==='High Cable Fly')||{}).equip||'',
+    progressTouched:false
+  };
+})();
+
+// Phase 6B.2 — Media Mapping Layer
+// Infrastructure only: creates one master media record per exercise for Bunny thumbnails/videos.
+function vertexBunnyFolderForExercise(ex){
+  const cat=String(ex&&ex.media_category||vertexMediaCategory(ex&&ex.training)||'strength').toLowerCase();
+  if(cat==='yoga-pilates') return 'yoga-pilates';
+  if(cat==='recovery-mobility') return 'recovery-mobility';
+  if(cat==='kettlebell') return 'kettlebell';
+  if(cat==='cardio') return 'cardio';
+  return 'strength';
+}
+function vertexMediaKeyForExercise(ex){
+  return vertexId((ex&&ex.id)||((ex&&ex.name)||'exercise'));
+}
+function vertexBuildMediaRecord(ex){
+  const id=vertexMediaKeyForExercise(ex);
+  const folder=vertexBunnyFolderForExercise(ex);
+  const slug=vertexSlug((ex&&ex.name)||id);
+  const videoPath=(ex&&ex.bunny_video)||'exercises/'+folder+'/'+slug+'.mp4';
+  const thumbnailPath=(ex&&ex.bunny_thumbnail)||'thumbnails/'+folder+'/'+slug+'.jpg';
+  return {
+    id:id,
+    exercise_id:id,
+    name:(ex&&ex.name)||'',
+    category:(ex&&ex.training)||'Strength',
+    media_category:folder,
+    movement_pattern:(ex&&ex.movement_pattern)||vertexMovementPattern(ex||{}),
+    equipment_type:(ex&&ex.equipment_type)||vertexEquipmentType(ex&&ex.equip),
+    primary_muscle:(ex&&ex.primary_muscle)||(ex&&ex.muscle)||'',
+    primary_muscles:(ex&&ex.primary_muscles)||((ex&&ex.primary_muscle)?[ex.primary_muscle]:((ex&&ex.muscle)?[ex.muscle]:[])),
+    coach_cues:(ex&&ex.coach_cues)||[],
+    common_mistakes:(ex&&ex.common_mistakes)||[],
+    substitutions:(ex&&ex.substitutions)||[],
+    exercise_intelligence:!!(ex&&ex.exercise_intelligence),
+    bunny_video:'',
+    bunny_thumbnail:'',
+    bunny_video_path:videoPath,
+    bunny_thumbnail_path:thumbnailPath,
+    video_url:'',
+    thumbnail_url:'',
+    legacy_demo_url:(ex&&ex.legacy_demo_url)||'',
+    has_bunny_video:false,
+    has_video:false,
+    media_status:'bunny_pending'
+  };
+}
+
+// Phase 6B.3A — Core 50 Exercise Intelligence
+// Adds practical coaching content to the existing media detail modal. No workflow or Progress changes.
+window.VERTEX_CORE50_INTELLIGENCE = {"Alternating Bench Press": {"movement_pattern": "Horizontal Push", "primary_muscles": ["Chest", "Front Delts", "Triceps"], "equipment_type": "Dumbbells", "coach_cues": ["Set both dumbbells over the chest before starting.", "Press one side while the other stays controlled.", "Keep shoulder blades pulled back and ribs down."], "common_mistakes": ["Letting the non-working arm drift too low.", "Twisting the torso during the press.", "Rushing the alternating rhythm."], "substitutions": ["Dumbbell Bench Press", "Bench Press", "Push-Up"]}, "Bench Press": {"movement_pattern": "Horizontal Push", "primary_muscles": ["Chest", "Front Delts", "Triceps"], "equipment_type": "Barbell", "coach_cues": ["Plant feet firmly before unracking.", "Pull shoulder blades back and down.", "Lower under control to the lower chest.", "Drive the bar up while keeping wrists stacked."], "common_mistakes": ["Bouncing the bar off the chest.", "Flaring elbows too wide.", "Lifting hips off the bench."], "substitutions": ["Dumbbell Bench Press", "Machine Chest Press", "Push-Up"]}, "Bench Press (Normal)": {"movement_pattern": "Horizontal Push", "primary_muscles": ["Chest", "Front Delts", "Triceps"], "equipment_type": "Barbell", "difficulty": "Intermediate", "coach_cues": ["Plant feet firmly before unracking.", "Pull shoulder blades back and down.", "Lower the bar under control to the lower chest.", "Drive the bar up while keeping wrists stacked."], "common_mistakes": ["Bouncing the bar off the chest.", "Flaring elbows too wide.", "Lifting hips off the bench."], "substitutions": ["Dumbbell Bench Press", "Machine Chest Press", "Push-Up"]}, "Incline Bench Press": {"movement_pattern": "Incline Horizontal Push", "primary_muscles": ["Upper Chest", "Front Delts", "Triceps"], "equipment_type": "Barbell", "difficulty": "Intermediate", "coach_cues": ["Set the bench to a moderate incline.", "Keep shoulder blades tight against the bench.", "Lower the bar to the upper chest with control.", "Press up while keeping wrists stacked."], "common_mistakes": ["Turning it into a shoulder press.", "Flaring elbows aggressively.", "Using too steep of an incline."], "substitutions": ["Dumbbell Incline Bench Press", "Machine Chest Press", "Push-Up"]}, "Decline Bench Press": {"movement_pattern": "Horizontal Push", "primary_muscles": ["Lower Chest", "Triceps", "Front Delts"], "equipment_type": "Dumbbells", "coach_cues": ["Secure your position before the first rep.", "Lower with control toward the lower chest.", "Press evenly without letting the weights drift."], "common_mistakes": ["Going too heavy before stable setup.", "Letting wrists bend back.", "Rushing the descent."], "substitutions": ["Bench Press", "Chest Dip", "Push-Up"]}, "Dumbbell Fly": {"movement_pattern": "Chest Isolation", "primary_muscles": ["Chest"], "equipment_type": "Dumbbells", "coach_cues": ["Keep a soft bend in the elbows.", "Open the arms slowly and stop before shoulder strain.", "Bring the dumbbells together by squeezing the chest."], "common_mistakes": ["Lowering too deep.", "Turning the fly into a press.", "Using too much weight."], "substitutions": ["Cable Fly", "Machine Chest Press", "Push-Up"]}, "Push-Up": {"movement_pattern": "Horizontal Push", "primary_muscles": ["Chest", "Triceps", "Front Delts", "Core"], "equipment_type": "Bodyweight", "coach_cues": ["Keep body in one straight line.", "Hands under or slightly wider than shoulders.", "Lower with control and press the floor away."], "common_mistakes": ["Sagging hips.", "Flaring elbows too wide.", "Only doing partial reps."], "substitutions": ["Incline Push-Up", "Bench Press", "Machine Chest Press"]}, "Chest Dip": {"movement_pattern": "Vertical Push", "primary_muscles": ["Chest", "Triceps", "Front Delts"], "equipment_type": "Dip Station", "coach_cues": ["Lean slightly forward for more chest emphasis.", "Lower only as far as shoulders tolerate.", "Press smoothly without bouncing."], "common_mistakes": ["Dropping too deep.", "Shrugging shoulders toward ears.", "Swinging the legs."], "substitutions": ["Bench Dip", "Push-Up", "Close-Grip Push-Up"]}, "Machine Chest Press": {"movement_pattern": "Horizontal Push", "primary_muscles": ["Chest", "Triceps", "Front Delts"], "equipment_type": "Machine", "coach_cues": ["Set the seat so handles align with mid-chest.", "Keep shoulder blades against the pad.", "Press without locking elbows aggressively."], "common_mistakes": ["Seat too low or too high.", "Letting shoulders roll forward.", "Using momentum off the bottom."], "substitutions": ["Bench Press", "Dumbbell Bench Press", "Push-Up"]}, "Pull-Up": {"movement_pattern": "Vertical Pull", "primary_muscles": ["Lats", "Upper Back", "Biceps"], "equipment_type": "Pull-Up Bar", "coach_cues": ["Start from a controlled hang.", "Pull elbows down toward the ribs.", "Keep the chest proud and avoid kicking."], "common_mistakes": ["Kipping without control.", "Stopping short of the top.", "Shrugging into the neck."], "substitutions": ["Lat Pulldown", "Assisted Pull-Up", "Chin-Up"]}, "Chin-Up": {"movement_pattern": "Vertical Pull", "primary_muscles": ["Lats", "Biceps", "Upper Back"], "equipment_type": "Pull-Up Bar", "coach_cues": ["Use an underhand grip.", "Drive elbows down and back.", "Control the lowering phase."], "common_mistakes": ["Swinging the lower body.", "Reaching with the chin instead of pulling.", "Dropping too quickly."], "substitutions": ["Pull-Up", "Lat Pulldown", "Close-Grip Pull-Up"]}, "Lat Pulldown": {"movement_pattern": "Vertical Pull", "primary_muscles": ["Lats", "Upper Back", "Biceps"], "equipment_type": "Cable", "coach_cues": ["Set thighs firmly under the pad.", "Pull elbows down, not just the hands.", "Pause briefly near the upper chest."], "common_mistakes": ["Leaning back too far.", "Pulling behind the neck.", "Letting shoulders shrug up."], "substitutions": ["Pull-Up", "Single-Arm Lat Pulldown", "Cable Row"]}, "Seated Cable Row": {"movement_pattern": "Horizontal Pull", "primary_muscles": ["Mid Back", "Lats", "Rear Delts", "Biceps"], "equipment_type": "Cable", "coach_cues": ["Sit tall with ribs down.", "Pull elbows back and squeeze shoulder blades.", "Return under control without rounding."], "common_mistakes": ["Rocking the torso for momentum.", "Shrugging shoulders.", "Rounding the low back."], "substitutions": ["Bent-Over Row", "One-Arm Row", "Chest-Supported Row"]}, "Bent-Over Row": {"movement_pattern": "Horizontal Pull", "primary_muscles": ["Mid Back", "Lats", "Rear Delts", "Biceps"], "equipment_type": "Barbell", "coach_cues": ["Hinge first and brace hard.", "Pull the bar toward the lower ribs.", "Keep neck neutral and torso stable."], "common_mistakes": ["Standing too upright.", "Jerking the bar with the hips.", "Letting the back round."], "substitutions": ["Seated Cable Row", "Chest-Supported Row", "Dumbbell Row"]}, "One-Arm Row": {"movement_pattern": "Horizontal Pull", "primary_muscles": ["Lats", "Mid Back", "Biceps"], "equipment_type": "Dumbbell", "coach_cues": ["Brace the non-working hand firmly.", "Pull elbow toward the hip.", "Lower until the shoulder blade moves freely."], "common_mistakes": ["Rotating the torso too much.", "Curling the weight instead of rowing.", "Using a short range of motion."], "substitutions": ["Dumbbell Row", "Seated Cable Row", "Kettlebell Row"]}, "Dumbbell Row": {"movement_pattern": "Horizontal Pull", "primary_muscles": ["Lats", "Mid Back", "Biceps"], "equipment_type": "Dumbbells", "coach_cues": ["Keep the spine long and torso stable.", "Drive elbows back toward the hips.", "Control the weight down each rep."], "common_mistakes": ["Rounding the back.", "Shrugging instead of rowing.", "Using too much momentum."], "substitutions": ["One-Arm Row", "Seated Cable Row", "Chest-Supported Row"]}, "Chest-Supported Row": {"movement_pattern": "Horizontal Pull", "primary_muscles": ["Mid Back", "Lats", "Rear Delts"], "equipment_type": "Dumbbells", "coach_cues": ["Keep chest pressed into the bench.", "Pull elbows back and slightly out.", "Squeeze briefly at the top."], "common_mistakes": ["Lifting chest off the bench.", "Shrugging shoulders.", "Dropping the weights too fast."], "substitutions": ["Seated Cable Row", "Dumbbell Row", "Bent-Over Row"]}, "Overhead Press": {"movement_pattern": "Vertical Push", "primary_muscles": ["Shoulders", "Triceps", "Upper Chest"], "equipment_type": "Dumbbells", "coach_cues": ["Brace glutes and ribs before pressing.", "Press straight overhead.", "Finish with biceps near ears."], "common_mistakes": ["Leaning back excessively.", "Pressing forward instead of up.", "Using leg drive unintentionally."], "substitutions": ["Dumbbell Shoulder Press", "Arnold Press", "Machine Shoulder Press"]}, "Arnold Press": {"movement_pattern": "Vertical Push", "primary_muscles": ["Shoulders", "Triceps"], "equipment_type": "Dumbbells", "coach_cues": ["Rotate smoothly as you press.", "Keep the motion controlled, not rushed.", "Avoid overextending the low back."], "common_mistakes": ["Using too much weight.", "Losing control during rotation.", "Shrugging at the top."], "substitutions": ["Overhead Press", "Dumbbell Shoulder Press", "Machine Shoulder Press"]}, "Lateral Raise": {"movement_pattern": "Shoulder Isolation", "primary_muscles": ["Side Delts"], "equipment_type": "Dumbbells", "coach_cues": ["Use a slight bend in the elbows.", "Lead with the elbows, not the hands.", "Stop around shoulder height."], "common_mistakes": ["Swinging the weights.", "Shrugging traps.", "Going too heavy."], "substitutions": ["Cable Lateral Raise", "Front Raise", "Machine Shoulder Press"]}, "Rear Delt Fly": {"movement_pattern": "Rear Delt Isolation", "primary_muscles": ["Rear Delts", "Upper Back"], "equipment_type": "Dumbbells", "coach_cues": ["Hinge and keep the spine neutral.", "Move the arms out wide with control.", "Pause briefly at the top."], "common_mistakes": ["Turning it into a row.", "Using momentum.", "Lifting too high with the traps."], "substitutions": ["Reverse Fly", "Face Pull", "Chest-Supported Row"]}, "Face Pull": {"movement_pattern": "Upper Back Pull", "primary_muscles": ["Rear Delts", "Upper Back", "Rotator Cuff"], "equipment_type": "Cable/Band", "coach_cues": ["Pull toward the face with elbows high.", "Separate the hands at the end.", "Keep ribs down and neck relaxed."], "common_mistakes": ["Pulling too low.", "Leaning back for momentum.", "Shrugging shoulders."], "substitutions": ["Rear Delt Fly", "Reverse Fly", "Band Row"]}, "Squat": {"movement_pattern": "Squat", "primary_muscles": ["Quads", "Glutes", "Core"], "equipment_type": "Barbell", "coach_cues": ["Brace before descending.", "Keep feet rooted and knees tracking over toes.", "Drive up through the mid-foot."], "common_mistakes": ["Knees collapsing inward.", "Heels lifting.", "Losing brace at the bottom."], "substitutions": ["Goblet Squat", "Leg Press", "Hack Squat"]}, "Goblet Squat": {"movement_pattern": "Squat", "primary_muscles": ["Quads", "Glutes", "Core"], "equipment_type": "Dumbbell", "coach_cues": ["Hold the weight close to the chest.", "Sit between the hips, not just backward.", "Keep chest tall and knees tracking."], "common_mistakes": ["Letting elbows push knees awkwardly.", "Rounding the back.", "Shifting weight to toes."], "substitutions": ["Kettlebell Goblet Squat", "Squat", "Leg Press"]}, "Kettlebell Goblet Squat": {"movement_pattern": "Squat", "primary_muscles": ["Quads", "Glutes", "Core"], "equipment_type": "Kettlebell", "coach_cues": ["Hold the bell close to the sternum.", "Brace and keep the torso tall.", "Drive evenly through both feet."], "common_mistakes": ["Letting the kettlebell pull the chest down.", "Knees caving inward.", "Rushing reps."], "substitutions": ["Goblet Squat", "Squat", "Leg Press"]}, "Leg Press": {"movement_pattern": "Squat", "primary_muscles": ["Quads", "Glutes", "Hamstrings"], "equipment_type": "Machine", "coach_cues": ["Set feet about shoulder width.", "Lower until hips stay stable.", "Press through the full foot without locking knees hard."], "common_mistakes": ["Going too deep and rounding hips.", "Locking knees aggressively.", "Letting knees cave inward."], "substitutions": ["Squat", "Goblet Squat", "Hack Squat"]}, "Bulgarian Split Squat": {"movement_pattern": "Lunge", "primary_muscles": ["Quads", "Glutes", "Hamstrings"], "equipment_type": "Dumbbells", "coach_cues": ["Set the front foot far enough forward.", "Lower straight down with control.", "Drive through the front foot."], "common_mistakes": ["Pushing mostly off the rear leg.", "Front knee collapsing inward.", "Taking too narrow of a stance."], "substitutions": ["Walking Lunge", "Step-Up", "Lunge"]}, "Walking Lunge": {"movement_pattern": "Lunge", "primary_muscles": ["Quads", "Glutes", "Hamstrings"], "equipment_type": "Dumbbells", "coach_cues": ["Step long enough to stay balanced.", "Lower under control.", "Push through the front foot to stand."], "common_mistakes": ["Short choppy steps.", "Torso tipping forward.", "Knee collapsing inward."], "substitutions": ["Lunge", "Bulgarian Split Squat", "Step-Up"]}, "Lunge": {"movement_pattern": "Lunge", "primary_muscles": ["Quads", "Glutes", "Hamstrings"], "equipment_type": "Bodyweight", "coach_cues": ["Step to a stable stance.", "Lower with the front heel grounded.", "Stand tall between reps."], "common_mistakes": ["Front heel lifting.", "Knee diving inward.", "Rushing balance."], "substitutions": ["Walking Lunge", "Step-Up", "Bulgarian Split Squat"]}, "RDL": {"movement_pattern": "Hinge", "primary_muscles": ["Hamstrings", "Glutes", "Low Back"], "equipment_type": "Dumbbells", "coach_cues": ["Soft knees, hips move back.", "Keep weights close to the legs.", "Stop when hamstrings are loaded, then drive hips forward."], "common_mistakes": ["Squatting instead of hinging.", "Rounding the back.", "Letting weights drift away."], "substitutions": ["Romanian Deadlift", "Dumbbell Deadlift", "Hip Thrust"]}, "Dumbbell Deadlift": {"movement_pattern": "Hinge", "primary_muscles": ["Glutes", "Hamstrings", "Quads", "Back"], "equipment_type": "Dumbbells", "coach_cues": ["Brace before picking up the weights.", "Push the floor away to stand.", "Keep dumbbells close to the body."], "common_mistakes": ["Rounding the back from the floor.", "Hips shooting up too early.", "Losing control on the descent."], "substitutions": ["Deadlift", "RDL", "Kettlebell Swing"]}, "Hip Thrust": {"movement_pattern": "Hip Extension", "primary_muscles": ["Glutes", "Hamstrings"], "equipment_type": "Barbell", "coach_cues": ["Set upper back securely on the bench.", "Tuck ribs down before driving up.", "Pause briefly at full hip extension."], "common_mistakes": ["Overarching the low back.", "Feet too far forward.", "Not reaching full lockout."], "substitutions": ["Glute Bridge", "RDL", "Leg Press"]}, "Standing Calf Raise": {"movement_pattern": "Calf Raise", "primary_muscles": ["Calves"], "equipment_type": "Bodyweight", "coach_cues": ["Rise through the big toe side of the foot.", "Pause at the top.", "Lower slowly to a full stretch."], "common_mistakes": ["Bouncing reps.", "Rolling ankles outward.", "Using partial range."], "substitutions": ["Seated Calf Raise", "Leg Press Calf Raise", "Single-Leg Calf Raise"]}, "Hammer Curl": {"movement_pattern": "Elbow Flexion", "primary_muscles": ["Biceps", "Brachialis", "Forearms"], "equipment_type": "Dumbbells", "coach_cues": ["Keep palms facing each other.", "Pin elbows near your sides.", "Lower with control."], "common_mistakes": ["Swinging the torso.", "Elbows drifting forward.", "Only lowering halfway."], "substitutions": ["Dumbbell Curl", "Cable Curl", "Alternating Curl"]}, "Alternating Curl": {"movement_pattern": "Elbow Flexion", "primary_muscles": ["Biceps", "Forearms"], "equipment_type": "Dumbbells", "coach_cues": ["Curl one side while the other stays controlled.", "Keep shoulders relaxed.", "Rotate smoothly if using supination."], "common_mistakes": ["Rocking for momentum.", "Letting elbows move forward.", "Dropping the weight."], "substitutions": ["Hammer Curl", "Cable Curl", "EZ-Bar Curl"]}, "Tricep Pushdown": {"movement_pattern": "Elbow Extension", "primary_muscles": ["Triceps"], "equipment_type": "Cable/Band", "coach_cues": ["Keep elbows pinned to your sides.", "Extend fully at the bottom.", "Control the return without shoulders moving."], "common_mistakes": ["Leaning bodyweight into the cable.", "Letting elbows flare.", "Shortening the range."], "substitutions": ["Rope Tricep Pushdown", "Skull Crusher", "Close-Grip Push-Up"]}, "Skull Crusher": {"movement_pattern": "Elbow Extension", "primary_muscles": ["Triceps"], "equipment_type": "EZ Bar", "coach_cues": ["Keep upper arms mostly fixed.", "Lower toward the forehead or slightly behind it.", "Extend without letting elbows flare."], "common_mistakes": ["Turning it into a press.", "Elbows drifting too wide.", "Using too much weight."], "substitutions": ["Tricep Pushdown", "Overhead Tricep Extension", "Close-Grip Push-Up"]}, "Plank": {"movement_pattern": "Anti-Extension Core", "primary_muscles": ["Core", "Glutes", "Shoulders"], "equipment_type": "Bodyweight", "coach_cues": ["Ribs down, glutes tight.", "Push elbows into the floor.", "Keep a straight line from head to heels."], "common_mistakes": ["Hips sagging.", "Holding breath.", "Looking too far forward."], "substitutions": ["Dead Bug", "Side Plank", "Pallof Press"]}, "Dead Bug": {"movement_pattern": "Anti-Extension Core", "primary_muscles": ["Core", "Hip Flexors"], "equipment_type": "Bodyweight", "coach_cues": ["Press low back gently toward the floor.", "Move opposite arm and leg slowly.", "Exhale as the limbs extend."], "common_mistakes": ["Low back arching.", "Moving too fast.", "Losing rib position."], "substitutions": ["Plank", "Pallof Press", "Leg Raise"]}, "Russian Twist": {"movement_pattern": "Rotation Core", "primary_muscles": ["Obliques", "Core"], "equipment_type": "Bodyweight", "coach_cues": ["Sit tall and rotate through the torso.", "Move side to side with control.", "Keep the core braced."], "common_mistakes": ["Only moving the hands.", "Rounding the back.", "Rushing reps."], "substitutions": ["Pallof Press", "Side Plank", "Bicycle Crunch"]}, "Pallof Press": {"movement_pattern": "Anti-Rotation Core", "primary_muscles": ["Obliques", "Deep Core"], "equipment_type": "Cable/Band", "coach_cues": ["Stand tall and brace before pressing.", "Press straight out without rotating.", "Hold briefly at full extension."], "common_mistakes": ["Letting the cable twist the body.", "Shrugging shoulders.", "Using too much resistance."], "substitutions": ["Side Plank", "Dead Bug", "Plank"]}, "Kettlebell Swing": {"movement_pattern": "Hinge Power", "primary_muscles": ["Glutes", "Hamstrings", "Core"], "equipment_type": "Kettlebell", "coach_cues": ["Hike the bell back like a football snap.", "Snap hips forward; arms guide the bell.", "Let the bell float, then hinge again."], "common_mistakes": ["Squatting the swing.", "Lifting with the shoulders.", "Overextending the low back at the top."], "substitutions": ["RDL", "Dumbbell Deadlift", "Hip Thrust"]}, "Kettlebell Clean": {"movement_pattern": "Kettlebell Pull", "primary_muscles": ["Glutes", "Hamstrings", "Shoulders", "Core"], "equipment_type": "Kettlebell", "coach_cues": ["Keep the bell close to the body.", "Guide it around the wrist, not over it.", "Finish in a strong rack position."], "common_mistakes": ["Letting the bell crash on the forearm.", "Curling the bell with the arm.", "Losing posture in the rack."], "substitutions": ["Kettlebell Swing", "Kettlebell Press", "Kettlebell Row"]}, "Kettlebell Press": {"movement_pattern": "Vertical Push", "primary_muscles": ["Shoulders", "Triceps", "Core"], "equipment_type": "Kettlebell", "coach_cues": ["Start from a stable rack.", "Press up while keeping ribs down.", "Finish with the biceps near the ear."], "common_mistakes": ["Leaning back too far.", "Letting wrist bend back.", "Pressing out in front."], "substitutions": ["Overhead Press", "Arnold Press", "Machine Shoulder Press"]}, "Turkish Get-Up": {"movement_pattern": "Full Body Stability", "primary_muscles": ["Shoulders", "Core", "Glutes", "Legs"], "equipment_type": "Kettlebell", "coach_cues": ["Move slowly through each position.", "Keep eyes on the bell during the early steps.", "Stack shoulder, elbow, and wrist."], "common_mistakes": ["Rushing transitions.", "Letting the bell drift.", "Losing shoulder stability."], "substitutions": ["Half Get-Up", "Plank", "Kettlebell Windmill"]}, "Downward Dog": {"movement_pattern": "Mobility", "primary_muscles": ["Hamstrings", "Calves", "Shoulders", "Back"], "equipment_type": "Yoga Mat", "coach_cues": ["Press hands into the floor.", "Reach hips up and back.", "Keep knees soft if hamstrings are tight."], "common_mistakes": ["Forcing heels down.", "Collapsing into shoulders.", "Rounding aggressively through the back."], "substitutions": ["Child’s Pose", "Hamstring Stretch", "Cat-Cow"]}, "Child’s Pose": {"movement_pattern": "Recovery Mobility", "primary_muscles": ["Back", "Hips", "Shoulders"], "equipment_type": "Mat", "coach_cues": ["Sink hips toward heels.", "Reach arms forward and breathe slowly.", "Let the upper back relax."], "common_mistakes": ["Forcing range of motion.", "Holding tension in shoulders.", "Breathing shallowly."], "substitutions": ["Cat-Cow", "Thread the Needle", "Box Breathing"]}, "Hamstring Stretch": {"movement_pattern": "Flexibility", "primary_muscles": ["Hamstrings", "Calves"], "equipment_type": "Mat", "coach_cues": ["Keep the stretch mild to moderate.", "Hinge at the hips instead of rounding hard.", "Breathe slowly and avoid bouncing."], "common_mistakes": ["Forcing the stretch.", "Bouncing.", "Pulling into pain."], "substitutions": ["Downward Dog", "Figure Four Stretch", "Hip 90/90 Switch"]}, "Hip Flexor Stretch": {"movement_pattern": "Flexibility", "primary_muscles": ["Hip Flexors", "Quads"], "equipment_type": "Mat", "coach_cues": ["Tuck pelvis slightly before shifting forward.", "Keep ribs stacked over hips.", "Squeeze the glute on the back leg."], "common_mistakes": ["Arching the low back.", "Pushing too far forward.", "Losing glute engagement."], "substitutions": ["Hip 90/90 Switch", "Lunge", "Figure Four Stretch"]}, "Cat-Cow": {"movement_pattern": "Spinal Mobility", "primary_muscles": ["Spine", "Back", "Core"], "equipment_type": "Mat", "coach_cues": ["Move one segment at a time.", "Inhale into extension, exhale into flexion.", "Stay slow and pain-free."], "common_mistakes": ["Rushing the motion.", "Forcing end range.", "Letting shoulders collapse."], "substitutions": ["Child’s Pose", "Thread the Needle", "Crocodile Breathing"]}};
+function vertexApplyCore50Intelligence(){
+  const data=window.VERTEX_CORE50_INTELLIGENCE||{};
+  const byKey={};
+  Object.keys(data).forEach(name=>{ byKey[vertexId(name)]=data[name]; byKey[vertexSlug(name)]=data[name]; });
+  window.vertexGetExerciseIntelligence=function(exOrName){
+    const name=typeof exOrName==='string'?exOrName:(exOrName&&exOrName.name)||'';
+    const key=vertexId((exOrName&&exOrName.id)||name);
+    const slug=vertexSlug(name);
+    return byKey[key] || byKey[slug] || null;
+  };
+  EXERCISES.forEach(ex=>{
+    const intel=window.vertexGetExerciseIntelligence(ex);
+    if(!intel) return;
+    ex.exercise_intelligence=true;
+    ex.movement_pattern=intel.movement_pattern || ex.movement_pattern;
+    ex.primary_muscles=intel.primary_muscles || ex.primary_muscles || (ex.primary_muscle?[ex.primary_muscle]:[]);
+    ex.primary_muscle=(intel.primary_muscles&&intel.primary_muscles[0]) || ex.primary_muscle || ex.muscle || '';
+    ex.equipment_type=intel.equipment_type || ex.equipment_type || ex.equip || '';
+    ex.coach_cues=intel.coach_cues || ex.coach_cues || [];
+    ex.common_mistakes=intel.common_mistakes || ex.common_mistakes || [];
+    ex.substitutions=intel.substitutions || ex.substitutions || [];
+  });
+}
+vertexApplyCore50Intelligence();
+
+function vertexBuildMediaRegistry(){
+  const registry={};
+  const aliases={};
+  EXERCISES.forEach((ex)=>{
+    if(!ex.id) ex.id=vertexMediaKeyForExercise(ex);
+    const rec=vertexBuildMediaRecord(ex);
+    registry[rec.id]=rec;
+    aliases[vertexSlug(ex.name)]=rec.id;
+    aliases[vertexId(ex.name)]=rec.id;
+
+    ex.media_key=rec.id;
+    ex.bunny_video=rec.bunny_video;
+    ex.bunny_thumbnail=rec.bunny_thumbnail;
+    ex.bunny_video_path=rec.bunny_video_path;
+    ex.bunny_thumbnail_path=rec.bunny_thumbnail_path;
+    ex.video_url=rec.video_url;
+    ex.thumbnail_url=rec.thumbnail_url;
+    ex.has_bunny_video=false;
+    ex.media_status=rec.media_status;
+  });
+  window.VERTEX_MEDIA_REGISTRY=registry;
+  window.VERTEX_MEDIA_ALIASES=aliases;
+  window.getVertexMediaRecord=function(value){
+    const key=vertexId(value||'');
+    const slug=vertexSlug(value||'');
+    return registry[key] || registry[aliases[key]] || registry[aliases[slug]] || null;
+  };
+  window.VERTEX_MEDIA_AUDIT={
+    phase:'6B.3A',
+    total:Object.keys(registry).length,
+    bunnyReady:Object.values(registry).filter(r=>r.has_bunny_video).length,
+    bunnyPending:Object.values(registry).filter(r=>!r.has_bunny_video).length,
+    movementPatterns:Object.values(registry).reduce((a,r)=>{const k=r.movement_pattern||'Unclassified'; a[k]=(a[k]||0)+1; return a;},{}),
+    mediaCategories:Object.values(registry).reduce((a,r)=>{const k=r.media_category||'uncategorized'; a[k]=(a[k]||0)+1; return a;},{})
+  };
+}
+vertexBuildMediaRegistry();
+
 
 // Expose on window so the demo modal controller (separate script block) can access it
 window._EXERCISE_DEMOS=EXERCISE_DEMOS;
@@ -6045,12 +6707,15 @@ function normalizeCustomExercise(ex){return {name:String(ex.name||'').trim(),mus
 loadCustomExercises().forEach(ex=>{const clean=normalizeCustomExercise(ex); if(clean.name && !EXERCISES.some(e=>e.name.toLowerCase()===clean.name.toLowerCase())) EXERCISES.push(clean);});
 function isEquipmentAllowed(e){
   if(state.env!=='home') return true;
-  const equip=String(e.equip||'Other');
+  const equip=String(e.equip||e.equipment||e.equipment_type||'Other');
   const key=equipmentKey(equip);
   if(['bodyweight','none','mat'].includes(key)) return true;
-  if(!state.equipment) return false;
+  if(!state.equipment) state.equipment=loadEquipmentProfile ? loadEquipmentProfile() : {};
   if(state.equipment[key]) return true;
-  // v13.63 migration: 'Peloton / Exercise Bike' was previously stored as 'bike'
+  if(key==='dumbbell' && state.equipment['dumbbells']) return true;
+  if(key==='dumbbells' && state.equipment['dumbbell']) return true;
+  if(key==='pull_up_bar' && (state.equipment['pullup_bar']||state.equipment['pull_up'])) return true;
+  if(key==='stability_platform' && (state.equipment['step_platform']||state.equipment['stability_ball'])) return true;
   if(key==='peloton_exercise_bike' && (state.equipment['bike']||state.equipment['exercise_bike'])) return true;
   return false;
 }
@@ -6626,6 +7291,7 @@ function hardLocalSignOut(){
   renderAll();
 }
 async function signOut(){
+  try{ window.__vertexOAuthLocalAccepted=false; localStorage.removeItem('vertex_oauth_direct_backup'); }catch(e){}
   const supa=getSupa();
   hardLocalSignOut();
   if(!new URLSearchParams(window.location.search).has('code') && !new URLSearchParams(window.location.hash.replace('#','')).has('access_token')) toast('Signed out');
@@ -6750,6 +7416,89 @@ async function applyAuthenticatedSession(session){
   return _authApplyPromise;
 }
 
+
+function vertexDecodeJwtPayload(token){
+  try{
+    const part=String(token||'').split('.')[1];
+    if(!part) return null;
+    const b64=part.replace(/-/g,'+').replace(/_/g,'/');
+    const json=decodeURIComponent(Array.prototype.map.call(atob(b64),c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    return JSON.parse(json);
+  }catch(e){ return null; }
+}
+function vertexUserFromOAuthHash(hashParams){
+  try{
+    const access_token=hashParams && hashParams.get ? hashParams.get('access_token') : '';
+    if(!access_token) return null;
+    const payload=vertexDecodeJwtPayload(access_token)||{};
+    const meta=payload.user_metadata||payload.raw_user_meta_data||{};
+    return {
+      id:payload.sub||payload.user_id||payload.id||payload.email||('oauth_'+Date.now()),
+      email:payload.email||meta.email||'',
+      user_metadata:meta,
+      app_metadata:payload.app_metadata||payload.raw_app_meta_data||{provider:'google'},
+      aud:payload.aud||'authenticated'
+    };
+  }catch(e){ return null; }
+}
+function vertexStoreOAuthBackup(user, hashParams){
+  try{
+    const payload={
+      user:user,
+      access_token:hashParams.get('access_token')||'',
+      refresh_token:hashParams.get('refresh_token')||'',
+      expires_at:Math.floor(Date.now()/1000)+3600,
+      saved_at:Date.now()
+    };
+    localStorage.setItem('vertex_oauth_direct_backup', JSON.stringify(payload));
+  }catch(e){}
+}
+function vertexReadOAuthBackup(){
+  try{
+    const raw=localStorage.getItem('vertex_oauth_direct_backup');
+    if(!raw) return null;
+    const b=JSON.parse(raw);
+    if(!b || !b.user) return null;
+    if(b.expires_at && b.expires_at < Math.floor(Date.now()/1000)-60){ localStorage.removeItem('vertex_oauth_direct_backup'); return null; }
+    return b;
+  }catch(e){ return null; }
+}
+function vertexDirectEnterFromUser(user){
+  try{
+    const incomingAuth=authFromUser(user);
+    if(!incomingAuth) return false;
+    authUser=incomingAuth;
+    window.authUser=authUser;
+    window.__hkCurrentUser=user;
+    window.__vertexOAuthLocalAccepted=true;
+    document.body.classList.add('authenticated');
+    document.body.classList.remove('auth-resolving','auth-ready');
+    clearLoginInputs();
+    try{ clearCurrent(); }catch(e){}
+    try{ setSyncStatus('syncing','Loading account'); }catch(e){}
+    try{ renderAccountMenu(); }catch(e){}
+    try{ renderAll(); }catch(e){}
+    try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
+    try{ vertexRevealAuthenticatedShell(); }catch(e){}
+    try{ window.vertexFinishBootstrap&&window.vertexFinishBootstrap(); }catch(e){}
+    return true;
+  }catch(e){ console.warn('[Vertex OAuth] direct entry failed:', e); return false; }
+}
+async function vertexBackgroundAttachSupabaseSession(supa, hashParams){
+  try{
+    const access_token=hashParams.get('access_token');
+    const refresh_token=hashParams.get('refresh_token');
+    if(!supa || !access_token || !refresh_token) return;
+    const setResult=await Promise.race([
+      supa.auth.setSession({access_token,refresh_token}),
+      new Promise(r=>setTimeout(()=>r(null),4500))
+    ]);
+    if(setResult && setResult.data && setResult.data.session){
+      try{ await applyAuthenticatedSession(setResult.data.session); }catch(e){}
+    }
+  }catch(e){ console.warn('[Vertex OAuth] background session attach warning:', e); }
+}
+
 async function initAuth(){
   vertexSetAuthResolving();
 
@@ -6769,6 +7518,7 @@ async function initAuth(){
     if(event==='SIGNED_OUT'){
       const params=new URLSearchParams(window.location.search);
       const hash=new URLSearchParams(window.location.hash.replace('#',''));
+      if(window.__vertexOAuthLocalAccepted) return;
       if(params.has('code')||hash.has('access_token')||params.has('state')) return;
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
       _hydratedUserId=null; _hydrationInFlight=false; _authShellRevealedFor=null;
@@ -6796,6 +7546,25 @@ async function initAuth(){
     const hasHashToken=hashParams.has('access_token') || hashParams.has('refresh_token');
     const hasOAuthPending=sessionStorage.getItem('vertex_oauth_pending')==='1';
     const hasOAuthReturn=hasOAuthCode || hasHashToken || hasOAuthPending;
+    if(hasHashToken){
+      const directUser=vertexUserFromOAuthHash(hashParams);
+      if(directUser){
+        console.log('[Vertex OAuth] Hash token detected — direct app entry');
+        vertexStoreOAuthBackup(directUser, hashParams);
+        vertexDirectEnterFromUser(directUser);
+        vertexBackgroundAttachSupabaseSession(supa, hashParams);
+        window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+        try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
+        return;
+      }
+    }
+    const backup=vertexReadOAuthBackup();
+    if(!hasOAuthReturn && backup && backup.user){
+      if(vertexDirectEnterFromUser(backup.user)){
+        try{ setSyncStatus('local','Signed in locally'); }catch(e){}
+        return;
+      }
+    }
     const hasOAuthError=params.has('error') || params.has('error_description') || hashParams.has('error');
     if(hasOAuthError){
       const msg=params.get('error_description') || params.get('error') || hashParams.get('error_description') || hashParams.get('error') || 'OAuth failed';
@@ -6835,6 +7604,7 @@ async function initAuth(){
     if(sd && sd.data && sd.data.session && sd.data.session.user){
       await applyAuthenticatedSession(sd.data.session);
     } else {
+      if(window.__vertexOAuthLocalAccepted || authUser){ setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); return; }
       try{sessionStorage.removeItem('vertex_oauth_pending');}catch(e){}
       try{document.documentElement.classList.remove('vertex-oauth-callback-boot');}catch(e){}
       authUser=null; state.savedWorkouts=[]; state.progressLogs=[];
@@ -6847,7 +7617,18 @@ async function initAuth(){
 }
 function emptyPlanner(){return Object.fromEntries(DAYS.map(d=>[d,null]))}
 function byName(n){const e=EXERCISES.find(x=>x.name===n); if(!e){console.warn('Missing exercise: '+n); return null;} return clone(e)}
-function normalizeStrengthExercise(e){return {...clone(e),sets:[{reps:8,weight:''},{reps:8,weight:''},{reps:8,weight:''}],target:8,notes:''}}
+function normalizeStrengthExercise(e){
+  const x=clone(e)||{};
+  const nm=x.name||'Exercise';
+  const muscle=x.muscle||x.category||x.target||x.targetArea||'Custom';
+  const equip=x.equip||x.equipment||x.equipment_type||'Bodyweight';
+  let kind=x.kind;
+  if(!kind){
+    const m=String(muscle).toLowerCase();
+    kind=(m.includes('chest')||m.includes('tricep')||/press|push/i.test(nm))?'push':(m.includes('back')||m.includes('bicep')||/row|pull|curl/i.test(nm))?'pull':(m.includes('leg')||/squat|lunge|deadlift|calf/i.test(nm))?'legs':(m.includes('core'))?'core':'strength';
+  }
+  return {...x,name:nm,muscle,equip,equipment:equip,kind,sets:[{reps:8,weight:''},{reps:8,weight:''},{reps:8,weight:''}],target:8,notes:''};
+}
 function normalizePhaseMove(item, phase){const name=Array.isArray(item)?item[0]:item; const side=Array.isArray(item)?item[1]:''; return {name,side,mode:phase.mode,seconds:phase.defaultSeconds||0};}
 function workoutFromTemplate(key){const t=TEMPLATES[key]; if(!t) return null; if(t.type==='strength') return {name:t.name,type:'strength',source:'template',assignedDay:null,exercises:t.exercises.map(n=>normalizeStrengthExercise(byName(n)))}; if(t.type==='mobility_strength_hybrid') return {name:t.name,type:t.type,displayType:t.displayType||'Recovery / Mobility Day',source:'template',assignedDay:null,duration:t.duration||0,excludeFromVolume:true,volume:0,activePhase:0,phases:(t.phases||[]).map((p,i)=>({name:p.name,mode:p.mode,defaultSeconds:p.defaultSeconds||0,index:i,moves:(p.moves||[]).map(item=>normalizePhaseMove(item,p))})),exercises:[]}; return {name:t.name,type:t.type,source:'template',assignedDay:null,duration:t.duration,blocks:t.blocks,moves:t.moves.map((m,i)=>({name:m,duration:t.type==='interval'?30:Math.round((t.duration*60)/t.moves.length),block:i+1})),exercises:[]};}
 function setCurrent(w){state.tracking=false; state.activePhase=0; state.current=clone(w); markUnsaved(); renderAll(); collapseTopIfContent();}
@@ -7483,6 +8264,7 @@ function vertexSetAuthResolving(){
   document.body.classList.remove('auth-ready','auth-show-app','auth-done');
 }
 function vertexShowUnauthenticatedShell(){
+  if(window.__vertexOAuthLocalAccepted && authUser){ return; }
   authUser=null;
   window.authUser=null;
   try{ document.documentElement.classList.remove('vertex-oauth-callback-boot'); sessionStorage.removeItem('vertex_oauth_pending'); }catch(e){}
@@ -8309,46 +9091,33 @@ function wcRenderDashboard(){
   // Goal weight input
   const gwEl=document.getElementById('wc-goal-weight');if(gwEl&&!gwEl.value)gwEl.value=TARGET;
 
-  // Weight chart — merge Apple Health daily weight with check-in weight
+  // Weight chart — 6A24: chronological actuals only; projection starts from latest actual.
   wcDestroyChart('wc-dc-weight');
   const healthRows2 = typeof loadHealthEntries === 'function' ? loadHealthEntries() : [];
-  const ahWeightMap = {};
-  healthRows2.forEach(r => { if(r.date && r.bodyWeight != null) ahWeightMap[r.date] = Number(r.bodyWeight); });
-  const allWeightDates = [...new Set([...sorted.map(e=>e.date), ...Object.keys(ahWeightMap)])].sort();
-  const wLabels = allWeightDates.map(d => { const [,m,dy] = d.split('-'); return `${m}/${dy}`; });
-  const wData = allWeightDates.map(d => ahWeightMap[d] ?? (sorted.find(e=>e.date===d)?.weight ?? null));
-
-  // Rolling rate: use Apple Health daily weights over last 28 days for a realistic trend
-  // Anchors projection from today's AH weight forward
-  const todayIsoStr = typeof todayIso==='function' ? todayIso() : new Date().toISOString().split('T')[0];
-  const ahWeightEntries = Object.entries(ahWeightMap).sort((a,b)=>a[0].localeCompare(b[0]));
-  const last28AH = ahWeightEntries.filter(([d])=>(Date.now()-new Date(d+'T12:00:00').getTime())<28*86400000);
+  const weightMap = {};
+  sorted.forEach(e => { if(e.date && e.weight != null) weightMap[e.date] = {weight:Number(e.weight), priority:1}; });
+  healthRows2.forEach(r => { if(r.date && r.bodyWeight != null) weightMap[r.date] = {weight:Number(r.bodyWeight), priority:2}; });
+  const actualRows = Object.entries(weightMap)
+    .map(([date,obj]) => ({date, weight:Number(obj.weight)}))
+    .filter(r => r.date && Number.isFinite(r.weight) && r.weight > 0)
+    .sort((a,b)=>a.date.localeCompare(b.date))
+    .slice(-18);
+  const wLabels = actualRows.map(r => { const [,m,dy] = r.date.split('-'); return `${m}/${dy}`; });
+  const wData = actualRows.map(r => r.weight);
   let rolling = null;
-  let projAnchorWeight = ahWeightMap[todayIsoStr] ?? latest.weight;
-  let projAnchorDate = todayIsoStr;
   let _rawRate = null;
-  if(last28AH.length >= 4){
-    const firstAH = last28AH[0]; const lastAH = last28AH[last28AH.length-1];
-    const ahSpanDays = Math.round((new Date(lastAH[0]+'T12:00:00')-new Date(firstAH[0]+'T12:00:00'))/86400000);
-    if(ahSpanDays >= 7) {
-      const ahRate = (Number(firstAH[1]) - Number(lastAH[1])) / (ahSpanDays / 7);
-      if(ahRate > 0.05) _rawRate = Math.round(ahRate * 100) / 100;
-    }
+  const projLabels=[...wLabels];
+  const projData=wData.map(()=>null);
+  let projAnchorWeight = actualRows.length ? actualRows[actualRows.length-1].weight : latest.weight;
+  let projAnchorDate = actualRows.length ? actualRows[actualRows.length-1].date : latest.date;
+  if(actualRows.length >= 2){
+    const recent = actualRows.slice(-8);
+    const first = recent[0], last = recent[recent.length-1];
+    const spanDays = Math.max(1, Math.round((new Date(last.date+'T12:00:00')-new Date(first.date+'T12:00:00'))/86400000));
+    const rate = (first.weight - last.weight) / (spanDays / 7);
+    if(rate > 0.05){ _rawRate = Math.round(rate*100)/100; rolling = Math.min(_rawRate, 2.0); }
   }
-  // Fallback to check-in trend if not enough AH data
-  if(!_rawRate && sorted.length >= 2){
-    const _spanDays = Math.round((new Date(sorted[sorted.length-1].date)-new Date(sorted[0].date))/86400000);
-    if(_spanDays >= 14){
-      const ciRate = (sorted[0].weight - sorted[sorted.length-1].weight) / (_spanDays / 7);
-      if(ciRate > 0.05) _rawRate = Math.round(ciRate * 100) / 100;
-    }
-  }
-  // Cap at 2 lb/wk (Mayo Clinic / Johns Hopkins safe guideline) — chart uses capped rate
-  const SAFE_MAX_RATE = 2.0;
-  const _rateExceedsSafe = _rawRate && _rawRate > SAFE_MAX_RATE;
-  rolling = _rawRate ? Math.min(_rawRate, SAFE_MAX_RATE) : null;
-
-  const projLabels=[...wLabels]; const projData=wData.map(()=>null);
+  const _rateExceedsSafe = _rawRate && _rawRate > 2.0;
   if(rolling&&rolling>0){
     for(let i=1;i<=8;i++){
       const d=new Date(projAnchorDate+'T12:00:00');
@@ -8361,8 +9130,8 @@ function wcRenderDashboard(){
   }
   const wcEl=document.getElementById('wc-dc-weight');
   const _hasProjection=rolling&&rolling>0;
-  const _wcDatasets=[{label:'Actual',data:wData,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.07)',borderWidth:2.5,pointRadius:3,fill:true,tension:0.35,spanGaps:false}];
-  if(_hasProjection) _wcDatasets.push({label:'Projected',data:projData,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:0.35,spanGaps:true});
+  const _wcDatasets=[{label:'Actual',data:wData,borderColor:'#48ff8a',backgroundColor:'rgba(72,255,138,.06)',borderWidth:2.5,pointRadius:3,fill:false,tension:0,spanGaps:false}];
+  if(_hasProjection) _wcDatasets.push({label:'Projected',data:projData,borderColor:'#ffd048',borderDash:[5,4],borderWidth:1.5,pointRadius:2,fill:false,tension:0,spanGaps:true});
   if(wcEl)_wcCharts['wc-dc-weight']=new Chart(wcEl.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:_wcDatasets},options:{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:_hasProjection,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}}}});
 
   // Progress
@@ -9670,6 +10439,47 @@ function protoSelectDate(dateStr){
   }
 </style>
 
+
+<style id="vertex-6b1-media-foundation-css">
+  .media-detail-card{max-width:760px;width:min(760px,calc(100vw - 32px));max-height:88vh;overflow-y:auto;box-sizing:border-box}
+  .media-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+  .media-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:6px}
+  .media-title{font-size:30px;line-height:1.05;margin:0;color:var(--text)}
+  .media-meta{color:var(--muted);font-size:12px;margin-top:6px}
+  .media-stage{border:1px solid rgba(232,255,71,.25);background:linear-gradient(135deg,rgba(232,255,71,.08),rgba(255,255,255,.02));border-radius:14px;min-height:220px;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px;margin:14px 0}
+  .media-stage b{display:block;color:var(--text);font-size:18px;margin-bottom:6px}
+  .media-stage span{display:block;color:var(--muted);font-size:13px;line-height:1.45;max-width:460px}
+  .media-field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+  .media-field{border:1px solid var(--line2);background:var(--panel2);border-radius:10px;padding:11px}
+  .media-field .k{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.4px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+  .media-field .v{font-size:13px;color:var(--text);word-break:break-word}
+  .media-cues{display:grid;gap:8px;margin-top:12px}
+  .media-cue{border:1px solid var(--line2);background:rgba(255,255,255,.025);border-radius:10px;padding:10px 12px;color:var(--muted);font-size:13px;line-height:1.45}
+  .ex-item{cursor:pointer}
+  .ex-item:hover{border-color:rgba(232,255,71,.28)}
+  @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
+</style>
+
+
+  #exercise-list .vertex-recent-flow,
+  #exercise-list .vertex-recent-flow *,
+  #exercise-list .ex-group-label{
+    position:static!important;
+    top:auto!important;
+    bottom:auto!important;
+    left:auto!important;
+    right:auto!important;
+    transform:none!important;
+    z-index:auto!important;
+  }
+  #exercise-list .vertex-recent-flow{
+    display:block!important;
+    margin:0 0 8px 0!important;
+    padding:0!important;
+    contain:content!important;
+  }
+</style>
+
 </head><body>
           <h1>Vertex — Protocol Summary</h1>
           <div class="patient">${escapeHtml(displayName)}${isRealName && initials !== displayName.toUpperCase() ? ` (${initials})` : ''}</div>
@@ -10064,7 +10874,7 @@ function setPage(page){
   // Sidebar (library) — Workout tab only
   // Right panel (saved workouts/stats) — Workout tab only (on Home, Saved Workouts is moved into main)
   document.querySelectorAll('.sidebar').forEach(el=>{el.style.display=onWorkout?'':'none';});
-  document.querySelectorAll('.right').forEach(el=>{el.style.display=onWorkout?'':'none';});
+  document.querySelectorAll('.right').forEach(el=>{el.style.display=(onWorkout && hasWorkout())?'':'none';});
   // On Home, hide the builder-tied sections of the right panel (Coach Reco / Volume Stats / Muscle Volume).
   document.querySelectorAll('.right .home-hide').forEach(el=>{el.style.display=onHome?'none':'';});
   // v13.63 — Saved Workouts lives in the right column on Workout tab only.
@@ -10076,6 +10886,10 @@ function setPage(page){
   // Other tabbed pages (Progress / Health / AI)
   const pageMap={progress:'progressPage',wellness:'wellnessPage',health:'wellnessPage',ai:'aiPage'};
   ['progressPage','wellnessPage','aiPage'].forEach(id=>{const el=document.getElementById(id); if(!el) return; const show=pageMap[state.page]===id; el.style.display=show?'block':'none'; if(show){el.classList.remove('page-entering'); void el.offsetWidth; el.classList.add('page-entering');}});
+  // 6A24 route lock: Home must never show Progress/Wellness/AI content.
+  if(state.page==='home'){
+    ['progressPage','wellnessPage','aiPage'].forEach(id=>{const el=document.getElementById(id); if(el) el.style.display='none';});
+  }
   if(state.page==='progress'){ renderProgressPage(); }
 
   const todayEl=document.getElementById('today'); if(todayEl) todayEl.style.display='none';
@@ -10097,7 +10911,8 @@ function setPage(page){
   // Workout tab: show builder, intel, coach, name/meta, builder
   ['savedAcc','statsAcc','coachAcc'].forEach(id=>{const el=document.getElementById(id); if(el) el.style.display=onWorkout?'':'none';});
   // intelAcc now lives in Home dashboard — rendered by renderHomeDashboard, not shown here
-  document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=onWorkout?'':'none';});
+  document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=(onWorkout && hasWorkout())?'':'none';});
+  const _wguide=document.getElementById('workoutStartGuide'); if(_wguide) _wguide.style.display=(onWorkout && !hasWorkout())?'block':'none';
 
   // homePage is legacy scaffold — always hidden, home-dashboard is the real content
   const homePh=document.getElementById('homePage'); if(homePh) homePh.style.display='none';
@@ -10431,9 +11246,21 @@ ${dueToday.length ? `
   }
 }
 
+function vertexWorkoutHasContent(){
+  try{return !!hasWorkout(state.current);}catch(e){return false;}
+}
+function vertexApplyWorkoutEmptyState(){
+  const onWorkout=(state.page||defaultPage())==='workout';
+  const hasContent=vertexWorkoutHasContent();
+  const guide=document.getElementById('workoutStartGuide');
+  if(guide) guide.style.display=(onWorkout && !hasContent)?'block':'none';
+  document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=(onWorkout && hasContent)?'':'none';});
+  document.querySelectorAll('.right').forEach(el=>{el.style.display=(onWorkout && hasContent)?'':'none';});
+}
 function renderAll(){
   const pg=state.page||defaultPage();
   renderControls(); setPage(pg);
+  vertexApplyWorkoutEmptyState();
   const logBtn=document.getElementById('btn-log');
   if(logBtn) logBtn.classList.toggle('armed',!!hasWorkout());
   refreshSaveButton(); updateWorkoutBottomBar();
@@ -10535,9 +11362,10 @@ function exerciseEnvironments(e){
   return arr.map(x=>String(x||'').toLowerCase()).filter(Boolean);
 }
 function matchesEnvironment(e){
+  if(!state.env) return false;
   const envs=exerciseEnvironments(e);
-  if(!envs.length) return true;
-  if(state.env==='gym') return true; // Gym access includes all home/bodyweight exercises plus gym-only work.
+  if(!envs.length) return state.env==='gym';
+  if(state.env==='gym') return true;
   return envs.includes('home')||envs.includes('both')||envs.includes('all')||envs.includes('home/gym');
 }
 function renderSidebar(){
@@ -10549,7 +11377,7 @@ function renderSidebar(){
       let opened=false;
       try{ opened=localStorage.getItem('vertex_acc_equipmentPanel')==='1'; }catch(e){}
       ep.style.display='block';
-      ep.innerHTML=`<div class="equip-acc-head" data-equip-acc="1" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;user-select:none"><div class="label" style="margin:0">Home Equipment</div><span style="display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--muted)"><span style="color:var(--acc);font-weight:600">${onCount} on</span><span class="equip-acc-caret">${opened?'▼':'▶'}</span></span></div><div class="equip-acc-body" style="${opened?'margin-top:10px':'display:none'}"><button class="btn small" id="btn-equipment-open" title="Choose which equipment shapes your home exercise list" style="width:100%">Manage Equipment</button></div>`;
+      ep.innerHTML=`<button class="btn small" id="btn-equipment-open" title="Choose which equipment shapes your home exercise list" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border-color:rgba(232,255,71,.45)"><span style="font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--acc)">⚡ Home Equipment</span><span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--acc);font-weight:700">${onCount} on</span></button>`;
     }
     else {ep.style.display='none'; ep.innerHTML='';}
   }
@@ -10558,6 +11386,14 @@ function renderSidebar(){
   const groups=FILTER_GROUPS[mediaTrain]||FILTER_GROUPS.Strength;
   if(!groups.includes(state.muscle)) state.muscle='';
   document.getElementById('muscles').innerHTML=groups.filter(m=>m!=='All').map(m=>{const on=state.muscle===m; return `<button class="chip ${on?'on active':''}" data-muscle="${m}" aria-selected="${on?'true':'false'}">${m}</button>`;}).join('');
+  const envPicked=!!document.querySelector('[data-env]')?.closest('.segment')?.classList.contains('user-picked');
+  const equipSub=document.getElementById('equipmentSubFilter');
+  if(!envPicked || !state.env){
+    if(equipSub) equipSub.innerHTML='';
+    document.getElementById('ex-count').textContent='0';
+    document.getElementById('exercise-list').innerHTML='<div style="color:var(--dim);padding:12px;border:1px dashed var(--line2);border-radius:12px">Choose Gym or Home to view exercises.</div>';
+    return;
+  }
   const q=String(state.search||'').toLowerCase();
   let list=EXERCISES.filter(e=>{
     const exTrain=(e.training||'Strength');
@@ -10570,6 +11406,11 @@ function renderSidebar(){
   const seen=new Set();
   list=list.filter(e=>{const key=e.name.toLowerCase(); if(seen.has(key)) return false; seen.add(key); return true;}).sort((a,b)=>a.name.localeCompare(b.name));
   document.getElementById('ex-count').textContent=list.length;
+  const EQUIP_ORDER=['Bodyweight','Dumbbells','Barbell','Cable','Machine','Kettlebell','Band','Bench','Pull-Up Bar','Mat','Cardio','Other'];
+  const equipGroups={};
+  list.forEach(e=>{const raw=String(e.equipment_type||e.equipment||e.equip||'Other').trim()||'Other'; const k=/dumbbell/i.test(raw)?'Dumbbells':/barbell/i.test(raw)?'Barbell':/cable/i.test(raw)?'Cable':/machine/i.test(raw)?'Machine':/kettlebell/i.test(raw)?'Kettlebell':/bodyweight|none/i.test(raw)?'Bodyweight':/band/i.test(raw)?'Band':/bench/i.test(raw)?'Bench':/pull/i.test(raw)?'Pull-Up Bar':/mat|yoga/i.test(raw)?'Mat':/bike|treadmill|rower|cardio/i.test(raw)?'Cardio':raw; (equipGroups[k]||(equipGroups[k]=[])).push(e);});
+  const equipNames=EQUIP_ORDER.filter(k=>equipGroups[k]?.length).concat(Object.keys(equipGroups).filter(k=>!EQUIP_ORDER.includes(k)).sort());
+  if(equipSub) equipSub.innerHTML=equipNames.map(k=>`<button class="chip vertex-equipment-chip" data-equip-jump="${escapeAttr(k)}">${escapeHtml(k)} <span style="color:var(--dim);font-size:10px">${equipGroups[k].length}</span></button>`).join('');
   const MUSCLE_COLORS={
     'Chest':'#ff6b6b','Pecs':'#ff6b6b','Back':'#4bbdff','Lats':'#4bbdff',
     'Shoulders':'#ffb047','Legs':'#48ff8a','Quads':'#48ff8a','Hamstrings':'#48ff8a',
@@ -10615,7 +11456,7 @@ function renderSidebar(){
     const editBtn=e.custom?`<button class="ex-edit-btn" data-edit-custom="${escapeAttr(e.name)}" title="Edit">✎</button>`:'';
     const lastEntry=recentMap[e.name];
     const lastHint=showLast&&lastEntry?`<div class="ex-last">${lastEntry.weight>0?lastEntry.weight+' lb × ':'' }${lastEntry.reps} reps · ${daysAgo(lastEntry.when)}</div>`:'';
-    return `<div class="ex-item" data-add="${escapeAttr(e.name)}">
+    return `<div class="ex-item" data-ex-detail="${escapeAttr(e.name)}">
       <div class="ex-dot" style="background:${dot};border-radius:50%"></div>
       <div class="ex-info">
         <div class="ex-name">${escapeHtml(e.name)}${editBtn}</div>
@@ -10636,37 +11477,39 @@ function renderSidebar(){
       .filter(Boolean)
       .slice(0,3);
     if(recentExs.length){
-      recentHtml=`<div class="ex-group-label" style="display:flex;align-items:center;gap:6px;color:var(--acc)">⏱ Recently Used</div>`;
+      recentHtml=`<div class="vertex-recent-flow"><div class="ex-group-label" style="display:flex;align-items:center;gap:6px;color:var(--acc)">⏱ Recently Used</div>`;
       recentHtml+=recentExs.map(e=>exCard(e,true)).join('');
-      recentHtml+=`<div style="height:1px;background:var(--line2);margin:8px 0"></div>`;
+      recentHtml+=`<div style="height:1px;background:var(--line2);margin:8px 0"></div></div>`;
     }
   }
   let html = '' + recentHtml;
   if(!list.length){
-    html += '<div style="color:var(--dim);padding:10px">No matching exercises. Try All or another training type.</div>';
-  } else if(state.muscle !== 'All' || q){
-    // Filtered or searching — flat list, no headers
+    html += '<div style="color:var(--dim);padding:10px">No matching exercises. Try search or another training focus.</div>';
+  } else if(q){
+    // Searching stays flat so results are immediate.
     html += list.map(e=>exCard(e,true)).join('');
   } else {
-    // All muscles — group by muscle with headers
-    const muscleOrder = groups.filter(m => m !== 'All');
-    const grouped = {};
-    muscleOrder.forEach(m => { grouped[m] = []; });
-    list.forEach(e => {
-      const m = e.muscle || 'Other';
-      if(grouped[m]) grouped[m].push(e);
-      else { grouped[m] = grouped[m]||[]; grouped[m].push(e); }
-    });
-    muscleOrder.forEach(m => {
-      const items = grouped[m];
+    // Muscle-filtered and all-exercise views group by equipment for quick scanning/jump.
+    equipNames.forEach(eq => {
+      const items = equipGroups[eq];
       if(!items || !items.length) return;
-      const dot = muscleColor(m);
-      html += `<div class="ex-group-label" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${dot};display:inline-block;flex-shrink:0"></span>${escapeHtml(m)} <span style="color:var(--dim);font-size:10px">${items.length}</span></div>`;
-    html += items.map(e=>exCard(e,false)).join('');
+      html += `<div class="ex-group-label" data-equip-section="${escapeAttr(eq)}" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--acc);display:inline-block;flex-shrink:0"></span>${escapeHtml(eq)} <span style="color:var(--dim);font-size:10px">${items.length}</span></div>`;
+      html += items.sort((a,b)=>a.name.localeCompare(b.name)).map(e=>exCard(e,false)).join('');
     });
   }
   document.getElementById('exercise-list').innerHTML=html;
 }
+  if(!window.vertexEquipmentJumpBound){
+    window.vertexEquipmentJumpBound=true;
+    document.addEventListener('click',function(ev){
+      const chip=ev.target.closest&&ev.target.closest('[data-equip-jump]');
+      if(!chip) return;
+      const key=chip.getAttribute('data-equip-jump');
+      const sec=document.querySelector('[data-equip-section="'+CSS.escape(key)+'"]');
+      if(sec) sec.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
+
 function renderToday(){const saved=state.planner[todayKey]; const draft=(state.current.assignedDay===todayKey && hasWorkout(state.current))?state.current:null; const w=saved||draft; if(w){const isDraft=!saved&&draft; document.getElementById('today').innerHTML=`<div><div class="today-title">${isDraft?'Unsaved ':'Today&#39;s '}Workout: ${escapeHtml(w.name)}</div><div class="today-sub">${DAY_LABEL[todayKey]} · ${summary(w)}${isDraft?' · Save to planner when ready':''}</div></div><div>${isDraft?`<button class="btn acc" data-save-day="${todayKey}">Save Today</button>`:`<button class="btn acc" data-start-day="${todayKey}">Start Today</button>`} <button class="btn" data-edit-day="${todayKey}">Load / Edit</button></div>`; return;} document.getElementById('today').innerHTML=`<div><div class="today-title">No workout planned for ${DAY_LABEL[todayKey]}</div><div class="today-sub">Click Edit on today, build from the library or load a template, then Save.</div></div><button class="btn acc" data-edit-day="${todayKey}">Build Today</button>`;}
 function renderPlanner(){document.getElementById('planner').innerHTML=DAYS.map(d=>{const w=state.planner[d]; return `<div class="day-card ${d===todayKey?'today':''}"><div class="day-name">${DAY_LABEL[d]} <span class="day-count">${w?stats(w).moves:0} EX</span></div>${w?`<div class="day-workout">${escapeHtml(w.name)}</div><div class="day-preview">${preview(w)}</div>`:`<div class="day-preview">Empty. Click Edit, build from the library, then Save Day.</div>`}<div class="day-actions"><button class="btn acc small" data-save-day="${d}">Save</button><button class="btn small" data-edit-day="${d}">Edit</button><button class="btn small" ${w?'':'disabled'} data-start-day="${d}">Start</button><button class="btn small" ${w?'':'disabled'} data-copy-day="${d}">Copy</button><button class="btn red small" data-clear-day="${d}">Clear</button></div></div>`}).join('')}
 function templatePreview(t){if(t.type==='strength') return t.exercises.join(', '); if(t.type==='mobility_strength_hybrid') return `${t.displayType||'Recovery / Mobility Day'} · ${t.duration} min · ${(t.phases||[]).length} phases · volume excluded`; return `${t.duration} min · ${t.moves.slice(0,5).join(', ')}${t.moves.length>5?'…':''}`}
@@ -10811,7 +11654,7 @@ function renderBuilder(){
     const downBtn=`<button class="ex-reorder" data-move-down="${i}" ${isLast?'disabled':''} title="Move down" aria-label="Move ${escapeAttr(e.name)} down">▼</button>`;
     const hasDemo=!!getExerciseDemo(e.name);
     const demoBtn=hasDemo?`<button class="btn small demo-trigger" data-demo="${escapeAttr(e.name)}" title="Watch exercise demonstration">▶ Demo</button>`:'';
-    return `<article class="exercise-card"><div class="ex-head"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(e.name)}</strong><span class="badge blue">${e.kind.toUpperCase()}</span><span class="badge green">${e.muscle}</span><span class="ex-reorder-group">${upBtn}${downBtn}</span>${demoBtn}<button class="remove" data-remove="${i}">×</button></div>${perfStrip(e)}<div class="sets"><div class="set-row head"><div>Set</div><div>Reps</div><div>Weight (lb)</div><div class="status">Status</div></div>${(e.sets||[]).map((r,j)=>{
+    return `<article class="exercise-card"><div class="ex-head"><span class="num">${String(i+1).padStart(2,'0')}</span><strong>${escapeHtml(e.name)}</strong><span class="badge blue">${String(e.kind||'STRENGTH').toUpperCase()}</span><span class="badge green">${e.muscle}</span><span class="ex-reorder-group">${upBtn}${downBtn}</span>${demoBtn}<button class="remove" data-remove="${i}">×</button></div>${perfStrip(e)}<div class="sets"><div class="set-row head"><div>Set</div><div>Reps</div><div>Weight (lb)</div><div class="status">Status</div></div>${(e.sets||[]).map((r,j)=>{
   const hasLast=j>0&&e.sets[j-1];
   const repeatBtn=hasLast?`<button class="quick-btn" data-qa-repeat="${i}:${j}">↺ Repeat</button>`:'';
   return `<div class="set-row"><div class="num">${j+1}</div><input data-reps="${i}:${j}" inputmode="numeric" value="${r.reps??''}"/><input data-weight="${i}:${j}" inputmode="decimal" value="${r.weight??''}" placeholder="lbs"/><div class="status ${String(setPrLabel(e,r)).includes('PR')?'perf-pr':''}">${escapeHtml(setPrLabel(e,r))}</div></div><div class="quick-add-row"><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="1">+1</button><button class="quick-btn" data-qa-reps="${i}:${j}" data-qa-delta="-1">-1</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="5">+5 lb</button><button class="quick-btn" data-qa-weight="${i}:${j}" data-qa-delta="-5">-5</button>${repeatBtn}</div>`;
@@ -11297,6 +12140,28 @@ function generateVertexPDFReport(){
   }
 </style>
 
+
+<style id="vertex-6b1-media-foundation-css">
+  .media-detail-card{max-width:760px;width:min(760px,calc(100vw - 32px));max-height:88vh;overflow-y:auto;box-sizing:border-box}
+  .media-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+  .media-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:6px}
+  .media-title{font-size:30px;line-height:1.05;margin:0;color:var(--text)}
+  .media-meta{color:var(--muted);font-size:12px;margin-top:6px}
+  .media-stage{border:1px solid rgba(232,255,71,.25);background:linear-gradient(135deg,rgba(232,255,71,.08),rgba(255,255,255,.02));border-radius:14px;min-height:220px;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px;margin:14px 0}
+  .media-stage b{display:block;color:var(--text);font-size:18px;margin-bottom:6px}
+  .media-stage span{display:block;color:var(--muted);font-size:13px;line-height:1.45;max-width:460px}
+  .media-field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+  .media-field{border:1px solid var(--line2);background:var(--panel2);border-radius:10px;padding:11px}
+  .media-field .k{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.4px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+  .media-field .v{font-size:13px;color:var(--text);word-break:break-word}
+  .media-cues{display:grid;gap:8px;margin-top:12px}
+  .media-cue{border:1px solid var(--line2);background:rgba(255,255,255,.025);border-radius:10px;padding:10px 12px;color:var(--muted);font-size:13px;line-height:1.45}
+  .ex-item{cursor:pointer}
+  .ex-item:hover{border-color:rgba(232,255,71,.28)}
+  @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
+</style>
+
+
 </head><body>
 
 <h1>Vertex</h1>
@@ -11659,6 +12524,28 @@ window.renderSymmetry = renderSymmetry;
   }
 </style>
 
+
+<style id="vertex-6b1-media-foundation-css">
+  .media-detail-card{max-width:760px;width:min(760px,calc(100vw - 32px));max-height:88vh;overflow-y:auto;box-sizing:border-box}
+  .media-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+  .media-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:6px}
+  .media-title{font-size:30px;line-height:1.05;margin:0;color:var(--text)}
+  .media-meta{color:var(--muted);font-size:12px;margin-top:6px}
+  .media-stage{border:1px solid rgba(232,255,71,.25);background:linear-gradient(135deg,rgba(232,255,71,.08),rgba(255,255,255,.02));border-radius:14px;min-height:220px;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px;margin:14px 0}
+  .media-stage b{display:block;color:var(--text);font-size:18px;margin-bottom:6px}
+  .media-stage span{display:block;color:var(--muted);font-size:13px;line-height:1.45;max-width:460px}
+  .media-field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+  .media-field{border:1px solid var(--line2);background:var(--panel2);border-radius:10px;padding:11px}
+  .media-field .k{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.4px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+  .media-field .v{font-size:13px;color:var(--text);word-break:break-word}
+  .media-cues{display:grid;gap:8px;margin-top:12px}
+  .media-cue{border:1px solid var(--line2);background:rgba(255,255,255,.025);border-radius:10px;padding:10px 12px;color:var(--muted);font-size:13px;line-height:1.45}
+  .ex-item{cursor:pointer}
+  .ex-item:hover{border-color:rgba(232,255,71,.28)}
+  @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
+</style>
+
+
 </head><body><h1>Vertex Error Log</h1><button onclick="window.close()">Close</button><table><thead><tr><th>Time</th><th>Type</th><th>Message</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table>
 <style>
 /* ============================================================
@@ -11773,16 +12660,21 @@ function renderHomeSparklines(){
   const last7=healthRows.filter(r=>r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000).slice(0,7).reverse();
   const allW=[];
   Object.keys(localStorage).filter(k=>k.startsWith('vertex_health_entries')).forEach(k=>{try{JSON.parse(localStorage.getItem(k)||'[]').forEach(r=>{if(r&&r.bodyWeight&&r.date)allW.push(r);});}catch(e){}});
-  const wByDate={};allW.forEach(r=>{if(r.date&&r.bodyWeight)wByDate[r.date]=r.bodyWeight;});
+  const wByDate={}; allW.forEach(r=>{if(r.date&&r.bodyWeight)wByDate[r.date]=Number(r.bodyWeight);});
   const wRows=Object.entries(wByDate).sort((a,b)=>a[0].localeCompare(b[0])).slice(-7);
-  const safeNum=(v,fallback)=>{const n=Number(v);return Number.isFinite(n)?n:fallback;};
+  const safeNum=(v)=>{const n=Number(v);return Number.isFinite(n)?n:null;};
   const sparkSVG=(vals,color)=>{
-    const clean=vals.map(v=>safeNum(v,NaN)).filter(v=>Number.isFinite(v));
-    if(clean.length<2) return '<div style="width:80px;height:28px;display:flex;align-items:center;color:var(--muted);font-size:10px">—</div>';
-    const mn=Math.min.apply(null,clean), mx=Math.max.apply(null,clean), rng=(mx-mn)||1;
-    return '<div style="width:80px;height:28px;display:flex;align-items:flex-end;gap:3px;overflow:hidden">'
-      + clean.map(v=>'<span style="display:block;flex:1;min-width:3px;height:'+Math.max(3, Math.round(((v-mn)/rng)*24+3))+'px;border-radius:999px;background:'+color+';opacity:.85"></span>').join('')
-      + '</div>';
+    const clean=vals.map(safeNum).filter(v=>v!=null);
+    if(clean.length<2) return '<svg width="86" height="34" viewBox="0 0 86 34" aria-hidden="true"><line x1="8" y1="17" x2="78" y2="17" stroke="rgba(255,255,255,.22)" stroke-width="2" stroke-linecap="round"/></svg>';
+    const mn=Math.min(...clean), mx=Math.max(...clean), rng=(mx-mn)||1;
+    const pts=clean.map((v,i)=>{
+      const x=6+(i*(74/Math.max(1,clean.length-1)));
+      const y=28-((v-mn)/rng)*22;
+      return [x,y];
+    });
+    const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+    const circles=pts.map(p=>'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2" fill="'+color+'"/>').join('');
+    return '<svg width="86" height="34" viewBox="0 0 86 34" aria-hidden="true"><path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'+circles+'</svg>';
   };
   const cards=[
     {label:'Weight',unit:'lb',color:'var(--acc)',vals:wRows.map(r=>r[1]),latest:wRows.length?Number(wRows[wRows.length-1][1]).toFixed(1):null},
@@ -11790,7 +12682,7 @@ function renderHomeSparklines(){
     {label:'HRV',unit:'ms',color:'#48ff8a',vals:last7.map(r=>r.hrv),latest:last7.length&&last7[last7.length-1]?.hrv!=null?Math.round(last7[last7.length-1].hrv):null},
     {label:'Readiness',unit:'',color:'#ffd048',vals:last7.map(r=>r.readiness||r.readinessScore),latest:last7.length&&(last7[last7.length-1]?.readiness||last7[last7.length-1]?.readinessScore)!=null?(last7[last7.length-1].readiness||last7[last7.length-1].readinessScore):null}
   ];
-  el.innerHTML=cards.map(c=>'<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">'+c.label+'</div><div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px"><div><span class="vertex-sparkline-val" style="color:'+c.color+'">'+(c.latest??'—')+'</span>'+(c.unit?'<span style="font-size:9px;color:var(--muted);margin-left:1px">'+c.unit+'</span>':'')+'</div>'+sparkSVG(c.vals,c.color)+'</div></div>').join('');
+  el.innerHTML=cards.map(c=>'<div class="vertex-sparkline-card"><div class="vertex-sparkline-label">'+c.label+'</div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div><span class="vertex-sparkline-val" style="color:'+c.color+'">'+(c.latest??'—')+'</span>'+(c.unit?'<span style="font-size:9px;color:var(--muted);margin-left:1px">'+c.unit+'</span>':'')+'</div>'+sparkSVG(c.vals,c.color)+'</div></div>').join('');
 }
 window.renderHomeSparklines=renderHomeSparklines;
 
@@ -11918,6 +12810,28 @@ function vertexShowSyncDiag(){
   }
 </style>
 
+
+<style id="vertex-6b1-media-foundation-css">
+  .media-detail-card{max-width:760px;width:min(760px,calc(100vw - 32px));max-height:88vh;overflow-y:auto;box-sizing:border-box}
+  .media-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+  .media-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:6px}
+  .media-title{font-size:30px;line-height:1.05;margin:0;color:var(--text)}
+  .media-meta{color:var(--muted);font-size:12px;margin-top:6px}
+  .media-stage{border:1px solid rgba(232,255,71,.25);background:linear-gradient(135deg,rgba(232,255,71,.08),rgba(255,255,255,.02));border-radius:14px;min-height:220px;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px;margin:14px 0}
+  .media-stage b{display:block;color:var(--text);font-size:18px;margin-bottom:6px}
+  .media-stage span{display:block;color:var(--muted);font-size:13px;line-height:1.45;max-width:460px}
+  .media-field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+  .media-field{border:1px solid var(--line2);background:var(--panel2);border-radius:10px;padding:11px}
+  .media-field .k{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.4px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+  .media-field .v{font-size:13px;color:var(--text);word-break:break-word}
+  .media-cues{display:grid;gap:8px;margin-top:12px}
+  .media-cue{border:1px solid var(--line2);background:rgba(255,255,255,.025);border-radius:10px;padding:10px 12px;color:var(--muted);font-size:13px;line-height:1.45}
+  .ex-item{cursor:pointer}
+  .ex-item:hover{border-color:rgba(232,255,71,.28)}
+  @media(max-width:720px){.media-detail-card{width:calc(100vw - 20px);max-height:calc(100vh - 20px);padding:18px}.media-detail-head{flex-direction:column}.media-field-grid{grid-template-columns:1fr}.media-stage{min-height:170px}}
+</style>
+
+
 </head><body><h1>Sync Diagnostics</h1><p>Last full sync: ${lastSync?fmtTime(lastSync):'Never'}</p><div class="vertex-sync-row" style="font-size:10px;color:#555;padding-bottom:6px"><span>METRIC</span><span>LAST VALUE · TIME</span></div>${rows}<div class="footer">Pulled from Apple Health via native HealthKit. Syncs on app foreground (5-min debounce).</div><button onclick="window.close()">Close</button>
 <style>
 /* ============================================================
@@ -12015,7 +12929,17 @@ document.addEventListener('click',async e=>{
     }
     document.getElementById('account-menu')?.classList.toggle('on');
     return
-  } if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(await vertexConfirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync','vertex_hk_imported'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-week-sunday'){vertexSetSetting('weekStart','sunday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-week-monday'){vertexSetSetting('weekStart','monday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='btn-start-bottom'){if(hasWorkout()) openFocusedWorkoutMode(state.current); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='programStartToday'){await programStartTodayWorkout(); return} if(t.id==='programEditFirst'){await programEditFirstWorkout(); return} if(t.id==='tplCancel'){state.pendingTemplate=null; document.getElementById('tplActionModal')?.classList.remove('on'); return} if(t.id==='tplStartNow'){await tplStartNow(); return} if(t.id==='tplEditFirst'){tplEditFirst(); return} if(t.id==='tplAddPlanner'){tplAddToPlanner(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment,.pill-fade-wrap')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment,.pill-fade-wrap')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} const accHead=e.target&&e.target.closest&&e.target.closest('.acc-head'); if(accHead){const acc=accHead.closest('.accordion')||accHead.parentElement; if(!acc) return; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const add=t.getAttribute('data-add'); if(add){
+  } if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(await vertexConfirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync','vertex_hk_imported'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-week-sunday'){vertexSetSetting('weekStart','sunday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-week-monday'){vertexSetSetting('weekStart','monday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='btn-start-bottom'){if(hasWorkout()) openFocusedWorkoutMode(state.current); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='programStartToday'){await programStartTodayWorkout(); return} if(t.id==='programEditFirst'){await programEditFirstWorkout(); return} if(t.id==='tplCancel'){state.pendingTemplate=null; document.getElementById('tplActionModal')?.classList.remove('on'); return} if(t.id==='tplStartNow'){await tplStartNow(); return} if(t.id==='tplEditFirst'){tplEditFirst(); return} if(t.id==='tplAddPlanner'){tplAddToPlanner(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment,.pill-fade-wrap')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment,.pill-fade-wrap')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} const accHead=e.target&&e.target.closest&&e.target.closest('.acc-head'); if(accHead){const acc=accHead.closest('.accordion')||accHead.parentElement; if(!acc) return; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const exDetail=t.getAttribute('data-ex-detail'); if(exDetail){
+    if(typeof openExerciseMediaDetail==='function') openExerciseMediaDetail(exDetail);
+    return;
+  }
+  if(t.id==='mediaDetailAdd'){
+    const n=t.getAttribute('data-name');
+    if(n){ addExerciseByName(n); if(typeof closeExerciseMediaDetail==='function') closeExerciseMediaDetail(); }
+    return;
+  }
+  if(t.id==='mediaDetailClose'){ if(typeof closeExerciseMediaDetail==='function') closeExerciseMediaDetail(); return }
+  const add=t.getAttribute('data-add'); if(add){
     addExerciseByName(add);
     // Flash the + button green
     const addBtn=t.classList.contains('ex-add-btn')?t:t.closest('.ex-item')?.querySelector('.ex-add-btn');
@@ -12204,7 +13128,7 @@ document.addEventListener('click',async e=>{
  const dci=t.getAttribute('data-delete-ci'); if(dci){await deleteCheckin(dci); return}
  const es=t.getAttribute('data-edit-supp'); if(es!==null){openEditSupplement(Number(es)); return}
  const ds=t.getAttribute('data-delete-supp'); if(ds){await deleteSupplement(ds); return}
- if(t.id==='btn-health-refresh'){renderHealthPage(); toast('Health refreshed'); return} if(t.id==='btn-save-health'){saveHealthEntry(); return} if(t.id==='btn-clear-health-form'){clearHealthForm(); return} const lsw=t.getAttribute('data-load-saved'); if(lsw!==null){loadSavedWorkout(lsw); return} const dsw=t.getAttribute('data-delete-saved'); if(dsw!==null){await deleteSavedWorkout(dsw); return} const demo=t.getAttribute('data-demo'); if(demo){openExerciseDemo(demo); return} const rem=t.getAttribute('data-remove'); if(rem!==null){markUnsaved(); state.current.exercises.splice(Number(rem),1); renderAll(); return} const mvU=t.getAttribute('data-move-up'); if(mvU!==null){const i=Number(mvU); if(i>0){const arr=state.current.exercises; [arr[i-1],arr[i]]=[arr[i],arr[i-1]]; markUnsaved(); renderAll();} return} const mvD=t.getAttribute('data-move-down'); if(mvD!==null){const i=Number(mvD); const arr=state.current.exercises; if(i<arr.length-1){[arr[i+1],arr[i]]=[arr[i],arr[i+1]]; markUnsaved(); renderAll();} return} const aset=t.getAttribute('data-add-set'); if(aset!==null){markUnsaved(); state.current.exercises[Number(aset)].sets.push({reps:8,weight:''}); renderAll(); return} const dupe=t.getAttribute('data-dupe'); if(dupe!==null){markUnsaved(); state.current.exercises.splice(Number(dupe)+1,0,clone(state.current.exercises[Number(dupe)])); renderAll(); return} if(t.getAttribute('data-phase-prev')){state.activePhase=Math.max(0,(state.activePhase||0)-1); renderBuilder(); return} if(t.getAttribute('data-phase-next')){const max=(state.current.phases?.length||1)-1; state.activePhase=Math.min(max,(state.activePhase||0)+1); renderBuilder(); return} if(t.getAttribute('data-start-current')){startWorkout(); return} const stday=t.getAttribute('data-start-day'); if(stday){const w=state.planner[stday]; if(w) startWorkout(w); return} if(t.id==='assignToday'){await saveDay(todayKey); closeAssign(); return} if(t.id==='assignChoose'){await saveDay(document.getElementById('assignDay').value); closeAssign(); return} if(t.id==='assignJust'||t.id==='assignCancel'){closeAssign(); return} if(t.id==='sessionNextBtn'){advanceSession(); return} if(t.id==='sessionClose'){closeSession(); return}
+ if(t.id==='btn-health-refresh'){renderHealthPage(); toast('Health refreshed'); return} if(t.id==='btn-save-health'){saveHealthEntry(); return} if(t.id==='btn-clear-health-form'){clearHealthForm(); return} const lsw=t.getAttribute('data-load-saved'); if(lsw!==null){loadSavedWorkout(lsw); return} const dsw=t.getAttribute('data-delete-saved'); if(dsw!==null){await deleteSavedWorkout(dsw); return} const demo=t.getAttribute('data-demo'); if(demo){window.openExerciseDemo ? window.openExerciseDemo(demo) : openExerciseDemo(demo); return} const rem=t.getAttribute('data-remove'); if(rem!==null){markUnsaved(); state.current.exercises.splice(Number(rem),1); renderAll(); return} const mvU=t.getAttribute('data-move-up'); if(mvU!==null){const i=Number(mvU); if(i>0){const arr=state.current.exercises; [arr[i-1],arr[i]]=[arr[i],arr[i-1]]; markUnsaved(); renderAll();} return} const mvD=t.getAttribute('data-move-down'); if(mvD!==null){const i=Number(mvD); const arr=state.current.exercises; if(i<arr.length-1){[arr[i+1],arr[i]]=[arr[i],arr[i+1]]; markUnsaved(); renderAll();} return} const aset=t.getAttribute('data-add-set'); if(aset!==null){markUnsaved(); state.current.exercises[Number(aset)].sets.push({reps:8,weight:''}); renderAll(); return} const dupe=t.getAttribute('data-dupe'); if(dupe!==null){markUnsaved(); state.current.exercises.splice(Number(dupe)+1,0,clone(state.current.exercises[Number(dupe)])); renderAll(); return} if(t.getAttribute('data-phase-prev')){state.activePhase=Math.max(0,(state.activePhase||0)-1); renderBuilder(); return} if(t.getAttribute('data-phase-next')){const max=(state.current.phases?.length||1)-1; state.activePhase=Math.min(max,(state.activePhase||0)+1); renderBuilder(); return} if(t.getAttribute('data-start-current')){startWorkout(); return} const stday=t.getAttribute('data-start-day'); if(stday){const w=state.planner[stday]; if(w) startWorkout(w); return} if(t.id==='assignToday'){await saveDay(todayKey); closeAssign(); return} if(t.id==='assignChoose'){await saveDay(document.getElementById('assignDay').value); closeAssign(); return} if(t.id==='assignJust'||t.id==='assignCancel'){closeAssign(); return} if(t.id==='sessionNextBtn'){advanceSession(); return} if(t.id==='sessionClose'){closeSession(); return}
  });
  document.addEventListener('focusout',async e=>{if(e.target.id==='wkt-name-input'){await commitWorkoutNameAndSave(); return}});
  document.addEventListener('keydown',async e=>{if(e.target.id==='wkt-name-input' && e.key==='Enter'){e.preventDefault(); await commitWorkoutNameAndSave(); return} if(e.target.id==='wkt-name-input' && e.key==='Escape'){e.preventDefault(); cancelWorkoutNameEdit(); return}});
@@ -12255,6 +13179,13 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{if(e.target.id==='search'){state.search=e.target.value; renderSidebar(); return} const r=e.target.getAttribute('data-reps'); if(r){const [i,j]=r.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].reps=Number(e.target.value)||0; renderRight(); renderBuilderMetaOnly(); return} const w=e.target.getAttribute('data-weight'); if(w){const [i,j]=w.split(':').map(Number); markUnsaved(); state.current.exercises[i].sets[j].weight=e.target.value; return}});
  document.addEventListener('click',e=>{
+  const equipJump=e.target&&e.target.closest?e.target.closest('[data-equip-jump]'):null;
+  if(equipJump){
+    const eq=equipJump.getAttribute('data-equip-jump');
+    const target=document.querySelector(`.ex-group-label[data-equip-section="${CSS.escape(eq)}"]`);
+    if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
   const muscleBtn=e.target&&e.target.closest?e.target.closest('[data-muscle]'):null;
   if(muscleBtn){
     const m=muscleBtn.getAttribute('data-muscle');
@@ -12282,27 +13213,14 @@ document.addEventListener('input',e=>{if(e.target.id==='search'){state.search=e.
 document.addEventListener('click', e=>{
   // Backdrop click-to-close for equipment modal
   if(e.target && e.target.id==='equipmentModal'){closeEquipmentModal(); return;}
-  // v13.63 — Home Equipment accordion toggle (lives in sidebar above program selector)
-  const equipAcc=e.target && e.target.closest && e.target.closest('[data-equip-acc]');
-  if(equipAcc){
-    const wrapper=equipAcc.parentElement;
-    const body=wrapper && wrapper.querySelector('.equip-acc-body');
-    const caret=equipAcc.querySelector('.equip-acc-caret');
-    if(body){
-      const willOpen=body.style.display==='none';
-      body.style.display=willOpen?'block':'none';
-      body.style.marginTop=willOpen?'10px':'';
-      if(caret) caret.textContent=willOpen?'▼':'▶';
-      try{ localStorage.setItem('vertex_acc_equipmentPanel', willOpen?'1':'0'); }catch(err){}
-    }
-    return;
-  }
+  // v13.63 — ⚡ Home Equipment accordion toggle (lives in sidebar above program selector)
   const t=e.target.closest('button'); if(!t) return;
   if(t.id==='btn-add-library'){e.preventDefault(); openLibraryModal(); return;}
   const editCustom=t.getAttribute('data-edit-custom'); if(editCustom){e.preventDefault(); e.stopPropagation(); openEditCustomExercise(editCustom); return;}
   if(t.id==='btn-equipment-open'){e.preventDefault(); openEquipmentModal(); return;}
   if(t.id==='btn-equipment-all'){e.preventDefault(); EQUIPMENT_OPTIONS.forEach(eq=>state.equipment[equipmentKey(eq)]=true); saveEquipmentProfile(); renderEquipmentModalBody(); renderAll(); return;}
   if(t.id==='equipmentAllOn'){e.preventDefault(); EQUIPMENT_OPTIONS.forEach(eq=>state.equipment[equipmentKey(eq)]=true); saveEquipmentProfile(); renderEquipmentModalBody(); renderSidebar(); return;}
+  if(t.id==='equipmentClearAll'){e.preventDefault(); state.equipment={}; saveEquipmentProfile(); renderEquipmentModalBody(); renderSidebar(); return;}
   if(t.id==='equipmentDone'){e.preventDefault(); closeEquipmentModal(); renderAll(); return;}
   if(t.id==='librarySave'){e.preventDefault(); saveLibraryExercise(); return;}
   if(t.id==='libraryCancel'){e.preventDefault(); document.getElementById('libraryModal')?.classList.remove('on'); return;}
@@ -12879,8 +13797,127 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
-  <script>
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260529-6a2b-fix';
+  
+<script id="vertex-6b1-media-foundation-js">
+(function(){
+  function mediaEscape(value){
+    return String(value ?? '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#039;');
+  }
+  function mediaEscapeAttr(value){ return mediaEscape(value); }
+
+  function slugifyMediaName(name){
+    return String(name||'exercise').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'exercise';
+  }
+  function mediaCategoryForExercise(ex){
+    const raw=String((ex&&ex.training)||'Strength');
+    if(raw==='Yoga / Pilates') return 'yoga-pilates';
+    if(raw==='Recovery'||raw==='Stretching'||raw==='Recovery / Mobility') return 'recovery-mobility';
+    if(raw==='Kettlebell') return 'kettlebell';
+    return 'strength';
+  }
+  function findExerciseMediaRecord(name){
+    const rows=(typeof EXERCISES!=='undefined'&&Array.isArray(EXERCISES))?EXERCISES:[];
+    const match=rows.find(e=>e&&e.name===name) || rows.find(e=>e&&String(e.name||'').toLowerCase()===String(name||'').toLowerCase());
+    if(match) return match;
+    if(window.getVertexMediaRecord){
+      const rec=window.getVertexMediaRecord(name);
+      if(rec) return {name:rec.name||name,id:rec.exercise_id,training:rec.category,media_category:rec.media_category,movement_pattern:rec.movement_pattern,equipment_type:rec.equipment_type,bunny_video:rec.bunny_video,video_url:rec.video_url,bunny_path:rec.bunny_video_path,bunny_thumbnail:rec.bunny_thumbnail,thumbnail_url:rec.thumbnail_url,thumbnail_path:rec.bunny_thumbnail_path,has_video:rec.has_video};
+    }
+    return {name:name};
+  }
+  function exerciseMediaPaths(ex){
+    const slug=slugifyMediaName(ex.id||ex.name);
+    const cat=mediaCategoryForExercise(ex);
+    return {
+      id: ex.id || slug,
+      video: ex.bunny_video || ex.video_url || ex.bunny_path || ('exercises/'+cat+'/'+slug+'.mp4'),
+      thumbnail: ex.bunny_thumbnail || ex.thumbnail_url || ex.thumbnail_path || ('thumbnails/'+cat+'/'+slug+'.jpg'),
+      hasVideo: !!(ex.has_video || ex.bunny_video || ex.video_url)
+    };
+  }
+  function defaultCoachCues(ex){
+    const kind=String(ex.kind||'').toLowerCase();
+    if(kind.includes('pull')) return ['Start controlled. Pull through the elbows, not the hands.','Keep the torso stable and avoid swinging.'];
+    if(kind.includes('legs')) return ['Brace before each rep. Control the descent.','Keep reps clean before increasing load.'];
+    if(kind.includes('core')) return ['Keep the ribs down and move with control.','Stop the set before form breaks.'];
+    if(kind.includes('recovery')||kind.includes('stretch')||kind.includes('mobility')) return ['Move slowly and stay inside a comfortable range.','Use breathing to reduce tension, not force.'];
+    return ['Set your position before the first rep.','Use a smooth tempo and keep form stable.'];
+  }
+  window.closeExerciseMediaDetail=function(){
+    const modal=document.getElementById('mediaDetailModal');
+    if(modal) modal.classList.remove('on');
+    document.body.style.overflow='';
+  };
+  window.openExerciseMediaDetail=function(name){
+    const ex=findExerciseMediaRecord(name);
+    const intel=(window.vertexGetExerciseIntelligence&&window.vertexGetExerciseIntelligence(ex)) || null;
+    if(intel){
+      ex.movement_pattern=intel.movement_pattern||ex.movement_pattern;
+      ex.primary_muscles=intel.primary_muscles||ex.primary_muscles;
+      ex.primary_muscle=(intel.primary_muscles&&intel.primary_muscles[0])||ex.primary_muscle;
+      ex.equipment_type=intel.equipment_type||ex.equipment_type;
+      ex.coach_cues=intel.coach_cues||ex.coach_cues;
+      ex.common_mistakes=intel.common_mistakes||ex.common_mistakes;
+      ex.substitutions=intel.substitutions||ex.substitutions;
+    }
+    const paths=exerciseMediaPaths(ex);
+    const modal=document.getElementById('mediaDetailModal');
+    const title=document.getElementById('mediaDetailTitle');
+    const meta=document.getElementById('mediaDetailMeta');
+    const fields=document.getElementById('mediaDetailFields');
+    const cues=document.getElementById('mediaDetailCues');
+    const stage=document.getElementById('mediaDetailStage');
+    const add=document.getElementById('mediaDetailAdd');
+    if(!modal) return;
+    if(title) title.textContent=ex.name||name||'Exercise';
+    if(meta) meta.textContent=[ex.training,ex.muscle,ex.equip].filter(Boolean).join(' · ');
+    if(add) add.setAttribute('data-name', ex.name||name||'');
+    if(stage){
+      if(paths.hasVideo){
+        stage.innerHTML='<video controls playsinline preload="metadata" style="width:100%;max-height:360px;border-radius:12px;background:#000"><source src="'+mediaEscapeAttr(paths.video)+'" type="video/mp4">Video unavailable.</video>';
+      }else{
+        stage.innerHTML='<div><b>Exercise Image Coming Soon</b><span>Core coaching details are ready now. Images and Bunny video can be added later without changing this screen.</span></div>';
+      }
+    }
+    if(fields){
+      const muscles=Array.isArray(ex.primary_muscles)&&ex.primary_muscles.length?ex.primary_muscles.join(', '):(ex.primary_muscle||ex.muscle||'Pending');
+      const rows=[
+        ['Movement Pattern', ex.movement_pattern || ex.pattern || ex.kind || 'Pending classification'],
+        ['Primary Muscles', muscles],
+        ['Equipment', ex.equipment_type || ex.equip || 'Not specified'],
+        ['Difficulty', intel?.difficulty || ex.difficulty || 'Beginner']
+      ];
+      fields.innerHTML=rows.map(r=>'<div class="media-field"><div class="k">'+mediaEscape(r[0])+'</div><div class="v">'+mediaEscape(r[1])+'</div></div>').join('');
+    }
+    if(cues){
+      const cueList=Array.isArray(ex.coach_cues)&&ex.coach_cues.length?ex.coach_cues:defaultCoachCues(ex);
+      const mistakeList=Array.isArray(ex.common_mistakes)&&ex.common_mistakes.length?ex.common_mistakes:[];
+      const subList=Array.isArray(ex.substitutions)&&ex.substitutions.length?ex.substitutions:[];
+      const block=(label,items)=>'<div class="media-eyebrow" style="margin-top:14px">'+mediaEscape(label)+'</div><div class="media-cues">'+items.map(c=>'<div class="media-cue">'+mediaEscape(c)+'</div>').join('')+'</div>';
+      cues.innerHTML=block('Coach Cues',cueList)+(mistakeList.length?block('Common Mistakes',mistakeList):'')+(subList.length?block('Substitutions',subList):'');
+    }
+    requestAnimationFrame(()=>modal.classList.add('on'));
+    document.body.style.overflow='hidden';
+  };
+  window.openExerciseDemo=function(name){ window.openExerciseMediaDetail(name); };
+  document.addEventListener('click',function(e){
+    const modal=document.getElementById('mediaDetailModal');
+    if(modal && e.target===modal) window.closeExerciseMediaDetail();
+  });
+  document.addEventListener('keydown',function(e){
+    const modal=document.getElementById('mediaDetailModal');
+    if(e.key==='Escape' && modal && modal.classList.contains('on')) window.closeExerciseMediaDetail();
+  });
+})();
+</script>
+
+<script>
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260529-6b3a-intelligence';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -13013,12 +14050,18 @@ window.testAppleHealth = async function () {
         if (typeof getSupa === 'function') return getSupa();
       } catch(e) {}
       try {
+        if (typeof window.getSupa === 'function') return window.getSupa();
+      } catch(e) {}
+      try {
+        if (window._supa) return window._supa;
+      } catch(e) {}
+      try {
         if (window.__vertexHealthSupa) return window.__vertexHealthSupa;
         if (window.supabase) {
           window.__vertexHealthSupa = window.supabase.createClient(
             'https://dwsrwsnzuiwnagjepgtj.supabase.co',
             'sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E',
-            { auth: { persistSession: true, detectSessionInUrl: true, storage: window.localStorage } }
+            { auth: { persistSession: true, detectSessionInUrl: false, storage: window.localStorage } }
           );
           return window.__vertexHealthSupa;
         }
@@ -14491,7 +15534,7 @@ window.vertexImportHKWorkout = async function(idx) {
 
 <script>
 (function(){
-  const VERSION='v13.61.13-phase6A3a-settings';
+  const VERSION='v13.62.21-phase6A11f-sidebar-narrow';
 
   function esc(v){
     try{ if(typeof escapeHtml==='function') return escapeHtml(String(v??'')); }catch(e){}
@@ -15278,14 +16321,14 @@ window.vertexImportHKWorkout = async function(idx) {
 /* v13.61.15 — Home readiness alignment lock */
 @media (min-width: 901px){
   body.app-page-home #homePage .progress-head,
-  body.app-page-home .progress-head{
+  body.app-page-home #home-dashboard .progress-head{
     display:grid !important;
     grid-template-columns:1fr minmax(360px, 440px) 1fr !important;
     align-items:center !important;
     gap:16px !important;
   }
   body.app-page-home #homePage .progress-head > *:first-child,
-  body.app-page-home .progress-head > *:first-child{
+  body.app-page-home #home-dashboard .progress-head > *:first-child{
     justify-self:start !important;
   }
   body.app-page-home #vertex-home-readiness{
@@ -15294,7 +16337,7 @@ window.vertexImportHKWorkout = async function(idx) {
     max-width:440px !important;
   }
   body.app-page-home #homePage .progress-head .btn,
-  body.app-page-home .progress-head .btn{
+  body.app-page-home #home-dashboard .progress-head .btn{
     justify-self:end !important;
   }
 }
@@ -15412,10 +16455,12 @@ window.vertexImportHKWorkout = async function(idx) {
   function localMacroHistoryKey(){return 'vertex_macro_history_local'}
   function supaClient(){
     try{if(typeof getSupa==='function')return getSupa()}catch(e){}
+    try{if(typeof window.getSupa==='function')return window.getSupa()}catch(e){}
+    try{if(window._supa)return window._supa;}catch(e){}
     try{
       if(window.__vertexMacroSupa)return window.__vertexMacroSupa;
       if(window.supabase){
-        window.__vertexMacroSupa=window.supabase.createClient('https://dwsrwsnzuiwnagjepgtj.supabase.co','sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E',{auth:{persistSession:true,detectSessionInUrl:true,storage:window.localStorage}});
+        window.__vertexMacroSupa=window.supabase.createClient('https://dwsrwsnzuiwnagjepgtj.supabase.co','sb_publishable_J3yz5usnjVo6UnDVzRlAZA_NVRWQe-E',{auth:{persistSession:true,detectSessionInUrl:false,storage:window.localStorage}});
         return window.__vertexMacroSupa;
       }
     }catch(e){}
@@ -20195,6 +21240,14 @@ document.addEventListener('click',()=>setTimeout(run,300),true);
  document.addEventListener('click',function(){setTimeout(fix,250);},true);
 })();
 </script>
+
+<style id="vertex-phase6A24-hard-lock">
+body.app-page-home #progressPage,body.app-page-home #wellnessPage,body.app-page-home #aiPage{display:none!important;}
+body.app-page-workout #progressPage,body.app-page-workout #wellnessPage,body.app-page-workout #aiPage,body.app-page-workout #home-dashboard,body.app-page-workout #homePage{display:none!important;}
+body.app-page-progress #home-dashboard,body.app-page-progress #homePage,body.app-page-progress #wellnessPage,body.app-page-progress #aiPage{display:none!important;}
+body.app-page-wellness #home-dashboard,body.app-page-wellness #homePage,body.app-page-wellness #progressPage,body.app-page-wellness #aiPage{display:none!important;}
+body.app-page-home #home-dashboard{display:block!important;}
+</style>
 </body>
 </html>
 
@@ -21128,3 +22181,17 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   });
 })();
 </script>
+<style id="vertex-phase6a26-home-progress-css-only-lock">
+/* Phase 6A26: Home-only Progress isolation. CSS only; no render hooks. */
+body.app-page-home #progressPage,
+body.app-page-home #vertexB2ProgressDeck,
+body.app-page-home .vertex-b2-progress-deck,
+body.app-page-home .vertex-b2-section-label,
+body.app-page-home .vertex-b2-row,
+body.app-page-home .vertex-training-snapshot{
+  display:none!important;
+  visibility:hidden!important;
+}
+body.app-page-home #home-dashboard{display:block!important;}
+</style>
+

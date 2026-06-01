@@ -4310,6 +4310,33 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   .ex-group-label[data-equip-section]{scroll-margin-top:88px}
   @media(max-width:980px){.vertex-workout-hero-grid{grid-template-columns:1fr}.vertex-workout-hero-steps{grid-template-columns:1fr}}
 
+
+/* 6A61: update planner section header with live week dates + planned count */
+function updatePlannerHeader(){
+  try{
+    var lbl=document.getElementById('plannerWeekLabel');
+    var dts=document.getElementById('plannerWeekDates');
+    if(!lbl||!dts) return;
+    var ws=weekStart(); var we=new Date(ws); we.setDate(we.getDate()+6);
+    var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});};
+    dts.textContent=fmt(ws)+' – '+fmt(we);
+    var planned=DAYS.filter(function(d){return !!(state.planner&&state.planner[d]);}).length;
+    lbl.textContent='THIS WEEK'+(planned?' · '+planned+' planned':'');
+  }catch(e){}
+}
+
+/* 6A61: Home planner redesign */
+body.app-page-home #homeWeekHero{display:none!important}
+body.app-page-home #plannerAcc.planner-panel{background:transparent!important;border:none!important;padding:0!important;box-shadow:none!important}
+body.app-page-home #plannerAcc .acc-body{padding:0!important}
+.planner-week-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;padding:0 2px}
+.planner-week-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--text);text-transform:uppercase;font-weight:600}
+.planner-week-dates{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim)}
+body.app-page-home .day-card.today{background:rgba(232,255,71,.07)!important;border:2px solid var(--acc)!important;box-shadow:0 0 22px rgba(232,255,71,.07)!important}
+body.app-page-home .day-card.today .day-name{color:var(--acc)!important;font-weight:800}
+body.app-page-home .day-card.today .day-workout{font-size:15px!important;color:var(--text)!important}
+body.app-page-home .day-card:not(.today){opacity:.6;transition:opacity .2s}
+body.app-page-home .day-card:not(.today):hover{opacity:1;border-color:var(--line2)}
 /* 6A60: Week Hero & Plan CTA */
 #homeWeekHero{display:none}
 body.app-page-home #homeWeekHero{display:block!important}
@@ -4826,7 +4853,7 @@ window.vertexFinishBootstrap=function(){
 
 </section><section id="aiPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">AI Coach</h1><p class="page-copy">Coaching from your training history, recovery data, and Apple Health metrics.</p></div><button id="btn-refresh-ai" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh Coach</button></div><div id="aiCoachSummary" class="progress-summary"></div><div class="coach-grid"><section class="coach-card"><div class="label">Daily Recommendation</div><div id="aiDailyCoach"></div></section><section class="coach-card"><div class="label">Training Warnings</div><div id="aiWarnings"></div></section><section class="coach-card"><div class="label">Smart Suggestions</div><div id="aiSuggestions"></div></section><section class="coach-card"><div class="label">Weekly Focus</div><div id="aiWeeklyFocus"></div></section></div></section>
     <section id="today" class="panel hl today-card"></section>
-    <section id="plannerAcc" class="panel planner-panel open"><div class="acc-body" style="display:block"><div class="label">Weekly Planner v2 · Start Today Flow</div><p style="color:var(--muted);margin:8px 0 14px">Build custom workouts from the library for each day, then start <b style="color:var(--acc)">today’s workout.</b></p><div style="overflow-x:auto;margin:0 -8px;padding:0 8px 0 8px;box-sizing:border-box"><div id="planner" class="planner-grid"></div></div></div></section>
+    <section id="plannerAcc" class="panel planner-panel open"><div class="acc-body" style="display:block"><div class="planner-week-header"><span class="planner-week-label" id="plannerWeekLabel">THIS WEEK</span><span class="planner-week-dates" id="plannerWeekDates"></span></div><div style="overflow-x:auto;margin:0 -8px;padding:0 8px 0 8px;box-sizing:border-box"><div id="planner" class="planner-grid"></div></div></div></section>
 
 
     <section id="workoutStartGuide" class="panel hl today-card vertex-workout-hero" style="padding:18px 22px;margin-bottom:16px;display:none">
@@ -11443,6 +11470,20 @@ function vertexApplyWorkoutEmptyState(){
   document.querySelectorAll('.right').forEach(el=>{el.style.display=(onWorkout && hasContent)?'':'none';});
 }
 
+
+/* 6A61: update planner section header with live week dates + planned count */
+function updatePlannerHeader(){
+  try{
+    var lbl=document.getElementById('plannerWeekLabel');
+    var dts=document.getElementById('plannerWeekDates');
+    if(!lbl||!dts) return;
+    var ws=weekStart(); var we=new Date(ws); we.setDate(we.getDate()+6);
+    var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});};
+    dts.textContent=fmt(ws)+' – '+fmt(we);
+    var planned=DAYS.filter(function(d){return !!(state.planner&&state.planner[d]);}).length;
+    lbl.textContent='THIS WEEK'+(planned?' · '+planned+' planned':'');
+  }catch(e){}
+}
 /* 6A60: Week Hero — home page prominent planner overview */
 function renderHomeWeekHero(){
   var el=document.getElementById('homeWeekHero'); if(!el) return;
@@ -11483,7 +11524,7 @@ function renderAll(){
   const logBtn=document.getElementById('btn-log');
   if(logBtn) logBtn.classList.toggle('armed',!!hasWorkout());
   refreshSaveButton(); updateWorkoutBottomBar();
-  if(pg==='home'||!pg){ renderHomeDashboard(); renderToday(); renderIntel(); renderHomeWeekHero(); }
+  if(pg==='home'||!pg){ renderHomeDashboard(); renderToday(); renderIntel(); updatePlannerHeader(); }
   else if(pg==='workout'){ renderSidebar(); renderToday(); renderBuilder(); renderRight(); renderIntel(); renderPlanWeekCta(); }
   else if(pg==='progress'){ if(typeof renderProgressPage==='function') renderProgressPage(); }
   else if(pg==='wellness'){ if(typeof renderHealthPage==='function') renderHealthPage(); }
@@ -14565,7 +14606,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a60-week-hero';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a61-planner-redesign';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -4326,6 +4326,35 @@ function updatePlannerHeader(){
 }
 
 
+
+/* 6A64: Home Week Planner — featured today + 3-col grid */
+body.app-page-home #plannerAcc{display:none!important}
+.hw-planner-wrap{margin-bottom:14px}
+.hw-planner-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.hw-planner-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--text);text-transform:uppercase;font-weight:600}
+.hw-planner-dates{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim)}
+.hw-today-card{background:rgba(232,255,71,.06);border:1px solid rgba(232,255,71,.18);border-radius:12px;padding:16px 18px;margin-bottom:10px}
+.hw-today-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:6px}
+.hw-today-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--text);line-height:1;margin-bottom:4px}
+.hw-today-prev{font-size:11px;color:var(--muted);margin-bottom:4px;line-height:1.5}
+.hw-today-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--acc);margin-bottom:11px}
+.hw-today-btns{display:flex;gap:7px;flex-wrap:wrap}
+.hw-btn{background:transparent;border:1px solid var(--line2);color:var(--text);border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;transition:border-color .15s,color .15s;white-space:nowrap}
+.hw-btn:hover{border-color:var(--acc);color:var(--acc)}
+.hw-btn-start{background:var(--acc)!important;color:#000!important;border-color:var(--acc)!important;font-weight:800}
+.hw-btn-start:hover{opacity:.88!important}
+.hw-day-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hw-day-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;transition:border-color .2s,background .2s;min-height:72px}
+.hw-day-card:hover{border-color:rgba(232,255,71,.35);background:rgba(232,255,71,.04)}
+.hw-day-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:5px;text-transform:uppercase}
+.hw-day-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hw-day-ex{font-family:'DM Mono',monospace;font-size:10px;color:var(--acc)}
+.hw-day-empty .hw-day-name{color:var(--dim)!important;font-weight:400!important}
+.hw-day-empty .hw-day-ex{color:var(--dim)!important}
+.hw-chip-detail,.hw-view-panel{margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.hw-view-panel{max-height:260px;overflow-y:auto}
+.hw-view-ex{font-size:12px;color:var(--text);padding:5px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.hw-view-ex:last-child{border-bottom:none}
 /* 6A63: Compact Home Planner Strip */
 .hps-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:0 2px}
 .hps-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--text);text-transform:uppercase;font-weight:600}
@@ -4365,6 +4394,34 @@ body.app-page-home .day-card.today .day-workout{font-size:15px!important;color:v
 body.app-page-home .day-card:not(.today){opacity:.6;transition:opacity .2s}
 body.app-page-home .day-card:not(.today):hover{opacity:1;border-color:var(--line2)}
 
+
+/* 6A64: Home week planner — featured today + 3-col grid */
+function buildHomePlannerHTML(){
+  try{
+    var pl=state.planner||{};
+    var today=todayKey||'monday';
+    var SHORT={monday:'Mon',tuesday:'Tue',wednesday:'Wed',thursday:'Thu',friday:'Fri',saturday:'Sat',sunday:'Sun'};
+    var FULL_DAYS=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+    var planned=FULL_DAYS.filter(function(d){return !!pl[d];}).length;
+    var dateRange='';
+    try{var ws=weekStart();var we=new Date(ws);we.setDate(we.getDate()+6);var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});};dateRange=fmt(ws)+' – '+fmt(we);}catch(e){}
+    var getEx=function(w){try{return(typeof stats==='function'?stats(w).moves:0)||(w.exercises&&w.exercises.length)||0;}catch(e){return(w.exercises&&w.exercises.length)||0;}};
+    var todayWork=pl[today];
+    var todayLabel=(DAY_LABEL&&DAY_LABEL[today])||(today.charAt(0).toUpperCase()+today.slice(1));
+    var todayCard='';
+    if(todayWork){
+      var prev=(typeof previewWorkoutNames==='function'?previewWorkoutNames(todayWork):'')||'';
+      if(prev.length>90) prev=prev.slice(0,90)+'…';
+      var exCnt=getEx(todayWork);
+      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name">'+escapeHtml(todayWork.name||'Workout')+'</div>'+(prev?'<div class="hw-today-prev">'+escapeHtml(prev)+'</div>':'')+'<div class="hw-today-meta">'+exCnt+' exercises</div><div class="hw-today-btns"><button class="hw-btn hw-btn-start" data-start-day="'+today+'">▶ Start Today</button><button class="hw-btn" data-edit-day="'+today+'">Load / Edit</button><button class="hw-btn" data-view-day="'+today+'">View</button><button class="hw-btn" data-copy-day="'+today+'">Copy</button></div></div>';
+    }else{
+      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name" style="color:var(--dim);font-size:18px">No workout planned</div><div class="hw-today-btns" style="margin-top:10px"><button class="hw-btn" data-edit-day="'+today+'">Plan today →</button></div></div>';
+    }
+    var otherDays=FULL_DAYS.filter(function(d){return d!==today;});
+    var grid=otherDays.map(function(d){var w=pl[d];var lbl=SHORT[d]||d;if(w){var ex=getEx(w);return '<div class="hw-day-card hw-day-has" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name">'+escapeHtml(w.name||'Workout')+'</div><div class="hw-day-ex">'+ex+' exercises</div></div>';}else{return '<div class="hw-day-card hw-day-empty" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name">Rest day</div><div class="hw-day-ex">+ Plan</div></div>';}}).join('');
+    return '<div class="hw-planner-wrap"><div class="hw-planner-head"><span class="hw-planner-title">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hw-planner-dates">'+dateRange+'</span>':'')+'</div>'+todayCard+'<div class="hw-day-grid">'+grid+'</div><div class="hw-chip-detail" id="hwChipDetail" style="display:none"></div><div class="hw-view-panel" id="hwViewPanel" style="display:none"></div></div>';
+  }catch(e){return '';}
+}
 /* 6A63: Compact home planner strip */
 function renderHomePlannerStrip(){
   if(state.page!=='home'&&state.page) return;
@@ -11301,7 +11358,7 @@ function renderHomeDashboard(){
     const _sleepAvg7 = (()=>{ try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null'); if(s&&s.avg7Minutes) return Math.round(s.avg7Minutes/60*10)/10; }catch(e){} try{ const last7=_homeHealthRows.filter(r=>r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000); const vals=last7.map(r=>r.sleepHours).filter(v=>v!=null&&Number(v)>0); return vals.length?Math.round(vals.reduce((a,b)=>a+Number(b),0)/vals.length*10)/10:null; }catch(e){return null;} })();
     const _hrvAvg7 = (()=>{ try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null'); if(s&&s.avg7) return Math.round(s.avg7); }catch(e){} try{ const last7=_homeHealthRows.filter(r=>r.date&&(Date.now()-new Date(r.date+'T12:00:00').getTime())<7*86400000); const vals=last7.map(r=>r.hrv).filter(v=>v!=null&&Number(v)>0); return vals.length?Math.round(vals.reduce((a,b)=>a+Number(b),0)/vals.length):null; }catch(e){return null;} })();
     // Planned sessions count (any planner day with a workout)
-    const _plannedCount = DAYS.filter(d => state.planner && state.planner[d] && (state.planner[d].exercises||state.planner[d].moves||[]).length > 0).length;
+    const _plannedCount = DAYS.filter(d => state.planner && state.planner[d] && true).length;
     // Latest weight for mobile stat strip
     const _mobileWeight = ahWeight !== null ? ahWeight : null;
     el.innerHTML = `
@@ -11382,45 +11439,7 @@ function renderHomeDashboard(){
   </span>
 </div>
 
-<div class="home-day-carousel-wrap" style="margin-bottom:12px">
-  <div class="home-day-carousel" id="homeDayCarousel">
-    <!-- TODAY card -->
-    <div class="home-day-slide">
-      <div class="home-day-card home-day-card-today">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--acc);text-transform:uppercase;margin-bottom:6px">Today · ${DAY_LABEL[todayKey]}</div>
-        ${todayW ? `
-          <div class="today-title" style="font-size:15px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(todayW.name)}</div>
-          <div class="today-sub" style="margin-bottom:10px;flex:1">${escapeHtml(wDesc(todayW))}</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button class="btn acc small" data-start-day="${todayKey}">Start Today</button>
-            <button class="btn small" data-edit-day="${todayKey}">Load / Edit</button>
-          </div>` : `
-          <div class="today-title" style="font-size:15px;margin-bottom:2px">No workout planned</div>
-          <div class="today-sub" style="margin-bottom:10px;flex:1">Build from the library or load a template.</div>
-          <button class="btn small" style="align-self:flex-start" data-edit-day="${todayKey}">Plan Today</button>`}
-      </div>
-    </div>
-    <!-- TOMORROW card -->
-    <div class="home-day-slide">
-      <div class="home-day-card">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Tomorrow · ${DAY_LABEL[tomorrowKey]}</div>
-        ${tomorrowW ? `
-          <div class="today-title" style="font-size:15px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(tomorrowW.name)}</div>
-          <div class="today-sub" style="margin-bottom:10px;flex:1">${escapeHtml(wDesc(tomorrowW))}</div>
-          <button class="btn small" style="align-self:flex-start" data-edit-day="${tomorrowKey}">Load / Edit</button>` : `
-          <div class="today-title" style="font-size:15px;margin-bottom:2px">Rest day</div>
-          <div class="today-sub" style="margin-bottom:10px;flex:1">Nothing planned for ${DAY_LABEL[tomorrowKey]}.</div>
-          <button class="btn small" style="align-self:flex-start" data-edit-day="${tomorrowKey}">Plan Tomorrow</button>`}
-      </div>
-    </div>
-  </div>
-  <!-- Dot indicator -->
-  <div class="home-day-dots" id="homeDayDots">
-    <span class="home-day-dot active" data-slide="0"></span>
-    <span class="home-day-dot" data-slide="1"></span>
-  </div>
-</div>
-
+${typeof buildHomePlannerHTML==='function'?buildHomePlannerHTML():''}
 
 ${dueToday.length ? `
 <div class="home-proto-strip">
@@ -11444,7 +11463,7 @@ ${dueToday.length ? `
     const intelBalance=Math.abs(pushCount-pullCount)<=2?'Balanced':'Push/Pull Imbalance';
     const intelConsistency=intel.thisWeek?.length>=3?'On track':intel.thisWeek?.length?`${intel.thisWeek.length} logged this week`:'No logs this week';
     const intelGap=intel.daysSince===null||intel.daysSince===undefined?'No workout logs yet':intel.daysSince===0?'Logged today':`${intel.daysSince} day${intel.daysSince===1?'':'s'} since last log`;
-    const _intelPlanned = DAYS.filter(d => state.planner && state.planner[d] && (state.planner[d].exercises||state.planner[d].moves||[]).length > 0).length;
+    const _intelPlanned = DAYS.filter(d => state.planner && state.planner[d] && true).length;
     const _intelConsistencyNote = _intelPlanned > 0 ? `${intel.thisWeek?.length||0} logged · ${_intelPlanned} planned this week` : intelConsistency;
     const topMuscle=Object.entries(intel.loggedMuscles||{}).sort((a,b)=>b[1]-a[1])[0];
 
@@ -11538,6 +11557,34 @@ function updatePlannerHeader(){
   }catch(e){}
 }
 
+
+/* 6A64: Home week planner — featured today + 3-col grid */
+function buildHomePlannerHTML(){
+  try{
+    var pl=state.planner||{};
+    var today=todayKey||'monday';
+    var SHORT={monday:'Mon',tuesday:'Tue',wednesday:'Wed',thursday:'Thu',friday:'Fri',saturday:'Sat',sunday:'Sun'};
+    var FULL_DAYS=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+    var planned=FULL_DAYS.filter(function(d){return !!pl[d];}).length;
+    var dateRange='';
+    try{var ws=weekStart();var we=new Date(ws);we.setDate(we.getDate()+6);var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});};dateRange=fmt(ws)+' – '+fmt(we);}catch(e){}
+    var getEx=function(w){try{return(typeof stats==='function'?stats(w).moves:0)||(w.exercises&&w.exercises.length)||0;}catch(e){return(w.exercises&&w.exercises.length)||0;}};
+    var todayWork=pl[today];
+    var todayLabel=(DAY_LABEL&&DAY_LABEL[today])||(today.charAt(0).toUpperCase()+today.slice(1));
+    var todayCard='';
+    if(todayWork){
+      var prev=(typeof previewWorkoutNames==='function'?previewWorkoutNames(todayWork):'')||'';
+      if(prev.length>90) prev=prev.slice(0,90)+'…';
+      var exCnt=getEx(todayWork);
+      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name">'+escapeHtml(todayWork.name||'Workout')+'</div>'+(prev?'<div class="hw-today-prev">'+escapeHtml(prev)+'</div>':'')+'<div class="hw-today-meta">'+exCnt+' exercises</div><div class="hw-today-btns"><button class="hw-btn hw-btn-start" data-start-day="'+today+'">▶ Start Today</button><button class="hw-btn" data-edit-day="'+today+'">Load / Edit</button><button class="hw-btn" data-view-day="'+today+'">View</button><button class="hw-btn" data-copy-day="'+today+'">Copy</button></div></div>';
+    }else{
+      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name" style="color:var(--dim);font-size:18px">No workout planned</div><div class="hw-today-btns" style="margin-top:10px"><button class="hw-btn" data-edit-day="'+today+'">Plan today →</button></div></div>';
+    }
+    var otherDays=FULL_DAYS.filter(function(d){return d!==today;});
+    var grid=otherDays.map(function(d){var w=pl[d];var lbl=SHORT[d]||d;if(w){var ex=getEx(w);return '<div class="hw-day-card hw-day-has" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name">'+escapeHtml(w.name||'Workout')+'</div><div class="hw-day-ex">'+ex+' exercises</div></div>';}else{return '<div class="hw-day-card hw-day-empty" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name">Rest day</div><div class="hw-day-ex">+ Plan</div></div>';}}).join('');
+    return '<div class="hw-planner-wrap"><div class="hw-planner-head"><span class="hw-planner-title">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hw-planner-dates">'+dateRange+'</span>':'')+'</div>'+todayCard+'<div class="hw-day-grid">'+grid+'</div><div class="hw-chip-detail" id="hwChipDetail" style="display:none"></div><div class="hw-view-panel" id="hwViewPanel" style="display:none"></div></div>';
+  }catch(e){return '';}
+}
 /* 6A63: Compact home planner strip */
 function renderHomePlannerStrip(){
   if(state.page!=='home'&&state.page) return;
@@ -11856,7 +11903,7 @@ function renderSidebar(){
   }
 
 function renderToday(){const saved=state.planner[todayKey]; const draft=(state.current.assignedDay===todayKey && hasWorkout(state.current))?state.current:null; const w=saved||draft; if(w){const isDraft=!saved&&draft; document.getElementById('today').innerHTML=`<div><div class="today-title">${isDraft?'Unsaved ':'Today&#39;s '}Workout: ${escapeHtml(w.name)}</div><div class="today-sub">${DAY_LABEL[todayKey]} · ${summary(w)}${isDraft?' · Save to planner when ready':''}</div></div><div>${isDraft?`<button class="btn acc" data-save-day="${todayKey}">Save Today</button>`:`<button class="btn acc" data-start-day="${todayKey}">Start Today</button>`} <button class="btn" data-edit-day="${todayKey}">Load / Edit</button></div>`; return;} document.getElementById('today').innerHTML=`<div><div class="today-title">No workout planned for ${DAY_LABEL[todayKey]}</div><div class="today-sub">Click Edit on today, build from the library or load a template, then Save.</div></div><button class="btn acc" data-edit-day="${todayKey}">Build Today</button>`;}
-function renderPlanner(){if((state.page==='home'||!state.page)&&typeof renderHomePlannerStrip==='function'){renderHomePlannerStrip();return;}document.getElementById('planner').innerHTML=DAYS.map(d=>{const w=state.planner[d]; return `<div class="day-card ${d===todayKey?'today':''}"><div class="day-name">${DAY_LABEL[d]} <span class="day-count">${w?stats(w).moves:0} EX</span></div>${w?`<div class="day-workout">${escapeHtml(w.name)}</div><div class="day-preview">${preview(w)}</div>`:`<div class="day-preview">Empty. Click Edit, build from the library, then Save Day.</div>`}<div class="day-actions"><button class="btn acc small" data-save-day="${d}">Save</button><button class="btn small" data-edit-day="${d}">Edit</button><button class="btn small" ${w?'':'disabled'} data-start-day="${d}">Start</button><button class="btn small" ${w?'':'disabled'} data-copy-day="${d}">Copy</button><button class="btn red small" data-clear-day="${d}">Clear</button></div></div>`}).join('')}
+function renderPlanner(){if(state.page==='home'||!state.page){return;}document.getElementById('planner').innerHTML=DAYS.map(d=>{const w=state.planner[d]; return `<div class="day-card ${d===todayKey?'today':''}"><div class="day-name">${DAY_LABEL[d]} <span class="day-count">${w?stats(w).moves:0} EX</span></div>${w?`<div class="day-workout">${escapeHtml(w.name)}</div><div class="day-preview">${preview(w)}</div>`:`<div class="day-preview">Empty. Click Edit, build from the library, then Save Day.</div>`}<div class="day-actions"><button class="btn acc small" data-save-day="${d}">Save</button><button class="btn small" data-edit-day="${d}">Edit</button><button class="btn small" ${w?'':'disabled'} data-start-day="${d}">Start</button><button class="btn small" ${w?'':'disabled'} data-copy-day="${d}">Copy</button><button class="btn red small" data-clear-day="${d}">Clear</button></div></div>`}).join('')}
 function templatePreview(t){if(t.type==='strength') return t.exercises.join(', '); if(t.type==='mobility_strength_hybrid') return `${t.displayType||'Recovery / Mobility Day'} · ${t.duration} min · ${(t.phases||[]).length} phases · volume excluded`; return `${t.duration} min · ${t.moves.slice(0,5).join(', ')}${t.moves.length>5?'…':''}`}
 function renderTemplates(){ /* templates are now static HTML — no dynamic render needed */ }
 function renderTemplates(){ /* templates are now static HTML — no dynamic render needed */ }
@@ -13353,9 +13400,9 @@ document.addEventListener('click',async e=>{
  if(t.id==='btn-notif-dismiss'){ document.getElementById('vertex-notif-toast')?.classList.remove('on'); localStorage.setItem('vertex_notif_dismissed','1'); return}
  if(t.dataset&&t.dataset.gotoPlanner){setPage('home');setTimeout(function(){var p=document.getElementById('plannerAcc');if(p)p.scrollIntoView({behavior:'smooth'});},300);return;}
   var _sd=t.getAttribute('data-strip-day');
-  if(_sd){if(_sd===todayKey){editDay(_sd);return;}var _det=document.getElementById('hpsChipDetail');var _vp=document.getElementById('hpsViewPanel');if(_vp)_vp.style.display='none';if(_det){if(_det.style.display==='none'||!_det.style.display||_det.dataset.day!==_sd){_det.dataset.day=_sd;_det.style.display='';var _sw=state.planner[_sd];var _sl=(DAY_LABEL&&DAY_LABEL[_sd])||_sd;if(_sw){_det.innerHTML='<div class="hps-today-day">'+escapeHtml(_sl.toUpperCase())+'</div><div class="hps-today-name">'+escapeHtml(_sw.name||'Workout')+'</div><div class="hps-actions" style="margin-top:8px"><button class="hps-btn" data-edit-day="'+_sd+'">Load / Edit</button><button class="hps-btn" data-copy-day="'+_sd+'">Copy</button><button class="hps-btn" style="color:var(--red);border-color:rgba(255,80,80,.4)" data-clear-day="'+_sd+'">Clear</button></div>';}else{_det.innerHTML='<div class="hps-today-day">'+escapeHtml(_sl.toUpperCase())+' · No workout planned</div><div class="hps-actions"><button class="hps-btn" data-edit-day="'+_sd+'">Plan this day →</button></div>';}}else{_det.style.display='none';_det.dataset.day='';}}return;}
+  if(_sd){if(_sd===todayKey){editDay(_sd);return;}var _det=document.getElementById('hwChipDetail')||document.getElementById('hpsChipDetail');var _vp=document.getElementById('hwViewPanel')||document.getElementById('hpsViewPanel');if(_vp)_vp.style.display='none';if(_det){if(_det.style.display==='none'||!_det.style.display||_det.dataset.day!==_sd){_det.dataset.day=_sd;_det.style.display='';var _sw=state.planner[_sd];var _sl=(DAY_LABEL&&DAY_LABEL[_sd])||_sd;if(_sw){_det.innerHTML='<div class="hps-today-day">'+escapeHtml(_sl.toUpperCase())+'</div><div class="hps-today-name">'+escapeHtml(_sw.name||'Workout')+'</div><div class="hps-actions" style="margin-top:8px"><button class="hps-btn" data-edit-day="'+_sd+'">Load / Edit</button><button class="hps-btn" data-copy-day="'+_sd+'">Copy</button><button class="hps-btn" style="color:var(--red);border-color:rgba(255,80,80,.4)" data-clear-day="'+_sd+'">Clear</button></div>';}else{_det.innerHTML='<div class="hps-today-day">'+escapeHtml(_sl.toUpperCase())+' · No workout planned</div><div class="hps-actions"><button class="hps-btn" data-edit-day="'+_sd+'">Plan this day →</button></div>';}}else{_det.style.display='none';_det.dataset.day='';}}return;}
   var _vd=t.getAttribute('data-view-day');
-  if(_vd){var _vp2=document.getElementById('hpsViewPanel');var _det2=document.getElementById('hpsChipDetail');if(_det2)_det2.style.display='none';if(_vp2){if(_vp2.style.display==='none'||!_vp2.style.display){_vp2.style.display='';var _vw=state.planner[_vd];if(_vw&&_vw.exercises&&_vw.exercises.length){_vp2.innerHTML='<div class="hps-today-day" style="margin-bottom:8px">'+escapeHtml(_vw.name||'Workout')+' · '+_vw.exercises.length+' exercises</div>'+_vw.exercises.map(function(e,i){return '<div class="hps-view-ex"><span class="hps-view-num">'+(i+1)+'</span><span>'+escapeHtml(e.name||String(e))+'</span></div>';}).join('');}else{_vp2.innerHTML='<div style="color:var(--muted);font-size:12px">No exercises found.</div>';}}else{_vp2.style.display='none';}}return;}
+  if(_vd){var _vp2=document.getElementById('hwViewPanel')||document.getElementById('hpsViewPanel');var _det2=document.getElementById('hwChipDetail')||document.getElementById('hpsChipDetail');if(_det2)_det2.style.display='none';if(_vp2){if(_vp2.style.display==='none'||!_vp2.style.display){_vp2.style.display='';var _vw=state.planner[_vd];if(_vw&&_vw.exercises&&_vw.exercises.length){_vp2.innerHTML='<div class="hps-today-day" style="margin-bottom:8px">'+escapeHtml(_vw.name||'Workout')+' · '+_vw.exercises.length+' exercises</div>'+_vw.exercises.map(function(e,i){return '<div class="hps-view-ex"><span class="hps-view-num">'+(i+1)+'</span><span>'+escapeHtml(e.name||String(e))+'</span></div>';}).join('');}else{_vp2.innerHTML='<div style="color:var(--muted);font-size:12px">No exercises found.</div>';}}else{_vp2.style.display='none';}}return;}
   const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save-later'){commitWorkoutNameEdit(); await saveCurrentWorkoutForLater(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return}
  // ── FOCUSED WORKOUT MODE ──
  if(t.id==='fwmNextBtn'){fwmAdvance(); return}
@@ -14697,7 +14744,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a63-compact-planner';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a64-home-planner-grid';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -16437,7 +16484,7 @@ window.vertexImportHKWorkout = async function(idx) {
     const drivers=[];
     let signalsPresent=0;
 
-    const sleep=getMetric(latest,['sleepHours','sleep_hours']);
+    const sleep=getMetric(latest,['sleepHours','sleep_hours','sleepHrs','sleep_duration_hours']);
     const sleepVals7=vertexMetricSeries(last7,['sleepHours','sleep_hours'],7);
     const sleepVals14=vertexMetricSeries(last14,['sleepHours','sleep_hours'],14);
     const sleep7avg=avg(sleepVals7);
@@ -16456,7 +16503,7 @@ window.vertexImportHKWorkout = async function(idx) {
       drivers.push({type:'warn',text:'Sleep unavailable — connect your health data for a stronger score.'});
     }
 
-    const hrv=getMetric(latest,['hrv']);
+    const hrv=getMetric(latest,['hrv','hrv_ms','heartRateVariability','heartRateVariabilityMs']);
     const hrvVals=vertexMetricSeries(last7,['hrv'],7);
     const hrv14vals=vertexMetricSeries(last14,['hrv'],14);
     const hrvBase=avg(hrv14vals.length>=5?hrv14vals:hrvVals);
@@ -16481,7 +16528,7 @@ window.vertexImportHKWorkout = async function(idx) {
       else if(hrv<20){score-=14; drivers.push({type:'bad',text:`HRV of ${Math.round(hrv)}ms is very low.`});} else if(hrv<30){score-=7; drivers.push({type:'warn',text:`HRV of ${Math.round(hrv)}ms is below healthy range.`});} else if(hrv<40){score-=3; drivers.push({type:'warn',text:`HRV of ${Math.round(hrv)}ms is moderate.`});}
     }
 
-    const rhr=getMetric(latest,['restingHr','resting_hr']);
+    const rhr=getMetric(latest,['restingHr','resting_hr','restingHeartRate','rhr']);
     const rhrVals7=vertexMetricSeries(last7,['restingHr','resting_hr'],7);
     const rhr14vals=vertexMetricSeries(last14,['restingHr','resting_hr'],14);
     const rhrBase=avg(rhr14vals.length>=5?rhr14vals:rhrVals7);

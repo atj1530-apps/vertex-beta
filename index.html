@@ -33,6 +33,7 @@
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
 <!-- v20260601-6a46: workout history restored to bottom + local/cloud log merge for visible delete/manage workflow -->
+<!-- v20260601-6a47: Workout History safe-delete guard — ID-only cloud deletes; no broad timestamp deletes -->
 <!-- v20260601-6a44: AI/coaching language polish — coach-first wording, clearer push/maintain/recover guidance -->
 <!-- v20260531-6a44: AI coaching language polish; cache version bumped -->
 <!-- v20260531-6a43: fixed broken HTML comment that pushed the CSP meta out of head; youtube allowed in frame-src -->
@@ -14078,11 +14079,11 @@ document.addEventListener('DOMContentLoaded',function(){
 
 
 <script>
-/* v20260601-6a46 — Progress Workout History bottom restore
-   Restores a bottom-positioned workout log manager and merges local + cloud logs so tested sessions remain visible. */
+/* v20260601-6a47 — Progress Workout History safe delete guard
+   Keeps bottom-positioned workout history, but prevents broad timestamp/name deletes from removing multiple logs. */
 (function(){
-  if(window.__vertexWorkoutHistoryBottomRestore046) return;
-  window.__vertexWorkoutHistoryBottomRestore046 = true;
+  if(window.__vertexWorkoutHistorySafeDelete047) return;
+  window.__vertexWorkoutHistorySafeDelete047 = true;
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(c){
@@ -14252,7 +14253,7 @@ document.addEventListener('DOMContentLoaded',function(){
             '<div class="vertex-history-detail">'+renderExerciseDetails(row)+(mins?'<div class="vertex-history-meta" style="margin-top:8px">Estimated duration: '+esc(mins)+' minutes</div>':'')+'</div>'+
           '</div>';
         }).join('')+'</div>';
-    }catch(e){ console.warn('[Vertex 6A46] Workout history render failed',e); }
+    }catch(e){ console.warn('[Vertex 6A47] Workout history render failed',e); }
   }
   async function enhancedLoadProgressLogs(){
     var local=[];
@@ -14268,7 +14269,7 @@ document.addEventListener('DOMContentLoaded',function(){
           if(primary && !primary.error) addRows(merged, primary.data||[]);
           if(fallback && !fallback.error) addRows(merged, fallback.data||[]);
         }
-      }catch(e){ console.warn('[Vertex 6A46] Cloud progress merge failed; using local/state logs.',e); }
+      }catch(e){ console.warn('[Vertex 6A47] Cloud progress merge failed; using local/state logs.',e); }
     }
     try{ if(window.state) state.progressLogs=merged.sort(function(a,b){ return new Date(dateVal(b)||0)-new Date(dateVal(a)||0); }); }catch(e){}
     try{ renderProgressPage(); }catch(e){}
@@ -14283,31 +14284,42 @@ document.addEventListener('DOMContentLoaded',function(){
     var ok=typeof vertexConfirm==='function' ? await vertexConfirm('Delete '+label+' from Workout History?') : window.confirm('Delete '+label+' from Workout History?');
     if(!ok) return;
 
+    function removeOneMatchingLocalRow(list){
+      if(!Array.isArray(list)) return list;
+      var removed=false;
+      return list.filter(function(x){
+        if(removed) return true;
+        var nx=normalize(x);
+        var same=false;
+        if((row.id || row.log_id) && (nx.id || nx.log_id)){
+          same=String(row.id||row.log_id)===String(nx.id||nx.log_id);
+        } else {
+          same=rowKey(nx)===rowKey(row);
+        }
+        if(same){ removed=true; return false; }
+        return true;
+      });
+    }
+
     localLogKeys().forEach(function(k){
       try{
         var local=parseJson(localStorage.getItem(k), []);
-        localStorage.setItem(k, JSON.stringify(local.filter(function(x){ return !rowMatches(normalize(x),row); })));
+        localStorage.setItem(k, JSON.stringify(removeOneMatchingLocalRow(local)));
       }catch(e){}
     });
-    try{ if(window.state && Array.isArray(state.progressLogs)) state.progressLogs=state.progressLogs.filter(function(x){ return !rowMatches(x,row); }); }catch(e){}
+    try{ if(window.state && Array.isArray(state.progressLogs)) state.progressLogs=removeOneMatchingLocalRow(state.progressLogs); }catch(e){}
 
     if(typeof cloudEnabled==='function' && cloudEnabled() && typeof getSupa==='function'){
       try{
         var supa=getSupa();
-        if(supa && window.authUser){
-          if(row.id){
-            await supa.from('vertex_workout_logs').delete().eq('user_id',authUser.id).eq('id',row.id);
-            await supa.from('workout_logs').delete().eq('user_id',authUser.id).eq('id',row.id);
-          }
-          if(row.completed_at){
-            await supa.from('vertex_workout_logs').delete().eq('user_id',authUser.id).eq('completed_at',row.completed_at);
-            await supa.from('workout_logs').delete().eq('user_id',authUser.id).eq('completed_at',row.completed_at);
-          }
-          if(row.created_at){
-            await supa.from('workout_logs').delete().eq('user_id',authUser.id).eq('created_at',row.created_at);
-          }
+        var id=row.id || row.log_id;
+        if(supa && window.authUser && id){
+          await supa.from('vertex_workout_logs').delete().eq('user_id',authUser.id).eq('id',id);
+          await supa.from('workout_logs').delete().eq('user_id',authUser.id).eq('id',id);
+        } else if(!id) {
+          console.warn('[Vertex 6A47] Workout log had no id; skipped cloud delete to avoid removing multiple logs.');
         }
-      }catch(e){ console.warn('[Vertex 6A46] Cloud workout delete failed; local row removed.',e); }
+      }catch(e){ console.warn('[Vertex 6A47] Cloud workout delete failed; local row removed only.',e); }
     }
     await enhancedLoadProgressLogs();
     renderWorkoutHistory();
@@ -14358,7 +14370,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a46-workout-history-bottom-restore';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a47-workout-history-safe-delete';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

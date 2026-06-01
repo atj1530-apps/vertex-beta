@@ -4309,6 +4309,40 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   .vertex-equipment-chip{white-space:nowrap}
   .ex-group-label[data-equip-section]{scroll-margin-top:88px}
   @media(max-width:980px){.vertex-workout-hero-grid{grid-template-columns:1fr}.vertex-workout-hero-steps{grid-template-columns:1fr}}
+
+/* 6A60: Week Hero & Plan CTA */
+#homeWeekHero{display:none}
+body.app-page-home #homeWeekHero{display:block!important}
+.week-hero-inner{background:linear-gradient(135deg,rgba(28,28,28,.98) 0%,rgba(18,18,18,.98) 100%);border:1px solid rgba(232,255,71,.2);border-radius:16px;padding:18px 20px 20px;margin-bottom:18px}
+.whero-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.whero-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--acc);text-transform:uppercase}
+.whero-date-range{font-size:11px;color:var(--muted)}
+.whero-days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
+.whero-pill{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:9px 3px 8px;text-align:center;cursor:pointer;transition:background .15s,border-color .15s;display:block;width:100%}
+.whero-pill:hover{background:rgba(232,255,71,.08);border-color:rgba(232,255,71,.25)}
+.whero-pill--today{border-color:var(--acc)!important;background:rgba(232,255,71,.1)!important}
+.whero-pill--has .whero-pill-ex{color:var(--acc)}
+.whero-pill-day{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);margin-bottom:5px;text-transform:uppercase}
+.whero-pill-ex{display:block;font-size:12px;font-weight:800;color:var(--text)}
+.whero-sep{height:1px;background:rgba(255,255,255,.07);margin-bottom:14px}
+.whero-today-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.whero-today-day{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted)}
+.whero-today-excount{font-size:11px;color:var(--acc);font-family:'DM Mono',monospace}
+.whero-today-wkt-name{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:var(--text);line-height:1;margin-bottom:5px}
+.whero-today-preview{font-size:12px;color:var(--muted);margin-bottom:13px;line-height:1.5}
+.whero-today-empty{font-size:14px;color:var(--dim);margin-bottom:12px}
+.whero-today-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.whero-start-btn{background:var(--acc);color:#000;border:none;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:800;cursor:pointer;transition:opacity .15s;font-family:'DM Mono',monospace;letter-spacing:1px}
+.whero-start-btn:hover{opacity:.88}
+.whero-edit-btn{background:transparent;border:1px solid var(--line2);color:var(--text);border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;transition:border-color .15s}
+.whero-edit-btn:hover{border-color:var(--acc);color:var(--acc)}
+#planWeekCta{display:none}
+.plan-week-cta-inner{display:flex;align-items:center;gap:12px;background:rgba(232,255,71,.05);border:1px solid rgba(232,255,71,.15);border-radius:12px;padding:12px 16px;margin-bottom:12px}
+.plan-week-icon{font-size:18px;flex-shrink:0}
+.plan-week-text{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.plan-week-sub{font-size:11px;color:var(--muted)}
+.plan-week-btn{margin-left:auto;flex-shrink:0;background:transparent;border:1px solid rgba(232,255,71,.4);color:var(--acc);border-radius:8px;padding:7px 14px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;white-space:nowrap;transition:background .15s}
+.plan-week-btn:hover{background:rgba(232,255,71,.1)}
 </style>
 </head>
 <body class="auth-resolving">
@@ -4418,6 +4452,7 @@ window.vertexFinishBootstrap=function(){
   </aside>
   <main class="main">
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
+    <div id="homeWeekHero" style="display:none"></div>
     <div id="home-dashboard" style="display:none"></div>
 <section id="progressPage" class="page-panel progress-page" style="display:none">
   <div class="progress-head">
@@ -4806,6 +4841,7 @@ window.vertexFinishBootstrap=function(){
       </div>
     </section>
 
+    <div id="planWeekCta" style="display:none"></div>
     <div id="coachBar" class="coachbar">Ready: Push intensity today.</div>
     <section id="autoCoachAcc" class="accordion open"><div class="acc-head"><span class="acc-title">Auto Coach</span><span class="acc-hint">▼ COLLAPSE</span></div><div class="acc-body"><div id="autoCoachBody"><div class="label" style="color:var(--acc)">Auto Coach</div><p style="color:var(--muted);margin:4px 0 12px">Optional plan guidance based on recovery, workout type, and live performance signals.</p><div class="panel" style="margin:0"><b>Recovery signal is favorable.</b><br><span style="color:var(--muted)">Add a small load or rep increase where form is stable.</span></div></div></div></section>
     <div class="wkt-name-row"><h1 id="wkt-title" class="title">NAME YOUR WORKOUT</h1><button id="btn-edit-name" class="btn small">Edit Name</button><button id="btn-share" class="btn small hdr-workout-btn" style="margin-left:auto">↗ Share</button></div>
@@ -11406,6 +11442,40 @@ function vertexApplyWorkoutEmptyState(){
   document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=(onWorkout && hasContent)?'':'none';});
   document.querySelectorAll('.right').forEach(el=>{el.style.display=(onWorkout && hasContent)?'':'none';});
 }
+
+/* 6A60: Week Hero — home page prominent planner overview */
+function renderHomeWeekHero(){
+  var el=document.getElementById('homeWeekHero'); if(!el) return;
+  var onHome=(state.page==='home'||!state.page);
+  if(!onHome){el.style.display='none';return;} el.style.display='';
+  try{
+    var DAYS_KEYS=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+    var SHORT=['M','T','W','T','F','S','S'];
+    var FULL=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    var today=todayKey||DAYS_KEYS[(new Date().getDay()+6)%7];
+    var pl=state.planner||{};
+    var getEx=function(w){try{return(typeof stats==='function'?stats(w).moves:0)||(w.exercises&&w.exercises.length)||0;}catch(e){return(w.exercises&&w.exercises.length)||0;}};
+    var dateRange='';
+    try{var ws=weekStart();var we=new Date(ws);we.setDate(we.getDate()+6);var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});};dateRange=fmt(ws)+' – '+fmt(we);}catch(e){}
+    var pills=DAYS_KEYS.map(function(d,i){var w=pl[d];var ex=w?getEx(w):0;var isT=(d===today);return '<button class="whero-pill'+(isT?' whero-pill--today':'')+(ex>0?' whero-pill--has':'')+'" data-edit-day="'+d+'" title="'+FULL[i]+'"><span class="whero-pill-day">'+SHORT[i]+'</span><span class="whero-pill-ex">'+(ex>0?ex:'&mdash;')+'</span></button>';}).join('');
+    var todayWork=pl[today];
+    var todayIdx=DAYS_KEYS.indexOf(today);
+    var todayLabel=FULL[todayIdx]||'Today';
+    var todayHtml;
+    if(todayWork){var preview=(typeof previewWorkoutNames==='function'?previewWorkoutNames(todayWork):'')||'';preview=preview.slice(0,90)+(preview.length>90?'…':'');var exCount=getEx(todayWork);todayHtml='<div class="whero-today-meta"><span class="whero-today-day">TODAY &bull; '+todayLabel.toUpperCase()+'</span><span class="whero-today-excount">'+exCount+' exercises</span></div><div class="whero-today-wkt-name">'+escapeHtml(todayWork.name||'Workout')+'</div>'+(preview?'<div class="whero-today-preview">'+escapeHtml(preview)+'</div>':'')+'<div class="whero-today-actions"><button class="whero-start-btn" data-edit-day="'+today+'">▶ Start Today</button><button class="whero-edit-btn" data-edit-day="'+today+'">Edit</button></div>';}
+    else{todayHtml='<div class="whero-today-meta"><span class="whero-today-day">TODAY &bull; '+todayLabel.toUpperCase()+'</span></div><div class="whero-today-empty">No workout planned for today.</div><button class="whero-edit-btn" data-edit-day="'+today+'">Plan today &rarr;</button>';}
+    el.innerHTML='<div class="week-hero-inner"><div class="whero-head"><span class="whero-title">THIS WEEK</span>'+(dateRange?'<span class="whero-date-range">'+dateRange+'</span>':'')+'</div><div class="whero-days">'+pills+'</div><div class="whero-sep"></div><div class="whero-today">'+todayHtml+'</div></div>';
+  }catch(e){console.warn('[Vertex] renderHomeWeekHero:',e);el.style.display='none';}
+}
+function renderPlanWeekCta(){
+  var el=document.getElementById('planWeekCta'); if(!el) return;
+  var onWkt=(state.page==='workout');
+  var hasAssigned=!!(state.current&&state.current.assignedDay);
+  var show=onWkt&&!hasAssigned;
+  el.style.display=show?'':'none';
+  if(!show) return;
+  el.innerHTML='<div class="plan-week-cta-inner"><span class="plan-week-icon">&#128197;</span><div><div class="plan-week-text">Assign this workout to your weekly plan</div><div class="plan-week-sub">Go to Home &rarr; tap Edit on any day</div></div><button class="plan-week-btn" data-goto-planner="1">View Plan &rarr;</button></div>';
+}
 function renderAll(){
   const pg=state.page||defaultPage();
   renderControls(); setPage(pg);
@@ -11413,8 +11483,8 @@ function renderAll(){
   const logBtn=document.getElementById('btn-log');
   if(logBtn) logBtn.classList.toggle('armed',!!hasWorkout());
   refreshSaveButton(); updateWorkoutBottomBar();
-  if(pg==='home'||!pg){ renderHomeDashboard(); renderToday(); renderIntel(); }
-  else if(pg==='workout'){ renderSidebar(); renderToday(); renderBuilder(); renderRight(); renderIntel(); }
+  if(pg==='home'||!pg){ renderHomeDashboard(); renderToday(); renderIntel(); renderHomeWeekHero(); }
+  else if(pg==='workout'){ renderSidebar(); renderToday(); renderBuilder(); renderRight(); renderIntel(); renderPlanWeekCta(); }
   else if(pg==='progress'){ if(typeof renderProgressPage==='function') renderProgressPage(); }
   else if(pg==='wellness'){ if(typeof renderHealthPage==='function') renderHealthPage(); }
   else if(pg==='ai'){ if(typeof renderAiCoachPage==='function') renderAiCoachPage(); }
@@ -13153,7 +13223,8 @@ document.addEventListener('click',async e=>{
  if(t.id==='btn-notif-setup'){ document.getElementById('account-menu')?.classList.remove('on'); document.getElementById('settingsModal')?.classList.remove('on'); vertexShowNotifPrompt(); return}
  if(t.id==='btn-notif-allow'){ vertexRequestNotifPermission(); return}
  if(t.id==='btn-notif-dismiss'){ document.getElementById('vertex-notif-toast')?.classList.remove('on'); localStorage.setItem('vertex_notif_dismissed','1'); return}
- const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save-later'){commitWorkoutNameEdit(); await saveCurrentWorkoutForLater(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return}
+ if(t.dataset&&t.dataset.gotoPlanner){setPage('home');setTimeout(function(){var p=document.getElementById('plannerAcc');if(p)p.scrollIntoView({behavior:'smooth'});},300);return;}
+  const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save-later'){commitWorkoutNameEdit(); await saveCurrentWorkoutForLater(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return}
  // ── FOCUSED WORKOUT MODE ──
  if(t.id==='fwmNextBtn'){fwmAdvance(); return}
  if(t.id==='fwmRestBtn'){openRestTimer(state.restTimerDefault||60); return}
@@ -14494,7 +14565,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a59-pdf-library-cleanup';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a60-week-hero';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -4965,7 +4965,7 @@ window.vertexFinishBootstrap=function(){
 
 
 <div id="libraryModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)" id="libraryModalLabel">Add Exercise to Library</div><h2 id="libraryModalTitle">Add Exercise</h2><p id="libraryModalDesc">Create a new exercise and keep it in your library going forward. Custom exercises are saved in this browser.</p><div class="manual-grid"><label><span class="label">Category</span><select id="libraryEnv"><option value="home">Home</option><option value="gym">Gym</option></select></label><label><span class="label">Training Focus</span><select id="libraryTraining"><option>Strength</option><option>Kettlebell</option><option>Yoga / Pilates</option><option>Cardio</option><option>Recovery / Mobility</option></select></label><label class="wide"><span class="label">Exercise Name</span><input id="libraryName" placeholder="e.g., Band Face Pull"></label><label><span class="label">Muscle Group / Subcategory</span><select id="libraryMuscle"></select></label><label><span class="label">Equipment</span><select id="libraryEquip"><option>Dumbbells</option><option>Bodyweight</option><option>Band</option><option>Bench</option><option>Pull-Up Bar</option><option>Kettlebell</option><option>Mat</option><option>Cable</option><option>Machine</option><option>Barbell</option><option>Bike</option><option>Treadmill</option><option>Rower</option><option>None</option><option>Other</option></select></label><label><span class="label">Movement Type</span><select id="libraryKind"><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="core">Core</option><option value="cardio">Cardio</option><option value="recovery">Recovery</option><option value="stretch">Stretch</option><option value="kettlebell">Kettlebell</option><option value="mobility">Mobility</option><option value="custom">Custom</option></select></label></div><div class="manual-help">Saved exercises appear in the sidebar after refresh and follow the same filters as built-in exercises.</div><div class="modal-grid"><button id="librarySave" class="btn acc">Save to Library</button><button id="libraryCancel" class="btn red">Cancel</button></div></div></div>
-<div id="manualModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Lightweight Manual Entry</div><h2>Add Custom Move</h2><p>Add a one-off exercise without expanding the library. Good for substitutes, rehab moves, carries, machine variants, or quick notes.</p><div class="manual-grid"><label class="wide"><span class="label">Exercise Name</span><input id="manualName" placeholder="e.g., Seated Cable Row"></label><label><span class="label">Muscle Group</span><select id="manualMuscle"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Legs</option><option>Biceps</option><option>Triceps</option><option>Core</option><option>Recovery</option></select></label><label><span class="label">Equipment</span><input id="manualEquip" placeholder="Dumbbells, Machine, Bodyweight"></label><label><span class="label">Sets</span><input id="manualSets" type="number" min="1" max="12" value="3"></label><label><span class="label">Reps</span><input id="manualReps" type="number" min="0" max="200" value="8"></label><label><span class="label">Weight</span><input id="manualWeight" placeholder="optional"></label><label><span class="label">Type</span><select id="manualKind"><option value="custom">Custom</option><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="recovery">Recovery</option></select></label></div><div class="manual-help">This adds directly to the current workout only. It does not permanently change the main exercise library.</div><div class="modal-grid"><button id="manualAdd" class="btn acc">Add to Workout</button><button id="manualCancel" class="btn red">Cancel</button></div></div></div>
+<div id="manualModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Lightweight Manual Entry</div><h2>Add Custom Move</h2><p>Add a one-off exercise without expanding the library. Good for substitutes, rehab moves, carries, machine variants, or quick notes.</p><div class="manual-grid"><label class="wide"><span class="label">Exercise Name</span><input id="manualName" placeholder="e.g., Seated Cable Row"></label><label><span class="label">Muscle Group</span><select id="manualMuscle"><option>Chest</option><option>Back</option><option>Shoulders + Traps</option><option>Legs</option><option>Biceps</option><option>Triceps</option><option>Core</option><option>Recovery</option></select></label><label><span class="label">Equipment</span><input id="manualEquip" placeholder="Dumbbells, Machine, Bodyweight"></label><label><span class="label">Sets</span><input id="manualSets" type="number" min="1" max="12" value="3"></label><label><span class="label">Reps</span><input id="manualReps" type="number" min="0" max="200" value="8"></label><label><span class="label">Weight</span><input id="manualWeight" placeholder="optional"></label><label><span class="label">Type</span><select id="manualKind"><option value="custom">Custom</option><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="recovery">Recovery</option></select></label></div><div class="manual-help">This adds directly to the current workout only. It does not permanently change the main exercise library.</div><div class="modal-grid"><button id="manualAdd" class="btn acc">Add to Workout</button><button id="manualCancel" class="btn red">Cancel</button></div></div></div>
 
 <div id="equipmentModal" class="modal-overlay" data-close-on-backdrop="1"><div class="modal"><div class="label" style="color:var(--acc)">⚡ Home Equipment</div><h2>Available Equipment</h2><p>Toggle the equipment you have access to. The exercise list updates to match.</p><div id="equipmentModalBody" style="margin-top:14px"></div><div class="modal-grid"><button id="equipmentAllOn" class="btn">All On</button><button id="equipmentClearAll" class="btn red">Clear All</button><button id="equipmentDone" class="btn acc">Done</button></div></div></div>
 
@@ -5269,18 +5269,15 @@ const EXERCISES=[
 {name:'Incline Bench Press',muscle:'Chest',equip:'Barbell',env:'home',kind:'push',training:'Strength'},
 {name:'Decline Bench Press',muscle:'Chest',equip:'Barbell',env:'home',kind:'push',training:'Strength'},
 {name:'Dumbbell Fly',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Overhead Press',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Lateral Raise',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'Lateral Raise',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Tricep Extension',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
 {name:'Wide-Grip Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
-{name:'Chin-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
 {name:'Close-Grip Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
-{name:'Lat Pullover',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'One-Arm Row',muscle:'Back',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
+{name:'Lat Pulldown',muscle:'Back',equip:'Machine',env:'gym',kind:'pull',training:'Strength'},
 {name:'Hammer Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Alternating Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Goblet Squat',muscle:'Legs',equip:'Dumbbell',env:'home',kind:'legs',training:'Strength'},
+{name:'Goblet Squat',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'RDL',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Dumbbell Deadlift',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Lunge',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
@@ -5290,20 +5287,19 @@ EXERCISES.push(
 {name:'Push-Up',muscle:'Chest',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Incline Push-Up',muscle:'Chest',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Cable Chest Press',muscle:'Chest',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
-{name:'Chest Dip',muscle:'Chest',equip:'Dip Station',env:'gym',kind:'push',training:'Strength'},
+{name:'Dips',muscle:'Chest',equip:'Dip Station',env:'gym',kind:'push',training:'Strength'},{name:'Dips',muscle:'Triceps',equip:'Dip Station',env:'gym',kind:'push',training:'Strength'},
 {name:'Machine Chest Press',muscle:'Chest',equip:'Machine',env:'gym',kind:'push',training:'Strength'},
 {name:'Seated Cable Row',muscle:'Back',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
 {name:'Lat Pulldown',muscle:'Back',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
 {name:'Bent-Over Row',muscle:'Back',equip:'Barbell',env:'gym',kind:'pull',training:'Strength'},
-{name:'Chest-Supported Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Rear Delt Fly',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Spider Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Rear Delt Fly',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Single-Arm Lat Pulldown',muscle:'Back',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
-{name:'Face Pull',muscle:'Shoulders',equip:'Cable/Band',env:'home',kind:'pull',training:'Strength'},
-{name:'Arnold Press',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Front Raise',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Reverse Fly',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Upright Row',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Landmine Press',muscle:'Shoulders',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
+{name:'Arnold Press',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'Front Raise',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'Reverse Fly',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Upright Row',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Landmine Press',muscle:'Shoulders + Traps',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
 {name:'Squat',muscle:'Legs',equip:'Barbell',env:'gym',kind:'legs',training:'Strength'},
 {name:'Leg Press',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
 {name:'Bulgarian Split Squat',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
@@ -5311,19 +5307,17 @@ EXERCISES.push(
 {name:'Lateral Step-Up',muscle:'Legs',equip:'Step Platform',env:'home',kind:'legs',training:'Strength'},
 {name:'Step Aerobics',muscle:'Legs',equip:'Step Platform',env:'home',kind:'cardio',training:'Cardio'},
 {name:'Step Jumps',muscle:'Legs',equip:'Step Platform',env:'home',kind:'cardio',training:'Cardio'},
-{name:'Bulgarian Split Squat (Step)',muscle:'Legs',equip:'Step Platform',env:'home',kind:'legs',training:'Strength'},
 {name:'Hip Thrust (Step)',muscle:'Legs',equip:'Step Platform',env:'home',kind:'legs',training:'Strength'},
 {name:'Hip Thrust',muscle:'Legs',equip:'Barbell',env:'gym',kind:'legs',training:'Strength'},
 {name:'Leg Curl',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
 {name:'Leg Extension',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
 {name:'Preacher Curl',muscle:'Biceps',equip:'EZ Bar',env:'home',kind:'pull',training:'Strength'},
-{name:'Concentration Curl',muscle:'Biceps',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
+{name:'Concentration Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Incline Dumbbell Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Cable Curl',muscle:'Biceps',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
 {name:'Dumbbell Reverse Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
   {name:'Reverse Curl',muscle:'Biceps',equip:'EZ Bar',env:'home',kind:'pull',training:'Strength'},
 {name:'Tricep Pushdown',muscle:'Triceps',equip:'Cable/Band',env:'gym',kind:'push',training:'Strength'},
-{name:'Overhead Tricep Extension',muscle:'Triceps',equip:'Dumbbell',env:'home',kind:'push',training:'Strength'},
 {name:'Close-Grip Push-Up',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Skull Crusher',muscle:'Triceps',equip:'EZ Bar',env:'home',kind:'push',training:'Strength'},
 {name:'Bench Dip',muscle:'Triceps',equip:'Bench',env:'home',kind:'push',training:'Strength'},
@@ -5353,15 +5347,15 @@ EXERCISES.push(
 {name:'Russian Twist',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
 {name:'Kettlebell Swing',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Kettlebell Goblet Squat',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
-{name:'Kettlebell Clean',muscle:'Shoulders',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
-{name:'Kettlebell Press',muscle:'Shoulders',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
+{name:'Kettlebell Clean',muscle:'Shoulders + Traps',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
+{name:'Kettlebell Press',muscle:'Shoulders + Traps',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Turkish Get-Up',muscle:'Core',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Kettlebell Row',muscle:'Back',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
-{name:'Mountain Pose',muscle:'Core',equip:'Yoga Mat',env:'home',kind:'mobility',training:'Yoga / Pilates'},
-{name:'Downward Dog',muscle:'Back',equip:'Yoga Mat',env:'home',kind:'mobility',training:'Yoga / Pilates'},
-{name:'Warrior II',muscle:'Legs',equip:'Yoga Mat',env:'home',kind:'mobility',training:'Yoga / Pilates'},
-{name:'Tree Pose',muscle:'Core',equip:'Yoga Mat',env:'home',kind:'mobility',training:'Yoga / Pilates'},
-{name:'Boat Pose',muscle:'Core',equip:'Yoga Mat',env:'home',kind:'mobility',training:'Yoga / Pilates'},
+{name:'Mountain Pose',muscle:'Core',equip:'Mat',env:'home',kind:'mobility',training:'Yoga / Pilates'},
+{name:'Downward Dog',muscle:'Back',equip:'Mat',env:'home',kind:'mobility',training:'Yoga / Pilates'},
+{name:'Warrior II',muscle:'Legs',equip:'Mat',env:'home',kind:'mobility',training:'Yoga / Pilates'},
+{name:'Tree Pose',muscle:'Core',equip:'Mat',env:'home',kind:'mobility',training:'Yoga / Pilates'},
+{name:'Boat Pose',muscle:'Core',equip:'Mat',env:'home',kind:'mobility',training:'Yoga / Pilates'},
 {name:'Pilates Hundred',muscle:'Core',equip:'Mat',env:'home',kind:'mobility',training:'Yoga / Pilates'},
 {name:'Brisk Walk',muscle:'Cardio',equip:'None',env:'home',kind:'cardio',training:'Cardio'},
 {name:'Bike Intervals',muscle:'Cardio',equip:'Peloton / Exercise Bike',env:'home',kind:'cardio',training:'Cardio'},
@@ -5378,7 +5372,7 @@ EXERCISES.push(
 {name:'Figure Four Stretch',muscle:'Legs',equip:'Mat',env:'home',kind:'stretch',training:'Stretching'},
 {name:'Doorway Chest Stretch',muscle:'Chest',equip:'Doorway',env:'home',kind:'stretch',training:'Stretching'},
 {name:'Thread the Needle',muscle:'Back',equip:'Mat',env:'home',kind:'stretch',training:'Stretching'},
-{name:'Sleeper Stretch',muscle:'Shoulders',equip:'Mat',env:'home',kind:'stretch',training:'Stretching'}
+{name:'Sleeper Stretch',muscle:'Shoulders + Traps',equip:'Mat',env:'home',kind:'stretch',training:'Stretching'}
 );
 
 // v13.52.0 restored library items — program state is no longer allowed to hide exercise records.
@@ -5388,10 +5382,9 @@ const RESTORED_EXERCISES=[
 {name:'Low Cable Fly',muscle:'Chest',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'High Cable Fly',muscle:'Chest',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'T-Bar Row',muscle:'Back',equip:'Machine',env:'gym',kind:'pull',training:'Strength'},
-{name:'Dumbbell Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Band Row',muscle:'Back',equip:'Bands',env:'home',kind:'pull',training:'Strength'},
-{name:'Shrug',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Machine Shoulder Press',muscle:'Shoulders',equip:'Machine',env:'gym',kind:'push',training:'Strength'},
+{name:'Band Row',muscle:'Back',equip:'Band',env:'home',kind:'pull',training:'Strength'},
+{name:'Shrug',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Machine Shoulder Press',muscle:'Shoulders + Traps',equip:'Machine',env:'gym',kind:'push',training:'Strength'},
 {name:'Hack Squat',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
 {name:'Walking Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Glute Bridge',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
@@ -5411,10 +5404,10 @@ const EXPANDED_NON_STRENGTH_EXERCISES=[
 {name:'Bike Ride',muscle:'Cardio',equip:'Peloton / Exercise Bike',env:'home',kind:'cardio',training:'Cardio'},
 {name:'Elliptical',muscle:'Cardio',equip:'Machine',env:'gym',kind:'cardio',training:'Cardio'},
 {name:'Stair Climber',muscle:'Cardio',equip:'Machine',env:'gym',kind:'cardio',training:'Cardio'},
-{name:'Battle Ropes',muscle:'Cardio',equip:'Ropes',env:'gym',kind:'cardio',training:'Cardio'},
+{name:'Battle Ropes',muscle:'Cardio',equip:'Rope',env:'gym',kind:'cardio',training:'Cardio'},
 {name:'Sled Push',muscle:'Cardio',equip:'Sled',env:'gym',kind:'cardio',training:'Cardio'},
 {name:'Sled Pull',muscle:'Cardio',equip:'Sled',env:'gym',kind:'cardio',training:'Cardio'},
-{name:'Farmer Carry',muscle:'Cardio',equip:'Dumbbells',env:'home',kind:'cardio',training:'Cardio'},
+{name:'Farmers Walk',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'compound',training:'Strength'},
 {name:'Box Step Overs',muscle:'Cardio',equip:'Step Platform',env:'home',kind:'cardio',training:'Cardio'},
 {name:'Burpees',muscle:'Cardio',equip:'Bodyweight',env:'home',kind:'cardio',training:'Cardio'},
 {name:'Mountain Climbers',muscle:'Cardio',equip:'Bodyweight',env:'home',kind:'cardio',training:'Cardio'},
@@ -5436,7 +5429,7 @@ const EXPANDED_NON_STRENGTH_EXERCISES=[
 {name:'Foam Rolling Quads',muscle:'Legs',equip:'Foam Roller',env:'home',kind:'recovery',training:'Recovery'},
 {name:'Foam Rolling Back',muscle:'Back',equip:'Foam Roller',env:'home',kind:'recovery',training:'Recovery'},
 {name:'Hip Mobility Flow',muscle:'Legs',equip:'Mat',env:'home',kind:'recovery',training:'Recovery'},
-{name:'Shoulder CARs',muscle:'Shoulders',equip:'None',env:'home',kind:'recovery',training:'Recovery'},
+{name:'Shoulder CARs',muscle:'Shoulders + Traps',equip:'None',env:'home',kind:'recovery',training:'Recovery'},
 {name:'Ankle Mobility',muscle:'Legs',equip:'None',env:'home',kind:'recovery',training:'Recovery'},
 {name:'Neck Mobility',muscle:'Recovery',equip:'None',env:'home',kind:'recovery',training:'Recovery'},
 {name:'Spine Rotation',muscle:'Back',equip:'Mat',env:'home',kind:'recovery',training:'Recovery'},
@@ -5444,13 +5437,13 @@ const EXPANDED_NON_STRENGTH_EXERCISES=[
 {name:'Calf Stretch',muscle:'Legs',equip:'Wall',env:'home',kind:'stretch',training:'Stretching'},
 {name:'Chest Stretch',muscle:'Chest',equip:'Wall',env:'home',kind:'stretch',training:'Stretching'},
 {name:'Lat Stretch',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'stretch',training:'Stretching'},
-{name:'Shoulder Stretch',muscle:'Shoulders',equip:'Band',env:'home',kind:'stretch',training:'Stretching'},
+{name:'Shoulder Stretch',muscle:'Shoulders + Traps',equip:'Band',env:'home',kind:'stretch',training:'Stretching'},
 {name:'Triceps Stretch',muscle:'Triceps',equip:'None',env:'home',kind:'stretch',training:'Stretching'},
 {name:'Kettlebell Snatch',muscle:'Full Body',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Kettlebell Deadlift',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Kettlebell Lunge',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Kettlebell Squat to Press',muscle:'Full Body',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
-{name:'Kettlebell Halo',muscle:'Shoulders',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
+{name:'Kettlebell Halo',muscle:'Shoulders + Traps',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Kettlebell Carry',muscle:'Core',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'}
 ];
 EXPANDED_NON_STRENGTH_EXERCISES.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERCISES.push(ex);});
@@ -5464,14 +5457,12 @@ const V13539_LIBRARY_BALANCE=[
 {name:'Reverse-Grip Pulldown',muscle:'Back',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
 {name:'Straight-Arm Pulldown',muscle:'Back',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
 {name:'Meadows Row',muscle:'Back',equip:'Barbell',env:'gym',kind:'pull',training:'Strength'},
-{name:'Resistance Band Row',muscle:'Back',equip:'Bands',env:'home',kind:'pull',training:'Strength'},
-{name:'Dumbbell Pullover Row',muscle:'Back',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
 {name:'Prone Y Raise',muscle:'Back',equip:'Bodyweight',env:'home',kind:'pull',training:'Strength'},
-{name:'Pike Push-Up',muscle:'Shoulders',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
-{name:'Dumbbell Shoulder Press',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Cable Lateral Raise',muscle:'Shoulders',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
-{name:'Rear Delt Cable Fly',muscle:'Shoulders',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
-{name:'Machine Lateral Raise',muscle:'Shoulders',equip:'Machine',env:'gym',kind:'push',training:'Strength'},
+{name:'Pike Push-Up',muscle:'Shoulders + Traps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
+{name:'Dumbbell Shoulder Press',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'Cable Lateral Raise',muscle:'Shoulders + Traps',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
+{name:'Rear Delt Cable Fly',muscle:'Shoulders + Traps',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
+{name:'Machine Lateral Raise',muscle:'Shoulders + Traps',equip:'Machine',env:'gym',kind:'push',training:'Strength'},
 {name:'Dumbbell Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Cross-Body Hammer Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Spider Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
@@ -5479,13 +5470,13 @@ const V13539_LIBRARY_BALANCE=[
 {name:'Machine Curl',muscle:'Biceps',equip:'Machine',env:'gym',kind:'pull',training:'Strength'},
 {name:'Diamond Push-Up',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Dumbbell Skull Crushers',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Single-Arm Overhead Extension',muscle:'Triceps',equip:'Dumbbell',env:'home',kind:'push',training:'Strength'},
+{name:'Single-Arm Overhead Extension',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Rope Pushdown',muscle:'Triceps',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'Single-Arm Cable Pushdown',muscle:'Triceps',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'Overhead Cable Extension',muscle:'Triceps',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'Bird Dog',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
 {name:'Hollow Body Hold',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
-{name:'Suitcase Carry',muscle:'Core',equip:'Dumbbell',env:'home',kind:'core',training:'Strength'},
+{name:'Suitcase Carry',muscle:'Core',equip:'Dumbbells',env:'home',kind:'core',training:'Strength'},
 {name:'Hanging Leg Raise',muscle:'Core',equip:'Pull-Up Bar',env:'home',kind:'core',training:'Strength'},
 {name:'Cable Crunch',muscle:'Core',equip:'Cable',env:'gym',kind:'core',training:'Strength'},
 {name:'Captain Chair Knee Raise',muscle:'Core',equip:'Machine',env:'gym',kind:'core',training:'Strength'},
@@ -5503,7 +5494,7 @@ const V13539_LIBRARY_BALANCE=[
 {name:'Row Sprint Intervals',muscle:'HIIT',equip:'Rower',env:'gym',kind:'hiit',training:'Cardio'},
 {name:'Jump Rope Intervals',muscle:'HIIT',equip:'Rope',env:'home',kind:'hiit',training:'Cardio'},
 {name:'Burpee Intervals',muscle:'HIIT',equip:'Bodyweight',env:'home',kind:'hiit',training:'Cardio'},
-{name:'Battle Rope Intervals',muscle:'HIIT',equip:'Ropes',env:'gym',kind:'hiit',training:'Cardio'},
+{name:'Battle Rope Intervals',muscle:'HIIT',equip:'Rope',env:'gym',kind:'hiit',training:'Cardio'},
 {name:'Sled Push Intervals',muscle:'Conditioning',equip:'Sled',env:'gym',kind:'conditioning',training:'Cardio'},
 {name:'Farmer Carry Conditioning',muscle:'Conditioning',equip:'Dumbbells',env:'home',kind:'conditioning',training:'Cardio'},
 {name:'Stair Climber Conditioning',muscle:'Conditioning',equip:'Machine',env:'gym',kind:'conditioning',training:'Cardio'},
@@ -5546,8 +5537,8 @@ const V13539_LIBRARY_BALANCE=[
 {name:'Thread the Needle Stretch',muscle:'Spine',equip:'Mat',env:'home',kind:'spine',training:'Stretching'},
 {name:'Supine Spinal Twist Stretch',muscle:'Spine',equip:'Mat',env:'home',kind:'spine',training:'Stretching'},
 {name:'Cat-Cow Stretch',muscle:'Spine',equip:'Mat',env:'home',kind:'spine',training:'Stretching'},
-{name:'Cross-Body Shoulder Stretch',muscle:'Shoulders',equip:'None',env:'home',kind:'shoulders',training:'Stretching'},
-{name:'Sleeper Stretch Hold',muscle:'Shoulders',equip:'Mat',env:'home',kind:'shoulders',training:'Stretching'},
+{name:'Cross-Body Shoulder Stretch',muscle:'Shoulders + Traps',equip:'None',env:'home',kind:'shoulders',training:'Stretching'},
+{name:'Sleeper Stretch Hold',muscle:'Shoulders + Traps',equip:'Mat',env:'home',kind:'shoulders',training:'Stretching'},
 {name:'Doorway Chest Stretch Hold',muscle:'Chest',equip:'Doorway',env:'home',kind:'chest',training:'Stretching'},
 {name:'Pec Minor Wall Stretch',muscle:'Chest',equip:'Wall',env:'home',kind:'chest',training:'Stretching'},
 {name:'Kettlebell Swing Power',muscle:'Power',equip:'Kettlebell',env:'home',kind:'power',training:'Kettlebell'},
@@ -5602,10 +5593,7 @@ EXERCISES.forEach(ex=>{if(V13539_RETAG[ex.name] && ['Cardio','Recovery','Stretch
 
 
 // v13.54.0 home strength completion — appended after library balance, auth untouched.
-const V13540_HOME_STRENGTH=[
-{name:'Resistance Band Lat Pulldown',muscle:'Back',equip:'Band',env:'home',kind:'pull',training:'Strength'},
-{name:'Doorframe Row',muscle:'Back',equip:'Bodyweight',env:'home',kind:'pull',training:'Strength'},
-{name:'Towel Row',muscle:'Back',equip:'Bodyweight',env:'home',kind:'pull',training:'Strength'},
+const V13540_HOME_STRENGTH=[,
 {name:'Floor Superman Hold',muscle:'Back',equip:'Bodyweight',env:'home',kind:'pull',training:'Strength'},
 {name:'Band Straight-Arm Pulldown',muscle:'Back',equip:'Band',env:'home',kind:'pull',training:'Strength'},
 {name:'Decline Push-Up',muscle:'Chest',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
@@ -5613,13 +5601,9 @@ const V13540_HOME_STRENGTH=[
 {name:'Paused Push-Up',muscle:'Chest',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Single-Arm Assisted Push-Up',muscle:'Chest',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Dumbbell Pullover',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Handstand Hold (Wall)',muscle:'Shoulders',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
-{name:'Handstand Push-Up (Assisted)',muscle:'Shoulders',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
-{name:'Band Front Raise',muscle:'Shoulders',equip:'Band',env:'home',kind:'push',training:'Strength'},
-{name:'Band Lateral Raise',muscle:'Shoulders',equip:'Band',env:'home',kind:'push',training:'Strength'},
-{name:'Dumbbell Y Raise',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Band Curl',muscle:'Biceps',equip:'Band',env:'home',kind:'pull',training:'Strength'},
-{name:'Isometric Curl Hold',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Handstand Hold (Wall)',muscle:'Shoulders + Traps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
+{name:'Handstand Push-Up (Assisted)',muscle:'Shoulders + Traps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
+{name:'Dumbbell Y Raise',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Seated Dumbbell Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Bench Dip (Feet Elevated)',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Band Tricep Extension',muscle:'Triceps',equip:'Band',env:'home',kind:'push',training:'Strength'},
@@ -5632,7 +5616,6 @@ const V13540_HOME_STRENGTH=[
 {name:'Cossack Squat',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
 {name:'Step-Back Lunge',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
 {name:'Single-Leg Romanian Deadlift',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
-{name:'Glute Bridge Hold',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
 {name:'Dumbbell Front Squat',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'}
 ];
 V13540_HOME_STRENGTH.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERCISES.push(ex);});
@@ -5663,6 +5646,16 @@ V13540_HOME_STRENGTH.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERC
       else EXERCISES.push(add);
     });
   }catch(e){ console.warn('[Vertex 6A50] chest/triceps library cleanup failed', e); }
+  // 6A59: additional new exercises from PDF cleanup
+  EXERCISES.push(
+    {name:'Air Squat',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
+    {name:'Dumbbell Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
+    {name:'Dumbbell Side Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
+    {name:'Decline Dumbbell Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+    {name:'Incline Dumbbell Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+    {name:'Static Dumbbell Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+    {name:'Reverse Grip Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'}
+  );
 })();
 
 // v13.62 library expansion — user-requested exercises plus targeted gap-fill
@@ -5672,22 +5665,20 @@ V13540_HOME_STRENGTH.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERC
 const V1362_LIBRARY_ADDITIONS=[
 // --- BACK (dumbbell/bodyweight, also visible in gym) ---
 {name:'Gorilla Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Single-Arm Dumbbell Row',muscle:'Back',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
 {name:'Dumbbell Bent-Over Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Lawnmower Row',muscle:'Back',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
+{name:'Lawnmower Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Plank Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Heavy Pants',muscle:'Back',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
-{name:'Renegade Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Inverted Row',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
+{name:'Heavy Pants',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Inverted Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Seal Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 
 // --- SHOULDERS (dumbbell, also visible in gym) ---
-{name:'3-Way Shoulder Raise',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'6-Way Shoulder Raise',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Alternating Shoulder Press',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Y-Raise',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Cuban Press',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Bradford Press',muscle:'Shoulders',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
+{name:'3-Way Shoulder Raise',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'6-Way Shoulder Raise',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'Alternating Shoulder Press',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'Y-Raise',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'Cuban Press',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'Bradford Press',muscle:'Shoulders + Traps',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
 
 // --- BICEPS (muscle:'Biceps' to match existing convention) ---
 {name:'In/Out Bicep Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
@@ -5698,20 +5689,19 @@ const V1362_LIBRARY_ADDITIONS=[
 {name:'Congdon Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Drag Curl',muscle:'Biceps',equip:'Barbell',env:'gym',kind:'pull',training:'Strength'},
 {name:'21s',muscle:'Biceps',equip:'Barbell',env:'gym',kind:'pull',training:'Strength'},
-{name:'Waiter Curl',muscle:'Biceps',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
+{name:'Waiter Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 
 // --- TRICEPS ---
 {name:'Twist Tricep Kickback',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'JM Press',muscle:'Triceps',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
 {name:'California Press',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Tate Press',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 
 // --- KETTLEBELL ---
 {name:'Alternating Kettlebell Swing',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Single-Arm Kettlebell Swing',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
-{name:'Single-Arm Kettlebell Clean',muscle:'Shoulders',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
+{name:'Single-Arm Kettlebell Clean',muscle:'Shoulders + Traps',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Kettlebell Around-the-World',muscle:'Core',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
-{name:'Bottoms-Up Kettlebell Press',muscle:'Shoulders',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
+{name:'Bottoms-Up Kettlebell Press',muscle:'Shoulders + Traps',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 
 // --- CORE ---
 {name:'Copenhagen Plank',muscle:'Core',equip:'Bench',env:'home',kind:'core',training:'Strength'},
@@ -5724,7 +5714,7 @@ const V1362_LIBRARY_ADDITIONS=[
 {name:'Reverse Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Curtsy Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Belt Squat',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
-{name:'Single-Leg RDL',muscle:'Legs',equip:'Dumbbell',env:'home',kind:'legs',training:'Strength'}
+{name:'Single-Leg RDL',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'}
 ];
 V1362_LIBRARY_ADDITIONS.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERCISES.push(ex);});
 
@@ -6906,7 +6896,7 @@ function closeEquipmentModal(){document.getElementById('equipmentModal')?.classL
 // v13.54.0 home strength completion END
 
 const FILTER_GROUPS={
-  'Strength':['All','Legs','Chest','Back','Shoulders','Biceps','Triceps','Core'],
+  'Strength':['All','Legs','Chest','Back','Shoulders + Traps','Biceps','Triceps','Core'],
   'Kettlebell':['All','Full Body','Lower Body','Upper Body','Power','Core','Mobility'],
   'Yoga / Pilates':['All','Flow','Balance','Core','Mobility'],
   'Cardio':['All','Low Impact','HIIT','Conditioning'],
@@ -11572,7 +11562,7 @@ function renderSidebar(){
   if(equipSub) equipSub.innerHTML=equipNames.map(k=>`<button class="chip vertex-equipment-chip" data-equip-jump="${escapeAttr(k)}">${escapeHtml(k)} <span style="color:var(--dim);font-size:10px">${equipGroups[k].length}</span></button>`).join('');
   const MUSCLE_COLORS={
     'Chest':'#ff6b6b','Pecs':'#ff6b6b','Back':'#4bbdff','Lats':'#4bbdff',
-    'Shoulders':'#ffb047','Legs':'#48ff8a','Quads':'#48ff8a','Hamstrings':'#48ff8a',
+    'Shoulders + Traps':'#ffb047','Shoulders':'#ffb047','Legs':'#48ff8a','Quads':'#48ff8a','Hamstrings':'#48ff8a',
     'Glutes':'#c084fc','Arms':'#fb923c','Biceps':'#fb923c','Triceps':'#f472b6',
     'Core':'#e8ff47','Abs':'#e8ff47','Calves':'#34d399','Full Body':'#8b5cf6',
     'Cardio':'#60a5fa','default':'#8d8d8d'
@@ -11584,7 +11574,7 @@ function renderSidebar(){
   }
   const MUSCLE_EMOJI={
     'Chest':'🫁','Pecs':'🫁','Back':'🔙','Lats':'🔙',
-    'Shoulders':'💪','Legs':'🦵','Quads':'🦵','Hamstrings':'🦵',
+    'Shoulders + Traps':'💪','Shoulders':'💪','Legs':'🦵','Quads':'🦵','Hamstrings':'🦵',
     'Glutes':'🍑','Arms':'💪','Biceps':'💪','Triceps':'💪',
     'Core':'🎯','Abs':'🎯','Calves':'🦶','Full Body':'⚡',
     'Cardio':'❤️','default':'🏋️'
@@ -11697,7 +11687,7 @@ function getCoachInsights(s){
   const muscles=s.loggedMuscles||{};
   const entries=Object.entries(muscles).sort((a,b)=>b[1]-a[1]);
   const most=entries[0]||null;
-  const allStrength=['Chest','Back','Legs','Shoulders','Biceps','Triceps','Core'];
+  const allStrength=['Chest','Back','Legs','Shoulders + Traps','Biceps','Triceps','Core'];
   const missed=allStrength.filter(m=>(muscles[m]||0)<=0);
   const warnings=[]; const suggestions=[];
   const lowRecovery=(s.ready&&s.ready<=2)||(s.sleep&&s.sleep<6)||(s.sore&&s.sore>=4)||(s.energy&&s.energy<=2);
@@ -11789,7 +11779,7 @@ function renderSmartBuilderSuggestion(){
   if(muscles.has('Chest')&&!muscles.has('Triceps')) msg='Smart suggestion: add one triceps accessory to support today’s chest work.';
   else if(muscles.has('Back')&&!muscles.has('Biceps')) msg='Smart suggestion: add one biceps/arms accessory after back work.';
   else if(muscles.has('Legs')&&!Array.from(muscles).some(m=>/Core/i.test(m))) msg='Smart suggestion: finish with one core stability movement.';
-  else if(muscles.has('Shoulders')&&!muscles.has('Back')) msg='Smart suggestion: add rear delt or upper-back balance work.';
+  else if(muscles.has('Shoulders + Traps')&&!muscles.has('Back')) msg='Smart suggestion: add rear delt or upper-back balance work.';
   return `<div class="insight" style="margin-bottom:12px"><b>Smart Suggestion</b><br><span style="color:var(--muted)">${escapeHtml(msg)}</span></div>`;
 }
 function renderAutoCoachFromIntel(s){
@@ -14504,7 +14494,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a58-db-reverse-curl';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a59-pdf-library-cleanup';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -4965,7 +4965,7 @@ window.vertexFinishBootstrap=function(){
 
 
 <div id="libraryModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)" id="libraryModalLabel">Add Exercise to Library</div><h2 id="libraryModalTitle">Add Exercise</h2><p id="libraryModalDesc">Create a new exercise and keep it in your library going forward. Custom exercises are saved in this browser.</p><div class="manual-grid"><label><span class="label">Category</span><select id="libraryEnv"><option value="home">Home</option><option value="gym">Gym</option></select></label><label><span class="label">Training Focus</span><select id="libraryTraining"><option>Strength</option><option>Kettlebell</option><option>Yoga / Pilates</option><option>Cardio</option><option>Recovery / Mobility</option></select></label><label class="wide"><span class="label">Exercise Name</span><input id="libraryName" placeholder="e.g., Band Face Pull"></label><label><span class="label">Muscle Group / Subcategory</span><select id="libraryMuscle"></select></label><label><span class="label">Equipment</span><select id="libraryEquip"><option>Dumbbells</option><option>Bodyweight</option><option>Band</option><option>Bench</option><option>Pull-Up Bar</option><option>Kettlebell</option><option>Mat</option><option>Cable</option><option>Machine</option><option>Barbell</option><option>Bike</option><option>Treadmill</option><option>Rower</option><option>None</option><option>Other</option></select></label><label><span class="label">Movement Type</span><select id="libraryKind"><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="core">Core</option><option value="cardio">Cardio</option><option value="recovery">Recovery</option><option value="stretch">Stretch</option><option value="kettlebell">Kettlebell</option><option value="mobility">Mobility</option><option value="custom">Custom</option></select></label></div><div class="manual-help">Saved exercises appear in the sidebar after refresh and follow the same filters as built-in exercises.</div><div class="modal-grid"><button id="librarySave" class="btn acc">Save to Library</button><button id="libraryCancel" class="btn red">Cancel</button></div></div></div>
-<div id="manualModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Lightweight Manual Entry</div><h2>Add Custom Move</h2><p>Add a one-off exercise without expanding the library. Good for substitutes, rehab moves, carries, machine variants, or quick notes.</p><div class="manual-grid"><label class="wide"><span class="label">Exercise Name</span><input id="manualName" placeholder="e.g., Seated Cable Row"></label><label><span class="label">Muscle Group</span><select id="manualMuscle"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Legs</option><option>Arms</option><option>Triceps</option><option>Core</option><option>Recovery</option></select></label><label><span class="label">Equipment</span><input id="manualEquip" placeholder="Dumbbells, Machine, Bodyweight"></label><label><span class="label">Sets</span><input id="manualSets" type="number" min="1" max="12" value="3"></label><label><span class="label">Reps</span><input id="manualReps" type="number" min="0" max="200" value="8"></label><label><span class="label">Weight</span><input id="manualWeight" placeholder="optional"></label><label><span class="label">Type</span><select id="manualKind"><option value="custom">Custom</option><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="recovery">Recovery</option></select></label></div><div class="manual-help">This adds directly to the current workout only. It does not permanently change the main exercise library.</div><div class="modal-grid"><button id="manualAdd" class="btn acc">Add to Workout</button><button id="manualCancel" class="btn red">Cancel</button></div></div></div>
+<div id="manualModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Lightweight Manual Entry</div><h2>Add Custom Move</h2><p>Add a one-off exercise without expanding the library. Good for substitutes, rehab moves, carries, machine variants, or quick notes.</p><div class="manual-grid"><label class="wide"><span class="label">Exercise Name</span><input id="manualName" placeholder="e.g., Seated Cable Row"></label><label><span class="label">Muscle Group</span><select id="manualMuscle"><option>Chest</option><option>Back</option><option>Shoulders</option><option>Legs</option><option>Biceps</option><option>Triceps</option><option>Core</option><option>Recovery</option></select></label><label><span class="label">Equipment</span><input id="manualEquip" placeholder="Dumbbells, Machine, Bodyweight"></label><label><span class="label">Sets</span><input id="manualSets" type="number" min="1" max="12" value="3"></label><label><span class="label">Reps</span><input id="manualReps" type="number" min="0" max="200" value="8"></label><label><span class="label">Weight</span><input id="manualWeight" placeholder="optional"></label><label><span class="label">Type</span><select id="manualKind"><option value="custom">Custom</option><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="recovery">Recovery</option></select></label></div><div class="manual-help">This adds directly to the current workout only. It does not permanently change the main exercise library.</div><div class="modal-grid"><button id="manualAdd" class="btn acc">Add to Workout</button><button id="manualCancel" class="btn red">Cancel</button></div></div></div>
 
 <div id="equipmentModal" class="modal-overlay" data-close-on-backdrop="1"><div class="modal"><div class="label" style="color:var(--acc)">⚡ Home Equipment</div><h2>Available Equipment</h2><p>Toggle the equipment you have access to. The exercise list updates to match.</p><div id="equipmentModalBody" style="margin-top:14px"></div><div class="modal-grid"><button id="equipmentAllOn" class="btn">All On</button><button id="equipmentClearAll" class="btn red">Clear All</button><button id="equipmentDone" class="btn acc">Done</button></div></div></div>
 
@@ -5278,8 +5278,8 @@ const EXERCISES=[
 {name:'Close-Grip Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
 {name:'Lat Pullover',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'One-Arm Row',muscle:'Back',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
-{name:'Hammer Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Alternating Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Hammer Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Alternating Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Goblet Squat',muscle:'Legs',equip:'Dumbbell',env:'home',kind:'legs',training:'Strength'},
 {name:'RDL',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Dumbbell Deadlift',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
@@ -5316,11 +5316,11 @@ EXERCISES.push(
 {name:'Hip Thrust',muscle:'Legs',equip:'Barbell',env:'gym',kind:'legs',training:'Strength'},
 {name:'Leg Curl',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
 {name:'Leg Extension',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
-{name:'Preacher Curl',muscle:'Arms',equip:'EZ Bar',env:'gym',kind:'pull',training:'Strength'},
-{name:'Concentration Curl',muscle:'Arms',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
-{name:'Incline Dumbbell Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Cable Curl',muscle:'Arms',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
-{name:'Reverse Curl',muscle:'Arms',equip:'EZ Bar',env:'gym',kind:'pull',training:'Strength'},
+{name:'Preacher Curl',muscle:'Biceps',equip:'EZ Bar',env:'gym',kind:'pull',training:'Strength'},
+{name:'Concentration Curl',muscle:'Biceps',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
+{name:'Incline Dumbbell Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Cable Curl',muscle:'Biceps',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
+{name:'Reverse Curl',muscle:'Biceps',equip:'EZ Bar',env:'gym',kind:'pull',training:'Strength'},
 {name:'Tricep Pushdown',muscle:'Triceps',equip:'Cable/Band',env:'gym',kind:'push',training:'Strength'},
 {name:'Overhead Tricep Extension',muscle:'Triceps',equip:'Dumbbell',env:'home',kind:'push',training:'Strength'},
 {name:'Close-Grip Push-Up',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
@@ -5394,8 +5394,8 @@ const RESTORED_EXERCISES=[
 {name:'Hack Squat',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
 {name:'Walking Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Glute Bridge',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
-{name:'EZ-Bar Curl',muscle:'Arms',equip:'EZ Bar',env:'gym',kind:'pull',training:'Strength'},
-{name:'Zottman Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'EZ-Bar Curl',muscle:'Biceps',equip:'EZ Bar',env:'gym',kind:'pull',training:'Strength'},
+{name:'Zottman Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Rope Tricep Pushdown',muscle:'Triceps',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'Dumbbell Kickback',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Hanging Knee Raise',muscle:'Core',equip:'Pull-Up Bar',env:'home',kind:'core',training:'Strength'},
@@ -5444,7 +5444,7 @@ const EXPANDED_NON_STRENGTH_EXERCISES=[
 {name:'Chest Stretch',muscle:'Chest',equip:'Wall',env:'home',kind:'stretch',training:'Stretching'},
 {name:'Lat Stretch',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'stretch',training:'Stretching'},
 {name:'Shoulder Stretch',muscle:'Shoulders',equip:'Band',env:'home',kind:'stretch',training:'Stretching'},
-{name:'Triceps Stretch',muscle:'Arms',equip:'None',env:'home',kind:'stretch',training:'Stretching'},
+{name:'Triceps Stretch',muscle:'Triceps',equip:'None',env:'home',kind:'stretch',training:'Stretching'},
 {name:'Kettlebell Snatch',muscle:'Full Body',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Kettlebell Deadlift',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
 {name:'Kettlebell Lunge',muscle:'Legs',equip:'Kettlebell',env:'home',kind:'kettlebell',training:'Kettlebell'},
@@ -5471,11 +5471,11 @@ const V13539_LIBRARY_BALANCE=[
 {name:'Cable Lateral Raise',muscle:'Shoulders',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'Rear Delt Cable Fly',muscle:'Shoulders',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
 {name:'Machine Lateral Raise',muscle:'Shoulders',equip:'Machine',env:'gym',kind:'push',training:'Strength'},
-{name:'Dumbbell Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Cross-Body Hammer Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Spider Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Cable Rope Curl',muscle:'Arms',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
-{name:'Machine Curl',muscle:'Arms',equip:'Machine',env:'gym',kind:'pull',training:'Strength'},
+{name:'Dumbbell Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Cross-Body Hammer Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Spider Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Cable Rope Curl',muscle:'Biceps',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
+{name:'Machine Curl',muscle:'Biceps',equip:'Machine',env:'gym',kind:'pull',training:'Strength'},
 {name:'Diamond Push-Up',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Dumbbell Skull Crushers',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Single-Arm Overhead Extension',muscle:'Triceps',equip:'Dumbbell',env:'home',kind:'push',training:'Strength'},
@@ -5617,9 +5617,9 @@ const V13540_HOME_STRENGTH=[
 {name:'Band Front Raise',muscle:'Shoulders',equip:'Band',env:'home',kind:'push',training:'Strength'},
 {name:'Band Lateral Raise',muscle:'Shoulders',equip:'Band',env:'home',kind:'push',training:'Strength'},
 {name:'Dumbbell Y Raise',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Band Curl',muscle:'Arms',equip:'Band',env:'home',kind:'pull',training:'Strength'},
-{name:'Isometric Curl Hold',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Seated Dumbbell Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Band Curl',muscle:'Biceps',equip:'Band',env:'home',kind:'pull',training:'Strength'},
+{name:'Isometric Curl Hold',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Seated Dumbbell Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Bench Dip (Feet Elevated)',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Band Tricep Extension',muscle:'Triceps',equip:'Band',env:'home',kind:'push',training:'Strength'},
 {name:'Close-Grip Floor Press',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
@@ -5668,7 +5668,7 @@ V13540_HOME_STRENGTH.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERC
 // v13.62 library expansion — user-requested exercises plus targeted gap-fill
 // across back, shoulders, biceps (Arms), triceps, kettlebell, core, legs.
 // Note: env:'home' exercises are also visible in gym mode (gym is a superset).
-// Note: biceps go in muscle:'Arms' to match existing library convention.
+// Note: biceps go in muscle:'Biceps' to match existing library convention.
 const V1362_LIBRARY_ADDITIONS=[
 // --- BACK (dumbbell/bodyweight, also visible in gym) ---
 {name:'Gorilla Row',muscle:'Back',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
@@ -5689,16 +5689,16 @@ const V1362_LIBRARY_ADDITIONS=[
 {name:'Cuban Press',muscle:'Shoulders',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Bradford Press',muscle:'Shoulders',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
 
-// --- BICEPS (muscle:'Arms' to match existing convention) ---
-{name:'In/Out Bicep Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Full Supination Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Static Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Crouching Cohen Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Bench Cohen Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Congdon Curl',muscle:'Arms',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
-{name:'Drag Curl',muscle:'Arms',equip:'Barbell',env:'gym',kind:'pull',training:'Strength'},
-{name:'21s',muscle:'Arms',equip:'Barbell',env:'gym',kind:'pull',training:'Strength'},
-{name:'Waiter Curl',muscle:'Arms',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
+// --- BICEPS (muscle:'Biceps' to match existing convention) ---
+{name:'In/Out Bicep Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Full Supination Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Static Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Crouching Cohen Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Bench Cohen Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Congdon Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Drag Curl',muscle:'Biceps',equip:'Barbell',env:'gym',kind:'pull',training:'Strength'},
+{name:'21s',muscle:'Biceps',equip:'Barbell',env:'gym',kind:'pull',training:'Strength'},
+{name:'Waiter Curl',muscle:'Biceps',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
 
 // --- TRICEPS ---
 {name:'Twist Tricep Kickback',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
@@ -6906,7 +6906,7 @@ function closeEquipmentModal(){document.getElementById('equipmentModal')?.classL
 // v13.54.0 home strength completion END
 
 const FILTER_GROUPS={
-  'Strength':['All','Legs','Chest','Back','Shoulders','Arms','Triceps','Core'],
+  'Strength':['All','Legs','Chest','Back','Shoulders','Biceps','Triceps','Core'],
   'Kettlebell':['All','Full Body','Lower Body','Upper Body','Power','Core','Mobility'],
   'Yoga / Pilates':['All','Flow','Balance','Core','Mobility'],
   'Cardio':['All','Low Impact','HIIT','Conditioning'],
@@ -7515,7 +7515,7 @@ async function applyAuthenticatedSession(session){
     ]);
 
     // Wait briefly for warm-cache data, but do not trap the user on a cold Supabase start.
-    await Promise.race([firstHydrate, vertexWait(2800)]);
+    const _vxRace = await Promise.race([ firstHydrate.then(()=>'hydrated'), vertexWait(2800).then(()=>'timeout') ]);
 
     _hydratedUserId=incomingKey;
     _hydrationInFlight=false;
@@ -7528,9 +7528,12 @@ async function applyAuthenticatedSession(session){
     _authShellRevealedFor=incomingKey;
     vertexRevealAuthenticatedShell();
 
-    // Let any cold-start hydration finish silently. Do not re-render Home after reveal;
-    // post-reveal surface refreshes were the source of the second visible flicker.
-    firstHydrate.catch(()=>{});
+    // 6A56: if hydration finished AFTER the initial render (cold Supabase start), the planner and
+    // home rendered before the data arrived — re-render once so saved days actually show. Only on
+    // the cold-start path, so warm loads keep their flicker-free single render.
+    firstHydrate.then(()=>{
+      if(_vxRace==='timeout'){ try{ if(typeof renderAll==='function') renderAll(); }catch(e){} }
+    }).catch(()=>{});
 
     if(!window.__vertexVisibilityListenerAdded){
       window.__vertexVisibilityListenerAdded=true;
@@ -11694,7 +11697,7 @@ function getCoachInsights(s){
   const muscles=s.loggedMuscles||{};
   const entries=Object.entries(muscles).sort((a,b)=>b[1]-a[1]);
   const most=entries[0]||null;
-  const allStrength=['Chest','Back','Legs','Shoulders','Arms','Triceps','Core'];
+  const allStrength=['Chest','Back','Legs','Shoulders','Biceps','Triceps','Core'];
   const missed=allStrength.filter(m=>(muscles[m]||0)<=0);
   const warnings=[]; const suggestions=[];
   const lowRecovery=(s.ready&&s.ready<=2)||(s.sleep&&s.sleep<6)||(s.sore&&s.sore>=4)||(s.energy&&s.energy<=2);
@@ -11784,7 +11787,7 @@ function renderSmartBuilderSuggestion(){
   const muscles=new Set(ex.map(e=>e.muscle));
   let msg='Log this workout to improve future recommendations.';
   if(muscles.has('Chest')&&!muscles.has('Triceps')) msg='Smart suggestion: add one triceps accessory to support today’s chest work.';
-  else if(muscles.has('Back')&&!muscles.has('Arms')) msg='Smart suggestion: add one biceps/arms accessory after back work.';
+  else if(muscles.has('Back')&&!muscles.has('Biceps')) msg='Smart suggestion: add one biceps/arms accessory after back work.';
   else if(muscles.has('Legs')&&!Array.from(muscles).some(m=>/Core/i.test(m))) msg='Smart suggestion: finish with one core stability movement.';
   else if(muscles.has('Shoulders')&&!muscles.has('Back')) msg='Smart suggestion: add rear delt or upper-back balance work.';
   return `<div class="insight" style="margin-bottom:12px"><b>Smart Suggestion</b><br><span style="color:var(--muted)">${escapeHtml(msg)}</span></div>`;
@@ -14501,7 +14504,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a54-home-progress-leak-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a56-planner-coldstart-render';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

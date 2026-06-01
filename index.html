@@ -3766,6 +3766,11 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 .vertex-b2-watch .vertex-b2-value{color:var(--orange)!important;}
 .vertex-b2-high .vertex-b2-value{color:var(--red)!important;}
 body:not(.app-page-progress) #vertexB2ProgressDeck{display:none!important;}
+/* 6A54: hard guarantee — progress-only content can never leak onto Home (kills the insight "bar" + black gap before the planner) */
+body.app-page-home #progressPage,
+body.app-page-home #vertexB2ProgressDeck,
+body.app-page-home #vertexInsightsLayer,
+body.app-page-home #vertexWorkoutHistoryPanel{display:none!important;}
 @media(max-width:900px){
   #vertexB2ProgressDeck{margin:12px 0 16px;}
   #vertexB2ProgressDeck .vertex-b2-row{display:flex!important;gap:12px!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:x mandatory!important;padding:0 14px 10px!important;margin:0 -14px 14px!important;scrollbar-width:none!important;}
@@ -8374,7 +8379,7 @@ function renderProgressPage(){
   const rows=progressRows(); const sum=progressSummary(rows); const perf=performanceSummary(rows);
 
   try{
-    document.body.classList.add('app-page-progress');
+    if(window.state && state.page==='progress') document.body.classList.add('app-page-progress'); // 6A54: never stamp on Home/other tabs
     page.classList.add('vertex-phase5a4-progress-single-intel');
   }catch(e){}
 
@@ -14496,7 +14501,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a53-planner-local-safe';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a54-home-progress-leak-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

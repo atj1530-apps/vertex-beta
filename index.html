@@ -34,6 +34,7 @@
 <title>Vertex — Build · Track · Improve</title>
 <!-- v20260601-6a46: workout history restored to bottom + local/cloud log merge for visible delete/manage workflow -->
 <!-- v20260601-6a47: Workout History safe-delete guard — ID-only cloud deletes; no broad timestamp deletes -->
+<!-- v20260601-6a48: Workout History resilient display + scoped delete; preserves logs after delete -->
 <!-- v20260601-6a44: AI/coaching language polish — coach-first wording, clearer push/maintain/recover guidance -->
 <!-- v20260531-6a44: AI coaching language polish; cache version bumped -->
 <!-- v20260531-6a43: fixed broken HTML comment that pushed the CSP meta out of head; youtube allowed in frame-src -->
@@ -14079,11 +14080,11 @@ document.addEventListener('DOMContentLoaded',function(){
 
 
 <script>
-/* v20260601-6a47 — Progress Workout History safe delete guard
-   Keeps bottom-positioned workout history, but prevents broad timestamp/name deletes from removing multiple logs. */
+/* v20260601-6a48 — Progress Workout History resilient display + scoped delete
+   Keeps Workout History at the bottom, preserves visible logs after a delete, and only deletes cloud rows that were loaded from a known Supabase table with a real id. */
 (function(){
-  if(window.__vertexWorkoutHistorySafeDelete047) return;
-  window.__vertexWorkoutHistorySafeDelete047 = true;
+  if(window.__vertexWorkoutHistorySafeDelete048) return;
+  window.__vertexWorkoutHistorySafeDelete048 = true;
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(c){
@@ -14113,34 +14114,41 @@ document.addEventListener('DOMContentLoaded',function(){
     if((a.id || a.log_id) && (b.id || b.log_id)) return String(a.id||a.log_id) === String(b.id||b.log_id);
     return rowKey(a) === rowKey(b);
   }
-  function normalize(row){
-    try{ if(typeof normalizeLogRecord==='function') return normalizeLogRecord(row); }catch(e){}
+  function normalize(row, meta){
+    try{ if(typeof normalizeLogRecord==='function') row = normalizeLogRecord(row); }catch(e){}
     row=row||{};
     var payload=row.workout_payload || row.payload || row.exercises || {};
     if(Array.isArray(payload)) payload={name:row.name||row.workout_name||'Workout',type:row.type||row.workout_type||'strength',exercises:payload};
     if(payload && payload.exercises && Array.isArray(payload.exercises) && typeof canonicalizeExerciseList==='function'){
       try{ canonicalizeExerciseList(payload.exercises); }catch(e){}
     }
-    var completed=row.completed_at || row.created_at || new Date().toISOString().split('.')[0]+'Z';
+    var completed=row.completed_at || row.created_at || row.date || new Date().toISOString().split('.')[0]+'Z';
     var metrics=row.metrics || {};
     if(row.volume!=null && metrics.load_volume==null) metrics.load_volume=Number(row.volume)||0;
     if(row.duration!=null && metrics.est_minutes==null) metrics.est_minutes=Number(row.duration)||0;
-    return Object.assign({}, row, {
+    var out=Object.assign({}, row, {
       completed_at:completed,
-      workout_name:row.workout_name || row.name || payload.name || 'Workout',
-      workout_type:row.workout_type || row.type || payload.type || 'strength',
+      workout_name:row.workout_name || row.name || (payload && payload.name) || 'Workout',
+      workout_type:row.workout_type || row.type || (payload && payload.type) || 'strength',
       workout_payload:payload || {},
       metrics:metrics
     });
+    if(meta){
+      out.__vertexSource=meta.source||out.__vertexSource||'';
+      out.__vertexTable=meta.table||out.__vertexTable||'';
+      out.__vertexLocalKey=meta.localKey||out.__vertexLocalKey||'';
+    }
+    return out;
   }
-  function addRows(target, rows){
+  function addRows(target, rows, meta){
     if(!Array.isArray(rows)) return;
     rows.forEach(function(r){
       if(!r) return;
-      var n=normalize(r);
+      var n=normalize(r, meta);
       if(/hk_imported_dismissed|hk_dismissed/i.test(String((n&&n.workout_type)||''))) return;
-      var k=rowKey(n);
-      if(!target.some(function(x){ return rowKey(x)===k || rowMatches(x,n); })) target.push(n);
+      var idx=target.findIndex(function(x){ return rowKey(x)===rowKey(n) || rowMatches(x,n); });
+      if(idx===-1) target.push(n);
+      else if(meta && meta.source==='cloud') target[idx]=Object.assign({}, target[idx], n, {__vertexSource:'cloud',__vertexTable:meta.table||''});
     });
   }
   function localLogKeys(){
@@ -14156,10 +14164,10 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   function collectRows(){
     var rows=[];
-    try{ if(typeof progressRows==='function') addRows(rows, progressRows()); }catch(e){}
-    try{ if(window.state && Array.isArray(state.progressLogs)) addRows(rows, state.progressLogs); }catch(e){}
+    try{ if(typeof progressRows==='function') addRows(rows, progressRows(), {source:'state'}); }catch(e){}
+    try{ if(window.state && Array.isArray(state.progressLogs)) addRows(rows, state.progressLogs, {source:'state'}); }catch(e){}
     localLogKeys().forEach(function(k){
-      try{ addRows(rows, parseJson(localStorage.getItem(k), [])); }catch(e){}
+      try{ addRows(rows, parseJson(localStorage.getItem(k), []), {source:'local', localKey:k}); }catch(e){}
     });
     return rows.sort(function(a,b){ return new Date(dateVal(b)||0) - new Date(dateVal(a)||0); });
   }
@@ -14228,7 +14236,7 @@ document.addEventListener('DOMContentLoaded',function(){
         panel.id='vertexWorkoutHistoryPanel';
         panel.className='vertex-workout-history-panel';
       }
-      page.appendChild(panel); // always moves it to the bottom
+      page.appendChild(panel);
       var rows=collectRows();
       window.__vertexWorkoutHistoryRows=rows;
       if(!rows.length){
@@ -14236,7 +14244,7 @@ document.addEventListener('DOMContentLoaded',function(){
         return;
       }
       panel.innerHTML =
-        '<div class="vertex-workout-history-head"><div><div class="vertex-workout-history-title">Workout History</div><div class="vertex-workout-history-sub">Review, expand, or delete logged workouts. Analytics update after deletion.</div></div><button type="button" class="btn small" id="vertexHistoryRefresh">Refresh</button></div>'+
+        '<div class="vertex-workout-history-head"><div><div class="vertex-workout-history-title">Workout History</div><div class="vertex-workout-history-sub">Review, expand, or delete logged workouts. Analytics update after deletion.</div></div><button type="button" class="btn small" id="vertexHistoryRefresh">Refresh</button></div>'+ 
         '<div class="vertex-workout-history-table">'+
         rows.slice(0,80).map(function(row,i){
           var sets=metric(row,'sets');
@@ -14244,37 +14252,52 @@ document.addEventListener('DOMContentLoaded',function(){
           var mins=metric(row,'est_minutes');
           return '<div class="vertex-history-row" data-history-key="'+esc(rowKey(row))+'">'+
             '<div class="vertex-history-main">'+
-              '<div class="vertex-history-date">'+esc(fmtDate(dateVal(row)))+'</div>'+
-              '<div><div class="vertex-history-name">'+esc(row.workout_name||row.name||'Workout')+'</div><div class="vertex-history-meta">'+esc(exerciseSummary(row))+'</div></div>'+
-              '<div><div class="label">Sets</div><div class="vertex-history-num">'+esc(sets==null?'—':sets)+'</div></div>'+
-              '<div><div class="label">Volume</div><div class="vertex-history-num">'+esc(vol?Math.round(vol):'—')+'</div></div>'+
-              '<div class="vertex-history-actions"><button type="button" class="btn small" data-history-view="'+i+'">View</button><button type="button" class="btn small red" data-history-delete="'+i+'">Delete</button></div>'+
-            '</div>'+
-            '<div class="vertex-history-detail">'+renderExerciseDetails(row)+(mins?'<div class="vertex-history-meta" style="margin-top:8px">Estimated duration: '+esc(mins)+' minutes</div>':'')+'</div>'+
+              '<div class="vertex-history-date">'+esc(fmtDate(dateVal(row)))+'</div>'+ 
+              '<div><div class="vertex-history-name">'+esc(row.workout_name||row.name||'Workout')+'</div><div class="vertex-history-meta">'+esc(exerciseSummary(row))+'</div></div>'+ 
+              '<div><div class="label">Sets</div><div class="vertex-history-num">'+esc(sets==null?'—':sets)+'</div></div>'+ 
+              '<div><div class="label">Volume</div><div class="vertex-history-num">'+esc(vol?Math.round(vol):'—')+'</div></div>'+ 
+              '<div class="vertex-history-actions"><button type="button" class="btn small" data-history-view="'+i+'">View</button><button type="button" class="btn small red" data-history-delete="'+i+'">Delete</button></div>'+ 
+            '</div>'+ 
+            '<div class="vertex-history-detail">'+renderExerciseDetails(row)+(mins?'<div class="vertex-history-meta" style="margin-top:8px">Estimated duration: '+esc(mins)+' minutes</div>':'')+'</div>'+ 
           '</div>';
         }).join('')+'</div>';
-    }catch(e){ console.warn('[Vertex 6A47] Workout history render failed',e); }
+    }catch(e){ console.warn('[Vertex 6A48] Workout history render failed',e); }
   }
   async function enhancedLoadProgressLogs(){
-    var local=[];
-    try{ local=parseJson(localStorage.getItem(typeof logStorageKey==='function'?logStorageKey():'vertex_logs_guest'), []).map(normalize); }catch(e){}
     var merged=[];
-    addRows(merged, local);
+    try{ if(window.state && Array.isArray(state.progressLogs)) addRows(merged, state.progressLogs, {source:'state'}); }catch(e){}
+    localLogKeys().forEach(function(k){
+      try{ addRows(merged, parseJson(localStorage.getItem(k), []), {source:'local', localKey:k}); }catch(e){}
+    });
     if(typeof cloudEnabled==='function' && cloudEnabled() && typeof getSupa==='function'){
       try{
         var supa=getSupa();
         if(supa && window.authUser){
           var primary=await Promise.race([supa.from('vertex_workout_logs').select('*').eq('user_id',authUser.id).limit(250), new Promise(function(resolve){setTimeout(function(){resolve({data:[],error:null,timeout:true});},12000);})]);
           var fallback=await Promise.race([supa.from('workout_logs').select('*').eq('user_id',authUser.id).limit(250), new Promise(function(resolve){setTimeout(function(){resolve({data:[],error:null,timeout:true});},12000);})]);
-          if(primary && !primary.error) addRows(merged, primary.data||[]);
-          if(fallback && !fallback.error) addRows(merged, fallback.data||[]);
+          if(primary && !primary.error) addRows(merged, primary.data||[], {source:'cloud', table:'vertex_workout_logs'});
+          if(fallback && !fallback.error) addRows(merged, fallback.data||[], {source:'cloud', table:'workout_logs'});
         }
-      }catch(e){ console.warn('[Vertex 6A47] Cloud progress merge failed; using local/state logs.',e); }
+      }catch(e){ console.warn('[Vertex 6A48] Cloud progress merge failed; preserving local/state logs.',e); }
     }
-    try{ if(window.state) state.progressLogs=merged.sort(function(a,b){ return new Date(dateVal(b)||0)-new Date(dateVal(a)||0); }); }catch(e){}
+    merged=merged.sort(function(a,b){ return new Date(dateVal(b)||0)-new Date(dateVal(a)||0); });
+    try{ if(window.state) state.progressLogs=merged; }catch(e){}
     try{ renderProgressPage(); }catch(e){}
     try{ renderIntel(); }catch(e){}
     return (window.state&&state.progressLogs)||merged;
+  }
+  function removeOneMatchingRow(list, row){
+    if(!Array.isArray(list)) return list;
+    var removed=false;
+    return list.filter(function(x){
+      if(removed) return true;
+      var nx=normalize(x);
+      var same=false;
+      if((row.id || row.log_id) && (nx.id || nx.log_id)) same=String(row.id||row.log_id)===String(nx.id||nx.log_id);
+      else same=rowKey(nx)===rowKey(row);
+      if(same){ removed=true; return false; }
+      return true;
+    });
   }
   async function deleteWorkoutLogByIndex(idx){
     var rows=window.__vertexWorkoutHistoryRows || collectRows();
@@ -14284,45 +14307,30 @@ document.addEventListener('DOMContentLoaded',function(){
     var ok=typeof vertexConfirm==='function' ? await vertexConfirm('Delete '+label+' from Workout History?') : window.confirm('Delete '+label+' from Workout History?');
     if(!ok) return;
 
-    function removeOneMatchingLocalRow(list){
-      if(!Array.isArray(list)) return list;
-      var removed=false;
-      return list.filter(function(x){
-        if(removed) return true;
-        var nx=normalize(x);
-        var same=false;
-        if((row.id || row.log_id) && (nx.id || nx.log_id)){
-          same=String(row.id||row.log_id)===String(nx.id||nx.log_id);
-        } else {
-          same=rowKey(nx)===rowKey(row);
-        }
-        if(same){ removed=true; return false; }
-        return true;
-      });
-    }
-
     localLogKeys().forEach(function(k){
       try{
         var local=parseJson(localStorage.getItem(k), []);
-        localStorage.setItem(k, JSON.stringify(removeOneMatchingLocalRow(local)));
+        localStorage.setItem(k, JSON.stringify(removeOneMatchingRow(local,row)));
       }catch(e){}
     });
-    try{ if(window.state && Array.isArray(state.progressLogs)) state.progressLogs=removeOneMatchingLocalRow(state.progressLogs); }catch(e){}
+    try{ if(window.state && Array.isArray(state.progressLogs)) state.progressLogs=removeOneMatchingRow(state.progressLogs,row); }catch(e){}
 
-    if(typeof cloudEnabled==='function' && cloudEnabled() && typeof getSupa==='function'){
+    // Only delete from Supabase if this row was loaded from a known cloud table and has a real id.
+    if(row.__vertexSource==='cloud' && row.__vertexTable && (row.id || row.log_id) && typeof cloudEnabled==='function' && cloudEnabled() && typeof getSupa==='function'){
       try{
         var supa=getSupa();
         var id=row.id || row.log_id;
-        if(supa && window.authUser && id){
-          await supa.from('vertex_workout_logs').delete().eq('user_id',authUser.id).eq('id',id);
-          await supa.from('workout_logs').delete().eq('user_id',authUser.id).eq('id',id);
-        } else if(!id) {
-          console.warn('[Vertex 6A47] Workout log had no id; skipped cloud delete to avoid removing multiple logs.');
+        if(supa && window.authUser){
+          await supa.from(row.__vertexTable).delete().eq('user_id',authUser.id).eq('id',id);
         }
-      }catch(e){ console.warn('[Vertex 6A47] Cloud workout delete failed; local row removed only.',e); }
+      }catch(e){ console.warn('[Vertex 6A48] Scoped cloud delete failed; local/state row removed only.',e); }
+    } else {
+      console.warn('[Vertex 6A48] Skipped cloud delete for non-cloud or unscoped workout history row.');
     }
-    await enhancedLoadProgressLogs();
+
     renderWorkoutHistory();
+    try{ renderIntel(); }catch(e){}
+    try{ if(typeof renderHomeDashboard==='function') renderHomeDashboard(); }catch(e){}
     try{ if(typeof toast==='function') toast('Workout log deleted'); }catch(e){}
   }
 
@@ -14366,11 +14374,12 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
+
 <script>
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a47-workout-history-safe-delete';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a48-workout-history-resilient-delete';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

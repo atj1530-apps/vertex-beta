@@ -3,7 +3,7 @@
    Network-first for HTML so deploys are visible immediately.
    Workout History scoped to Progress only; delete tombstones prevent deleted rows from returning.
 */
-const CACHE_NAME = 'vertex-v20260601-6a66-view-modal';
+const CACHE_NAME = 'vertex-v20260601-6a67-schedule-view-fix';
 const APP_SHELL = [
   './',
   './index.html',

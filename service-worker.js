@@ -1,9 +1,9 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260601-6a60-week-hero
+   v20260601-6a61-planner-redesign
    Network-first for HTML so deploys are visible immediately.
    Workout History scoped to Progress only; delete tombstones prevent deleted rows from returning.
 */
-const CACHE_NAME = 'vertex-v20260601-6a60-week-hero';
+const CACHE_NAME = 'vertex-v20260601-6a61-planner-redesign';
 const APP_SHELL = [
   './',
   './index.html',

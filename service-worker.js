@@ -1,9 +1,9 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260601-6a50-exercise-library-chest-triceps-cleanup
+   v20260601-6a51-progress-history-scope-delete-tombstone
    Network-first for HTML so deploys are visible immediately.
-   Workout history safe-delete cache bump.
+   Workout History scoped to Progress only; delete tombstones prevent deleted rows from returning.
 */
-const CACHE_NAME = 'vertex-v20260601-6a50-exercise-library-chest-triceps-cleanup';
+const CACHE_NAME = 'vertex-v20260601-6a51-progress-history-scope-delete-tombstone';
 const APP_SHELL = [
   './',
   './index.html',

@@ -4328,6 +4328,20 @@ function updatePlannerHeader(){
 
 
 
+
+/* 6A66: suppress duplicate Expand pseudo-element on protocol today section */
+#protoTodayAcc .acc-head::after{content:none!important}
+/* View modal */
+.hw-view-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;z-index:9999}
+.hw-view-modal{background:var(--panel2);border:1px solid var(--line2);border-radius:14px;width:min(460px,90vw);max-height:72vh;display:flex;flex-direction:column;overflow:hidden}
+.hw-view-modal-head{display:flex;justify-content:space-between;align-items:flex-start;padding:16px 18px;border-bottom:1px solid var(--line)}
+.hw-view-modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--text);line-height:1}
+.hw-view-modal-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1px}
+.hw-view-modal-close{background:transparent;border:1px solid var(--line2);color:var(--muted);font-size:13px;cursor:pointer;border-radius:6px;padding:4px 10px;transition:border-color .15s,color .15s;flex-shrink:0}
+.hw-view-modal-close:hover{border-color:var(--acc);color:var(--acc)}
+.hw-view-modal-body{padding:10px 18px 14px;overflow-y:auto}
+.hw-view-modal-row{font-size:13px;color:var(--text);padding:7px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.hw-view-modal-row:last-child{border-bottom:none}
 /* 6A65: Option A layout — today left + 3x2 grid right */
 .hw-planner-layout{display:grid;grid-template-columns:1fr 1.8fr;gap:8px;align-items:start}
 @media(max-width:768px){.hw-planner-layout{display:block}.hw-today-card{margin-bottom:10px}}
@@ -4430,6 +4444,22 @@ function renderHomePlannerStrip(){
     todayInner='<div class="hps-today-empty">No workout planned for today.</div><div class="hps-actions"><button class="hps-btn" data-edit-day="'+today+'">Plan today →</button></div>';
   }
   body.innerHTML='<div class="hps-header"><span class="hps-label">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hps-dates">'+dateRange+'</span>':'')+'</div><div class="hps-chips">'+chips+'</div><div class="hps-today"><div class="hps-today-day">TODAY · '+todayLabel.toUpperCase()+'</div>'+todayInner+'</div><div class="hps-chip-detail" id="hpsChipDetail" style="display:none"></div><div class="hps-view-panel" id="hpsViewPanel" style="display:none"></div>';
+}
+
+/* 6A66: View modal — true popup for exercise list */
+function showHwViewModal(day){
+  var w=state.planner[day]; if(!w) return;
+  var ex=w.exercises||[];
+  var dayLabel=(DAY_LABEL&&DAY_LABEL[day])||day.charAt(0).toUpperCase()+day.slice(1);
+  var existing=document.getElementById('hwViewModal');
+  if(existing) existing.remove();
+  var modal=document.createElement('div');
+  modal.id='hwViewModal';
+  modal.className='hw-view-modal-overlay';
+  var rows=ex.map(function(e,i){return '<div class="hw-view-modal-row"><span class="hps-view-num">'+(i+1)+'</span><span>'+escapeHtml(e.name||String(e))+'</span></div>';}).join('');
+  modal.innerHTML='<div class="hw-view-modal"><div class="hw-view-modal-head"><div><div class="hw-view-modal-title">'+escapeHtml(w.name||'Workout')+'</div><div class="hw-view-modal-sub">'+escapeHtml(dayLabel)+' · '+ex.length+' exercises</div></div><button class="hw-view-modal-close" id="hwViewModalClose">✕</button></div><div class="hw-view-modal-body">'+rows+'</div></div>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click',function(e){if(e.target===modal||e.target.id==='hwViewModalClose')modal.remove();});
 }
 /* 6A60: Week Hero & Plan CTA */
 #homeWeekHero{display:none}
@@ -11621,7 +11651,7 @@ function buildHomePlannerHTML(){
     h+='<div class="hw-day-grid">'+grid+'</div>';
     h+='</div>';      // closes hw-planner-layout
     h+='<div class="hw-chip-detail" id="hwChipDetail" style="display:none"></div>';
-    h+='<div class="hw-view-panel" id="hwViewPanel" style="display:none"></div>';
+    h+='';
     h+='</div>';      // closes hw-planner-wrap
     return h;
   }catch(e){ return ''; }
@@ -11651,6 +11681,22 @@ function renderHomePlannerStrip(){
     todayInner='<div class="hps-today-empty">No workout planned for today.</div><div class="hps-actions"><button class="hps-btn" data-edit-day="'+today+'">Plan today →</button></div>';
   }
   body.innerHTML='<div class="hps-header"><span class="hps-label">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hps-dates">'+dateRange+'</span>':'')+'</div><div class="hps-chips">'+chips+'</div><div class="hps-today"><div class="hps-today-day">TODAY · '+todayLabel.toUpperCase()+'</div>'+todayInner+'</div><div class="hps-chip-detail" id="hpsChipDetail" style="display:none"></div><div class="hps-view-panel" id="hpsViewPanel" style="display:none"></div>';
+}
+
+/* 6A66: View modal — true popup for exercise list */
+function showHwViewModal(day){
+  var w=state.planner[day]; if(!w) return;
+  var ex=w.exercises||[];
+  var dayLabel=(DAY_LABEL&&DAY_LABEL[day])||day.charAt(0).toUpperCase()+day.slice(1);
+  var existing=document.getElementById('hwViewModal');
+  if(existing) existing.remove();
+  var modal=document.createElement('div');
+  modal.id='hwViewModal';
+  modal.className='hw-view-modal-overlay';
+  var rows=ex.map(function(e,i){return '<div class="hw-view-modal-row"><span class="hps-view-num">'+(i+1)+'</span><span>'+escapeHtml(e.name||String(e))+'</span></div>';}).join('');
+  modal.innerHTML='<div class="hw-view-modal"><div class="hw-view-modal-head"><div><div class="hw-view-modal-title">'+escapeHtml(w.name||'Workout')+'</div><div class="hw-view-modal-sub">'+escapeHtml(dayLabel)+' · '+ex.length+' exercises</div></div><button class="hw-view-modal-close" id="hwViewModalClose">✕</button></div><div class="hw-view-modal-body">'+rows+'</div></div>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click',function(e){if(e.target===modal||e.target.id==='hwViewModalClose')modal.remove();});
 }
 /* 6A60: Week Hero — home page prominent planner overview */
 function renderHomeWeekHero(){
@@ -13443,8 +13489,8 @@ document.addEventListener('click',async e=>{
  if(t.dataset&&t.dataset.gotoPlanner){setPage('home');setTimeout(function(){var p=document.getElementById('plannerAcc');if(p)p.scrollIntoView({behavior:'smooth'});},300);return;}
   var _sd=t.getAttribute('data-strip-day');
   if(_sd){if(_sd===todayKey){editDay(_sd);return;}var _det=document.getElementById('hwChipDetail')||document.getElementById('hpsChipDetail');var _vp=document.getElementById('hwViewPanel')||document.getElementById('hpsViewPanel');if(_vp)_vp.style.display='none';if(_det){if(_det.style.display==='none'||!_det.style.display||_det.dataset.day!==_sd){_det.dataset.day=_sd;_det.style.display='';var _sw=state.planner[_sd];var _sl=(DAY_LABEL&&DAY_LABEL[_sd])||_sd;if(_sw){_det.innerHTML='<div class="hps-today-day">'+escapeHtml(_sl.toUpperCase())+'</div><div class="hps-today-name">'+escapeHtml(_sw.name||'Workout')+'</div><div class="hps-actions" style="margin-top:8px"><button class="hps-btn" data-edit-day="'+_sd+'">Load / Edit</button><button class="hps-btn" data-copy-day="'+_sd+'">Copy</button><button class="hps-btn" style="color:var(--red);border-color:rgba(255,80,80,.4)" data-clear-day="'+_sd+'">Clear</button></div>';}else{_det.innerHTML='<div class="hps-today-day">'+escapeHtml(_sl.toUpperCase())+' · No workout planned</div><div class="hps-actions"><button class="hps-btn" data-edit-day="'+_sd+'">Plan this day →</button></div>';}}else{_det.style.display='none';_det.dataset.day='';}}return;}
-  var _vd=t.getAttribute('data-view-day');
-  if(_vd){var _vp2=document.getElementById('hwViewPanel')||document.getElementById('hpsViewPanel');var _det2=document.getElementById('hwChipDetail')||document.getElementById('hpsChipDetail');if(_det2)_det2.style.display='none';if(_vp2){if(_vp2.style.display==='none'||!_vp2.style.display){_vp2.style.display='';var _vw=state.planner[_vd];if(_vw&&_vw.exercises&&_vw.exercises.length){_vp2.innerHTML='<div class="hps-today-day" style="margin-bottom:8px">'+escapeHtml(_vw.name||'Workout')+' · '+_vw.exercises.length+' exercises</div>'+_vw.exercises.map(function(e,i){return '<div class="hps-view-ex"><span class="hps-view-num">'+(i+1)+'</span><span>'+escapeHtml(e.name||String(e))+'</span></div>';}).join('');}else{_vp2.innerHTML='<div style="color:var(--muted);font-size:12px">No exercises found.</div>';}}else{_vp2.style.display='none';}}return;}
+  var _vd=tribute('data-view-day');
+  if(_vd){if(typeof showHwViewModal==='function') showHwViewModal(_vd); return;}
   const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save-later'){commitWorkoutNameEdit(); await saveCurrentWorkoutForLater(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return}
  // ── FOCUSED WORKOUT MODE ──
  if(t.id==='fwmNextBtn'){fwmAdvance(); return}
@@ -14786,7 +14832,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a65c-past-dose-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a66-view-modal';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

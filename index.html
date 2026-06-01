@@ -32,6 +32,8 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
+<!-- v20260601-6a50: chest/triceps library cleanup — removed Squeeze Press duplicate; added requested dumbbell chest/triceps movements -->
+<!-- v20260601-6a49: Planner edit save choices — Save to day or Save for Later from builder -->
 <!-- v20260601-6a46: workout history restored to bottom + local/cloud log merge for visible delete/manage workflow -->
 <!-- v20260601-6a47: Workout History safe-delete guard — ID-only cloud deletes; no broad timestamp deletes -->
 <!-- v20260601-6a48: Workout History resilient display + scoped delete; preserves logs after delete -->
@@ -5213,7 +5215,9 @@ const EXERCISE_CANON = {
   'decline push-up (step)':'Decline Push-Up', 'decline push-up step':'Decline Push-Up',
   'bodyweight squat':'Air Squat',
   'floor glute bridge':'Glute Bridge',
-  'forearm plank':'Plank', 'standard plank':'Plank'
+  'forearm plank':'Plank', 'standard plank':'Plank',
+  'squeeze press':'Hex Press',
+  'dumbbell skull crusher':'Dumbbell Skull Crushers'
 };
 function canonicalExerciseName(name){
   if(name==null) return name;
@@ -5373,7 +5377,6 @@ EXERCISES.push(
 const RESTORED_EXERCISES=[
 {name:'Hex Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Dumbbell Floor Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-{name:'Squeeze Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Low Cable Fly',muscle:'Chest',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'High Cable Fly',muscle:'Chest',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'T-Bar Row',muscle:'Back',equip:'Machine',env:'gym',kind:'pull',training:'Strength'},
@@ -5467,7 +5470,7 @@ const V13539_LIBRARY_BALANCE=[
 {name:'Cable Rope Curl',muscle:'Arms',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
 {name:'Machine Curl',muscle:'Arms',equip:'Machine',env:'gym',kind:'pull',training:'Strength'},
 {name:'Diamond Push-Up',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
-{name:'Dumbbell Skull Crusher',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+{name:'Dumbbell Skull Crushers',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Single-Arm Overhead Extension',muscle:'Triceps',equip:'Dumbbell',env:'home',kind:'push',training:'Strength'},
 {name:'Rope Pushdown',muscle:'Triceps',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'Single-Arm Cable Pushdown',muscle:'Triceps',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
@@ -5601,7 +5604,7 @@ const V13540_HOME_STRENGTH=[
 {name:'Tempo Push-Up',muscle:'Chest',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Paused Push-Up',muscle:'Chest',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Single-Arm Assisted Push-Up',muscle:'Chest',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
-{name:'Dumbbell Pullover',muscle:'Chest',equip:'Dumbbell',env:'home',kind:'push',training:'Strength'},
+{name:'Dumbbell Pullover',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Handstand Hold (Wall)',muscle:'Shoulders',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Handstand Push-Up (Assisted)',muscle:'Shoulders',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
 {name:'Band Front Raise',muscle:'Shoulders',equip:'Band',env:'home',kind:'push',training:'Strength'},
@@ -5625,6 +5628,35 @@ const V13540_HOME_STRENGTH=[
 {name:'Dumbbell Front Squat',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'}
 ];
 V13540_HOME_STRENGTH.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERCISES.push(ex);});
+
+
+// v20260601-6a50 chest/triceps library cleanup — user-requested taxonomy and additions.
+(function(){
+  try{
+    // Hex Press and Squeeze Press are the same movement. Keep Hex Press only.
+    for(let i=EXERCISES.length-1;i>=0;i--){
+      const n=String(EXERCISES[i]?.name||'').toLowerCase().trim();
+      if(n==='squeeze press') EXERCISES.splice(i,1);
+    }
+    const additions=[
+      {name:'Dumbbell Pullover',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+      {name:'Dumbbell Incline Palms-In Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+      {name:'Dumbbell Low Fly',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+      {name:'Dumbbell Incline Alternating Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+      {name:'Dumbbell Static Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
+      {name:'Dumbbell Skull Crushers',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'}
+    ];
+    additions.forEach(function(add){
+      const target=String(add.name||'').toLowerCase().trim();
+      const idx=EXERCISES.findIndex(function(e){
+        const cname=(typeof canonicalExerciseName==='function')?canonicalExerciseName(e&&e.name):e&&e.name;
+        return String(cname||'').toLowerCase().trim()===target;
+      });
+      if(idx>=0) Object.assign(EXERCISES[idx], add);
+      else EXERCISES.push(add);
+    });
+  }catch(e){ console.warn('[Vertex 6A50] chest/triceps library cleanup failed', e); }
+})();
 
 // v13.62 library expansion — user-requested exercises plus targeted gap-fill
 // across back, shoulders, biceps (Arms), triceps, kettlebell, core, legs.
@@ -6972,6 +7004,26 @@ async function saveCurrentWorkout(){
     console.error('saveCurrentWorkout error:',err);
     setSyncStatus('failed','Sync failed');
     window.vertexQueueWrite&&window.vertexQueueWrite('saveWorkout',state.current);
+  }
+  renderAll();
+}
+
+async function saveCurrentWorkoutForLater(){
+  if(!hasWorkout(state.current)){ toast('Nothing to save'); return; }
+  const savedCopy=clone(state.current);
+  delete savedCopy.assignedDay;
+  delete savedCopy.plannerDay;
+  if(cloudEnabled()) setSyncStatus('syncing','Syncing...');
+  try{
+    const ok=await saveWorkoutToSupabase(savedCopy);
+    if(!ok){ setSyncStatus('failed','Sync failed'); return; }
+    setSyncStatus(authUser?'synced':'local',authUser?'Supabase synced':'Local mode');
+    await loadSavedWorkoutsFromCloud().catch(()=>{});
+    toast('Saved for later');
+  }catch(err){
+    console.error('saveCurrentWorkoutForLater error:',err);
+    setSyncStatus('failed','Sync failed');
+    window.vertexQueueWrite&&window.vertexQueueWrite('saveWorkout',savedCopy);
   }
   renderAll();
 }
@@ -11752,15 +11804,30 @@ function renderIntel(){
     <div class="intel-box"><b>Recovery Signal</b><span>${escapeHtml(recoveryText)}</span></div>
     <div class="intel-box"><b>${topMuscle?escapeHtml(topMuscle[0]):'Muscle Trend'}</b><span>${topMuscle?`${Math.round(topMuscle[1]).toLocaleString()} lb logged this week.`:'Log workouts to populate muscle-volume trends.'}</span></div>`;
 }
+function renderPlannerSaveContext(w=state.current){
+  const day=w&&w.assignedDay;
+  if(!day || !DAY_LABEL[day]) return '';
+  return `<div class="panel hl" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <div>
+      <div class="label" style="color:var(--acc)">Planner Edit</div>
+      <div style="color:var(--muted);font-size:13px;line-height:1.45;margin-top:4px">Editing ${DAY_LABEL[day]}. Save this workout to ${DAY_LABEL[day]}, or save a reusable copy for later.</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn acc small" data-save-day="${day}">Save to ${DAY_LABEL[day]}</button>
+      <button class="btn small" id="btn-save-later">Save for Later</button>
+    </div>
+  </div>`;
+}
 function renderBuilder(){
   const w=state.current;
   const titleEl=document.getElementById('wkt-title'); if(titleEl) titleEl.textContent=w.name||'Name Your Workout';
   const s=stats(w);
   document.getElementById('wkt-meta').innerHTML=`<span>EXERCISES <b>${s.ex}</b></span><span>${w.type==='strength'?'SETS':'PHASES'} <b>${w.type==='strength'?s.sets:(s.blocks+' blocks')}</b></span><span>EST. <b>${s.est} min</b></span>${w.excludeFromVolume?'<span>VOLUME <b>0</b></span>':''}`;
   const b=document.getElementById('builder');
-  if(!hasWorkout(w)){b.innerHTML='<div class="empty"><div>No exercises added yet<br><span>Select one exercise, or load a template.</span></div></div>'; return;}
-  if(w.type==='mobility_strength_hybrid'){b.innerHTML=renderPhaseWorkout(w); return;}
-  if(w.type==='flow'||w.type==='interval'){b.innerHTML=renderFlow(w); return;}
+  const plannerSaveContext=renderPlannerSaveContext(w);
+  if(!hasWorkout(w)){b.innerHTML=plannerSaveContext+'<div class="empty"><div>No exercises added yet<br><span>Select one exercise, or load a template.</span></div></div>'; return;}
+  if(w.type==='mobility_strength_hybrid'){b.innerHTML=plannerSaveContext+renderPhaseWorkout(w); return;}
+  if(w.type==='flow'||w.type==='interval'){b.innerHTML=plannerSaveContext+renderFlow(w); return;}
   // actionBar only shown for non-strength types — for strength, Save/Log in header is sufficient
   const isStrengthMode = !w.type || w.type==='strength';
   const assignedDay = state.current && state.current.assignedDay;
@@ -11769,7 +11836,7 @@ function renderBuilder(){
     ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><button class="btn acc small" data-start-current="1">▶ Start Workout</button><button class="btn red small" data-clear-current="1">${clearLabel}</button></div>`
     : `<div class="flow-card" style="padding:12px 14px;margin-bottom:12px"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="label">Manual Workout Controls · Performance Tracking</div><div style="color:var(--muted);font-size:12px;margin-top:4px">Last-set history and PR flags appear from logged workouts.</div></div><div style="display:flex;gap:8px;flex-wrap:wrap">${state.tracking?'':`<button class="btn acc" data-start-current="1">▶ Start Workout</button>`}<button class="btn red" data-clear-current="1">${clearLabel}</button></div></div></div>`;
   const trackBanner = state.tracking ? `<div class="tracking-pill"><span class="tracking-dot"></span>Tracking active — complete sets to record PRs <button class="btn small red" data-clear-current="1" style="margin-left:auto">Clear</button></div>` : "";
-  b.innerHTML=actionBar+trackBanner+renderSmartBuilderSuggestion()+(w.exercises||[]).map((e,i)=>{
+  b.innerHTML=plannerSaveContext+actionBar+trackBanner+renderSmartBuilderSuggestion()+(w.exercises||[]).map((e,i)=>{
     const isFirst=i===0;
     const isLast=i===((w.exercises||[]).length-1);
     const upBtn=`<button class="ex-reorder" data-move-up="${i}" ${isFirst?'disabled':''} title="Move up" aria-label="Move ${escapeAttr(e.name)} up">▲</button>`;
@@ -13082,7 +13149,7 @@ document.addEventListener('click',async e=>{
  if(t.id==='btn-notif-setup'){ document.getElementById('account-menu')?.classList.remove('on'); document.getElementById('settingsModal')?.classList.remove('on'); vertexShowNotifPrompt(); return}
  if(t.id==='btn-notif-allow'){ vertexRequestNotifPermission(); return}
  if(t.id==='btn-notif-dismiss'){ document.getElementById('vertex-notif-toast')?.classList.remove('on'); localStorage.setItem('vertex_notif_dismissed','1'); return}
- const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return}
+ const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save-later'){commitWorkoutNameEdit(); await saveCurrentWorkoutForLater(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return}
  // ── FOCUSED WORKOUT MODE ──
  if(t.id==='fwmNextBtn'){fwmAdvance(); return}
  if(t.id==='fwmRestBtn'){openRestTimer(state.restTimerDefault||60); return}

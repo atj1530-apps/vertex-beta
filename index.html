@@ -4325,6 +4325,33 @@ function updatePlannerHeader(){
   }catch(e){}
 }
 
+
+/* 6A63: Compact Home Planner Strip */
+.hps-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:0 2px}
+.hps-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--text);text-transform:uppercase;font-weight:600}
+.hps-dates{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim)}
+.hps-chips{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px}
+.hps-chip{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:8px 3px 7px;text-align:center;cursor:pointer;transition:background .15s,border-color .15s;display:block;width:100%}
+.hps-chip:hover{background:rgba(232,255,71,.07);border-color:rgba(232,255,71,.25)}
+.hps-chip--today{border-color:var(--acc)!important;background:rgba(232,255,71,.1)!important}
+.hps-chip--has .hps-chip-ex{color:var(--acc)}
+.hps-chip-day{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);margin-bottom:4px;text-transform:uppercase}
+.hps-chip-ex{display:block;font-size:13px;font-weight:800;color:var(--text)}
+.hps-today{background:rgba(232,255,71,.05);border:1px solid rgba(232,255,71,.13);border-radius:12px;padding:14px 16px}
+.hps-today-day{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:6px}
+.hps-today-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--text);line-height:1;margin-bottom:3px}
+.hps-today-preview{font-size:11px;color:var(--muted);margin-bottom:10px}
+.hps-today-empty{font-size:13px;color:var(--dim);margin-bottom:10px}
+.hps-actions{display:flex;gap:7px;flex-wrap:wrap}
+.hps-btn{background:transparent;border:1px solid var(--line2);color:var(--text);border-radius:8px;padding:7px 13px;font-size:12px;cursor:pointer;transition:border-color .15s,background .15s,color .15s;white-space:nowrap}
+.hps-btn:hover{border-color:var(--acc);color:var(--acc)}
+.hps-btn--start{background:var(--acc)!important;color:#000!important;border-color:var(--acc)!important;font-weight:800}
+.hps-btn--start:hover{opacity:.88!important}
+.hps-chip-detail,.hps-view-panel{margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.hps-view-panel{max-height:280px;overflow-y:auto}
+.hps-view-ex{font-size:12px;color:var(--text);padding:5px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.hps-view-ex:last-child{border-bottom:none}
+.hps-view-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);min-width:18px}
 /* 6A61: Home planner redesign */
 body.app-page-home #homeWeekHero{display:none!important}
 body.app-page-home #plannerAcc.planner-panel{background:transparent!important;border:none!important;padding:0!important;box-shadow:none!important}
@@ -4337,6 +4364,32 @@ body.app-page-home .day-card.today .day-name{color:var(--acc)!important;font-wei
 body.app-page-home .day-card.today .day-workout{font-size:15px!important;color:var(--text)!important}
 body.app-page-home .day-card:not(.today){opacity:.6;transition:opacity .2s}
 body.app-page-home .day-card:not(.today):hover{opacity:1;border-color:var(--line2)}
+
+/* 6A63: Compact home planner strip */
+function renderHomePlannerStrip(){
+  if(state.page!=='home'&&state.page) return;
+  var acc=document.getElementById('plannerAcc'); if(!acc) return;
+  var body=acc.querySelector('.acc-body'); if(!body) return;
+  var pl=state.planner||{};
+  var today=todayKey||'monday';
+  var shortLbls=['M','T','W','T','F','S','S'];
+  var planned=DAYS.filter(function(d){return !!pl[d];}).length;
+  var dateRange='';
+  try{var ws=weekStart();var we=new Date(ws);we.setDate(we.getDate()+6);var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});};dateRange=fmt(ws)+' – '+fmt(we);}catch(e){}
+  var getEx=function(w){try{return(typeof stats==='function'?stats(w).moves:0)||(w.exercises&&w.exercises.length)||0;}catch(e){return(w.exercises&&w.exercises.length)||0;}};
+  var chips=DAYS.map(function(d,i){var w=pl[d];var ex=w?getEx(w):0;var isT=(d===today);return '<button class="hps-chip'+(isT?' hps-chip--today':'')+(ex>0?' hps-chip--has':'')+'" data-strip-day="'+d+'"><span class="hps-chip-day">'+shortLbls[i]+'</span><span class="hps-chip-ex">'+(ex>0?ex:'&mdash;')+'</span></button>';}).join('');
+  var todayWork=pl[today];
+  var todayLabel=(DAY_LABEL&&DAY_LABEL[today])||today.charAt(0).toUpperCase()+today.slice(1);
+  var todayInner='';
+  if(todayWork){
+    var prev=(typeof previewWorkoutNames==='function'?previewWorkoutNames(todayWork):'')||'';
+    if(prev.length>85) prev=prev.slice(0,85)+'…';
+    todayInner='<div class="hps-today-name">'+escapeHtml(todayWork.name||'Workout')+'</div>'+(prev?'<div class="hps-today-preview">'+escapeHtml(prev)+'</div>':'')+'<div class="hps-actions"><button class="hps-btn hps-btn--start" data-edit-day="'+today+'">▶ Start Today</button><button class="hps-btn" data-edit-day="'+today+'">Load / Edit</button><button class="hps-btn" data-view-day="'+today+'">View</button><button class="hps-btn" data-copy-day="'+today+'">Copy</button></div>';
+  } else {
+    todayInner='<div class="hps-today-empty">No workout planned for today.</div><div class="hps-actions"><button class="hps-btn" data-edit-day="'+today+'">Plan today →</button></div>';
+  }
+  body.innerHTML='<div class="hps-header"><span class="hps-label">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hps-dates">'+dateRange+'</span>':'')+'</div><div class="hps-chips">'+chips+'</div><div class="hps-today"><div class="hps-today-day">TODAY · '+todayLabel.toUpperCase()+'</div>'+todayInner+'</div><div class="hps-chip-detail" id="hpsChipDetail" style="display:none"></div><div class="hps-view-panel" id="hpsViewPanel" style="display:none"></div>';
+}
 /* 6A60: Week Hero & Plan CTA */
 #homeWeekHero{display:none}
 body.app-page-home #homeWeekHero{display:block!important}
@@ -11258,7 +11311,7 @@ function renderHomeDashboard(){
     <h1 class="page-title" style="margin:0 0 2px">Vertex</h1>
     <div style="display:flex;align-items:center;gap:6px">
       <p class="page-copy" style="margin:0;font-size:12px">${new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})}</p>
-      <button class="btn small" id="btn-home-refresh-metrics" style="padding:2px 8px;font-size:11px;border-radius:4px;background:transparent;border:1px solid var(--acc);color:var(--acc);opacity:0.8" title="Sync health metrics">↻</button>
+      
     </div>
   </div>
   <div style="flex:1;min-width:0;display:flex;justify-content:center">${_readinessCardHtml||''}</div>
@@ -11268,7 +11321,7 @@ function renderHomeDashboard(){
   <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:8px">
     <h1 class="page-title" style="margin:0;line-height:1">Vertex</h1>
     <span style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px">${new Date().toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})}</span>
-    <button class="btn small" id="btn-home-refresh-metrics" style="margin-left:auto;padding:2px 8px;font-size:11px;border-radius:4px;background:transparent;border:1px solid var(--acc);color:var(--acc);opacity:0.8" title="Sync health metrics">↻</button>
+    
   </div>
   ${_readinessCardHtml ? `<div style="width:100%">${_readinessCardHtml}</div>` : ''}
 </div>
@@ -11483,6 +11536,32 @@ function updatePlannerHeader(){
     var planned=DAYS.filter(function(d){return !!(state.planner&&state.planner[d]);}).length;
     lbl.textContent='THIS WEEK'+(planned?' · '+planned+' planned':'');
   }catch(e){}
+}
+
+/* 6A63: Compact home planner strip */
+function renderHomePlannerStrip(){
+  if(state.page!=='home'&&state.page) return;
+  var acc=document.getElementById('plannerAcc'); if(!acc) return;
+  var body=acc.querySelector('.acc-body'); if(!body) return;
+  var pl=state.planner||{};
+  var today=todayKey||'monday';
+  var shortLbls=['M','T','W','T','F','S','S'];
+  var planned=DAYS.filter(function(d){return !!pl[d];}).length;
+  var dateRange='';
+  try{var ws=weekStart();var we=new Date(ws);we.setDate(we.getDate()+6);var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});};dateRange=fmt(ws)+' – '+fmt(we);}catch(e){}
+  var getEx=function(w){try{return(typeof stats==='function'?stats(w).moves:0)||(w.exercises&&w.exercises.length)||0;}catch(e){return(w.exercises&&w.exercises.length)||0;}};
+  var chips=DAYS.map(function(d,i){var w=pl[d];var ex=w?getEx(w):0;var isT=(d===today);return '<button class="hps-chip'+(isT?' hps-chip--today':'')+(ex>0?' hps-chip--has':'')+'" data-strip-day="'+d+'"><span class="hps-chip-day">'+shortLbls[i]+'</span><span class="hps-chip-ex">'+(ex>0?ex:'&mdash;')+'</span></button>';}).join('');
+  var todayWork=pl[today];
+  var todayLabel=(DAY_LABEL&&DAY_LABEL[today])||today.charAt(0).toUpperCase()+today.slice(1);
+  var todayInner='';
+  if(todayWork){
+    var prev=(typeof previewWorkoutNames==='function'?previewWorkoutNames(todayWork):'')||'';
+    if(prev.length>85) prev=prev.slice(0,85)+'…';
+    todayInner='<div class="hps-today-name">'+escapeHtml(todayWork.name||'Workout')+'</div>'+(prev?'<div class="hps-today-preview">'+escapeHtml(prev)+'</div>':'')+'<div class="hps-actions"><button class="hps-btn hps-btn--start" data-edit-day="'+today+'">▶ Start Today</button><button class="hps-btn" data-edit-day="'+today+'">Load / Edit</button><button class="hps-btn" data-view-day="'+today+'">View</button><button class="hps-btn" data-copy-day="'+today+'">Copy</button></div>';
+  } else {
+    todayInner='<div class="hps-today-empty">No workout planned for today.</div><div class="hps-actions"><button class="hps-btn" data-edit-day="'+today+'">Plan today →</button></div>';
+  }
+  body.innerHTML='<div class="hps-header"><span class="hps-label">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hps-dates">'+dateRange+'</span>':'')+'</div><div class="hps-chips">'+chips+'</div><div class="hps-today"><div class="hps-today-day">TODAY · '+todayLabel.toUpperCase()+'</div>'+todayInner+'</div><div class="hps-chip-detail" id="hpsChipDetail" style="display:none"></div><div class="hps-view-panel" id="hpsViewPanel" style="display:none"></div>';
 }
 /* 6A60: Week Hero — home page prominent planner overview */
 function renderHomeWeekHero(){
@@ -11777,7 +11856,7 @@ function renderSidebar(){
   }
 
 function renderToday(){const saved=state.planner[todayKey]; const draft=(state.current.assignedDay===todayKey && hasWorkout(state.current))?state.current:null; const w=saved||draft; if(w){const isDraft=!saved&&draft; document.getElementById('today').innerHTML=`<div><div class="today-title">${isDraft?'Unsaved ':'Today&#39;s '}Workout: ${escapeHtml(w.name)}</div><div class="today-sub">${DAY_LABEL[todayKey]} · ${summary(w)}${isDraft?' · Save to planner when ready':''}</div></div><div>${isDraft?`<button class="btn acc" data-save-day="${todayKey}">Save Today</button>`:`<button class="btn acc" data-start-day="${todayKey}">Start Today</button>`} <button class="btn" data-edit-day="${todayKey}">Load / Edit</button></div>`; return;} document.getElementById('today').innerHTML=`<div><div class="today-title">No workout planned for ${DAY_LABEL[todayKey]}</div><div class="today-sub">Click Edit on today, build from the library or load a template, then Save.</div></div><button class="btn acc" data-edit-day="${todayKey}">Build Today</button>`;}
-function renderPlanner(){document.getElementById('planner').innerHTML=DAYS.map(d=>{const w=state.planner[d]; return `<div class="day-card ${d===todayKey?'today':''}"><div class="day-name">${DAY_LABEL[d]} <span class="day-count">${w?stats(w).moves:0} EX</span></div>${w?`<div class="day-workout">${escapeHtml(w.name)}</div><div class="day-preview">${preview(w)}</div>`:`<div class="day-preview">Empty. Click Edit, build from the library, then Save Day.</div>`}<div class="day-actions"><button class="btn acc small" data-save-day="${d}">Save</button><button class="btn small" data-edit-day="${d}">Edit</button><button class="btn small" ${w?'':'disabled'} data-start-day="${d}">Start</button><button class="btn small" ${w?'':'disabled'} data-copy-day="${d}">Copy</button><button class="btn red small" data-clear-day="${d}">Clear</button></div></div>`}).join('')}
+function renderPlanner(){if((state.page==='home'||!state.page)&&typeof renderHomePlannerStrip==='function'){renderHomePlannerStrip();return;}document.getElementById('planner').innerHTML=DAYS.map(d=>{const w=state.planner[d]; return `<div class="day-card ${d===todayKey?'today':''}"><div class="day-name">${DAY_LABEL[d]} <span class="day-count">${w?stats(w).moves:0} EX</span></div>${w?`<div class="day-workout">${escapeHtml(w.name)}</div><div class="day-preview">${preview(w)}</div>`:`<div class="day-preview">Empty. Click Edit, build from the library, then Save Day.</div>`}<div class="day-actions"><button class="btn acc small" data-save-day="${d}">Save</button><button class="btn small" data-edit-day="${d}">Edit</button><button class="btn small" ${w?'':'disabled'} data-start-day="${d}">Start</button><button class="btn small" ${w?'':'disabled'} data-copy-day="${d}">Copy</button><button class="btn red small" data-clear-day="${d}">Clear</button></div></div>`}).join('')}
 function templatePreview(t){if(t.type==='strength') return t.exercises.join(', '); if(t.type==='mobility_strength_hybrid') return `${t.displayType||'Recovery / Mobility Day'} · ${t.duration} min · ${(t.phases||[]).length} phases · volume excluded`; return `${t.duration} min · ${t.moves.slice(0,5).join(', ')}${t.moves.length>5?'…':''}`}
 function renderTemplates(){ /* templates are now static HTML — no dynamic render needed */ }
 function renderTemplates(){ /* templates are now static HTML — no dynamic render needed */ }
@@ -13034,8 +13113,9 @@ function renderGoalTracker(){
     const status=achieved?'✓ Met':`${Math.abs(diff).toFixed(g.step<1?1:0)} ${g.unit==='sessions'?'to go':g.unit+' to go'}`;
     const pct=g.lower?Math.min(100,Math.max(0,((g.target-Math.min(g.current,g.target))/(Math.abs(g.target)*0.25||1))*100)):Math.min(100,(g.current/g.target)*100);
     return `<div style="text-align:center">
-      <div style="font-size:9px;font-family:'DM Mono',monospace;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${g.label.split(' · ')[0]}</div>
+      <div style="font-size:9px;font-family:'DM Mono',monospace;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${g.label.split(' · ')[0]}${g.unit!=='sessions'?' · Goal: '+g.target+' '+g.unit:''}</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--text);line-height:1">${typeof g.current==='number'?g.current.toFixed(g.step<1?1:0):g.current}</div>
+      <div style="font-size:8px;font-family:'DM Mono',monospace;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-top:1px">${g.unit!=='sessions'?'current':''}</div>
       <div style="font-size:10px;color:${fill};font-weight:700;margin:2px 0">${status}</div>
       <div style="height:3px;background:var(--line);border-radius:999px;margin:4px 0"><div style="height:100%;width:${pct.toFixed(1)}%;background:${fill};border-radius:999px"></div></div>
       <div style="font-size:9px;color:var(--dim)">Goal: ${g.target}${g.unit==='sessions'?' /wk':' '+g.unit} <span class="vertex-goal-edit" onclick="vertexEditGoal('${g.key}','${g.label}',${g.target},${g.min},${g.max},${g.step})" style="color:var(--acc)">Edit</span></div>
@@ -13055,8 +13135,9 @@ function renderGoalTracker(){
       const status=achieved?'✓ Met':`${Math.abs(diff).toFixed(g.step<1?1:0)} ${g.unit==='sessions'?'to go':g.unit+' to go'}`;
       const pct=g.lower?Math.min(100,Math.max(0,((g.target-Math.min(g.current,g.target))/(Math.abs(g.target)*0.25||1))*100)):Math.min(100,(g.current/g.target)*100);
       return `<div style="flex:1;min-width:90px;text-align:center">
-        <div style="font-size:9px;font-family:'DM Mono',monospace;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:2px">${g.label.split(' · ')[0]}</div>
+        <div style="font-size:9px;font-family:'DM Mono',monospace;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:2px">${g.label.split(' · ')[0]}${g.unit!=='sessions'?' · Goal: '+g.target+' '+g.unit:''}</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--text);line-height:1">${typeof g.current==='number'?g.current.toFixed(g.step<1?1:0):g.current}</div>
+        <div style="font-size:8px;font-family:'DM Mono',monospace;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-top:1px">${g.unit!=='sessions'?'current':''}</div>
         <div style="font-size:10px;color:${fill};font-weight:700;margin:2px 0">${status}</div>
         <div style="height:3px;background:var(--line);border-radius:999px;margin:4px 0"><div style="height:100%;width:${pct.toFixed(1)}%;background:${fill};border-radius:999px"></div></div>
         <div style="font-size:9px;color:var(--dim)">Goal: ${g.target}${g.unit==='sessions'?' /wk':' '+g.unit} <span class="vertex-goal-edit" onclick="vertexEditGoal('${g.key}','${g.label}',${g.target},${g.min},${g.max},${g.step})" style="color:var(--acc)">Edit</span></div>
@@ -13271,6 +13352,10 @@ document.addEventListener('click',async e=>{
  if(t.id==='btn-notif-allow'){ vertexRequestNotifPermission(); return}
  if(t.id==='btn-notif-dismiss'){ document.getElementById('vertex-notif-toast')?.classList.remove('on'); localStorage.setItem('vertex_notif_dismissed','1'); return}
  if(t.dataset&&t.dataset.gotoPlanner){setPage('home');setTimeout(function(){var p=document.getElementById('plannerAcc');if(p)p.scrollIntoView({behavior:'smooth'});},300);return;}
+  var _sd=t.getAttribute('data-strip-day');
+  if(_sd){if(_sd===todayKey){editDay(_sd);return;}var _det=document.getElementById('hpsChipDetail');var _vp=document.getElementById('hpsViewPanel');if(_vp)_vp.style.display='none';if(_det){if(_det.style.display==='none'||!_det.style.display||_det.dataset.day!==_sd){_det.dataset.day=_sd;_det.style.display='';var _sw=state.planner[_sd];var _sl=(DAY_LABEL&&DAY_LABEL[_sd])||_sd;if(_sw){_det.innerHTML='<div class="hps-today-day">'+escapeHtml(_sl.toUpperCase())+'</div><div class="hps-today-name">'+escapeHtml(_sw.name||'Workout')+'</div><div class="hps-actions" style="margin-top:8px"><button class="hps-btn" data-edit-day="'+_sd+'">Load / Edit</button><button class="hps-btn" data-copy-day="'+_sd+'">Copy</button><button class="hps-btn" style="color:var(--red);border-color:rgba(255,80,80,.4)" data-clear-day="'+_sd+'">Clear</button></div>';}else{_det.innerHTML='<div class="hps-today-day">'+escapeHtml(_sl.toUpperCase())+' · No workout planned</div><div class="hps-actions"><button class="hps-btn" data-edit-day="'+_sd+'">Plan this day →</button></div>';}}else{_det.style.display='none';_det.dataset.day='';}}return;}
+  var _vd=t.getAttribute('data-view-day');
+  if(_vd){var _vp2=document.getElementById('hpsViewPanel');var _det2=document.getElementById('hpsChipDetail');if(_det2)_det2.style.display='none';if(_vp2){if(_vp2.style.display==='none'||!_vp2.style.display){_vp2.style.display='';var _vw=state.planner[_vd];if(_vw&&_vw.exercises&&_vw.exercises.length){_vp2.innerHTML='<div class="hps-today-day" style="margin-bottom:8px">'+escapeHtml(_vw.name||'Workout')+' · '+_vw.exercises.length+' exercises</div>'+_vw.exercises.map(function(e,i){return '<div class="hps-view-ex"><span class="hps-view-num">'+(i+1)+'</span><span>'+escapeHtml(e.name||String(e))+'</span></div>';}).join('');}else{_vp2.innerHTML='<div style="color:var(--muted);font-size:12px">No exercises found.</div>';}}else{_vp2.style.display='none';}}return;}
   const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save-later'){commitWorkoutNameEdit(); await saveCurrentWorkoutForLater(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return}
  // ── FOCUSED WORKOUT MODE ──
  if(t.id==='fwmNextBtn'){fwmAdvance(); return}
@@ -14612,7 +14697,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a62-readiness-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a63-compact-planner';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -32,7 +32,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
-<!-- v20260601-6a45: restore Progress workout history with view/delete log management -->
+<!-- v20260601-6a46: workout history restored to bottom + local/cloud log merge for visible delete/manage workflow -->
 <!-- v20260601-6a44: AI/coaching language polish — coach-first wording, clearer push/maintain/recover guidance -->
 <!-- v20260531-6a44: AI coaching language polish; cache version bumped -->
 <!-- v20260531-6a43: fixed broken HTML comment that pushed the CSP meta out of head; youtube allowed in frame-src -->
@@ -14078,21 +14078,23 @@ document.addEventListener('DOMContentLoaded',function(){
 
 
 <script>
-/* v20260601-6a45 — Progress Workout History restore
-   Adds visible workout log management to Progress without changing analytics logic. */
+/* v20260601-6a46 — Progress Workout History bottom restore
+   Restores a bottom-positioned workout log manager and merges local + cloud logs so tested sessions remain visible. */
 (function(){
-  if(window.__vertexWorkoutHistoryRestoreLoaded) return;
-  window.__vertexWorkoutHistoryRestoreLoaded = true;
+  if(window.__vertexWorkoutHistoryBottomRestore046) return;
+  window.__vertexWorkoutHistoryBottomRestore046 = true;
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
+  function parseJson(v,fallback){ try{ return JSON.parse(v||''); }catch(e){ return fallback; } }
+  function dateVal(row){ return (row && (row.completed_at || row.created_at || row.date)) || ''; }
   function fmtDate(v){
-    try{
-      return new Date(v).toLocaleString([], {month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
-    }catch(e){ return v || '—'; }
+    if(!v) return '—';
+    try{ return new Date(v).toLocaleString([], {month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}); }
+    catch(e){ return v || '—'; }
   }
   function metric(row,key){
     try{ return row && row.metrics && row.metrics[key] != null ? row.metrics[key] : null; }catch(e){ return null; }
@@ -14100,7 +14102,7 @@ document.addEventListener('DOMContentLoaded',function(){
   function rowKey(row){
     return [
       row && (row.id || row.log_id || ''),
-      row && (row.completed_at || row.created_at || ''),
+      row && (row.completed_at || row.created_at || row.date || ''),
       row && (row.workout_name || row.name || ''),
       row && (row.workout_type || row.type || '')
     ].join('|');
@@ -14110,37 +14112,88 @@ document.addEventListener('DOMContentLoaded',function(){
     if((a.id || a.log_id) && (b.id || b.log_id)) return String(a.id||a.log_id) === String(b.id||b.log_id);
     return rowKey(a) === rowKey(b);
   }
-  function workoutFromRow(row){
-    return (row && (row.workout_payload || row.payload || row.exercises)) || {};
+  function normalize(row){
+    try{ if(typeof normalizeLogRecord==='function') return normalizeLogRecord(row); }catch(e){}
+    row=row||{};
+    var payload=row.workout_payload || row.payload || row.exercises || {};
+    if(Array.isArray(payload)) payload={name:row.name||row.workout_name||'Workout',type:row.type||row.workout_type||'strength',exercises:payload};
+    if(payload && payload.exercises && Array.isArray(payload.exercises) && typeof canonicalizeExerciseList==='function'){
+      try{ canonicalizeExerciseList(payload.exercises); }catch(e){}
+    }
+    var completed=row.completed_at || row.created_at || new Date().toISOString().split('.')[0]+'Z';
+    var metrics=row.metrics || {};
+    if(row.volume!=null && metrics.load_volume==null) metrics.load_volume=Number(row.volume)||0;
+    if(row.duration!=null && metrics.est_minutes==null) metrics.est_minutes=Number(row.duration)||0;
+    return Object.assign({}, row, {
+      completed_at:completed,
+      workout_name:row.workout_name || row.name || payload.name || 'Workout',
+      workout_type:row.workout_type || row.type || payload.type || 'strength',
+      workout_payload:payload || {},
+      metrics:metrics
+    });
+  }
+  function addRows(target, rows){
+    if(!Array.isArray(rows)) return;
+    rows.forEach(function(r){
+      if(!r) return;
+      var n=normalize(r);
+      if(/hk_imported_dismissed|hk_dismissed/i.test(String((n&&n.workout_type)||''))) return;
+      var k=rowKey(n);
+      if(!target.some(function(x){ return rowKey(x)===k || rowMatches(x,n); })) target.push(n);
+    });
+  }
+  function localLogKeys(){
+    var keys=[];
+    try{
+      if(typeof logStorageKey==='function') keys.push(logStorageKey());
+      for(var i=0;i<localStorage.length;i++){
+        var k=localStorage.key(i);
+        if(/^vertex_logs_/.test(k) && keys.indexOf(k)===-1) keys.push(k);
+      }
+    }catch(e){}
+    return keys;
+  }
+  function collectRows(){
+    var rows=[];
+    try{ if(typeof progressRows==='function') addRows(rows, progressRows()); }catch(e){}
+    try{ if(window.state && Array.isArray(state.progressLogs)) addRows(rows, state.progressLogs); }catch(e){}
+    localLogKeys().forEach(function(k){
+      try{ addRows(rows, parseJson(localStorage.getItem(k), [])); }catch(e){}
+    });
+    return rows.sort(function(a,b){ return new Date(dateVal(b)||0) - new Date(dateVal(a)||0); });
+  }
+  function workoutFromRow(row){ return (row && (row.workout_payload || row.payload || row.exercises)) || {}; }
+  function exerciseList(row){
+    var w=workoutFromRow(row);
+    if(Array.isArray(w)) return w;
+    if(w && Array.isArray(w.exercises)) return w.exercises;
+    return [];
   }
   function exerciseSummary(row){
-    const w = workoutFromRow(row);
-    const exercises = Array.isArray(w.exercises) ? w.exercises : [];
+    var exercises=exerciseList(row);
     if(!exercises.length) return 'No exercise detail stored';
     return exercises.slice(0,4).map(function(ex){ return ex && ex.name ? ex.name : 'Exercise'; }).join(', ') + (exercises.length>4 ? ' +' + (exercises.length-4) + ' more' : '');
   }
   function renderExerciseDetails(row){
-    const w = workoutFromRow(row);
-    const exercises = Array.isArray(w.exercises) ? w.exercises : [];
-    if(!exercises.length){
-      return '<div class="vertex-history-empty">No exercise detail was stored with this log.</div>';
-    }
+    var exercises=exerciseList(row);
+    if(!exercises.length) return '<div class="vertex-history-empty">No exercise detail was stored with this log.</div>';
     return '<div class="vertex-history-detail-list">' + exercises.map(function(ex){
-      const sets = Array.isArray(ex.sets) ? ex.sets : [];
-      const setText = sets.length ? sets.map(function(s,i){
-        const reps = s && s.reps != null && s.reps !== '' ? s.reps : '—';
-        const weight = s && s.weight != null && s.weight !== '' ? s.weight : '—';
+      var sets=Array.isArray(ex.sets) ? ex.sets : [];
+      var setText=sets.length ? sets.map(function(s,i){
+        var reps=s && s.reps != null && s.reps !== '' ? s.reps : '—';
+        var weight=s && s.weight != null && s.weight !== '' ? s.weight : '—';
         return '<span class="vertex-history-set">Set '+(i+1)+': '+esc(reps)+' reps × '+esc(weight)+'</span>';
       }).join('') : '<span class="vertex-history-set">No sets stored</span>';
       return '<div class="vertex-history-ex"><b>'+esc(ex.name||'Exercise')+'</b><div>'+setText+'</div></div>';
     }).join('') + '</div>';
   }
   function ensureStyle(){
-    if(document.getElementById('vertex-history-restore-style')) return;
-    const style=document.createElement('style');
-    style.id='vertex-history-restore-style';
+    if(document.getElementById('vertex-history-bottom-style')) return;
+    var style=document.createElement('style');
+    style.id='vertex-history-bottom-style';
     style.textContent = `
-      .vertex-workout-history-panel{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:18px;margin:18px 0 8px}
+      #progressPage #vertexWorkoutHistoryPanel{order:9999!important;display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;margin:28px 0 8px!important;padding:18px!important}
+      .vertex-workout-history-panel{border:1px solid var(--line);background:var(--panel);border-radius:var(--r)}
       .vertex-workout-history-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
       .vertex-workout-history-title{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:4px;color:var(--acc);text-transform:uppercase;font-weight:800}
       .vertex-workout-history-sub{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.45}
@@ -14159,43 +14212,38 @@ document.addEventListener('DOMContentLoaded',function(){
       .vertex-history-ex b{display:block;margin-bottom:6px}
       .vertex-history-set{display:inline-block;margin:3px 5px 3px 0;border:1px solid var(--line2);border-radius:999px;padding:4px 8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
       .vertex-history-empty{border:1px dashed var(--line2);border-radius:8px;padding:18px;color:var(--muted);text-align:center}
-      @media(max-width:800px){
-        .vertex-history-main{grid-template-columns:1fr;gap:6px}
-        .vertex-history-actions{justify-content:flex-start}
-      }
+      @media(max-width:800px){.vertex-history-main{grid-template-columns:1fr;gap:6px}.vertex-history-actions{justify-content:flex-start}}
     `;
     document.head.appendChild(style);
   }
   function renderWorkoutHistory(){
     try{
       ensureStyle();
-      const page=document.getElementById('progressPage');
+      var page=document.getElementById('progressPage');
       if(!page) return;
-      let panel=document.getElementById('vertexWorkoutHistoryPanel');
+      var panel=document.getElementById('vertexWorkoutHistoryPanel');
       if(!panel){
         panel=document.createElement('section');
         panel.id='vertexWorkoutHistoryPanel';
         panel.className='vertex-workout-history-panel';
-        page.appendChild(panel);
       }
-      const rows=(typeof progressRows==='function' ? progressRows() : (window.state&&state.progressLogs)||[])
-        .filter(function(r){ return !/hk_imported_dismissed|hk_dismissed/i.test(String((r&&r.workout_type)||'')); })
-        .slice()
-        .sort(function(a,b){ return new Date((b&&b.completed_at)||0) - new Date((a&&a.completed_at)||0); });
+      page.appendChild(panel); // always moves it to the bottom
+      var rows=collectRows();
+      window.__vertexWorkoutHistoryRows=rows;
       if(!rows.length){
-        panel.innerHTML='<div class="vertex-workout-history-head"><div><div class="vertex-workout-history-title">Workout History</div><div class="vertex-workout-history-sub">Logged workouts will appear here after you complete and log a session.</div></div></div><div class="vertex-history-empty">No workout logs yet.</div>';
+        panel.innerHTML='<div class="vertex-workout-history-head"><div><div class="vertex-workout-history-title">Workout History</div><div class="vertex-workout-history-sub">Logged workouts will appear here after you complete and log a session.</div></div><button type="button" class="btn small" id="vertexHistoryRefresh">Refresh</button></div><div class="vertex-history-empty">No workout logs yet.</div>';
         return;
       }
       panel.innerHTML =
-        '<div class="vertex-workout-history-head"><div><div class="vertex-workout-history-title">Workout History</div><div class="vertex-workout-history-sub">Review, expand, or delete logged workouts. Analytics above update after deletion.</div></div><button type="button" class="btn small" id="vertexHistoryRefresh">Refresh</button></div>' +
-        '<div class="vertex-workout-history-table">' +
-        rows.slice(0,60).map(function(row,i){
-          const sets=metric(row,'sets');
-          const vol=metric(row,'load_volume');
-          const mins=metric(row,'est_minutes');
+        '<div class="vertex-workout-history-head"><div><div class="vertex-workout-history-title">Workout History</div><div class="vertex-workout-history-sub">Review, expand, or delete logged workouts. Analytics update after deletion.</div></div><button type="button" class="btn small" id="vertexHistoryRefresh">Refresh</button></div>'+
+        '<div class="vertex-workout-history-table">'+
+        rows.slice(0,80).map(function(row,i){
+          var sets=metric(row,'sets');
+          var vol=metric(row,'load_volume');
+          var mins=metric(row,'est_minutes');
           return '<div class="vertex-history-row" data-history-key="'+esc(rowKey(row))+'">'+
             '<div class="vertex-history-main">'+
-              '<div class="vertex-history-date">'+esc(fmtDate(row.completed_at||row.created_at))+'</div>'+
+              '<div class="vertex-history-date">'+esc(fmtDate(dateVal(row)))+'</div>'+
               '<div><div class="vertex-history-name">'+esc(row.workout_name||row.name||'Workout')+'</div><div class="vertex-history-meta">'+esc(exerciseSummary(row))+'</div></div>'+
               '<div><div class="label">Sets</div><div class="vertex-history-num">'+esc(sets==null?'—':sets)+'</div></div>'+
               '<div><div class="label">Volume</div><div class="vertex-history-num">'+esc(vol?Math.round(vol):'—')+'</div></div>'+
@@ -14203,105 +14251,114 @@ document.addEventListener('DOMContentLoaded',function(){
             '</div>'+
             '<div class="vertex-history-detail">'+renderExerciseDetails(row)+(mins?'<div class="vertex-history-meta" style="margin-top:8px">Estimated duration: '+esc(mins)+' minutes</div>':'')+'</div>'+
           '</div>';
-        }).join('') +
-        '</div>';
-    }catch(e){ console.warn('[Vertex 6A45] Workout history render failed',e); }
+        }).join('')+'</div>';
+    }catch(e){ console.warn('[Vertex 6A46] Workout history render failed',e); }
+  }
+  async function enhancedLoadProgressLogs(){
+    var local=[];
+    try{ local=parseJson(localStorage.getItem(typeof logStorageKey==='function'?logStorageKey():'vertex_logs_guest'), []).map(normalize); }catch(e){}
+    var merged=[];
+    addRows(merged, local);
+    if(typeof cloudEnabled==='function' && cloudEnabled() && typeof getSupa==='function'){
+      try{
+        var supa=getSupa();
+        if(supa && window.authUser){
+          var primary=await Promise.race([supa.from('vertex_workout_logs').select('*').eq('user_id',authUser.id).limit(250), new Promise(function(resolve){setTimeout(function(){resolve({data:[],error:null,timeout:true});},12000);})]);
+          var fallback=await Promise.race([supa.from('workout_logs').select('*').eq('user_id',authUser.id).limit(250), new Promise(function(resolve){setTimeout(function(){resolve({data:[],error:null,timeout:true});},12000);})]);
+          if(primary && !primary.error) addRows(merged, primary.data||[]);
+          if(fallback && !fallback.error) addRows(merged, fallback.data||[]);
+        }
+      }catch(e){ console.warn('[Vertex 6A46] Cloud progress merge failed; using local/state logs.',e); }
+    }
+    try{ if(window.state) state.progressLogs=merged.sort(function(a,b){ return new Date(dateVal(b)||0)-new Date(dateVal(a)||0); }); }catch(e){}
+    try{ renderProgressPage(); }catch(e){}
+    try{ renderIntel(); }catch(e){}
+    return (window.state&&state.progressLogs)||merged;
   }
   async function deleteWorkoutLogByIndex(idx){
-    const rows=(typeof progressRows==='function' ? progressRows() : (window.state&&state.progressLogs)||[])
-      .filter(function(r){ return !/hk_imported_dismissed|hk_dismissed/i.test(String((r&&r.workout_type)||'')); })
-      .slice()
-      .sort(function(a,b){ return new Date((b&&b.completed_at)||0) - new Date((a&&a.completed_at)||0); });
-    const row=rows[Number(idx)];
+    var rows=window.__vertexWorkoutHistoryRows || collectRows();
+    var row=rows[Number(idx)];
     if(!row) return;
-    const label=row.workout_name||row.name||'this workout log';
-    const ok=typeof vertexConfirm==='function' ? await vertexConfirm('Delete '+label+' from Workout History?') : window.confirm('Delete '+label+' from Workout History?');
+    var label=row.workout_name||row.name||'this workout log';
+    var ok=typeof vertexConfirm==='function' ? await vertexConfirm('Delete '+label+' from Workout History?') : window.confirm('Delete '+label+' from Workout History?');
     if(!ok) return;
 
-    try{
-      const localKey=typeof logStorageKey==='function' ? logStorageKey() : (window.authUser ? 'vertex_logs_'+authUser.id : 'vertex_logs_guest');
-      const local=JSON.parse(localStorage.getItem(localKey)||'[]');
-      localStorage.setItem(localKey, JSON.stringify(local.filter(function(x){ return !rowMatches(x,row); })));
-    }catch(e){}
-
-    if(window.state && Array.isArray(state.progressLogs)){
-      state.progressLogs=state.progressLogs.filter(function(x){ return !rowMatches(x,row); });
-    }
+    localLogKeys().forEach(function(k){
+      try{
+        var local=parseJson(localStorage.getItem(k), []);
+        localStorage.setItem(k, JSON.stringify(local.filter(function(x){ return !rowMatches(normalize(x),row); })));
+      }catch(e){}
+    });
+    try{ if(window.state && Array.isArray(state.progressLogs)) state.progressLogs=state.progressLogs.filter(function(x){ return !rowMatches(x,row); }); }catch(e){}
 
     if(typeof cloudEnabled==='function' && cloudEnabled() && typeof getSupa==='function'){
       try{
-        const supa=getSupa();
+        var supa=getSupa();
         if(supa && window.authUser){
           if(row.id){
             await supa.from('vertex_workout_logs').delete().eq('user_id',authUser.id).eq('id',row.id);
             await supa.from('workout_logs').delete().eq('user_id',authUser.id).eq('id',row.id);
-          }else{
-            if(row.completed_at){
-              await supa.from('vertex_workout_logs').delete().eq('user_id',authUser.id).eq('completed_at',row.completed_at);
-            }
-            if(row.created_at){
-              await supa.from('workout_logs').delete().eq('user_id',authUser.id).eq('created_at',row.created_at);
-            }
+          }
+          if(row.completed_at){
+            await supa.from('vertex_workout_logs').delete().eq('user_id',authUser.id).eq('completed_at',row.completed_at);
+            await supa.from('workout_logs').delete().eq('user_id',authUser.id).eq('completed_at',row.completed_at);
+          }
+          if(row.created_at){
+            await supa.from('workout_logs').delete().eq('user_id',authUser.id).eq('created_at',row.created_at);
           }
         }
-      }catch(e){ console.warn('[Vertex 6A45] Cloud workout delete failed; local row removed.',e); }
+      }catch(e){ console.warn('[Vertex 6A46] Cloud workout delete failed; local row removed.',e); }
     }
-
-    try{ if(typeof loadProgressLogs==='function') await loadProgressLogs(); }catch(e){}
-    try{ if(typeof renderProgressPage==='function') renderProgressPage(); }catch(e){}
-    try{ if(typeof renderIntel==='function') renderIntel(); }catch(e){}
+    await enhancedLoadProgressLogs();
+    renderWorkoutHistory();
     try{ if(typeof toast==='function') toast('Workout log deleted'); }catch(e){}
   }
 
-  window.vertexRenderWorkoutHistory = renderWorkoutHistory;
-  window.vertexDeleteWorkoutLogByIndex = deleteWorkoutLogByIndex;
+  window.vertexRenderWorkoutHistory=renderWorkoutHistory;
+  window.vertexDeleteWorkoutLogByIndex=deleteWorkoutLogByIndex;
+  window.vertexLoadProgressLogsMerged=enhancedLoadProgressLogs;
+  try{ window.loadProgressLogs=enhancedLoadProgressLogs; loadProgressLogs=enhancedLoadProgressLogs; }catch(e){}
 
-  const originalRender = window.renderProgressPage;
-  if(typeof originalRender === 'function' && !originalRender.__vertexHistoryWrapped){
-    const wrapped=function(){
-      const result=originalRender.apply(this,arguments);
-      try{ renderWorkoutHistory(); }catch(e){}
+  var originalRender=window.renderProgressPage;
+  if(typeof originalRender==='function' && !originalRender.__vertexHistoryBottomWrapped){
+    var wrapped=function(){
+      var result=originalRender.apply(this,arguments);
+      [0,120,450,1000].forEach(function(ms){ setTimeout(renderWorkoutHistory,ms); });
       return result;
     };
-    wrapped.__vertexHistoryWrapped=true;
+    wrapped.__vertexHistoryBottomWrapped=true;
     window.renderProgressPage=wrapped;
     try{ renderProgressPage=wrapped; }catch(e){}
   }
 
   document.addEventListener('click',function(e){
-    const view=e.target && e.target.closest && e.target.closest('[data-history-view]');
+    var view=e.target && e.target.closest && e.target.closest('[data-history-view]');
     if(view){
       e.preventDefault();
-      const row=view.closest('.vertex-history-row');
+      var row=view.closest('.vertex-history-row');
       if(row) row.classList.toggle('open');
-      view.textContent = row && row.classList.contains('open') ? 'Hide' : 'View';
+      view.textContent=row && row.classList.contains('open') ? 'Hide' : 'View';
       return;
     }
-    const del=e.target && e.target.closest && e.target.closest('[data-history-delete]');
-    if(del){
-      e.preventDefault();
-      deleteWorkoutLogByIndex(del.getAttribute('data-history-delete'));
-      return;
-    }
-    const refresh=e.target && e.target.closest && e.target.closest('#vertexHistoryRefresh');
-    if(refresh){
-      e.preventDefault();
-      if(typeof loadProgressLogs==='function') loadProgressLogs();
-      else renderWorkoutHistory();
+    var del=e.target && e.target.closest && e.target.closest('[data-history-delete]');
+    if(del){ e.preventDefault(); deleteWorkoutLogByIndex(del.getAttribute('data-history-delete')); return; }
+    var refresh=e.target && e.target.closest && e.target.closest('#vertexHistoryRefresh');
+    if(refresh){ e.preventDefault(); enhancedLoadProgressLogs().then(renderWorkoutHistory); return; }
+    if(e.target && e.target.closest && e.target.closest('[data-nav],#btn-refresh-progress')){
+      [120,500,1200].forEach(function(ms){ setTimeout(renderWorkoutHistory,ms); });
     }
   },true);
 
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',renderWorkoutHistory);
-  else setTimeout(renderWorkoutHistory,0);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ enhancedLoadProgressLogs().then(renderWorkoutHistory); });
+  else setTimeout(function(){ enhancedLoadProgressLogs().then(renderWorkoutHistory); },0);
 })();
 </script>
-
 
 <script>
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a45-workout-history-restore';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a46-workout-history-bottom-restore';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

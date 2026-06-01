@@ -5242,7 +5242,7 @@ try{ window.canonicalExerciseName = canonicalExerciseName; }catch(e){}
 let _supa=null;
 let authUser=null;
 let sessionTimerId=null;
-const EQUIPMENT_OPTIONS=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Foam Roller','Step Platform','Balance Board','Stability Ball','Cable','Machine','Barbell','Peloton / Exercise Bike','Road Bike','Treadmill','Rower','Other'];
+const EQUIPMENT_OPTIONS=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Foam Roller','Step Platform','Balance Board','Stability Ball','Cable','Machine','Barbell','EZ Bar','Peloton / Exercise Bike','Road Bike','Treadmill','Rower','Other'];
 function getSupa(){
   if(window._supa) { _supa = window._supa; return _supa; }
   if(_supa) { window._supa = _supa; return _supa; }
@@ -5316,15 +5316,16 @@ EXERCISES.push(
 {name:'Hip Thrust',muscle:'Legs',equip:'Barbell',env:'gym',kind:'legs',training:'Strength'},
 {name:'Leg Curl',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
 {name:'Leg Extension',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
-{name:'Preacher Curl',muscle:'Biceps',equip:'EZ Bar',env:'gym',kind:'pull',training:'Strength'},
+{name:'Preacher Curl',muscle:'Biceps',equip:'EZ Bar',env:'home',kind:'pull',training:'Strength'},
 {name:'Concentration Curl',muscle:'Biceps',equip:'Dumbbell',env:'home',kind:'pull',training:'Strength'},
 {name:'Incline Dumbbell Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Cable Curl',muscle:'Biceps',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
-{name:'Reverse Curl',muscle:'Biceps',equip:'EZ Bar',env:'gym',kind:'pull',training:'Strength'},
+{name:'Dumbbell Reverse Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+  {name:'Reverse Curl',muscle:'Biceps',equip:'EZ Bar',env:'home',kind:'pull',training:'Strength'},
 {name:'Tricep Pushdown',muscle:'Triceps',equip:'Cable/Band',env:'gym',kind:'push',training:'Strength'},
 {name:'Overhead Tricep Extension',muscle:'Triceps',equip:'Dumbbell',env:'home',kind:'push',training:'Strength'},
 {name:'Close-Grip Push-Up',muscle:'Triceps',equip:'Bodyweight',env:'home',kind:'push',training:'Strength'},
-{name:'Skull Crusher',muscle:'Triceps',equip:'EZ Bar',env:'gym',kind:'push',training:'Strength'},
+{name:'Skull Crusher',muscle:'Triceps',equip:'EZ Bar',env:'home',kind:'push',training:'Strength'},
 {name:'Bench Dip',muscle:'Triceps',equip:'Bench',env:'home',kind:'push',training:'Strength'},
 {name:'Plank',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
 {name:'Dead Bug',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
@@ -5394,7 +5395,7 @@ const RESTORED_EXERCISES=[
 {name:'Hack Squat',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
 {name:'Walking Lunge',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'Glute Bridge',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
-{name:'EZ-Bar Curl',muscle:'Biceps',equip:'EZ Bar',env:'gym',kind:'pull',training:'Strength'},
+{name:'EZ-Bar Curl',muscle:'Biceps',equip:'EZ Bar',env:'home',kind:'pull',training:'Strength'},
 {name:'Zottman Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Rope Tricep Pushdown',muscle:'Triceps',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
 {name:'Dumbbell Kickback',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
@@ -5651,7 +5652,6 @@ V13540_HOME_STRENGTH.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERC
       {name:'Dumbbell Low Fly',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
       {name:'Dumbbell Incline Alternating Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
       {name:'Dumbbell Static Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-      {name:'Dumbbell Skull Crushers',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'}
     ];
     additions.forEach(function(add){
       const target=String(add.name||'').toLowerCase().trim();
@@ -6785,7 +6785,7 @@ window._getExerciseDemo=getExerciseDemo;
 // v13.55.1 custom library + equipment manager (auth-safe)
 // EQUIPMENT_OPTIONS hoisted above to fix TDZ error during state initialization
 function equipmentKey(name){return String(name||'Other').trim().toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'other'}
-function defaultEquipmentProfile(){const on=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Peloton / Exercise Bike','Treadmill','None']; const out={}; EQUIPMENT_OPTIONS.forEach(x=>out[equipmentKey(x)]=on.includes(x)); return out;}
+function defaultEquipmentProfile(){const on=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Peloton / Exercise Bike','Treadmill','EZ Bar','None']; const out={}; EQUIPMENT_OPTIONS.forEach(x=>out[equipmentKey(x)]=on.includes(x)); return out;}
 function loadEquipmentProfile(){try{return {...defaultEquipmentProfile(),...(JSON.parse(localStorage.getItem('vertex_home_equipment_v1')||'{}'))}}catch{return defaultEquipmentProfile()}}
 function saveEquipmentProfile(){try{localStorage.setItem('vertex_home_equipment_v1',JSON.stringify(state.equipment||{}))}catch{} try{window.VertexSettingsSync&&window.VertexSettingsSync.pushSoon()}catch(e){}}
 /* 6A34: re-apply settings into live state + UI after a cloud pull overwrites localStorage. */
@@ -14504,7 +14504,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a56-planner-coldstart-render';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a58-db-reverse-curl';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

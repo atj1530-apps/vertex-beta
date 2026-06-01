@@ -7129,14 +7129,18 @@ function markDayCleared(day){const c=loadClearedDays(); if(!c.includes(day)){c.p
 function unmarkDayCleared(day){const c=loadClearedDays().filter(d=>d!==day); localStorage.setItem(clearedDaysKey(),JSON.stringify(c));}
 
 async function hydratePlannerFromCloud(){
-  if(!cloudEnabled()) { state.planner=emptyPlanner(); return false; }
+  const local = loadPlanner(); // 6A53: never destroy local on failure
+  if(!cloudEnabled()) { state.planner = local; return false; }
   const supa=getSupa();
   // No timeout — let Supabase respond in its own time (cold starts can take 5-15s on free tier)
-  const {data,error}=await supa.from('vertex_planner_days').select('day,workout_payload').eq('user_id',authUser.id);
-  if(error){ console.warn('Vertex cloud planner read failed:',error); state.planner=emptyPlanner(); return false; }
-  const cloudPlanner=emptyPlanner();
+  let data=null, error=null;
+  try { ({data,error} = await supa.from('vertex_planner_days').select('day,workout_payload').eq('user_id',authUser.id)); }
+  catch(e){ error = e; }
+  if(error){ console.warn('Vertex cloud planner read failed; keeping local copy:',error); state.planner = local; return false; }
+  // 6A53: merge — start from local so a day saved locally but not yet synced is never dropped, then overlay cloud.
+  const cloudPlanner = Object.assign(emptyPlanner(), local);
   (data||[]).forEach(row=>{ if(DAYS.includes(row.day) && row.workout_payload) cloudPlanner[row.day]=row.workout_payload; });
-  // Apply tombstones — days the user explicitly cleared win over stale cloud rows.
+  // Apply tombstones — days the user explicitly cleared win over stale cloud/local rows.
   const cleared=loadClearedDays();
   const retryDeletes=[];
   cleared.forEach(day=>{
@@ -14492,7 +14496,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a52-home-planner-restore';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a53-planner-local-safe';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

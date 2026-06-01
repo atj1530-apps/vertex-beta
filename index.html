@@ -4446,29 +4446,6 @@ function renderHomePlannerStrip(){
   body.innerHTML='<div class="hps-header"><span class="hps-label">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hps-dates">'+dateRange+'</span>':'')+'</div><div class="hps-chips">'+chips+'</div><div class="hps-today"><div class="hps-today-day">TODAY · '+todayLabel.toUpperCase()+'</div>'+todayInner+'</div><div class="hps-chip-detail" id="hpsChipDetail" style="display:none"></div><div class="hps-view-panel" id="hpsViewPanel" style="display:none"></div>';
 }
 
-/* 6A66: View modal — true popup for exercise list */
-function showHwViewModal(day){
-  var w=state.planner[day]; if(!w) return;
-  var ex=w.exercises||[];
-  var dayLabel=(DAY_LABEL&&DAY_LABEL[day])||day.charAt(0).toUpperCase()+day.slice(1);
-  var existing=document.getElementById('hwViewModal');
-  if(existing) existing.remove();
-  var modal=document.createElement('div');
-  modal.id='hwViewModal';
-  modal.className='hw-view-modal-overlay';
-  var rows=ex.map(function(e,i){return '<div class="hw-view-modal-row"><span class="hps-view-num">'+(i+1)+'</span><span>'+escapeHtml(e.name||String(e))+'</span></div>';}).join('');
-  modal.innerHTML='<div class="hw-view-modal"><div class="hw-view-modal-head"><div><div class="hw-view-modal-title">'+escapeHtml(w.name||'Workout')+'</div><div class="hw-view-modal-sub">'+escapeHtml(dayLabel)+' · '+ex.length+' exercises</div></div><button class="hw-view-modal-close" id="hwViewModalClose">✕</button></div><div class="hw-view-modal-body">'+rows+'</div></div>';
-  document.body.appendChild(modal);
-  modal.addEventListener('click',function(e){if(e.target===modal||e.target.id==='hwViewModalClose')modal.remove();});
-}
-/* 6A67: Dedicated view-day click listener — independent of main handler */
-document.addEventListener('click', function(e){
-  var btn=e.target.closest('[data-view-day]');
-  if(btn && typeof showHwViewModal==='function'){
-    showHwViewModal(btn.getAttribute('data-view-day'));
-  }
-});
-
 /* 6A60: Week Hero & Plan CTA */
 #homeWeekHero{display:none}
 body.app-page-home #homeWeekHero{display:block!important}
@@ -11617,7 +11594,7 @@ function buildHomePlannerHTML(){
       tc+='<button class="hw-btn hw-btn-start" data-start-day="'+today+'">▶ Start Today</button>';
       tc+='<div class="hw-day-btn-row">';
       tc+='<button class="hw-btn" data-edit-day="'+today+'">Edit</button>';
-      tc+='<button class="hw-btn" data-view-day="'+today+'">View</button>';
+      tc+='<button class="hw-btn" data-view-day="'+today+'" onclick="vertexShowView(this.dataset.viewDay)">View</button>';
       tc+='<button class="hw-btn" data-copy-day="'+today+'">Copy</button>';
       tc+='</div>';   // closes hw-day-btn-row
       tc+='</div>';   // closes hw-today-btns
@@ -11641,7 +11618,7 @@ function buildHomePlannerHTML(){
         dc+='<div class="hw-day-ex">'+ex+' exercises</div>';
         dc+='<div class="hw-day-btn-row">';
         dc+='<button class="hw-btn hw-btn-sm" data-edit-day="'+d+'">Edit</button>';
-        dc+='<button class="hw-btn hw-btn-sm" data-view-day="'+d+'">View</button>';
+        dc+='<button class="hw-btn hw-btn-sm" data-view-day="'+d+'" onclick="vertexShowView(this.dataset.viewDay)">View</button>';
         dc+='<button class="hw-btn hw-btn-sm" data-copy-day="'+d+'">Copy</button>';
         dc+='</div>';
       } else {
@@ -11696,19 +11673,23 @@ function renderHomePlannerStrip(){
 
 /* 6A66: View modal — true popup for exercise list */
 function showHwViewModal(day){
-  var w=state.planner[day]; if(!w) return;
-  var ex=w.exercises||[];
-  var dayLabel=(DAY_LABEL&&DAY_LABEL[day])||day.charAt(0).toUpperCase()+day.slice(1);
-  var existing=document.getElementById('hwViewModal');
-  if(existing) existing.remove();
-  var modal=document.createElement('div');
-  modal.id='hwViewModal';
-  modal.className='hw-view-modal-overlay';
-  var rows=ex.map(function(e,i){return '<div class="hw-view-modal-row"><span class="hps-view-num">'+(i+1)+'</span><span>'+escapeHtml(e.name||String(e))+'</span></div>';}).join('');
-  modal.innerHTML='<div class="hw-view-modal"><div class="hw-view-modal-head"><div><div class="hw-view-modal-title">'+escapeHtml(w.name||'Workout')+'</div><div class="hw-view-modal-sub">'+escapeHtml(dayLabel)+' · '+ex.length+' exercises</div></div><button class="hw-view-modal-close" id="hwViewModalClose">✕</button></div><div class="hw-view-modal-body">'+rows+'</div></div>';
-  document.body.appendChild(modal);
-  modal.addEventListener('click',function(e){if(e.target===modal||e.target.id==='hwViewModalClose')modal.remove();});
+  try{
+    var w=state.planner&&state.planner[day]; if(!w) return;
+    var ex=w.exercises||[];
+    var dayLabel=(DAY_LABEL&&DAY_LABEL[day])||(day.charAt(0).toUpperCase()+day.slice(1));
+    var existing=document.getElementById('hwViewModal');
+    if(existing) existing.remove();
+    var modal=document.createElement('div');
+    modal.id='hwViewModal';
+    modal.className='hw-view-modal-overlay';
+    var rows=ex.map(function(e,i){return '<div class="hw-view-modal-row"><span style="font-size:10px;color:var(--dim);min-width:22px;flex-shrink:0">'+(i+1)+'</span><span>'+escapeHtml(e.name||String(e))+'</span></div>';}).join('');
+    modal.innerHTML='<div class="hw-view-modal"><div class="hw-view-modal-head"><div><div class="hw-view-modal-title">'+escapeHtml(w.name||'Workout')+'</div><div class="hw-view-modal-sub">'+escapeHtml(dayLabel)+' · '+ex.length+' exercises</div></div><button class="hw-view-modal-close" id="hwViewModalClose">✕</button></div><div class="hw-view-modal-body">'+rows+'</div></div>';
+    document.body.appendChild(modal);
+    document.getElementById('hwViewModalClose').onclick=function(){modal.remove();};
+    modal.addEventListener('click',function(e){if(e.target===modal) modal.remove();});
+  }catch(err){console.error('[Vertex] showHwViewModal:',err);}
 }
+window.vertexShowView=showHwViewModal;
 /* 6A60: Week Hero — home page prominent planner overview */
 function renderHomeWeekHero(){
   var el=document.getElementById('homeWeekHero'); if(!el) return;
@@ -14843,7 +14824,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a67-schedule-view-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a68-view-popup-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -38,6 +38,7 @@
 <!-- v20260601-6a47: Workout History safe-delete guard — ID-only cloud deletes; no broad timestamp deletes -->
 <!-- v20260601-6a48: Workout History resilient display + scoped delete; preserves logs after delete -->
 <!-- v20260601-6a51: Workout History scoped to Progress only + delete tombstones prevent deleted logs from returning -->
+<!-- v20260601-6a52: Home planner restore — progress history loads/renders only on Progress tab -->
 <!-- v20260601-6a44: AI/coaching language polish — coach-first wording, clearer push/maintain/recover guidance -->
 <!-- v20260531-6a44: AI coaching language polish; cache version bumped -->
 <!-- v20260531-6a43: fixed broken HTML comment that pushed the CSP meta out of head; youtube allowed in frame-src -->
@@ -14353,7 +14354,7 @@ document.addEventListener('DOMContentLoaded',function(){
             '<div class="vertex-history-detail">'+renderExerciseDetails(row)+(mins?'<div class="vertex-history-meta" style="margin-top:8px">Estimated duration: '+esc(mins)+' minutes</div>':'')+'</div>'+ 
           '</div>';
         }).join('')+'</div>';
-    }catch(e){ console.warn('[Vertex 6A51] Workout history render failed',e); }
+    }catch(e){ console.warn('[Vertex 6A52] Workout history render failed',e); }
   }
   async function enhancedLoadProgressLogs(){
     var merged=[];
@@ -14370,12 +14371,16 @@ document.addEventListener('DOMContentLoaded',function(){
           if(primary && !primary.error) addRows(merged, primary.data||[], {source:'cloud', table:'vertex_workout_logs'});
           if(fallback && !fallback.error) addRows(merged, fallback.data||[], {source:'cloud', table:'workout_logs'});
         }
-      }catch(e){ console.warn('[Vertex 6A51] Cloud progress merge failed; preserving local/state logs.',e); }
+      }catch(e){ console.warn('[Vertex 6A52] Cloud progress merge failed; preserving local/state logs.',e); }
     }
     merged=merged.sort(function(a,b){ return new Date(dateVal(b)||0)-new Date(dateVal(a)||0); });
     try{ if(window.state) state.progressLogs=merged; }catch(e){}
-    try{ renderProgressPage(); }catch(e){}
-    try{ renderIntel(); }catch(e){}
+    var onProgressPage=false;
+    try{ onProgressPage=document.body.classList.contains('app-page-progress') || (window.state && state.page==='progress'); }catch(e){}
+    if(onProgressPage){
+      try{ renderProgressPage(); }catch(e){}
+      try{ renderIntel(); }catch(e){}
+    }
     return (window.state&&state.progressLogs)||merged;
   }
   function removeOneMatchingRow(list, row){
@@ -14420,9 +14425,9 @@ document.addEventListener('DOMContentLoaded',function(){
             await supa.from(tables[ti]).delete().eq('user_id',authUser.id).eq('id',id);
           }
         }
-      }catch(e){ console.warn('[Vertex 6A51] Exact-id cloud delete failed; tombstone keeps row hidden locally.',e); }
+      }catch(e){ console.warn('[Vertex 6A52] Exact-id cloud delete failed; tombstone keeps row hidden locally.',e); }
     } else {
-      console.warn('[Vertex 6A51] No cloud id available; tombstone keeps row hidden locally.');
+      console.warn('[Vertex 6A52] No cloud id available; tombstone keeps row hidden locally.');
     }
 
     renderWorkoutHistory();
@@ -14462,12 +14467,23 @@ document.addEventListener('DOMContentLoaded',function(){
     var refresh=e.target && e.target.closest && e.target.closest('#vertexHistoryRefresh');
     if(refresh){ e.preventDefault(); enhancedLoadProgressLogs().then(renderWorkoutHistory); return; }
     if(e.target && e.target.closest && e.target.closest('[data-nav],#btn-refresh-progress')){
-      [120,500,1200].forEach(function(ms){ setTimeout(renderWorkoutHistory,ms); });
+      [120,500,1200].forEach(function(ms){ setTimeout(function(){
+        var onProgress=false;
+        try{ onProgress=document.body.classList.contains('app-page-progress') || (window.state && state.page==='progress'); }catch(e){}
+        if(onProgress) enhancedLoadProgressLogs().then(renderWorkoutHistory);
+        else renderWorkoutHistory();
+      },ms); });
     }
   },true);
 
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ enhancedLoadProgressLogs().then(renderWorkoutHistory); });
-  else setTimeout(function(){ enhancedLoadProgressLogs().then(renderWorkoutHistory); },0);
+  function vertexBootWorkoutHistory(){
+    var onProgress=false;
+    try{ onProgress=document.body.classList.contains('app-page-progress') || (window.state && state.page==='progress'); }catch(e){}
+    if(onProgress) enhancedLoadProgressLogs().then(renderWorkoutHistory);
+    else renderWorkoutHistory();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',vertexBootWorkoutHistory);
+  else setTimeout(vertexBootWorkoutHistory,0);
 })();
 </script>
 
@@ -14476,7 +14492,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a51-progress-history-scope-delete-tombstone';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a52-home-planner-restore';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

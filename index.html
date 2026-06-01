@@ -4327,6 +4327,17 @@ function updatePlannerHeader(){
 
 
 
+
+/* 6A65: Option A layout — today left + 3x2 grid right */
+.hw-planner-layout{display:grid;grid-template-columns:1fr 1.8fr;gap:8px;align-items:start}
+@media(max-width:900px){.hw-planner-layout{display:block}.hw-today-card{margin-bottom:10px}}
+.hw-today-card{border:2px solid rgba(232,255,71,.45)!important;min-height:160px;display:flex;flex-direction:column}
+.hw-today-btns{display:flex;flex-direction:column;gap:6px;margin-top:auto}
+.hw-btn-start{width:100%!important;display:block;text-align:center}
+.hw-day-btn-row{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:auto}
+.hw-day-card{min-height:90px;display:flex;flex-direction:column}
+.hw-btn-sm{background:transparent;border:0.5px solid rgba(255,255,255,.12);color:var(--muted);border-radius:5px;padding:5px 0;font-size:10px;cursor:pointer;transition:border-color .15s,color .15s;font-family:inherit}
+.hw-btn-sm:hover{border-color:var(--acc);color:var(--acc)}
 /* 6A64: Home Week Planner — featured today + 3-col grid */
 body.app-page-home #plannerAcc{display:none!important}
 .hw-planner-wrap{margin-bottom:14px}
@@ -4395,33 +4406,6 @@ body.app-page-home .day-card:not(.today){opacity:.6;transition:opacity .2s}
 body.app-page-home .day-card:not(.today):hover{opacity:1;border-color:var(--line2)}
 
 
-/* 6A64: Home week planner — featured today + 3-col grid */
-function buildHomePlannerHTML(){
-  try{
-    var pl=state.planner||{};
-    var today=todayKey||'monday';
-    var SHORT={monday:'Mon',tuesday:'Tue',wednesday:'Wed',thursday:'Thu',friday:'Fri',saturday:'Sat',sunday:'Sun'};
-    var FULL_DAYS=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-    var planned=FULL_DAYS.filter(function(d){return !!pl[d];}).length;
-    var dateRange='';
-    try{var ws=weekStart();var we=new Date(ws);we.setDate(we.getDate()+6);var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});};dateRange=fmt(ws)+' – '+fmt(we);}catch(e){}
-    var getEx=function(w){try{return(typeof stats==='function'?stats(w).moves:0)||(w.exercises&&w.exercises.length)||0;}catch(e){return(w.exercises&&w.exercises.length)||0;}};
-    var todayWork=pl[today];
-    var todayLabel=(DAY_LABEL&&DAY_LABEL[today])||(today.charAt(0).toUpperCase()+today.slice(1));
-    var todayCard='';
-    if(todayWork){
-      var prev=(typeof previewWorkoutNames==='function'?previewWorkoutNames(todayWork):'')||'';
-      if(prev.length>90) prev=prev.slice(0,90)+'…';
-      var exCnt=getEx(todayWork);
-      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name">'+escapeHtml(todayWork.name||'Workout')+'</div>'+(prev?'<div class="hw-today-prev">'+escapeHtml(prev)+'</div>':'')+'<div class="hw-today-meta">'+exCnt+' exercises</div><div class="hw-today-btns"><button class="hw-btn hw-btn-start" data-start-day="'+today+'">▶ Start Today</button><button class="hw-btn" data-edit-day="'+today+'">Load / Edit</button><button class="hw-btn" data-view-day="'+today+'">View</button><button class="hw-btn" data-copy-day="'+today+'">Copy</button></div></div>';
-    }else{
-      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name" style="color:var(--dim);font-size:18px">No workout planned</div><div class="hw-today-btns" style="margin-top:10px"><button class="hw-btn" data-edit-day="'+today+'">Plan today →</button></div></div>';
-    }
-    var otherDays=FULL_DAYS.filter(function(d){return d!==today;});
-    var grid=otherDays.map(function(d){var w=pl[d];var lbl=SHORT[d]||d;if(w){var ex=getEx(w);return '<div class="hw-day-card hw-day-has" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name">'+escapeHtml(w.name||'Workout')+'</div><div class="hw-day-ex">'+ex+' exercises</div></div>';}else{return '<div class="hw-day-card hw-day-empty" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name">Rest day</div><div class="hw-day-ex">+ Plan</div></div>';}}).join('');
-    return '<div class="hw-planner-wrap"><div class="hw-planner-head"><span class="hw-planner-title">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hw-planner-dates">'+dateRange+'</span>':'')+'</div>'+todayCard+'<div class="hw-day-grid">'+grid+'</div><div class="hw-chip-detail" id="hwChipDetail" style="display:none"></div><div class="hw-view-panel" id="hwViewPanel" style="display:none"></div></div>';
-  }catch(e){return '';}
-}
 /* 6A63: Compact home planner strip */
 function renderHomePlannerStrip(){
   if(state.page!=='home'&&state.page) return;
@@ -10453,7 +10437,10 @@ function renderProtoAlerts(){
 }
 
 async function toggleProtoDose(btn){
-  const supa = getSupa(); if(!supa||!authUser){toast('Sign in to log doses');return;}
+  const supa = getSupa(); if(!supa){toast('Not connected');return;}
+  let _u=authUser;
+  if(!_u){try{const{data}=await supa.auth.getUser();_u=data&&data.user||null;}catch(e){}}
+  if(!_u){toast('Sign in to log doses');return;}
   const name = btn.getAttribute('data-proto-log');
   const slot = btn.getAttribute('data-proto-slot');
   const dose = parseFloat(btn.getAttribute('data-proto-dose'))||null;
@@ -10467,7 +10454,7 @@ async function toggleProtoDose(btn){
     // Undo — delete today's log for this compound+slot
     try{
       const{error}=await supa.from('protocol_logs').delete()
-        .eq('user_id',authUser.id).eq('compound_name',name).eq('time_slot',slot)
+        .eq('user_id',_u.id).eq('compound_name',name).eq('time_slot',slot)
         .gte('logged_at', todayStr+'T00:00:00').lte('logged_at', todayStr+'T23:59:59');
       if(error) throw error;
       toast('Dose removed');
@@ -10476,7 +10463,7 @@ async function toggleProtoDose(btn){
     // Log dose
     try{
       const{error}=await supa.from('protocol_logs').insert({
-        user_id:authUser.id, compound_name:name, supplement_type:type,
+        user_id:_u.id, compound_name:name, supplement_type:type,
         dose, unit, time_slot:slot, logged_at:(todayStr + 'T' + new Date().toTimeString().slice(0,8) + 'Z')
       });
       if(error) throw error;
@@ -11576,13 +11563,13 @@ function buildHomePlannerHTML(){
       var prev=(typeof previewWorkoutNames==='function'?previewWorkoutNames(todayWork):'')||'';
       if(prev.length>90) prev=prev.slice(0,90)+'…';
       var exCnt=getEx(todayWork);
-      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name">'+escapeHtml(todayWork.name||'Workout')+'</div>'+(prev?'<div class="hw-today-prev">'+escapeHtml(prev)+'</div>':'')+'<div class="hw-today-meta">'+exCnt+' exercises</div><div class="hw-today-btns"><button class="hw-btn hw-btn-start" data-start-day="'+today+'">▶ Start Today</button><button class="hw-btn" data-edit-day="'+today+'">Load / Edit</button><button class="hw-btn" data-view-day="'+today+'">View</button><button class="hw-btn" data-copy-day="'+today+'">Copy</button></div></div>';
+      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name">'+escapeHtml(todayWork.name||'Workout')+'</div>'+(prev?'<div class="hw-today-prev">'+escapeHtml(prev)+'</div>':'')+'<div class="hw-today-meta">'+exCnt+' exercises</div><div class="hw-today-btns"><button class="hw-btn hw-btn-start" data-start-day="'+today+'">▶ Start Today</button><div class="hw-day-btn-row"><button class="hw-btn" data-edit-day="'+today+'">Edit</button><button class="hw-btn" data-view-day="'+today+'">View</button><button class="hw-btn" data-copy-day="'+today+'">Copy</button></div></div>';
     }else{
-      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name" style="color:var(--dim);font-size:18px">No workout planned</div><div class="hw-today-btns" style="margin-top:10px"><button class="hw-btn" data-edit-day="'+today+'">Plan today →</button></div></div>';
+      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name" style="color:var(--dim);font-size:18px">No workout planned</div><div class="hw-today-btns" style="margin-top:10px"><div class="hw-day-btn-row"><button class="hw-btn" data-edit-day="'+today+'">Plan today →</button></div></div>';
     }
     var otherDays=FULL_DAYS.filter(function(d){return d!==today;});
-    var grid=otherDays.map(function(d){var w=pl[d];var lbl=SHORT[d]||d;if(w){var ex=getEx(w);return '<div class="hw-day-card hw-day-has" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name">'+escapeHtml(w.name||'Workout')+'</div><div class="hw-day-ex">'+ex+' exercises</div></div>';}else{return '<div class="hw-day-card hw-day-empty" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name">Rest day</div><div class="hw-day-ex">+ Plan</div></div>';}}).join('');
-    return '<div class="hw-planner-wrap"><div class="hw-planner-head"><span class="hw-planner-title">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hw-planner-dates">'+dateRange+'</span>':'')+'</div>'+todayCard+'<div class="hw-day-grid">'+grid+'</div><div class="hw-chip-detail" id="hwChipDetail" style="display:none"></div><div class="hw-view-panel" id="hwViewPanel" style="display:none"></div></div>';
+    var grid=otherDays.map(function(d){var w=pl[d];var lbl=SHORT[d]||d;if(w){var ex=getEx(w);return '<div class="hw-day-card hw-day-has" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name">'+escapeHtml(w.name||'Workout')+'</div><div class="hw-day-ex">'+ex+' exercises</div><div class="hw-day-btn-row"><button class="hw-btn hw-btn-sm" data-edit-day="'+d+'">Edit</button><button class="hw-btn hw-btn-sm" data-view-day="'+d+'">View</button><button class="hw-btn hw-btn-sm" data-copy-day="'+d+'">Copy</button></div></div>';}else{return '<div class="hw-day-card hw-day-empty" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name" style="color:var(--dim)">Rest day</div><div class="hw-day-btn-row"><button class="hw-btn hw-btn-sm" data-edit-day="'+d+'">Plan day</button></div></div>';}}).join('');
+    return '<div class="hw-planner-wrap"><div class="hw-planner-head"><span class="hw-planner-title">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hw-planner-dates">'+dateRange+'</span>':'')+'</div><div class="hw-planner-layout">'+todayCard+'<div class="hw-day-grid">'+grid+'</div></div><div class="hw-chip-detail" id="hwChipDetail" style="display:none"></div><div class="hw-view-panel" id="hwViewPanel" style="display:none"></div></div>';
   }catch(e){return '';}
 }
 /* 6A63: Compact home planner strip */
@@ -14744,7 +14731,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a64-home-planner-grid';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a65-option-a-layout';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -4330,7 +4330,7 @@ function updatePlannerHeader(){
 
 /* 6A65: Option A layout — today left + 3x2 grid right */
 .hw-planner-layout{display:grid;grid-template-columns:1fr 1.8fr;gap:8px;align-items:start}
-@media(max-width:900px){.hw-planner-layout{display:block}.hw-today-card{margin-bottom:10px}}
+@media(max-width:768px){.hw-planner-layout{display:block}.hw-today-card{margin-bottom:10px}}
 .hw-today-card{border:2px solid rgba(232,255,71,.45)!important;min-height:160px;display:flex;flex-direction:column}
 .hw-today-btns{display:flex;flex-direction:column;gap:6px;margin-top:auto}
 .hw-btn-start{width:100%!important;display:block;text-align:center}
@@ -11551,27 +11551,79 @@ function buildHomePlannerHTML(){
     var pl=state.planner||{};
     var today=todayKey||'monday';
     var SHORT={monday:'Mon',tuesday:'Tue',wednesday:'Wed',thursday:'Thu',friday:'Fri',saturday:'Sat',sunday:'Sun'};
-    var FULL_DAYS=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-    var planned=FULL_DAYS.filter(function(d){return !!pl[d];}).length;
+    var FULL=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+    var planned=FULL.filter(function(d){return !!pl[d];}).length;
     var dateRange='';
     try{var ws=weekStart();var we=new Date(ws);we.setDate(we.getDate()+6);var fmt=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});};dateRange=fmt(ws)+' – '+fmt(we);}catch(e){}
     var getEx=function(w){try{return(typeof stats==='function'?stats(w).moves:0)||(w.exercises&&w.exercises.length)||0;}catch(e){return(w.exercises&&w.exercises.length)||0;}};
     var todayWork=pl[today];
     var todayLabel=(DAY_LABEL&&DAY_LABEL[today])||(today.charAt(0).toUpperCase()+today.slice(1));
-    var todayCard='';
+
+    // --- TODAY CARD (fully closed) ---
+    var tc='<div class="hw-today-card">';
+    tc+='<div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div>';
     if(todayWork){
       var prev=(typeof previewWorkoutNames==='function'?previewWorkoutNames(todayWork):'')||'';
       if(prev.length>90) prev=prev.slice(0,90)+'…';
       var exCnt=getEx(todayWork);
-      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name">'+escapeHtml(todayWork.name||'Workout')+'</div>'+(prev?'<div class="hw-today-prev">'+escapeHtml(prev)+'</div>':'')+'<div class="hw-today-meta">'+exCnt+' exercises</div><div class="hw-today-btns"><button class="hw-btn hw-btn-start" data-start-day="'+today+'">▶ Start Today</button><div class="hw-day-btn-row"><button class="hw-btn" data-edit-day="'+today+'">Edit</button><button class="hw-btn" data-view-day="'+today+'">View</button><button class="hw-btn" data-copy-day="'+today+'">Copy</button></div></div>';
-    }else{
-      todayCard='<div class="hw-today-card"><div class="hw-today-lbl">TODAY · '+todayLabel.toUpperCase()+'</div><div class="hw-today-name" style="color:var(--dim);font-size:18px">No workout planned</div><div class="hw-today-btns" style="margin-top:10px"><div class="hw-day-btn-row"><button class="hw-btn" data-edit-day="'+today+'">Plan today →</button></div></div>';
+      tc+='<div class="hw-today-name">'+escapeHtml(todayWork.name||'Workout')+'</div>';
+      if(prev) tc+='<div class="hw-today-prev">'+escapeHtml(prev)+'</div>';
+      tc+='<div class="hw-today-meta">'+exCnt+' exercises</div>';
+      tc+='<div class="hw-today-btns">';
+      tc+='<button class="hw-btn hw-btn-start" data-start-day="'+today+'">▶ Start Today</button>';
+      tc+='<div class="hw-day-btn-row">';
+      tc+='<button class="hw-btn" data-edit-day="'+today+'">Edit</button>';
+      tc+='<button class="hw-btn" data-view-day="'+today+'">View</button>';
+      tc+='<button class="hw-btn" data-copy-day="'+today+'">Copy</button>';
+      tc+='</div>';   // closes hw-day-btn-row
+      tc+='</div>';   // closes hw-today-btns
+    } else {
+      tc+='<div class="hw-today-name" style="color:var(--dim)">No workout planned</div>';
+      tc+='<div class="hw-today-btns" style="margin-top:10px">';
+      tc+='<button class="hw-btn hw-btn-start" data-edit-day="'+today+'">Plan today →</button>';
+      tc+='</div>';   // closes hw-today-btns
     }
-    var otherDays=FULL_DAYS.filter(function(d){return d!==today;});
-    var grid=otherDays.map(function(d){var w=pl[d];var lbl=SHORT[d]||d;if(w){var ex=getEx(w);return '<div class="hw-day-card hw-day-has" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name">'+escapeHtml(w.name||'Workout')+'</div><div class="hw-day-ex">'+ex+' exercises</div><div class="hw-day-btn-row"><button class="hw-btn hw-btn-sm" data-edit-day="'+d+'">Edit</button><button class="hw-btn hw-btn-sm" data-view-day="'+d+'">View</button><button class="hw-btn hw-btn-sm" data-copy-day="'+d+'">Copy</button></div></div>';}else{return '<div class="hw-day-card hw-day-empty" data-strip-day="'+d+'"><div class="hw-day-lbl">'+lbl.toUpperCase()+'</div><div class="hw-day-name" style="color:var(--dim)">Rest day</div><div class="hw-day-btn-row"><button class="hw-btn hw-btn-sm" data-edit-day="'+d+'">Plan day</button></div></div>';}}).join('');
-    return '<div class="hw-planner-wrap"><div class="hw-planner-head"><span class="hw-planner-title">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hw-planner-dates">'+dateRange+'</span>':'')+'</div><div class="hw-planner-layout">'+todayCard+'<div class="hw-day-grid">'+grid+'</div></div><div class="hw-chip-detail" id="hwChipDetail" style="display:none"></div><div class="hw-view-panel" id="hwViewPanel" style="display:none"></div></div>';
-  }catch(e){return '';}
+    tc+='</div>';     // closes hw-today-card
+
+    // --- OTHER 6 DAYS GRID ---
+    var otherDays=FULL.filter(function(d){return d!==today;});
+    var grid=otherDays.map(function(d){
+      var w=pl[d]; var lbl=SHORT[d]||d;
+      var dc='<div class="hw-day-card '+(w?'hw-day-has':'hw-day-empty')+'" data-strip-day="'+d+'">';
+      dc+='<div class="hw-day-lbl">'+lbl.toUpperCase()+'</div>';
+      if(w){
+        var ex=getEx(w);
+        dc+='<div class="hw-day-name">'+escapeHtml(w.name||'Workout')+'</div>';
+        dc+='<div class="hw-day-ex">'+ex+' exercises</div>';
+        dc+='<div class="hw-day-btn-row">';
+        dc+='<button class="hw-btn hw-btn-sm" data-edit-day="'+d+'">Edit</button>';
+        dc+='<button class="hw-btn hw-btn-sm" data-view-day="'+d+'">View</button>';
+        dc+='<button class="hw-btn hw-btn-sm" data-copy-day="'+d+'">Copy</button>';
+        dc+='</div>';
+      } else {
+        dc+='<div class="hw-day-name" style="color:var(--dim)">Rest day</div>';
+        dc+='<div class="hw-day-btn-row">';
+        dc+='<button class="hw-btn hw-btn-sm" data-edit-day="'+d+'">Plan day</button>';
+        dc+='</div>';
+      }
+      dc+='</div>';   // closes hw-day-card
+      return dc;
+    }).join('');
+
+    // --- ASSEMBLE ---
+    var h='<div class="hw-planner-wrap">';
+    h+='<div class="hw-planner-head"><span class="hw-planner-title">THIS WEEK'+(planned?' · '+planned+' planned':'')+'</span>'+(dateRange?'<span class="hw-planner-dates">'+dateRange+'</span>':'')+'</div>';
+    h+='<div class="hw-planner-layout">';
+    h+=tc;
+    h+='<div class="hw-day-grid">'+grid+'</div>';
+    h+='</div>';      // closes hw-planner-layout
+    h+='<div class="hw-chip-detail" id="hwChipDetail" style="display:none"></div>';
+    h+='<div class="hw-view-panel" id="hwViewPanel" style="display:none"></div>';
+    h+='</div>';      // closes hw-planner-wrap
+    return h;
+  }catch(e){ return ''; }
 }
+
 /* 6A63: Compact home planner strip */
 function renderHomePlannerStrip(){
   if(state.page!=='home'&&state.page) return;
@@ -14731,7 +14783,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a65-option-a-layout';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a65b-planner-div-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

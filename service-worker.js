@@ -1,9 +1,9 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260601-6a45-workout-history-restore
+   v20260601-6a46-workout-history-bottom-restore
    Network-first for HTML so deploys are visible immediately.
-   Workout history restore cache bump.
+   Workout history bottom restore cache bump.
 */
-const CACHE_NAME = 'vertex-v20260601-6a45-workout-history-restore';
+const CACHE_NAME = 'vertex-v20260601-6a46-workout-history-bottom-restore';
 const APP_SHELL = [
   './',
   './index.html',

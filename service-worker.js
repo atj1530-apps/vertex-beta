@@ -1,9 +1,9 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260531-6a44-ai-coaching-language-polish
+   v20260601-6a45-workout-history-restore
    Network-first for HTML so deploys are visible immediately.
-   AI coaching language polish cache bump.
+   Workout history restore cache bump.
 */
-const CACHE_NAME = 'vertex-v20260531-6a44-ai-coaching-language-polish';
+const CACHE_NAME = 'vertex-v20260601-6a45-workout-history-restore';
 const APP_SHELL = [
   './',
   './index.html',

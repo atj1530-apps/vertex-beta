@@ -8721,18 +8721,18 @@ function calculateReadiness(entry){
   }
   const rhr=Number(entry.restingHr);
   if(Number.isFinite(rhr) && rhr>75){score-=0.4; drivers.push('Resting HR is elevated.');}
-  const soreness=Number(entry.soreness);
-  if(Number.isFinite(soreness)){
+  const soreness=entry.soreness!=null&&entry.soreness!==''?Number(entry.soreness):null;
+  if(soreness!=null&&Number.isFinite(soreness)){
     if(soreness>=4){score-=0.8; drivers.push('Soreness is high.');}
     else if(soreness<=2){score+=0.2; drivers.push('Soreness is low.');}
   }
-  const energy=Number(entry.energy);
-  if(Number.isFinite(energy)){
+  const energy=entry.energy!=null&&entry.energy!==''?Number(entry.energy):null;
+  if(energy!=null&&Number.isFinite(energy)){
     if(energy>=4){score+=0.5; drivers.push('Energy is high.');}
     else if(energy<=2){score-=0.7; drivers.push('Energy is low.');}
   }
-  const stress=Number(entry.stress);
-  if(Number.isFinite(stress) && stress>=4){score-=0.4; drivers.push('Stress is elevated.');}
+  const stress=entry.stress!=null&&entry.stress!==''?Number(entry.stress):null;
+  if(stress!=null&&Number.isFinite(stress)&&stress>=4){score-=0.4; drivers.push('Stress is elevated.');}
   const finalScore=Math.max(1,Math.min(5,Math.round(score)));
   if(!drivers.length) drivers.push('Not enough health inputs yet — using neutral baseline.');
   return {score:finalScore,label:readinessLabel(finalScore),drivers};
@@ -11524,7 +11524,13 @@ function renderAll(){
   const logBtn=document.getElementById('btn-log');
   if(logBtn) logBtn.classList.toggle('armed',!!hasWorkout());
   refreshSaveButton(); updateWorkoutBottomBar();
-  if(pg==='home'||!pg){ renderHomeDashboard(); renderToday(); renderIntel(); updatePlannerHeader(); }
+  if(pg==='home'||!pg){ renderHomeDashboard(); renderToday(); renderIntel(); updatePlannerHeader();
+/* 6A62: auto-refresh health data when home loads, once per session */
+if(!window._vertexHomeRefreshed){
+  window._vertexHomeRefreshed=true;
+  if(typeof refreshAppleHealthMetrics==='function') refreshAppleHealthMetrics().catch(()=>{});
+}
+}
   else if(pg==='workout'){ renderSidebar(); renderToday(); renderBuilder(); renderRight(); renderIntel(); renderPlanWeekCta(); }
   else if(pg==='progress'){ if(typeof renderProgressPage==='function') renderProgressPage(); }
   else if(pg==='wellness'){ if(typeof renderHealthPage==='function') renderHealthPage(); }
@@ -14606,7 +14612,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a61-planner-redesign';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a62-readiness-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -16378,13 +16384,16 @@ window.vertexImportHKWorkout = async function(idx) {
         else if(hrvDelta<=-15){ score-=16; drivers.push({type:'bad',text:`HRV is ${Math.abs(Math.round(hrvDelta))}% below your baseline.`});}
         else if(hrvDelta<=-8){ score-=8; drivers.push({type:'warn',text:'HRV is modestly below baseline.'});}
         else drivers.push({type:'good',text:'HRV is near your personal baseline.'});
+        // Absolute HRV floor — always applies regardless of baseline trend
+        if(hrv<20){ score-=14; drivers.push({type:'bad',text:`HRV of ${Math.round(hrv)}ms is very low — autonomic stress is high.`}); }
+        else if(hrv<30){ score-=7; drivers.push({type:'warn',text:`HRV of ${Math.round(hrv)}ms is below healthy range.`}); }
         if(hrvTrend==='declining'){
           score-=9; drivers.push({type:'warn',text:'HRV has declined for three straight readings.'});
         }else if(hrvTrend==='improving'){
           score+=3; drivers.push({type:'good',text:'HRV trend is improving.'});
         }
       } else if(hrv>=45){score+=3; drivers.push({type:'good',text:`HRV is ${Math.round(hrv)} ms.`});}
-      else if(hrv<25){score-=6; drivers.push({type:'warn',text:`HRV is low at ${Math.round(hrv)} ms.`});}
+      else if(hrv<20){score-=14; drivers.push({type:'bad',text:`HRV of ${Math.round(hrv)}ms is very low.`});} else if(hrv<30){score-=7; drivers.push({type:'warn',text:`HRV of ${Math.round(hrv)}ms is below healthy range.`});} else if(hrv<40){score-=3; drivers.push({type:'warn',text:`HRV of ${Math.round(hrv)}ms is moderate.`});}
     }
 
     const rhr=getMetric(latest,['restingHr','resting_hr']);
@@ -16480,21 +16489,17 @@ window.vertexImportHKWorkout = async function(idx) {
 
 
   function getCachedReadinessScore(){
+    // Always rebuild from current data — never serve stale localStorage cache
     try{
-      const raw = localStorage.getItem('vertex_readiness_cache');
-      if(raw){
-        const parsed = JSON.parse(raw);
-        if(parsed && Number.isFinite(Number(parsed.score))){
-          return parsed;
-        }
-      }
+      const fresh=buildReadinessScore();
+      try{ localStorage.setItem('vertex_readiness_cache', JSON.stringify(fresh)); }catch(e){}
+      return fresh;
     }catch(e){}
-    try{ return buildReadinessScore(); }catch(e){}
     return {
-      score:72,
-      label:'Moderate',
-      action:'Train, but avoid unnecessary max-effort work.',
-      drivers:[{type:'warn',text:'Sleep unavailable — connect your health data for a stronger score.'}],
+      score:55,
+      label:'Low',
+      action:'Add health data for a personalized readiness score.',
+      drivers:[{type:'warn',text:'Not enough health data yet — connect Apple Health or log a check-in.'}],
       metrics:{},
       workouts:{}
     };

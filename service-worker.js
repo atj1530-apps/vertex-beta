@@ -1,9 +1,9 @@
 /* Vertex Workout Builder — PWA Service Worker
-   v20260601-6a48-workout-history-resilient-delete
+   v20260601-6a50-exercise-library-chest-triceps-cleanup
    Network-first for HTML so deploys are visible immediately.
    Workout history safe-delete cache bump.
 */
-const CACHE_NAME = 'vertex-v20260601-6a48-workout-history-resilient-delete';
+const CACHE_NAME = 'vertex-v20260601-6a50-exercise-library-chest-triceps-cleanup';
 const APP_SHELL = [
   './',
   './index.html',

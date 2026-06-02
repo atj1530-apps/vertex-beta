@@ -10986,6 +10986,7 @@ function vertexCalcDosesRemaining(){
   el.style.color = color;
   el.innerHTML = `<b style="font-size:16px">${total}</b>&nbsp;<span style="font-size:11px;color:var(--muted)">total doses in inventory &nbsp;·&nbsp; reorder at ${threshold}</span>`;
 }
+window.vertexCalcDosesRemaining = vertexCalcDosesRemaining;
 // Catch spinner arrow clicks (pointerup fires after value changes from arrows)
 document.addEventListener('pointerup', function(e){
   const id = e.target && e.target.id;
@@ -14829,7 +14830,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a70-tribute-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260602-6a71-doses-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

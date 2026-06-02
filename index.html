@@ -4602,7 +4602,7 @@ window.vertexFinishBootstrap=function(){
   </div>
   <div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck" aria-label="Progress intelligence cards"></div>
 </section>
-<section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
+<section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none" ontouchstart="window.vertexSyncAppleHealth&&window.vertexSyncAppleHealth()">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:monospace"></span>
@@ -13610,7 +13610,12 @@ document.addEventListener('click',async e=>{
     if(btn){ btn.disabled=false; btn.textContent='Sync Apple Health'; }
   }
   return
-} if(t.id==='btn-wellness-refresh'){await refreshAppleHealthMetrics(); renderWellnessPage(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderGoalTracker==='function') renderGoalTracker(); if(typeof toast==='function'){ const _rNow=new Date(); localStorage.setItem('vertex_last_refresh',_rNow.toISOString()); toast('Refreshed ' + _rNow.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})); } return} if(t.id==='btn-home-refresh-metrics'){
+}
+// 6A68: expose Apple Health sync as global for ontouchstart on iOS native
+if(!window.vertexSyncAppleHealth){
+  window.vertexSyncAppleHealth=function(){const b=document.getElementById('btn-apple-health-sync');if(b)b.click();};
+}
+ if(t.id==='btn-wellness-refresh'){await refreshAppleHealthMetrics(); renderWellnessPage(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderGoalTracker==='function') renderGoalTracker(); if(typeof toast==='function'){ const _rNow=new Date(); localStorage.setItem('vertex_last_refresh',_rNow.toISOString()); toast('Refreshed ' + _rNow.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})); } return} if(t.id==='btn-home-refresh-metrics'){
   await refreshAppleHealthMetrics();
   if(typeof renderHomeDashboard==='function') renderHomeDashboard();
   // After data loads, patch weight card in-place without full re-render
@@ -14824,7 +14829,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a68-view-popup-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a69-native-sync-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

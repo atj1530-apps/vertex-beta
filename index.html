@@ -13481,7 +13481,7 @@ document.addEventListener('click',async e=>{
  if(t.dataset&&t.dataset.gotoPlanner){setPage('home');setTimeout(function(){var p=document.getElementById('plannerAcc');if(p)p.scrollIntoView({behavior:'smooth'});},300);return;}
   var _sd=t.getAttribute('data-strip-day');
   if(_sd){if(_sd===todayKey){editDay(_sd);return;}var _det=document.getElementById('hwChipDetail')||document.getElementById('hpsChipDetail');var _vp=document.getElementById('hwViewPanel')||document.getElementById('hpsViewPanel');if(_vp)_vp.style.display='none';if(_det){if(_det.style.display==='none'||!_det.style.display||_det.dataset.day!==_sd){_det.dataset.day=_sd;_det.style.display='';var _sw=state.planner[_sd];var _sl=(DAY_LABEL&&DAY_LABEL[_sd])||_sd;if(_sw){_det.innerHTML='<div class="hps-today-day">'+escapeHtml(_sl.toUpperCase())+'</div><div class="hps-today-name">'+escapeHtml(_sw.name||'Workout')+'</div><div class="hps-actions" style="margin-top:8px"><button class="hps-btn" data-edit-day="'+_sd+'">Load / Edit</button><button class="hps-btn" data-copy-day="'+_sd+'">Copy</button><button class="hps-btn" style="color:var(--red);border-color:rgba(255,80,80,.4)" data-clear-day="'+_sd+'">Clear</button></div>';}else{_det.innerHTML='<div class="hps-today-day">'+escapeHtml(_sl.toUpperCase())+' · No workout planned</div><div class="hps-actions"><button class="hps-btn" data-edit-day="'+_sd+'">Plan this day →</button></div>';}}else{_det.style.display='none';_det.dataset.day='';}}return;}
-  var _vd=tribute('data-view-day');
+  var _vd=t.getAttribute('data-view-day');
   if(_vd){if(typeof showHwViewModal==='function') showHwViewModal(_vd); return;}
   const ed=t.getAttribute('data-edit-day'); if(ed){editDay(ed); return} const cd=t.getAttribute('data-clear-day'); if(cd){await clearDay(cd); return} const cpy=t.getAttribute('data-copy-day'); if(cpy){openCopyDay(cpy); return} if(t.id==='copyDayConfirm'){await copyDayConfirm(); return} if(t.id==='copyDayCancel'){closeCopyDay(); return} if(t.getAttribute('data-clear-current')){clearSessionTimer(); closeSession(); await clearLoadedWorkout(); return} if(t.id==='btn-edit-name'){beginWorkoutNameEdit(); return} if(t.id==='btn-save-later'){commitWorkoutNameEdit(); await saveCurrentWorkoutForLater(); return} if(t.id==='btn-save'){commitWorkoutNameEdit(); const saveTo=t.dataset && t.dataset.saveTo; if(saveTo && DAY_LABEL[saveTo]){ await saveDay(saveTo); } else { await saveCurrentWorkout(); } return} if(t.id==='btn-log'){await logWorkoutToCloud(); return} if(t.id==='btn-refresh-progress'){await loadProgressLogs(); toast('Progress refreshed'); return} if(t.id==='btn-refresh-ai'){renderAiCoachPage(); toast('Coach refreshed'); return}
  // ── FOCUSED WORKOUT MODE ──
@@ -14829,7 +14829,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a69-native-sync-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260601-6a70-tribute-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -14830,7 +14830,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260602-6a71-doses-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260602-6a72-readiness-source';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -16456,12 +16456,37 @@ window.vertexImportHKWorkout = async function(idx) {
   function num(v){ const n=Number(v); return Number.isFinite(n)?n:null; }
   function avg(arr){ const vals=(arr||[]).map(num).filter(v=>v!==null); return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null; }
   function latestHealthRows(){
+    let rows=[];
     try{
       if(typeof loadHealthEntries==='function'){
-        return (loadHealthEntries()||[]).filter(Boolean);
+        rows=(loadHealthEntries()||[]).filter(Boolean);
       }
     }catch(e){}
-    return [];
+    // Overlay Apple Health synced metrics (same source the metric cards use) so the
+    // readiness calculator sees sleep/HRV/RHR that the native sync wrote to the cloud.
+    try{
+      const num=v=>{const n=Number(v); return Number.isFinite(n)&&n>0?n:null;};
+      const sSum=JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null');
+      const hSum=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null');
+      const rSum=JSON.parse(localStorage.getItem('vertexAppleHealthRestingHRSummary')||'null');
+      const wSum=JSON.parse(localStorage.getItem('vertexAppleHealthWeightSummary')||'null');
+      const ah={};
+      if(sSum && num(sSum.latestMinutes)!=null) ah.sleepHours=Math.round(sSum.latestMinutes/60*10)/10;
+      if(hSum && num(hSum.latest)!=null) ah.hrv=num(hSum.latest);
+      if(rSum && num(rSum.latest)!=null) ah.restingHr=num(rSum.latest);
+      if(wSum && num(wSum.latest)!=null) ah.bodyWeight=num(wSum.latest);
+      if(Object.keys(ah).length){
+        const today=new Date().toISOString().split('T')[0];
+        if(rows[0] && (rows[0].date===today || !rows[0].date)){
+          const merged=Object.assign({}, rows[0]);
+          for(const k in ah){ if(merged[k]==null) merged[k]=ah[k]; }
+          rows=[merged, ...rows.slice(1)];
+        } else {
+          rows=[Object.assign({date:today}, ah), ...rows];
+        }
+      }
+    }catch(e){}
+    return rows;
   }
   function latestCheckinRows(){
     try{

@@ -9938,10 +9938,19 @@ function renderStackTab(){
     return Number.isFinite(n) ? n : 0;
   }
   function autoCostPerDose(s){
-    if(s.cost_per_dose) return Number(s.cost_per_dose);
     if(s.purchase_price && s.units_per_vial && s.dose){
-      return Math.round((Number(s.purchase_price) / (Number(s.units_per_vial) / Number(s.dose))) * 100) / 100;
+      const pricePerVial = Number(s.purchase_price);
+      const mgPerVial = Number(s.units_per_vial);
+      const doseAmt  = Number(s.dose);
+      const unit = (s.unit||'').toLowerCase();
+      // Convert dose to mg so it matches mg_per_vial
+      const doseInMg = unit==='mcg' ? doseAmt/1000 : unit==='g' ? doseAmt*1000 : doseAmt;
+      if(pricePerVial>0 && mgPerVial>0 && doseInMg>0){
+        return Math.round((pricePerVial / (mgPerVial / doseInMg)) * 10000) / 10000;
+      }
     }
+    // Fallback: legacy stored cost_per_dose (may be wrong unit — only use if no purchase_price)
+    if(s.cost_per_dose) return Number(s.cost_per_dose);
     return null;
   }
   const activeCosts = stackItems.filter(s=>s.on_cycle!=='off' && dosesPerWeek(s)>0 && autoCostPerDose(s)).map(s=>({
@@ -11250,6 +11259,16 @@ async function saveSupplement(){
   // Alert when 20% of total doses remain, minimum 3
   const alertThreshold = totalDoses ? Math.max(3, Math.round(totalDoses * 0.2)) : 7;
 
+  const _purchasePrice = parseFloat(document.getElementById('suppCostPerDose')?.value) || null;
+  const _mgPerVial = parseFloat(document.getElementById('suppUnitsPerVial')?.value) || 0;
+  const _doseAmt   = parseFloat(document.getElementById('suppDose')?.value) || 0;
+  const _unit = (document.getElementById('suppUnit')?.value || '').toLowerCase();
+  let _costPerDose = null;
+  if(_purchasePrice && _mgPerVial && _doseAmt){
+    const _doseInMg = _unit==='mcg' ? _doseAmt/1000 : _unit==='g' ? _doseAmt*1000 : _doseAmt;
+    if(_doseInMg > 0) _costPerDose = Math.round(_purchasePrice / (_mgPerVial / _doseInMg) * 10000) / 10000;
+  }
+
   const today = todayIso();
   const type = document.getElementById('suppType')?.value || 'Supplement';
 
@@ -11291,8 +11310,8 @@ async function saveSupplement(){
     cycle_start_date: document.getElementById('suppCycleStart')?.value || null,
     cycle_end_date: document.getElementById('suppCycleEnd')?.value || null,
     notes: notesClean || null,
-    cost_per_dose: parseFloat(document.getElementById('suppCostPerDose')?.value) || null,
-    purchase_price: parseFloat(document.getElementById('suppCostPerDose')?.value) || null,
+    cost_per_dose: _costPerDose,
+    purchase_price: _purchasePrice,
     schedule_days: _scheduleDays,
   };
 
@@ -14983,7 +15002,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260603-6a78-modal-center';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260603-6a79-cost-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

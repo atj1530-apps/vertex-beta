@@ -1856,13 +1856,14 @@ body {
   overflow-y: auto;
   flex: 1;
   padding: 6px 20px 24px;
-  -webkit-overflow-scrolling: touch;
   /* Hide scrollbar track — still scrollable */
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 .supp-sheet-scroll::-webkit-scrollbar { display: none; }
-/* Tighten supplement modal inputs so content fits without scroll */
+/* Day-picker buttons for 2x/3x/weekly frequency */
+.supp-day-btn{background:var(--panel2);border:1px solid var(--line2);border-radius:6px;color:var(--muted);font-size:11px;font-family:monospace;letter-spacing:.5px;padding:5px 10px;cursor:pointer;min-width:40px;text-transform:uppercase}
+.supp-day-btn.on{background:var(--acc);border-color:var(--acc);color:#000;font-weight:700}
 .supp-bottom-sheet input,
 .supp-bottom-sheet select,
 .supp-bottom-sheet textarea {
@@ -4343,7 +4344,7 @@ function updatePlannerHeader(){
 .hw-view-modal-row{font-size:13px;color:var(--text);padding:7px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
 .hw-view-modal-row:last-child{border-bottom:none}
 /* 6A65: Option A layout — today left + 3x2 grid right */
-.hw-planner-layout{display:grid;grid-template-columns:1fr 1.8fr;gap:8px;align-items:start}
+.hw-planner-layout{display:grid;grid-template-columns:1fr 1.8fr;gap:8px;align-items:stretch}
 @media(max-width:768px){.hw-planner-layout{display:block}.hw-today-card{margin-bottom:10px}}
 .hw-today-card{border:2px solid rgba(232,255,71,.45)!important;min-height:160px;display:flex;flex-direction:column}
 .hw-today-btns{display:flex;flex-direction:column;gap:6px;margin-top:auto}
@@ -4358,7 +4359,7 @@ body.app-page-home #plannerAcc{display:none!important}
 .hw-planner-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .hw-planner-title{font-family:monospace;font-size:10px;letter-spacing:3px;color:var(--text);text-transform:uppercase;font-weight:600}
 .hw-planner-dates{font-family:monospace;font-size:10px;color:var(--dim)}
-.hw-today-card{background:rgba(232,255,71,.06);border:1px solid rgba(232,255,71,.18);border-radius:12px;padding:16px 18px;margin-bottom:10px}
+.hw-today-card{background:rgba(232,255,71,.06);border:1px solid rgba(232,255,71,.18);border-radius:12px;padding:16px 18px;margin-bottom:0;box-sizing:border-box;justify-content:space-between}
 .hw-today-lbl{font-family:monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:6px}
 .hw-today-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--text);line-height:1;margin-bottom:4px}
 .hw-today-prev{font-size:11px;color:var(--muted);margin-bottom:4px;line-height:1.5}
@@ -5203,7 +5204,7 @@ window.vertexFinishBootstrap=function(){
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
       <div>
         <div class="supp-field-label">Frequency</div>
-        <select id="suppFrequency" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
+        <select id="suppFrequency" onchange="window.suppUpdateDayPickerVisibility&&window.suppUpdateDayPickerVisibility()" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
           <option value="Daily">Daily</option>
           <option value="Twice Daily">Twice Daily</option>
           <option value="2x/Week">2x/Week</option>
@@ -5222,6 +5223,20 @@ window.vertexFinishBootstrap=function(){
         <select id="suppTiming" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
           <option value="Morning">Morning</option><option value="Afternoon">Afternoon</option><option value="Evening">Evening</option><option value="Pre-Workout">Pre-Workout</option><option value="Post-Workout">Post-Workout</option><option value="With Food">With Food</option><option value="Fasted">Fasted</option><option value="Bedtime">Bedtime</option><option value="As Needed">As Needed</option>
         </select>
+      </div>
+    </div>
+
+    <!-- Day picker — shown for 2x/3x/Weekly frequencies -->
+    <div id="supp-schedule-days-wrap" style="display:none;margin-bottom:12px">
+      <div class="supp-field-label">Training Days <span style="font-weight:400;color:var(--muted)">(tap to select)</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+        <button type="button" data-day="Mon" class="supp-day-btn" onclick="window.suppToggleDay&&window.suppToggleDay(this)">Mon</button>
+        <button type="button" data-day="Tue" class="supp-day-btn" onclick="window.suppToggleDay&&window.suppToggleDay(this)">Tue</button>
+        <button type="button" data-day="Wed" class="supp-day-btn" onclick="window.suppToggleDay&&window.suppToggleDay(this)">Wed</button>
+        <button type="button" data-day="Thu" class="supp-day-btn" onclick="window.suppToggleDay&&window.suppToggleDay(this)">Thu</button>
+        <button type="button" data-day="Fri" class="supp-day-btn" onclick="window.suppToggleDay&&window.suppToggleDay(this)">Fri</button>
+        <button type="button" data-day="Sat" class="supp-day-btn" onclick="window.suppToggleDay&&window.suppToggleDay(this)">Sat</button>
+        <button type="button" data-day="Sun" class="supp-day-btn" onclick="window.suppToggleDay&&window.suppToggleDay(this)">Sun</button>
       </div>
     </div>
 
@@ -10293,6 +10308,15 @@ function vertexIsDueOnDate(s, dateStr){
   if(_cStart && dateStr < _cStart) return false;
   if(_cEnd   && dateStr > _cEnd)   return false;
 
+  // If specific days are pinned, use them instead of interval math
+  if(s.schedule_days){
+    const scheduledDays = s.schedule_days.split(',').map(d=>d.trim()).filter(Boolean);
+    if(scheduledDays.length){
+      const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(dateStr+'T12:00:00').getDay()];
+      return scheduledDays.includes(dow);
+    }
+  }
+
   const fpw = vertexProtocolFrequencyPerWeek(s);
   if(!fpw) return false;
   if(fpw >= 7) return true; // daily/twice daily
@@ -11022,6 +11046,15 @@ window.protoCloseDayModal = function(){
 };
 window.renderProtoDayModal = renderProtoDayModal;
 
+function suppUpdateDayPickerVisibility(){
+  const freq = (document.getElementById('suppFrequency')?.value||'').toLowerCase();
+  const show = /\dx\/week|weekly/.test(freq) && !freq.includes('daily');
+  const wrap = document.getElementById('supp-schedule-days-wrap');
+  if(wrap) wrap.style.display = show ? '' : 'none';
+}
+window.suppUpdateDayPickerVisibility = suppUpdateDayPickerVisibility;
+window.suppToggleDay = function(btn){ btn.classList.toggle('on'); };
+
 window.protoCalPrev = protoCalPrev;
 window.protoCalNext = protoCalNext;
 window.protoSelectDate = protoSelectDate;
@@ -11118,10 +11151,11 @@ function openAddSupplement(){
   document.getElementById('suppType').value='Peptide';
   document.getElementById('supp-peptide-fields').style.display='block';
   document.getElementById('supp-general-fields').style.display='none';
+  // Reset day-picker
+  document.querySelectorAll('.supp-day-btn').forEach(b=>b.classList.remove('on'));
+  if(typeof suppUpdateDayPickerVisibility==='function') suppUpdateDayPickerVisibility();
   document.getElementById('supplementModal').classList.add('on');
 }
-
-function openEditSupplement(idx){
   const s=stackItems[idx]; if(!s) return;
   document.getElementById('supplementModalTitle').textContent='Edit Stack Item';
   document.getElementById('suppEditId').value=s.id||'';
@@ -11175,9 +11209,16 @@ function openEditSupplement(idx){
   const isPeptide=type==='Peptide'||type==='Medication';
   document.getElementById('supp-peptide-fields').style.display=isPeptide?'block':'none';
   document.getElementById('supp-general-fields').style.display=isPeptide?'none':'block';
-  vertexCalcDosesRemaining();
-  setTimeout(vertexCalcDosesRemaining, 50);
+  // Load schedule_days into day-picker
+  document.querySelectorAll('.supp-day-btn').forEach(b=>b.classList.remove('on'));
+  if(s.schedule_days){
+    const days=s.schedule_days.split(',').map(d=>d.trim());
+    document.querySelectorAll('.supp-day-btn').forEach(b=>{if(days.includes(b.getAttribute('data-day')))b.classList.add('on');});
+  }
+  if(typeof suppUpdateDayPickerVisibility==='function') suppUpdateDayPickerVisibility();
+  // Show modal first so the CSS transition doesn't block tap events on inputs
   document.getElementById('supplementModal').classList.add('on');
+  setTimeout(vertexCalcDosesRemaining, 280);
 }
 
 async function saveSupplement(){
@@ -11243,6 +11284,14 @@ async function saveSupplement(){
     notes: notesClean || null,
     cost_per_dose: parseFloat(document.getElementById('suppCostPerDose')?.value) || null,
     purchase_price: parseFloat(document.getElementById('suppCostPerDose')?.value) || null,
+    schedule_days: (()=>{
+      const f=(document.getElementById('suppFrequency')?.value||'').toLowerCase();
+      if(/\dx\/week|weekly/.test(f)&&!f.includes('daily')){
+        const sel=Array.from(document.querySelectorAll('.supp-day-btn.on')).map(b=>b.getAttribute('data-day')).filter(Boolean).join(',');
+        return sel||null;
+      }
+      return null;
+    })(),
   };
 
   try {
@@ -14932,7 +14981,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260602-6a74-dose-modal';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260603-6a75-layout-daypick';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

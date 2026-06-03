@@ -4894,10 +4894,17 @@ window.vertexFinishBootstrap=function(){
         <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)">Dots = each compound · color by type</span>
       </div>
       <div id="proto-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center"></div>
-      <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:8px;font-family:monospace;letter-spacing:.5px">TAP ANY DATE TO LOG OR EDIT DOSES ↑</div>
+      <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:8px;font-family:monospace;letter-spacing:.5px">TAP ANY DATE TO LOG OR EDIT DOSES</div>
     </div>
   </div>
 
+</div>
+
+<!-- PROTOCOL DAY DOSE MODAL -->
+<div id="protoDayModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);overflow-y:auto;padding:16px;box-sizing:border-box" onclick="if(event.target===this)window.protoCloseDayModal()">
+  <div style="background:var(--panel);border:1px solid var(--line2);border-radius:14px;max-width:480px;margin:48px auto;overflow:hidden">
+    <div id="protoDayModalContent"></div>
+  </div>
 </div>
 
 <!-- PROTOCOL UTILITY BOTTOM SHEET -->
@@ -10279,6 +10286,13 @@ function vertexIsDueOnDate(s, dateStr){
   if(loggedThatDay) return true; // always show what was actually taken on selected date
   if(vertexIsAsNeeded(s)) return false; // as-needed only appears after manual logging/taken
 
+  // Enforce cycle date bounds before any frequency logic.
+  // Without this, daily compounds show as scheduled/missed on dates outside their cycle.
+  const _cStart = s.cycle_start_date ? s.cycle_start_date.split('T')[0] : null;
+  const _cEnd   = s.cycle_end_date   ? s.cycle_end_date.split('T')[0]   : null;
+  if(_cStart && dateStr < _cStart) return false;
+  if(_cEnd   && dateStr > _cEnd)   return false;
+
   const fpw = vertexProtocolFrequencyPerWeek(s);
   if(!fpw) return false;
   if(fpw >= 7) return true; // daily/twice daily
@@ -10494,6 +10508,7 @@ async function toggleProtoDose(btn){
   renderProtoAlerts();
   renderProtoCalendar();
   renderProtoHistory();
+  if(typeof renderProtoDayModal === 'function') renderProtoDayModal();
 }
 
 // Wire dose button clicks
@@ -10606,11 +10621,7 @@ function protoSelectDate(dateStr){
   renderProtoToday();
   renderProtoCalendar();
   renderProtoHistory();
-  // Scroll the log section into view so the user sees what to tap
-  setTimeout(()=>{
-    const el = document.getElementById('protoTodayAcc');
-    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
-  }, 80);
+  showProtoDayModal();
 }
 
 // ── PROTOCOL UTILITY SHEET ──────────────────────────────────
@@ -10925,6 +10936,91 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 })();
 
 
+
+// ── DATE-TAP DOSE MODAL ──────────────────────────────────────
+function showProtoDayModal(){
+  const modal = document.getElementById('protoDayModal');
+  if(!modal) return;
+  renderProtoDayModal();
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function renderProtoDayModal(){
+  const el = document.getElementById('protoDayModalContent'); if(!el) return;
+  const dateStr = protoSelectedDate || todayIso();
+  const isToday = dateStr === todayIso();
+  const isPast  = dateStr < todayIso();
+  const label = new Date(dateStr+'T12:00:00').toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'});
+  const active = stackItems.filter(vertexIsProtocolActive);
+  const selLogs = protocolLogs.filter(l => l.logged_at && l.logged_at.startsWith(dateStr));
+
+  let due = active.filter(s => vertexIsDueOnDate(s, dateStr));
+  if(!due.length && isPast && active.length) due = active.filter(s => !vertexIsAsNeeded(s));
+
+  const slots = ['Morning','Afternoon','Evening','Pre-Workout','Post-Workout','With Food','Bedtime'];
+  const bySlot = {};
+  due.forEach(s => { const sl = s.timing||'Morning'; if(!bySlot[sl]) bySlot[sl]=[]; bySlot[sl].push(s); });
+  const orderedSlots = slots.filter(s => bySlot[s]);
+
+  const doseRow = (s, slot) => {
+    const logged = selLogs.some(l => l.compound_name===s.name && l.time_slot===slot);
+    const color = SUPP_TYPE_COLORS[s.supplement_type||'Peptide']||'#888';
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line2)">'
+      +'<button class="proto-dose-btn '+(logged?'logged':'')+'" data-proto-log="'+escapeAttr(s.name)+'" data-proto-slot="'+escapeAttr(slot)+'" data-proto-date="'+escapeAttr(dateStr)+'" data-proto-dose="'+(s.dose||0)+'" data-proto-unit="'+escapeAttr(s.unit||'')+'" data-proto-type="'+escapeAttr(s.supplement_type||'Peptide')+'" title="'+(logged?'Logged — tap to undo':'Tap to log dose')+'">'+(logged?'✓':'○')+'</button>'
+      +'<div style="flex:1">'
+        +'<div style="font-weight:700;font-size:13px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+color+';margin-right:5px"></span>'+escapeHtml(s.name)+'</div>'
+        +'<div style="font-size:11px;color:var(--muted)">'+(s.dose||'—')+' '+escapeHtml(s.unit||'')+' · '+escapeHtml(s.supplement_type||'')+' · '+escapeHtml(vertexFrequencyLabel(s))+'</div>'
+      +'</div>'
+      +(logged?'<span style="font-size:11px;color:var(--acc)">✓</span>':'')
+    +'</div>';
+  };
+
+  let scheduledHtml = orderedSlots.length
+    ? orderedSlots.map(slot =>
+        '<div style="margin-bottom:14px">'
+        +'<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--line2)">'+slot+'</div>'
+        +bySlot[slot].map(s => doseRow(s, slot)).join('')
+        +'</div>'
+      ).join('')
+    : '<div style="color:var(--muted);font-size:13px;padding:8px 0">No scheduled compounds for this date.</div>';
+
+  const asNeededActive = active.filter(vertexIsAsNeeded);
+  let asNeededHtml = '';
+  if(asNeededActive.length){
+    asNeededHtml = '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line2)">'
+      +'<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">As Needed — tap to log if taken</div>'
+      +asNeededActive.map(s => {
+        const logged = selLogs.some(l => l.compound_name===s.name && l.time_slot==='As Needed');
+        const color = SUPP_TYPE_COLORS[s.supplement_type||'Peptide']||'#888';
+        return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line2)">'
+          +'<button class="proto-dose-btn '+(logged?'logged':'')+'" data-proto-log="'+escapeAttr(s.name)+'" data-proto-slot="As Needed" data-proto-date="'+escapeAttr(dateStr)+'" data-proto-dose="'+(s.dose||0)+'" data-proto-unit="'+escapeAttr(s.unit||'')+'" data-proto-type="'+escapeAttr(s.supplement_type||'Peptide')+'" title="'+(logged?'Logged — tap to undo':'Tap to log dose')+'">'+(logged?'✓':'○')+'</button>'
+          +'<div style="flex:1">'
+            +'<div style="font-weight:700;font-size:13px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+color+';margin-right:5px"></span>'+escapeHtml(s.name)+'</div>'
+            +'<div style="font-size:11px;color:var(--muted)">'+(s.dose||'—')+' '+escapeHtml(s.unit||'')+' · As Needed</div>'
+          +'</div>'
+          +(logged?'<span style="font-size:11px;color:var(--acc)">✓</span>':'')
+        +'</div>';
+      }).join('')
+    +'</div>';
+  }
+
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:1px solid var(--line2)">'
+    +'<div>'
+      +'<div style="font-size:13px;font-weight:800;color:var(--acc);text-transform:uppercase;letter-spacing:.05em">'+escapeHtml(label)+'</div>'
+      +(isToday?'<div style="font-size:10px;color:var(--muted)">Today</div>':'')
+    +'</div>'
+    +'<button onclick="window.protoCloseDayModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1">✕</button>'
+  +'</div>'
+  +'<div style="padding:16px">'+scheduledHtml+asNeededHtml+'</div>';
+}
+
+window.protoCloseDayModal = function(){
+  const modal = document.getElementById('protoDayModal');
+  if(modal) modal.style.display = 'none';
+  document.body.style.overflow = '';
+};
+window.renderProtoDayModal = renderProtoDayModal;
 
 window.protoCalPrev = protoCalPrev;
 window.protoCalNext = protoCalNext;
@@ -14836,7 +14932,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260602-6a73-dose-cal-ux';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260602-6a74-dose-modal';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

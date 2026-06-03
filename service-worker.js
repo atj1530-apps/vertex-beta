@@ -3,7 +3,7 @@
    Network-first for HTML so deploys are visible immediately.
    Workout History scoped to Progress only; delete tombstones prevent deleted rows from returning.
 */
-const CACHE_NAME = 'vertex-v20260602-6a74-dose-modal';
+const CACHE_NAME = 'vertex-v20260603-6a75-layout-daypick';
 const APP_SHELL = [
   './',
   './index.html',
@@ -42,12 +42,19 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (req.mode === 'navigate' || req.destination === 'document') {
+    // Race the network against a 5-second timeout — if the network is slow,
+    // serve the cached page immediately rather than spinning for minutes.
+    const networkFetch = fetch(req).then((res) => {
+      const copy = res.clone();
+      caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => undefined);
+      return res;
+    });
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('sw-timeout')), 5000)
+    );
     event.respondWith(
-      fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => undefined);
-        return res;
-      }).catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
+      Promise.race([networkFetch, timeout])
+        .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
     );
     return;
   }

@@ -4894,6 +4894,7 @@ window.vertexFinishBootstrap=function(){
         <span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)">Dots = each compound · color by type</span>
       </div>
       <div id="proto-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center"></div>
+      <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:8px;font-family:monospace;letter-spacing:.5px">TAP ANY DATE TO LOG OR EDIT DOSES ↑</div>
     </div>
   </div>
 
@@ -10605,6 +10606,11 @@ function protoSelectDate(dateStr){
   renderProtoToday();
   renderProtoCalendar();
   renderProtoHistory();
+  // Scroll the log section into view so the user sees what to tap
+  setTimeout(()=>{
+    const el = document.getElementById('protoTodayAcc');
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 80);
 }
 
 // ── PROTOCOL UTILITY SHEET ──────────────────────────────────
@@ -14830,7 +14836,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260602-6a72-readiness-source';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260602-6a73-dose-cal-ux';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

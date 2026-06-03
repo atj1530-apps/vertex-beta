@@ -11251,6 +11251,13 @@ async function saveSupplement(){
   const today = todayIso();
   const type = document.getElementById('suppType')?.value || 'Supplement';
 
+  // Pre-compute schedule_days before building row (avoids IIFE-in-object parser issues)
+  const _freqVal = (document.getElementById('suppFrequency')?.value || '').toLowerCase();
+  const _showDays = (_freqVal.includes('x/week') || _freqVal === 'weekly') && !_freqVal.includes('daily');
+  const _scheduleDays = _showDays
+    ? (Array.from(document.querySelectorAll('.supp-day-btn.on')).map(function(b){ return b.getAttribute('data-day'); }).filter(Boolean).join(',') || null)
+    : null;
+
   const row = {
     user_id: authUser.id,
     checkin_date: today,
@@ -11284,14 +11291,7 @@ async function saveSupplement(){
     notes: notesClean || null,
     cost_per_dose: parseFloat(document.getElementById('suppCostPerDose')?.value) || null,
     purchase_price: parseFloat(document.getElementById('suppCostPerDose')?.value) || null,
-    schedule_days: (()=>{
-      const f=(document.getElementById('suppFrequency')?.value||'').toLowerCase();
-      if(/\dx\/week|weekly/.test(f)&&!f.includes('daily')){
-        const sel=Array.from(document.querySelectorAll('.supp-day-btn.on')).map(b=>b.getAttribute('data-day')).filter(Boolean).join(',');
-        return sel||null;
-      }
-      return null;
-    })(),
+    schedule_days: _scheduleDays,
   };
 
   try {
@@ -14981,7 +14981,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260603-6a75-layout-daypick';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260603-6a76-syntax-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

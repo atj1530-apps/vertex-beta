@@ -4901,6 +4901,13 @@ window.vertexFinishBootstrap=function(){
 
 </div>
 
+<!-- RESTOCK MODAL -->
+<div id="restockModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:16px;box-sizing:border-box" onclick="if(event.target===this)window.vertexCloseRestock()">
+  <div style="background:var(--panel);border:1px solid var(--line2);border-radius:14px;max-width:340px;width:100%;overflow:hidden">
+    <div id="restockModalContent"></div>
+  </div>
+</div>
+
 <!-- PROTOCOL DAY DOSE MODAL -->
 <div id="protoDayModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:16px;box-sizing:border-box" onclick="if(event.target===this)window.protoCloseDayModal()">
   <div style="background:var(--panel);border:1px solid var(--line2);border-radius:14px;max-width:480px;width:100%;overflow:hidden;max-height:85vh;overflow-y:auto">
@@ -9987,7 +9994,7 @@ function renderStackTab(){
         <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:6px"></span><b style="font-size:13px">${escapeHtml(s.name)}</b><span style="margin-left:6px;font-size:11px;color:var(--muted);background:var(--panel2);border:1px solid var(--line2);border-radius:4px;padding:1px 6px">${escapeHtml(s.supplement_type||'Peptide')}</span></div>
         <div><div class="history-meta">${s.dose||'—'} ${escapeHtml(s.unit||'')} · ${escapeHtml(s.frequency||'—')} · ${escapeHtml(s.timing||'—')}</div>${renderInventoryMini(s)}${s.notes?`<div class="history-meta" style="color:var(--muted)">${escapeHtml(s.notes)}</div>`:''}</div>
         <div class="mono">${cycleLabel}</div>
-        <div style="display:flex;gap:6px"><button class="btn small" data-edit-supp="${globalIdx}">Edit</button><button class="btn small red" data-delete-supp="${escapeAttr(s.name)}">×</button></div>
+        <div style="display:flex;gap:6px"><button class="btn small" style="background:rgba(232,255,71,.12);border-color:rgba(232,255,71,.3);color:var(--acc)" onclick="window.vertexOpenRestock(${globalIdx})" title="Restock inventory">+</button><button class="btn small" data-edit-supp="${globalIdx}">Edit</button><button class="btn small red" data-delete-supp="${escapeAttr(s.name)}">×</button></div>
       </div>`;
     }).join('');
   };
@@ -10009,7 +10016,7 @@ function renderStackList(){
       <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:6px"></span><b style="font-size:13px">${escapeHtml(s.name)}</b><span style="margin-left:6px;font-size:11px;color:var(--muted);background:var(--panel2);border:1px solid var(--line2);border-radius:4px;padding:1px 6px">${escapeHtml(s.supplement_type||'Supplement')}</span></div>
       <div><div class="history-meta">${s.dose||'—'} ${escapeHtml(s.unit||'')} · ${escapeHtml(s.frequency||'—')} · ${escapeHtml(s.timing||'—')}</div>${renderInventoryMini(s)}${s.notes?`<div class="history-meta" style="color:var(--muted)">${escapeHtml(s.notes)}</div>`:''}</div>
       <div class="mono" ${cycleBadge}>${cycleLabel}</div>
-      <div style="display:flex;gap:6px"><button class="btn small" data-edit-supp="${i}">Edit</button><button class="btn small red" data-delete-supp="${escapeAttr(s.name)}">×</button></div>
+      <div style="display:flex;gap:6px"><button class="btn small" style="background:rgba(232,255,71,.12);border-color:rgba(232,255,71,.3);color:var(--acc)" onclick="window.vertexOpenRestock(${i})" title="Restock inventory">+</button><button class="btn small" data-edit-supp="${i}">Edit</button><button class="btn small red" data-delete-supp="${escapeAttr(s.name)}">×</button></div>
     </div>`;
   }).join('');
 }
@@ -11054,6 +11061,57 @@ window.protoCloseDayModal = function(){
   document.body.style.overflow = '';
 };
 window.renderProtoDayModal = renderProtoDayModal;
+
+// ── RESTOCK MODAL ──────────────────────────────────────────────
+window.vertexOpenRestock = function(idx){
+  const s = stackItems[idx]; if(!s) return;
+  const useVials = s.supplement_type==='Peptide' || s.supplement_type==='Medication';
+  const label = useVials ? 'vials' : 'servings';
+  const current = useVials ? (Number(s.vials_on_hand)||0) : (Number(s.inventory)||0);
+  const el = document.getElementById('restockModalContent'); if(!el) return;
+  el.innerHTML =
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:1px solid var(--line2)">'
+      +'<div>'
+        +'<div style="font-size:13px;font-weight:800;color:var(--acc);text-transform:uppercase;letter-spacing:.05em">'+escapeHtml(s.name)+'</div>'
+        +'<div style="font-size:11px;color:var(--muted)">Currently: '+current+' '+label+' on hand</div>'
+      +'</div>'
+      +'<button onclick="window.vertexCloseRestock()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1">✕</button>'
+    +'</div>'
+    +'<div style="padding:16px">'
+      +'<div class="supp-field-label" style="margin-bottom:8px">How many '+label+' to add?</div>'
+      +'<input id="restockQtyInput" type="number" min="1" step="1" placeholder="e.g. 4" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:16px;padding:10px 12px;outline:none;margin-bottom:12px">'
+      +'<button onclick="window.vertexConfirmRestock('+idx+')" style="width:100%;background:var(--acc);color:#000;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">+ Add to Inventory</button>'
+    +'</div>';
+  const modal = document.getElementById('restockModal');
+  if(modal){ modal.style.display='flex'; document.body.style.overflow='hidden'; }
+  setTimeout(function(){ var inp=document.getElementById('restockQtyInput'); if(inp) inp.focus(); }, 120);
+};
+
+window.vertexCloseRestock = function(){
+  const modal = document.getElementById('restockModal');
+  if(modal) modal.style.display='none';
+  document.body.style.overflow='';
+};
+
+window.vertexConfirmRestock = async function(idx){
+  const s = stackItems[idx]; if(!s) return;
+  const add = parseFloat(document.getElementById('restockQtyInput')?.value);
+  if(!add || add <= 0){ toast('Enter a valid quantity'); return; }
+  const useVials = s.supplement_type==='Peptide' || s.supplement_type==='Medication';
+  const field = useVials ? 'vials_on_hand' : 'inventory';
+  const label = useVials ? 'vials' : 'servings';
+  const current = useVials ? (Number(s.vials_on_hand)||0) : (Number(s.inventory)||0);
+  const newVal = current + add;
+  const supa = getSupa();
+  if(!supa || !authUser){ toast('Sign in to restock'); return; }
+  const {error} = await supa.from('peptide_stack').update({[field]: newVal}).eq('id', s.id);
+  if(error){ toast('Update failed'); console.error(error); return; }
+  s[field] = newVal;
+  window.vertexCloseRestock();
+  toast(escapeHtml(s.name)+' restocked \u2192 '+newVal+' '+label+' on hand');
+  if(typeof renderStackTab==='function') renderStackTab();
+  if(typeof renderProtocolTab==='function') renderProtocolTab();
+};
 
 function suppUpdateDayPickerVisibility(){
   const freq = (document.getElementById('suppFrequency')?.value||'').toLowerCase();
@@ -15002,7 +15060,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260603-6a79-cost-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260603-6a80-restock';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -9586,7 +9586,7 @@ function wcRenderDashboard(){
       ahRecovEl.innerHTML='<div class="empty-cta" style="grid-column:1/-1"><div class="empty-cta-icon">❤️</div><div class="empty-cta-title">No health data yet</div><div class="empty-cta-desc">Tap Sync Apple Health or the ↻ button to load your metrics.</div></div>';
     }
   }
-  if(typeof renderNutritionActuals==='function') renderNutritionActuals();
+  if(typeof window.renderDailyNutrition==='function') window.renderDailyNutrition();
   if(!wcLogs.length) return;
     const sorted=[...wcLogs].sort((a,b)=>a.date.localeCompare(b.date)).filter(e=>e.weight);
   const latest=sorted[sorted.length-1];
@@ -15246,7 +15246,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260604-6a85-daily-nutrition';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260604-6a86-nutrition-scope-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

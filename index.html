@@ -15220,7 +15220,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260604-6a83-macro-upgrade';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260604-6a84-compact-controls';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -17697,15 +17697,14 @@ window.vertexImportHKWorkout = async function(idx) {
 .vertex-macro-sticky.on{display:block}
 .vertex-macro-sticky b{color:var(--acc)}
 .vertex-macro-history-status{font-family:monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:8px}
-.vertex-macro-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.vertex-macro-controls label{display:block;border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:10px}
-.vertex-macro-controls small{display:block;font-family:monospace;color:var(--muted);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
-.vertex-macro-controls select{width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:9px}
+.vertex-macro-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.vertex-macro-controls label{display:block;border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:8px 10px}
+.vertex-macro-controls small{display:block;font-family:monospace;color:var(--muted);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px}
+.vertex-macro-controls select{width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:7px}
 .vertex-macro-note{color:var(--muted);font-size:12px;line-height:1.45;margin-top:10px}
 @media(max-width:760px){
-
   .vertex-macro-grid{grid-template-columns:1fr 1fr}
-  .vertex-macro-controls{grid-template-columns:1fr}
+  .vertex-macro-controls{grid-template-columns:1fr 1fr}
 }
 </style>
 
@@ -17932,9 +17931,9 @@ window.vertexImportHKWorkout = async function(idx) {
           <option value="male"${m.sex==='male'?' selected':''}>Male</option>
           <option value="female"${m.sex==='female'?' selected':''}>Female</option>
         </select></label>
-        <label><small>Age</small><input id="vertexMacroAge" type="number" min="18" max="99" value="${m.age}" style="width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:9px;font-size:14px;outline:none"></label>
-        <label><small>Height — ft</small><input id="vertexMacroFt" type="number" min="4" max="7" value="${Math.floor(m.heightIn/12)}" style="width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:9px;font-size:14px;outline:none"></label>
-        <label><small>Height — in</small><input id="vertexMacroIn" type="number" min="0" max="11" value="${m.heightIn%12}" style="width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:9px;font-size:14px;outline:none"></label>
+        <label><small>Age</small><input id="vertexMacroAge" type="number" min="18" max="99" value="${m.age}" style="width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:7px;font-size:14px;outline:none"></label>
+        <label><small>Height — ft</small><input id="vertexMacroFt" type="number" min="4" max="7" value="${Math.floor(m.heightIn/12)}" style="width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:7px;font-size:14px;outline:none"></label>
+        <label><small>Height — in</small><input id="vertexMacroIn" type="number" min="0" max="11" value="${m.heightIn%12}" style="width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:7px;font-size:14px;outline:none"></label>
       </div>
       <div style="font-size:10px;color:var(--muted);margin:-4px 0 10px;font-family:monospace">BMR: ${m.bmr} kcal · TDEE: ${Math.round(m.bmr*m.actMult)} kcal · Formula: Mifflin-St Jeor</div>
       <div class="vertex-macro-grid">

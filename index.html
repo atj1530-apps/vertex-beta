@@ -4653,7 +4653,7 @@ window.vertexFinishBootstrap=function(){
 <div id="wtab-dashboard" style="display:none">
   <section id="vertexWellnessRecoveryCenter" class="vertex-wellness-recovery-center"></section>
   <div id="wc-dash-kpis" class="wc-kpi-grid"></div>
-  <div id="wcNutritionSection" style="margin-top:16px"></div>
+  <div id="vertexNutritionActuals" style="margin-top:20px"></div>
 
   <div class="wc-dash-grid"><div class="wc-dash-card" style="grid-column:1/-1"><div class="wc-dash-card-label">Weight Trajectory &amp; 8-Week Projection</div><div class="wc-chart-wrap"><canvas id="wc-dc-weight"></canvas></div></div></div>
   <div class="wc-dash-grid">
@@ -4948,6 +4948,22 @@ window.vertexFinishBootstrap=function(){
       <button onclick="window.protoCloseSheet()" style="background:var(--panel2);border:1px solid var(--line2);border-radius:50%;width:32px;height:32px;min-width:32px;color:var(--muted);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;line-height:1">×</button>
     </div>
     <div id="protoSheetBody" style="overflow-y:auto;flex:1;padding:0 20px 24px;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none"></div>
+  </div>
+</div>
+
+<div id="wtab-nutrition" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">TODAY'S NUTRITION</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">Pulled from Apple Health · syncs from your food tracking app</div>
+    </div>
+    <button onclick="window.vertexOpenNutritionGoals&&window.vertexOpenNutritionGoals()" style="background:none;border:1px solid var(--line2);border-radius:6px;color:var(--muted);font-size:10px;padding:5px 10px;cursor:pointer;font-family:monospace;letter-spacing:.5px">SET GOALS</button>
+  </div>
+  <div id="nutritionCardsGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px"></div>
+  <div id="nutritionEmptyState" style="display:none;text-align:center;padding:40px 20px;color:var(--muted)">
+    <div style="font-size:32px;margin-bottom:8px">🥗</div>
+    <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">No nutrition data yet</div>
+    <div style="font-size:12px">Log food in MyFitnessPal, Cronometer, or another app that writes to Apple Health, then tap Sync Apple Health.</div>
   </div>
 </div>
 
@@ -9126,7 +9142,7 @@ async function refreshAppleHealthMetrics(){
 }
 
 function renderHealthPage(){
-  let rows=loadHealthEntries(); if(authUser && !window.__vertexHealthMetricLoadOnce){window.__vertexHealthMetricLoadOnce=true; loadHealthMetricsFromCloud().then(ok=>{if(ok){renderHealthPage(); try{if(typeof window.renderHomeDashboard==='function')window.renderHomeDashboard();}catch(e){}}}).catch(()=>{});}
+  let rows=loadHealthEntries(); if(authUser && !window.__vertexHealthMetricLoadOnce){window.__vertexHealthMetricLoadOnce=true; loadHealthMetricsFromCloud().then(ok=>{if(ok){renderHealthPage(); try{if(typeof window.renderHomeDashboard==='function')window.renderHomeDashboard();}catch(e){}}}).catch(()=>{}); }
   const last=rows[0]||null; if(!document.getElementById('healthDate')) return; hydrateHealthForm(last||{date:todayIso()});
   const last7=rows.filter(r=>Date.now()-new Date(r.date+'T12:00:00').getTime()<7*86400000);
   const avgSleep=avgHealth(last7,'sleepHours'), avgSteps=avgHealth(last7,'steps'), avgReady=avgHealth(last7,'readinessScore'), avgHrv=avgHealth(last7,'hrv');
@@ -9352,6 +9368,86 @@ let wellnessTab='dashboard';
 let ciLogs=[];
 let stackItems=[];
 
+function renderNutritionActuals(){
+  const el = document.getElementById('vertexNutritionActuals'); if(!el) return;
+  const rows = typeof loadHealthEntries==='function' ? loadHealthEntries() : [];
+  const h = rows[0] || null;
+  const mt = (typeof window.vertexGetMacroTargets==='function') ? window.vertexGetMacroTargets() : null;
+  const goals = (()=>{ try{ return JSON.parse(localStorage.getItem('vertexNutritionGoals')||'null')||{}; }catch(e){ return {}; }})();
+  const G4 = {fiber:goals.fiber||35, water:goals.water||3.0, sugar:goals.sugar||50, sodium:goals.sodium||2300};
+  const nutrients = [
+    {label:'Calories', val:h?.caloriesConsumed,   goal:mt?.cal,      unit:'kcal', higher:true},
+    {label:'Protein',  val:h?.nutritionProtein,    goal:mt?.protein,  unit:'g',    higher:true},
+    {label:'Carbs',    val:h?.nutritionCarbs,       goal:mt?.carbs,    unit:'g',    higher:true},
+    {label:'Fat',      val:h?.nutritionFat,         goal:mt?.fat,      unit:'g',    higher:true},
+    {label:'Fiber',    val:h?.nutritionFiber,       goal:G4.fiber,     unit:'g',    higher:true},
+    {label:'Water',    val:h?.nutritionWater,       goal:G4.water,     unit:'L',    higher:true},
+    {label:'Sugar',    val:h?.nutritionSugar,       goal:G4.sugar,     unit:'g',    higher:false},
+    {label:'Sodium',   val:h?.nutritionSodium,      goal:G4.sodium,    unit:'mg',   higher:false}
+  ];
+  const hasAny = nutrients.some(n => n.val != null);
+  const cards = nutrients.map(n => {
+    const hasData = n.val != null && n.goal != null;
+    const pct = hasData ? Math.min(100, Math.round((n.val / n.goal) * 100)) : 0;
+    const over = hasData && n.val > n.goal;
+    const barColor = !hasData ? 'var(--line2)' : over ? (n.higher ? 'var(--green)' : 'var(--red)') : pct >= 80 ? 'var(--acc)' : 'var(--muted)';
+    const fmt = (v, u) => v == null ? '—' : u === 'L' ? v.toFixed(1)+' L' : u === 'kcal' ? Math.round(v).toLocaleString()+' cal' : v+(u === 'g' ? ' g' : ' mg');
+    return '<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:12px">'
+      +'<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">'+n.label+'</div>'
+      +'<div style="font-size:18px;font-weight:800;color:'+(n.val!=null?'var(--text)':'var(--muted)')+'">'+fmt(n.val,n.unit)+'</div>'
+      +(n.goal!=null?'<div style="font-size:10px;color:var(--muted);margin:3px 0 6px">Goal: '+fmt(n.goal,n.unit)+'</div>':'<div style="font-size:10px;color:var(--muted);margin:3px 0 6px">—</div>')
+      +'<div style="height:3px;background:var(--line2);border-radius:2px"><div style="height:3px;background:'+barColor+';border-radius:2px;width:'+pct+'%;transition:width .4s"></div></div>'
+      +(hasData?'<div style="font-size:10px;color:'+barColor+';margin-top:3px">'+pct+'%'+(over&&!n.higher?' over':'')+'</div>':'<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(n.val==null?'No data':'')+'</div>')
+    +'</div>';
+  }).join('');
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+    +'<div><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">TODAY\'S ACTUAL INTAKE</div>'
+    +'<div style="font-size:10px;color:var(--muted);margin-top:2px">'+(hasAny?'From Apple Health · synced from your food tracking app':'Log food in MyFitnessPal or Cronometer (with Health access) then sync')+'</div></div>'
+    +'<button onclick="window.vertexOpenNutritionGoals&&window.vertexOpenNutritionGoals()" style="background:none;border:1px solid var(--line2);border-radius:6px;color:var(--muted);font-size:10px;padding:4px 9px;cursor:pointer;font-family:monospace;letter-spacing:.5px;white-space:nowrap">OTHER GOALS</button>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+cards+'</div>';
+}
+window.renderNutritionActuals = renderNutritionActuals;
+
+function renderNutritionTab(){
+  const grid = document.getElementById('nutritionCardsGrid');
+  const empty = document.getElementById('nutritionEmptyState');
+  if(!grid) return;
+  const rows = typeof loadHealthEntries==='function' ? loadHealthEntries() : [];
+  const latestH = rows[0] || null;
+  const goals = (()=>{ try{ return JSON.parse(localStorage.getItem('vertexNutritionGoals')||'null')||{}; }catch(e){ return {}; }})();
+  const G = {calories:goals.calories||2400,protein:goals.protein||180,carbs:goals.carbs||200,fat:goals.fat||65,fiber:goals.fiber||35,water:goals.water||3.0,sugar:goals.sugar||50,sodium:goals.sodium||2300};
+  const nutrients = [
+    {label:'Calories', val:latestH?.caloriesConsumed, goal:G.calories, unit:'kcal', higher:true},
+    {label:'Protein',  val:latestH?.nutritionProtein, goal:G.protein,  unit:'g',    higher:true},
+    {label:'Carbs',    val:latestH?.nutritionCarbs,   goal:G.carbs,    unit:'g',    higher:true},
+    {label:'Fat',      val:latestH?.nutritionFat,     goal:G.fat,      unit:'g',    higher:true},
+    {label:'Fiber',    val:latestH?.nutritionFiber,   goal:G.fiber,    unit:'g',    higher:true},
+    {label:'Water',    val:latestH?.nutritionWater,   goal:G.water,    unit:'L',    higher:true},
+    {label:'Sugar',    val:latestH?.nutritionSugar,   goal:G.sugar,    unit:'g',    higher:false},
+    {label:'Sodium',   val:latestH?.nutritionSodium,  goal:G.sodium,   unit:'mg',   higher:false}
+  ];
+  const hasAny = nutrients.some(n => n.val != null);
+  if(empty) empty.style.display = hasAny ? 'none' : 'block';
+  if(!hasAny){ grid.innerHTML=''; return; }
+  grid.innerHTML = nutrients.map(n => {
+    const hasData = n.val != null;
+    const pct = hasData && n.goal ? Math.min(100, Math.round((n.val/n.goal)*100)) : 0;
+    const over = hasData && n.val > n.goal;
+    const barColor = !hasData ? 'var(--line2)' : over ? (n.higher ? 'var(--green)' : 'var(--red)') : pct>=80 ? 'var(--acc)' : 'var(--muted)';
+    const valStr = !hasData ? '—' : n.unit==='L' ? n.val.toFixed(1)+' L' : n.unit==='kcal' ? Math.round(n.val).toLocaleString()+' cal' : n.val+(n.unit==='g'?' g':' mg');
+    const goalStr = n.unit==='L' ? n.goal.toFixed(1)+' L' : n.unit==='kcal' ? n.goal.toLocaleString()+' cal' : n.goal+(n.unit==='g'?' g':' mg');
+    return '<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:14px">'
+      +'<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">'+n.label+'</div>'
+      +'<div style="font-size:20px;font-weight:800;color:'+(hasData?'var(--text)':'var(--muted)')+'">'+valStr+'</div>'
+      +'<div style="font-size:10px;color:var(--muted);margin:4px 0 7px">Goal: '+goalStr+'</div>'
+      +'<div style="height:3px;background:var(--line2);border-radius:2px"><div style="height:3px;background:'+barColor+';border-radius:2px;width:'+pct+'%;transition:width .4s"></div></div>'
+      +(hasData?'<div style="font-size:10px;color:'+barColor+';margin-top:4px">'+pct+'%'+(over&&!n.higher?' over':'')+'</div>':'<div style="font-size:10px;color:var(--muted);margin-top:4px">No data · log in food app</div>')
+    +'</div>';
+  }).join('');
+}
+window.renderNutritionTab = renderNutritionTab;
+
 function setWellnessTab(tab){
   wellnessTab=tab;
   document.querySelectorAll('[data-wtab]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-wtab')===tab));
@@ -9460,47 +9556,11 @@ function wcRenderDashboard(){
       const wtd=fmt1(latestH.wristTempDeviation); if(wtd!=null) cards.push(buildMetricCard('Wrist Temp', wtd!=null?wtd+'°C':null, 'sleep deviation', null, '', null));
       const sh=fmtInt(latestH.standingMinutes ?? latestH.standingHours); if(sh!=null) cards.push(buildMetricCard('Standing', sh!=null?sh+' min':null, 'stand minutes', null, '', null));
       ahRecovEl.innerHTML = cards.join('');
-
-      // ── NUTRITION SECTION ──────────────────────────────────────
-      const nutEl = document.getElementById('wcNutritionSection');
-      if(nutEl && latestH){
-        const goals = (()=>{ try{ return JSON.parse(localStorage.getItem('vertexNutritionGoals')||'null') || {}; }catch(e){ return {}; }})();
-        const G = { calories:goals.calories||2400, protein:goals.protein||180, carbs:goals.carbs||200, fat:goals.fat||65, fiber:goals.fiber||35, water:goals.water||3.0, sugar:goals.sugar||50, sodium:goals.sodium||2300 };
-        const nutrients = [
-          {key:'caloriesConsumed', label:'Calories',  val:latestH.caloriesConsumed,    goal:G.calories, unit:'kcal', goalKey:'calories', higher:true},
-          {key:'nutritionProtein', label:'Protein',   val:latestH.nutritionProtein,    goal:G.protein,  unit:'g',    goalKey:'protein',  higher:true},
-          {key:'nutritionCarbs',   label:'Carbs',     val:latestH.nutritionCarbs,      goal:G.carbs,    unit:'g',    goalKey:'carbs',    higher:true},
-          {key:'nutritionFat',     label:'Fat',       val:latestH.nutritionFat,        goal:G.fat,      unit:'g',    goalKey:'fat',      higher:true},
-          {key:'nutritionFiber',   label:'Fiber',     val:latestH.nutritionFiber,      goal:G.fiber,    unit:'g',    goalKey:'fiber',    higher:true},
-          {key:'nutritionWater',   label:'Water',     val:latestH.nutritionWater,      goal:G.water,    unit:'L',    goalKey:'water',    higher:true},
-          {key:'nutritionSugar',   label:'Sugar',     val:latestH.nutritionSugar,      goal:G.sugar,    unit:'g',    goalKey:'sugar',    higher:false},
-          {key:'nutritionSodium',  label:'Sodium',    val:latestH.nutritionSodium,     goal:G.sodium,   unit:'mg',   goalKey:'sodium',   higher:false}
-        ];
-        const nutCards = nutrients.map(n => {
-          const hasData = n.val != null;
-          const pct = hasData && n.goal ? Math.min(100, Math.round((n.val / n.goal) * 100)) : 0;
-          const over = hasData && n.val > n.goal;
-          const barColor = !hasData ? 'var(--line2)' : over ? (n.higher ? 'var(--green)' : 'var(--red)') : pct >= 80 ? 'var(--acc)' : 'var(--muted)';
-          const valStr = !hasData ? '—' : n.unit === 'L' ? n.val.toFixed(1)+' L' : n.unit === 'kcal' ? Math.round(n.val).toLocaleString()+' cal' : n.val+(n.unit==='g'?' g':' mg');
-          return `<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:12px 14px">
-            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">${n.label}</div>
-            <div style="font-size:18px;font-weight:800;color:${hasData?'var(--text)':'var(--muted)'}">${valStr}</div>
-            <div style="font-size:10px;color:var(--muted);margin:3px 0 6px">Goal: ${n.unit==='L'?n.goal.toFixed(1)+' L':n.unit==='kcal'?n.goal.toLocaleString()+' cal':n.goal+(n.unit==='g'?' g':' mg')}</div>
-            <div style="height:3px;background:var(--line2);border-radius:2px"><div style="height:3px;background:${barColor};border-radius:2px;width:${pct}%;transition:width .4s"></div></div>
-            ${hasData?`<div style="font-size:10px;color:${barColor};margin-top:3px">${pct}%${over&&!n.higher?' over':''}</div>`:'<div style="font-size:10px;color:var(--muted);margin-top:3px">No data · log in food app</div>'}
-          </div>`;
-        }).join('');
-        nutEl.innerHTML = `
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">TODAY'S NUTRITION <span style="font-weight:400;font-size:10px">· from Apple Health / food tracking app</span></div>
-            <button onclick="window.vertexOpenNutritionGoals&&window.vertexOpenNutritionGoals()" style="background:none;border:1px solid var(--line2);border-radius:6px;color:var(--muted);font-size:10px;padding:3px 8px;cursor:pointer;font-family:monospace;letter-spacing:.5px">SET GOALS</button>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">${nutCards}</div>`;
-      }
     } else {
       ahRecovEl.innerHTML='<div class="empty-cta" style="grid-column:1/-1"><div class="empty-cta-icon">❤️</div><div class="empty-cta-title">No health data yet</div><div class="empty-cta-desc">Tap Sync Apple Health or the ↻ button to load your metrics.</div></div>';
     }
   }
+  if(typeof renderNutritionActuals==='function') renderNutritionActuals();
   if(!wcLogs.length) return;
     const sorted=[...wcLogs].sort((a,b)=>a.date.localeCompare(b.date)).filter(e=>e.weight);
   const latest=sorted[sorted.length-1];
@@ -15160,7 +15220,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260603-6a81-nutrition';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260604-6a83-macro-upgrade';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -17655,6 +17715,9 @@ window.vertexImportHKWorkout = async function(idx) {
   const ENABLED='vertex_macro_tracking_enabled';
   const GOAL='vertex_macro_goal_mode';
   const ACTIVITY='vertex_macro_activity';
+  const SEX='vertex_macro_sex';
+  const AGE='vertex_macro_age';
+  const HEIGHT_IN='vertex_macro_height_in';
 
   function on(){return localStorage.getItem(ENABLED)==='1'}
   function setOn(v){localStorage.setItem(ENABLED,v?'1':'0')}
@@ -17706,16 +17769,29 @@ window.vertexImportHKWorkout = async function(idx) {
     const target=targetWeight();
     const goal=localStorage.getItem(GOAL)||'cut';
     const activity=localStorage.getItem(ACTIVITY)||'moderate';
-    const mult=activity==='low'?12:activity==='high'?15:13.5;
-    let cal=Math.round(current*mult);
+    const sex=localStorage.getItem(SEX)||'male';
+    const age=Math.max(18,parseInt(localStorage.getItem(AGE))||35);
+    const heightIn=Math.max(48,parseInt(localStorage.getItem(HEIGHT_IN))||70);
+
+    // Mifflin-St Jeor BMR (most validated general-population formula)
+    const weightKg=current*0.453592;
+    const heightCm=heightIn*2.54;
+    const bmr=Math.round((10*weightKg)+(6.25*heightCm)-(5*age)+(sex==='male'?5:-161));
+
+    // TDEE = BMR × activity multiplier
+    // Low=lightly active (1–3 days), Moderate=mod. active (3–5 days), High=very active (6–7 days)
+    const actMult=activity==='low'?1.375:activity==='high'?1.725:1.55;
+    let cal=bmr*actMult;
+
     if(goal==='cut')cal-=400;
     if(goal==='lean_bulk')cal+=200;
     if(goal==='bulk')cal+=400;
     cal=Math.max(1400,Math.round(cal/25)*25);
+
     const protein=Math.round(target*.9);
     const fat=Math.round((cal*.25)/9);
     const carbs=Math.max(50,Math.round((cal-(protein*4)-(fat*9))/4));
-    return {current,target,goal,activity,mult,cal,protein,fat,carbs};
+    return{current,target,goal,activity,sex,age,heightIn,bmr,actMult,cal,protein,fat,carbs};
   }
   function macroHash(m){return [m.current.toFixed(1),m.target.toFixed(1),m.goal,m.activity,m.cal,m.protein,m.carbs,m.fat].join('|')}
   function macroHistoryKey(){return 'vertex_macro_history_saved_'+macroHash(macro())}
@@ -17760,7 +17836,7 @@ window.vertexImportHKWorkout = async function(idx) {
     const goalText=m.goal==='cut'?'cut adjustment subtracts 400 calories':m.goal==='lean_bulk'?'lean-bulk adjustment adds 200 calories':m.goal==='bulk'?'aggressive bulk adjustment adds 400 calories':'maintenance uses no calorie adjustment';
     const activityText=m.activity==='low'?'12':m.activity==='high'?'15':'13.5';
     const map={
-      calories:`<b>Calories</b>: current weight (${m.current.toFixed(1)} lb) × activity multiplier (${activityText}) with goal mode applied. For this target, ${goalText}. Rounded to the nearest 25 calories, with a 1,400 calorie floor.`,
+      calories:`<b>Calories</b>: Mifflin-St Jeor BMR (${m.bmr} kcal) × activity factor (${m.actMult}×) = TDEE ${Math.round(m.bmr*m.actMult)} kcal, then ${goalText}. Rounded to nearest 25 cal, 1,400 floor. Based on your age, height, sex, and current weight.`,
       protein:`<b>Protein</b>: target body weight (${m.target.toFixed(1)} lb) × 0.9 g per lb. This keeps protein tied to the goal body weight, not just today’s scale weight.`,
       carbs:`<b>Carbs</b>: remaining calories after protein and fat are assigned. Formula: (calories − protein calories − fat calories) ÷ 4. Minimum floor is 50 g.`,
       fat:`<b>Fat</b>: 25% of calories assigned to fat, then divided by 9 calories per gram.`
@@ -17848,11 +17924,19 @@ window.vertexImportHKWorkout = async function(idx) {
           <option value="bulk"${m.goal==='bulk'?' selected':''}>Aggressive Bulk</option>
         </select></label>
         <label><small>Activity Level</small><select id="vertexMacroActivity">
-          <option value="low"${m.activity==='low'?' selected':''}>Low</option>
-          <option value="moderate"${m.activity==='moderate'?' selected':''}>Moderate</option>
-          <option value="high"${m.activity==='high'?' selected':''}>High</option>
+          <option value="low"${m.activity==='low'?' selected':''}>Low (1–3 days/wk)</option>
+          <option value="moderate"${m.activity==='moderate'?' selected':''}>Moderate (3–5 days/wk)</option>
+          <option value="high"${m.activity==='high'?' selected':''}>High (6–7 days/wk)</option>
         </select></label>
+        <label><small>Sex</small><select id="vertexMacroSex">
+          <option value="male"${m.sex==='male'?' selected':''}>Male</option>
+          <option value="female"${m.sex==='female'?' selected':''}>Female</option>
+        </select></label>
+        <label><small>Age</small><input id="vertexMacroAge" type="number" min="18" max="99" value="${m.age}" style="width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:9px;font-size:14px;outline:none"></label>
+        <label><small>Height — ft</small><input id="vertexMacroFt" type="number" min="4" max="7" value="${Math.floor(m.heightIn/12)}" style="width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:9px;font-size:14px;outline:none"></label>
+        <label><small>Height — in</small><input id="vertexMacroIn" type="number" min="0" max="11" value="${m.heightIn%12}" style="width:100%;background:var(--panel3);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:9px;font-size:14px;outline:none"></label>
       </div>
+      <div style="font-size:10px;color:var(--muted);margin:-4px 0 10px;font-family:monospace">BMR: ${m.bmr} kcal · TDEE: ${Math.round(m.bmr*m.actMult)} kcal · Formula: Mifflin-St Jeor</div>
       <div class="vertex-macro-grid">
         <div class="vertex-macro-kpi"><b>${m.cal}</b><span>Calories</span><button class="vertex-macro-info" type="button" data-macro-info="calories" aria-label="How calories are calculated">i</button></div>
         <div class="vertex-macro-kpi"><b>${m.protein}g</b><span>Protein</span><button class="vertex-macro-info" type="button" data-macro-info="protein" aria-label="How protein is calculated">i</button></div>
@@ -17882,6 +17966,20 @@ window.vertexImportHKWorkout = async function(idx) {
     const saveAndRender=function(){render()};
     if(g)g.onchange=function(){localStorage.setItem(GOAL,this.value);saveAndRender()};
     if(a)a.onchange=function(){localStorage.setItem(ACTIVITY,this.value);saveAndRender()};
+    const sx=document.getElementById('vertexMacroSex');
+    const ag=document.getElementById('vertexMacroAge');
+    const ft=document.getElementById('vertexMacroFt');
+    const ht=document.getElementById('vertexMacroIn');
+    if(sx)sx.onchange=function(){localStorage.setItem(SEX,this.value);saveAndRender()};
+    if(ag)ag.onchange=function(){const v=parseInt(this.value);if(v>=18&&v<=99){localStorage.setItem(AGE,v);saveAndRender();}};
+    const updateHeight=function(){
+      const f=parseInt(ft&&ft.value)||5;
+      const i=parseInt(ht&&ht.value)||10;
+      localStorage.setItem(HEIGHT_IN,f*12+i);
+      saveAndRender();
+    };
+    if(ft)ft.onchange=updateHeight;
+    if(ht)ht.onchange=updateHeight;
     if(r)r.onclick=function(){render();try{if(typeof toast==='function')toast('Macro targets refreshed')}catch(_){}};
     const status=document.getElementById('vertexMacroHistoryStatus');
     saveMacroHistory(m,'render').then(msg=>{if(status)status.textContent='History: '+msg}).catch(()=>{if(status)status.textContent='History: not saved'});
@@ -17895,6 +17993,8 @@ window.vertexImportHKWorkout = async function(idx) {
       if(!document.hidden) setTimeout(render,250);
     });
   }
+  window.vertexGetMacroTargets = function(){ return macro(); };
+
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
 })();

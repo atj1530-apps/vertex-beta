@@ -4902,6 +4902,13 @@ window.vertexFinishBootstrap=function(){
 
 </div>
 
+<!-- MACRO CONFIG MODAL -->
+<div id="macroConfigModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:16px;box-sizing:border-box" onclick="if(event.target===this)window.vertexCloseMacroConfig()">
+  <div style="background:var(--panel);border:1px solid var(--line2);border-radius:14px;max-width:440px;width:100%;overflow:hidden">
+    <div id="macroConfigContent"></div>
+  </div>
+</div>
+
 <!-- RESTOCK MODAL -->
 <div id="restockModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:16px;box-sizing:border-box" onclick="if(event.target===this)window.vertexCloseRestock()">
   <div style="background:var(--panel);border:1px solid var(--line2);border-radius:14px;max-width:340px;width:100%;overflow:hidden">
@@ -9368,45 +9375,64 @@ let wellnessTab='dashboard';
 let ciLogs=[];
 let stackItems=[];
 
-function renderNutritionActuals(){
+function renderDailyNutrition(){
   const el = document.getElementById('vertexNutritionActuals'); if(!el) return;
   const rows = typeof loadHealthEntries==='function' ? loadHealthEntries() : [];
   const h = rows[0] || null;
   const mt = (typeof window.vertexGetMacroTargets==='function') ? window.vertexGetMacroTargets() : null;
   const goals = (()=>{ try{ return JSON.parse(localStorage.getItem('vertexNutritionGoals')||'null')||{}; }catch(e){ return {}; }})();
-  const G4 = {fiber:goals.fiber||35, water:goals.water||3.0, sugar:goals.sugar||50, sodium:goals.sodium||2300};
+
   const nutrients = [
-    {label:'Calories', val:h?.caloriesConsumed,   goal:mt?.cal,      unit:'kcal', higher:true},
-    {label:'Protein',  val:h?.nutritionProtein,    goal:mt?.protein,  unit:'g',    higher:true},
-    {label:'Carbs',    val:h?.nutritionCarbs,       goal:mt?.carbs,    unit:'g',    higher:true},
-    {label:'Fat',      val:h?.nutritionFat,         goal:mt?.fat,      unit:'g',    higher:true},
-    {label:'Fiber',    val:h?.nutritionFiber,       goal:G4.fiber,     unit:'g',    higher:true},
-    {label:'Water',    val:h?.nutritionWater,       goal:G4.water,     unit:'L',    higher:true},
-    {label:'Sugar',    val:h?.nutritionSugar,       goal:G4.sugar,     unit:'g',    higher:false},
-    {label:'Sodium',   val:h?.nutritionSodium,      goal:G4.sodium,    unit:'mg',   higher:false}
+    {label:'Calories', actual:h?.caloriesConsumed,  goal:mt?.cal,        unit:'kcal', higherOk:true},
+    {label:'Protein',  actual:h?.nutritionProtein,   goal:mt?.protein,    unit:'g',    higherOk:true},
+    {label:'Carbs',    actual:h?.nutritionCarbs,      goal:mt?.carbs,      unit:'g',    higherOk:true},
+    {label:'Fat',      actual:h?.nutritionFat,        goal:mt?.fat,        unit:'g',    higherOk:true},
+    {label:'Fiber',    actual:h?.nutritionFiber,      goal:goals.fiber||35,  unit:'g',  higherOk:true},
+    {label:'Water',    actual:h?.nutritionWater,      goal:goals.water||3.0, unit:'L',  higherOk:true},
+    {label:'Sugar',    actual:h?.nutritionSugar,      goal:goals.sugar||50,  unit:'g',  higherOk:false},
+    {label:'Sodium',   actual:h?.nutritionSodium,     goal:goals.sodium||2300,unit:'mg',higherOk:false}
   ];
-  const hasAny = nutrients.some(n => n.val != null);
+
+  const fmt = (v, u) => {
+    if(v == null) return '—';
+    if(u === 'L') return v.toFixed(1)+'L';
+    if(u === 'kcal') return Math.round(v).toLocaleString();
+    return (Math.round(v*10)/10)+(u === 'g' ? 'g' : 'mg');
+  };
+
+  const hasAnyActual = nutrients.some(n => n.actual != null);
+  const subtitle = mt ? `BMR ${mt.bmr} kcal · TDEE ${Math.round(mt.bmr*mt.actMult)} kcal · ${mt.goal==='cut'?'Cut':mt.goal==='lean_bulk'?'Lean Bulk':mt.goal==='bulk'?'Bulk':'Maintenance'}` : '';
+
   const cards = nutrients.map(n => {
-    const hasData = n.val != null && n.goal != null;
-    const pct = hasData ? Math.min(100, Math.round((n.val / n.goal) * 100)) : 0;
-    const over = hasData && n.val > n.goal;
-    const barColor = !hasData ? 'var(--line2)' : over ? (n.higher ? 'var(--green)' : 'var(--red)') : pct >= 80 ? 'var(--acc)' : 'var(--muted)';
-    const fmt = (v, u) => v == null ? '—' : u === 'L' ? v.toFixed(1)+' L' : u === 'kcal' ? Math.round(v).toLocaleString()+' cal' : v+(u === 'g' ? ' g' : ' mg');
+    const hasActual = n.actual != null;
+    const pct = hasActual && n.goal ? Math.min(100, Math.round((n.actual/n.goal)*100)) : 0;
+    const over = hasActual && n.actual > n.goal;
+    const barColor = !hasActual ? 'var(--line2)' : over ? (n.higherOk ? 'var(--green)' : 'var(--red)') : pct >= 80 ? 'var(--acc)' : 'var(--muted)';
     return '<div style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:12px">'
-      +'<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">'+n.label+'</div>'
-      +'<div style="font-size:18px;font-weight:800;color:'+(n.val!=null?'var(--text)':'var(--muted)')+'">'+fmt(n.val,n.unit)+'</div>'
-      +(n.goal!=null?'<div style="font-size:10px;color:var(--muted);margin:3px 0 6px">Goal: '+fmt(n.goal,n.unit)+'</div>':'<div style="font-size:10px;color:var(--muted);margin:3px 0 6px">—</div>')
-      +'<div style="height:3px;background:var(--line2);border-radius:2px"><div style="height:3px;background:'+barColor+';border-radius:2px;width:'+pct+'%;transition:width .4s"></div></div>'
-      +(hasData?'<div style="font-size:10px;color:'+barColor+';margin-top:3px">'+pct+'%'+(over&&!n.higher?' over':'')+'</div>':'<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(n.val==null?'No data':'')+'</div>')
+      +'<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">'+n.label+'</div>'
+      +(n.goal!=null ? '<div style="font-size:10px;color:var(--muted);margin-bottom:3px">Goal <b style="color:var(--text)">'+fmt(n.goal,n.unit)+'</b></div>' : '')
+      +'<div style="font-size:22px;font-weight:800;color:'+(hasActual?'var(--text)':'var(--muted)')+'">'+fmt(n.actual,n.unit)+'</div>'
+      +'<div style="height:3px;background:var(--line2);border-radius:2px;margin-top:6px"><div style="height:3px;background:'+barColor+';border-radius:2px;width:'+pct+'%;transition:width .4s"></div></div>'
+      +'<div style="font-size:10px;margin-top:4px;color:'+barColor+'">'
+        +(hasActual ? pct+'%'+(over&&!n.higherOk?' over':'') : '<span style="color:var(--muted)">log food to track</span>')
+      +'</div>'
     +'</div>';
   }).join('');
-  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
-    +'<div><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">TODAY\'S ACTUAL INTAKE</div>'
-    +'<div style="font-size:10px;color:var(--muted);margin-top:2px">'+(hasAny?'From Apple Health · synced from your food tracking app':'Log food in MyFitnessPal or Cronometer (with Health access) then sync')+'</div></div>'
-    +'<button onclick="window.vertexOpenNutritionGoals&&window.vertexOpenNutritionGoals()" style="background:none;border:1px solid var(--line2);border-radius:6px;color:var(--muted);font-size:10px;padding:4px 9px;cursor:pointer;font-family:monospace;letter-spacing:.5px;white-space:nowrap">OTHER GOALS</button>'
+
+  el.innerHTML =
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">'
+      +'<div>'
+        +'<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">DAILY NUTRITION</div>'
+        +(subtitle ? '<div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:monospace">'+subtitle+'</div>' : '')
+        +(!hasAnyActual ? '<div style="font-size:10px;color:var(--muted);margin-top:4px">Sync a food tracking app via Apple Health to see actuals</div>' : '')
+      +'</div>'
+      +'<button onclick="window.vertexOpenMacroConfig&&window.vertexOpenMacroConfig()" style="background:none;border:1px solid var(--line2);border-radius:6px;color:var(--muted);font-size:10px;padding:5px 10px;cursor:pointer;font-family:monospace;letter-spacing:.5px;white-space:nowrap;flex-shrink:0;margin-left:12px">⚙ Configure</button>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+cards+'</div>';
 }
+window.renderDailyNutrition = renderDailyNutrition;
+
+function renderNutritionActuals(){ renderDailyNutrition(); } // alias for backward compat
 window.renderNutritionActuals = renderNutritionActuals;
 
 function renderNutritionTab(){
@@ -15220,7 +15246,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260604-6a84-compact-controls';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260604-6a85-daily-nutrition';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -17994,6 +18020,88 @@ window.vertexImportHKWorkout = async function(idx) {
   }
   window.vertexGetMacroTargets = function(){ return macro(); };
 
+  window.vertexOpenMacroConfig = function(){
+    const m = macro();
+    const goals = (()=>{ try{ return JSON.parse(localStorage.getItem('vertexNutritionGoals')||'null')||{}; }catch(e){ return {}; }})();
+    const el = document.getElementById('macroConfigContent'); if(!el) return;
+    el.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:1px solid var(--line2)">'
+        +'<div style="font-size:13px;font-weight:800;color:var(--acc);text-transform:uppercase;letter-spacing:.05em">Configure Nutrition Goals</div>'
+        +'<button onclick="window.vertexCloseMacroConfig()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1">✕</button>'
+      +'</div>'
+      +'<div style="padding:16px;overflow-y:auto;max-height:65vh">'
+        +'<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Macro Calculation Inputs</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'
+          +'<div><div class="supp-field-label">Goal Mode</div><select id="mc-goal" style="width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:9px 10px;outline:none;margin-top:4px">'
+            +'<option value="cut"'+(m.goal==='cut'?' selected':'')+'>Cut</option>'
+            +'<option value="maintenance"'+(m.goal==='maintenance'?' selected':'')+'>Maintenance</option>'
+            +'<option value="lean_bulk"'+(m.goal==='lean_bulk'?' selected':'')+'>Lean Bulk</option>'
+            +'<option value="bulk"'+(m.goal==='bulk'?' selected':'')+'>Aggressive Bulk</option>'
+          +'</select></div>'
+          +'<div><div class="supp-field-label">Activity Level</div><select id="mc-activity" style="width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:9px 10px;outline:none;margin-top:4px">'
+            +'<option value="low"'+(m.activity==='low'?' selected':'')+'>Low (1–3 days/wk)</option>'
+            +'<option value="moderate"'+(m.activity==='moderate'?' selected':'')+'>Moderate (3–5 days/wk)</option>'
+            +'<option value="high"'+(m.activity==='high'?' selected':'')+'>High (6–7 days/wk)</option>'
+          +'</select></div>'
+          +'<div><div class="supp-field-label">Sex</div><select id="mc-sex" style="width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:9px 10px;outline:none;margin-top:4px">'
+            +'<option value="male"'+(m.sex==='male'?' selected':'')+'>Male</option>'
+            +'<option value="female"'+(m.sex==='female'?' selected':'')+'>Female</option>'
+          +'</select></div>'
+          +'<div><div class="supp-field-label">Age</div><input id="mc-age" type="number" min="18" max="99" value="'+m.age+'" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:9px 12px;outline:none;margin-top:4px"></div>'
+          +'<div><div class="supp-field-label">Height — ft</div><input id="mc-ft" type="number" min="4" max="7" value="'+Math.floor(m.heightIn/12)+'" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:9px 12px;outline:none;margin-top:4px"></div>'
+          +'<div><div class="supp-field-label">Height — in</div><input id="mc-ht" type="number" min="0" max="11" value="'+(m.heightIn%12)+'" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:9px 12px;outline:none;margin-top:4px"></div>'
+        +'</div>'
+        +'<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;border-top:1px solid var(--line2);padding-top:12px">Manual Targets (Fiber · Water · Sugar · Sodium)</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">'
+          +'<div><div class="supp-field-label">Fiber (g)</div><input id="mc-fiber" type="number" min="0" value="'+(goals.fiber||35)+'" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:9px 12px;outline:none;margin-top:4px"></div>'
+          +'<div><div class="supp-field-label">Water (L)</div><input id="mc-water" type="number" min="0" step="0.1" value="'+(goals.water||3.0)+'" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:9px 12px;outline:none;margin-top:4px"></div>'
+          +'<div><div class="supp-field-label">Sugar limit (g)</div><input id="mc-sugar" type="number" min="0" value="'+(goals.sugar||50)+'" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:9px 12px;outline:none;margin-top:4px"></div>'
+          +'<div><div class="supp-field-label">Sodium limit (mg)</div><input id="mc-sodium" type="number" min="0" value="'+(goals.sodium||2300)+'" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:9px 12px;outline:none;margin-top:4px"></div>'
+        +'</div>'
+        +'<button onclick="window.vertexSaveMacroConfig()" style="width:100%;background:var(--acc);color:#000;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Save Goals</button>'
+      +'</div>';
+    const modal = document.getElementById('macroConfigModal');
+    if(modal){ modal.style.display='flex'; document.body.style.overflow='hidden'; }
+  };
+
+  window.vertexCloseMacroConfig = function(){
+    const modal = document.getElementById('macroConfigModal');
+    if(modal) modal.style.display='none';
+    document.body.style.overflow='';
+  };
+
+  window.vertexSaveMacroConfig = function(){
+    const goal=document.getElementById('mc-goal')?.value;
+    const act=document.getElementById('mc-activity')?.value;
+    const sex=document.getElementById('mc-sex')?.value;
+    const age=parseInt(document.getElementById('mc-age')?.value);
+    const ft=parseInt(document.getElementById('mc-ft')?.value)||5;
+    const ht=parseInt(document.getElementById('mc-ht')?.value)||10;
+    const fiber=parseFloat(document.getElementById('mc-fiber')?.value);
+    const water=parseFloat(document.getElementById('mc-water')?.value);
+    const sugar=parseFloat(document.getElementById('mc-sugar')?.value);
+    const sodium=parseFloat(document.getElementById('mc-sodium')?.value);
+    if(goal) localStorage.setItem(GOAL,goal);
+    if(act) localStorage.setItem(ACTIVITY,act);
+    if(sex) localStorage.setItem(SEX,sex);
+    if(age>=18&&age<=99) localStorage.setItem(AGE,age);
+    localStorage.setItem(HEIGHT_IN,ft*12+ht);
+    const goals={};
+    if(!isNaN(fiber)&&fiber>0) goals.fiber=fiber;
+    if(!isNaN(water)&&water>0) goals.water=water;
+    if(!isNaN(sugar)&&sugar>0) goals.sugar=sugar;
+    if(!isNaN(sodium)&&sodium>0) goals.sodium=sodium;
+    localStorage.setItem('vertexNutritionGoals',JSON.stringify(goals));
+    window.vertexCloseMacroConfig();
+    try{ if(typeof toast==='function') toast('Nutrition goals saved'); }catch(_){}
+    if(typeof renderDailyNutrition==='function') renderDailyNutrition();
+  };
+
+  function render(){
+    // Remove legacy DOM elements if present from older build
+    ['vertexMacroToggleBtn','vertexMacroPanel'].forEach(id=>{ const el=document.getElementById(id); if(el) el.remove(); });
+  }
+  function boot(){ render(); setTimeout(render,250); }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
 })();

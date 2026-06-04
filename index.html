@@ -4646,6 +4646,7 @@ window.vertexFinishBootstrap=function(){
 <div class="health-form"><label class="health-input"><span class="label">Date</span><input id="healthDate" type="date"></label><label class="health-input"><span class="label">Sleep Hours</span><input id="healthSleep" type="number" step="0.1" min="0" max="24" placeholder="e.g., 7.2"></label><label class="health-input"><span class="label">Steps</span><input id="healthSteps" type="number" min="0" placeholder="e.g., 8500"></label><label class="health-input"><span class="label">Active Calories</span><input id="healthCalories" type="number" min="0" placeholder="e.g., 620"></label><label class="health-input"><span class="label">Workout Minutes</span><input id="healthWorkoutMinutes" type="number" min="0" placeholder="e.g., 45"></label><label class="health-input"><span class="label">Resting HR</span><input id="healthRestingHr" type="number" min="20" max="220" placeholder="e.g., 58"></label><label class="health-input"><span class="label">HRV</span><input id="healthHrv" type="number" min="0" placeholder="e.g., 42"></label><label class="health-input"><span class="label">Body Weight</span><input id="healthWeight" type="number" step="0.1" min="0" placeholder="optional"></label><label class="health-input wide" style="grid-column:1/-1"><span class="label">Notes</span><input id="healthNotes" placeholder="Optional: override notes, data source"></label></div><div class="modal-grid" style="margin-top:14px"><button id="btn-save-health" class="btn acc">Save Entry</button><button id="btn-clear-health-form" class="btn">Clear</button></div>
   </div>
 </div>
+<div id="vertexNutritionActuals" style="margin-top:16px"></div>
 <div style="margin-top:12px"><div class="progress-card" style="margin-bottom:12px"><div class="label">7-Day Health Trend</div><div id="healthTrendPanel"></div></div><div class="progress-card wide" style="overflow-x:hidden"><div class="label">Health History</div><div id="healthHistory" style="overflow-x:hidden"></div></div></div></div>
 
 <!-- CHECK-IN SUB-TAB -->
@@ -4653,7 +4654,6 @@ window.vertexFinishBootstrap=function(){
 <div id="wtab-dashboard" style="display:none">
   <section id="vertexWellnessRecoveryCenter" class="vertex-wellness-recovery-center"></section>
   <div id="wc-dash-kpis" class="wc-kpi-grid"></div>
-  <div id="vertexNutritionActuals" style="margin-top:20px"></div>
 
   <div class="wc-dash-grid"><div class="wc-dash-card" style="grid-column:1/-1"><div class="wc-dash-card-label">Weight Trajectory &amp; 8-Week Projection</div><div class="wc-chart-wrap"><canvas id="wc-dc-weight"></canvas></div></div></div>
   <div class="wc-dash-grid">
@@ -15246,7 +15246,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260604-6a86-nutrition-scope-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260604-6a87-nutrition-health-tab';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

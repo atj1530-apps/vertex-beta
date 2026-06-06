@@ -91,6 +91,19 @@
   --card-pad:14px;
   /* Typography roles enforced via classes */
 }
+/* ── LIGHT THEME ──────────────────────────────────────────── */
+body.theme-light{
+  --bg:#f0f2ee;--panel:#ffffff;--panel2:#f3f5f1;--panel3:#e8ece6;
+  --line:#ced6ca;--line2:#dce3d8;--text:#111411;--muted:#526852;--dim:#8a9e8a;
+  --acc:#4e7200;--green:#1a7a35;--red:#cc2020;--blue:#1a5fa0;--orange:#b86000;
+  color-scheme:light;
+}
+body.theme-light .btn.acc,body.theme-light button.btn.acc{background:#e8ff47!important;color:#000!important;border-color:#e8ff47!important}
+body.theme-light input,body.theme-light select,body.theme-light textarea{color-scheme:light}
+body.theme-light .nav-bar,body.theme-light nav{background:var(--panel)!important;border-bottom:1px solid var(--line)!important}
+body.theme-light .modal{background:rgba(0,0,0,.55)!important}
+body.theme-light canvas{background:transparent!important}
+/* ─────────────────────────────────────────────────────────── */
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pageEnter{from{opacity:0;transform:translate3d(0,6px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
@@ -5094,6 +5107,7 @@ window.vertexFinishBootstrap=function(){
         <button class="btn small" id="settings-theme-dark">● Dark</button>
         <button class="btn small" id="settings-theme-darker">● Darker</button>
         <button class="btn small" id="settings-theme-navy">● Navy</button>
+        <button class="btn small" id="settings-theme-light">○ Light</button>
       </div>
     </div>
 
@@ -12904,8 +12918,10 @@ function vertexSetCardVisibility(card, visible){
 }
 function vertexApplySettings(s){
   if(!s) s = vertexGetSettings();
-  // Theme
+  // Theme — reset all custom vars first, then apply chosen theme
   const root = document.documentElement;
+  ['--bg','--panel','--panel2','--panel3','--line','--line2','--text','--muted','--dim','--acc','--green','--red','--blue','--orange'].forEach(v=>root.style.removeProperty(v));
+  document.body.classList.remove('theme-light');
   if(s.theme === 'darker'){
     root.style.setProperty('--bg','#020202');
     root.style.setProperty('--panel','#0a0a0a');
@@ -12914,12 +12930,10 @@ function vertexApplySettings(s){
     root.style.setProperty('--bg','#020810');
     root.style.setProperty('--panel','#06101a');
     root.style.setProperty('--panel2','#0a1622');
-  } else {
-    // default dark
-    root.style.removeProperty('--bg');
-    root.style.removeProperty('--panel');
-    root.style.removeProperty('--panel2');
+  } else if(s.theme === 'light'){
+    document.body.classList.add('theme-light');
   }
+  // 'dark' = :root defaults, no overrides needed
 }
 function openSettingsModal(){
   const s = vertexGetSettings();
@@ -12936,7 +12950,7 @@ function openSettingsModal(){
     if(btn) btn.classList.toggle('acc', s.unit===u || (!s.unit && u==='lb'));
   });
   // Apply active state to theme buttons
-  ['dark','darker','navy'].forEach(t=>{
+  ['dark','darker','navy','light'].forEach(t=>{
     const btn = document.getElementById('settings-theme-'+t);
     if(btn) btn.classList.toggle('acc', s.theme===t || (!s.theme && t==='dark'));
   });
@@ -13882,7 +13896,7 @@ document.addEventListener('click',async e=>{
     }
     document.getElementById('account-menu')?.classList.toggle('on');
     return
-  } if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(await vertexConfirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync','vertex_hk_imported'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-week-sunday'){vertexSetSetting('weekStart','sunday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-week-monday'){vertexSetSetting('weekStart','monday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='btn-start-bottom'){if(hasWorkout()) openFocusedWorkoutMode(state.current); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='programStartToday'){await programStartTodayWorkout(); return} if(t.id==='programEditFirst'){await programEditFirstWorkout(); return} if(t.id==='tplCancel'){state.pendingTemplate=null; document.getElementById('tplActionModal')?.classList.remove('on'); return} if(t.id==='tplStartNow'){await tplStartNow(); return} if(t.id==='tplEditFirst'){tplEditFirst(); return} if(t.id==='tplAddPlanner'){tplAddToPlanner(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment,.pill-fade-wrap')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment,.pill-fade-wrap')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} const accHead=e.target&&e.target.closest&&e.target.closest('.acc-head'); if(accHead){const acc=accHead.closest('.accordion')||accHead.parentElement; if(!acc) return; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const exDetail=t.getAttribute('data-ex-detail'); if(exDetail){
+  } if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(await vertexConfirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync','vertex_hk_imported'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-week-sunday'){vertexSetSetting('weekStart','sunday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-week-monday'){vertexSetSetting('weekStart','monday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='settings-theme-light'){vertexSetSetting('theme','light'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='btn-start-bottom'){if(hasWorkout()) openFocusedWorkoutMode(state.current); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='programStartToday'){await programStartTodayWorkout(); return} if(t.id==='programEditFirst'){await programEditFirstWorkout(); return} if(t.id==='tplCancel'){state.pendingTemplate=null; document.getElementById('tplActionModal')?.classList.remove('on'); return} if(t.id==='tplStartNow'){await tplStartNow(); return} if(t.id==='tplEditFirst'){tplEditFirst(); return} if(t.id==='tplAddPlanner'){tplAddToPlanner(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment,.pill-fade-wrap')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment,.pill-fade-wrap')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} const accHead=e.target&&e.target.closest&&e.target.closest('.acc-head'); if(accHead){const acc=accHead.closest('.accordion')||accHead.parentElement; if(!acc) return; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const exDetail=t.getAttribute('data-ex-detail'); if(exDetail){
     if(typeof openExerciseMediaDetail==='function') openExerciseMediaDetail(exDetail);
     return;
   }
@@ -15271,7 +15285,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a88d-layout-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a89-light-theme';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

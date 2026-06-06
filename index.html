@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en" style="background:#070707">
 <head>
@@ -11902,15 +11901,15 @@ ${dueToday.length ? `
     const _sleepGoal = (getGoals().sleep)||8;
     // Pull today's AH sleep from localStorage so a fresh sync is reflected immediately
     const _ahSleepSum = (()=>{ try{ return JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null'); }catch(e){ return null; }})();
-    const todayStr = new Date().toISOString().split('T')[0];
+    const _intelTodayStr = typeof todayIso==='function' ? todayIso() : new Date().toISOString().split('T')[0];
     const rowsForAvg = [...last7Health];
     if(_ahSleepSum && _ahSleepSum.latestMinutes){
       const ahHours = _ahSleepSum.latestMinutes / 60;
-      const hasToday = rowsForAvg.some(r => r.date === todayStr);
+      const hasToday = rowsForAvg.some(r => r.date === _intelTodayStr);
       if(hasToday){
-        rowsForAvg.forEach(r=>{ if(r.date===todayStr) r = Object.assign({}, r, {sleepHours: ahHours}); });
+        rowsForAvg.forEach(r=>{ if(r.date===_intelTodayStr) r = Object.assign({}, r, {sleepHours: ahHours}); });
       } else {
-        rowsForAvg.unshift({date:todayStr, sleepHours: ahHours});
+        rowsForAvg.unshift({date:_intelTodayStr, sleepHours: ahHours});
       }
     }
     // Divide by 7 (not row count) so days without logs don't inflate the average
@@ -15279,7 +15278,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a88-home-fixes';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a88b-syntax-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

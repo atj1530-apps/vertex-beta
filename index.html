@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en" style="background:#070707">
 <head>
@@ -4370,6 +4371,20 @@ body.app-page-home #plannerAcc{display:none!important}
 .hw-btn-start{background:var(--acc)!important;color:#000!important;border-color:var(--acc)!important;font-weight:800}
 .hw-btn-start:hover{opacity:.88!important}
 .hw-day-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:900px){
+  .hw-day-grid{
+    display:flex!important;flex-direction:row!important;
+    overflow-x:auto!important;overflow-y:hidden!important;
+    scroll-snap-type:x mandatory!important;
+    gap:8px!important;scrollbar-width:none!important;
+    margin:0 -12px!important;padding:0 12px 8px!important;
+  }
+  .hw-day-grid::-webkit-scrollbar{display:none}
+  .hw-day-grid>div{
+    flex:0 0 min(72vw,210px)!important;min-width:0!important;
+    scroll-snap-align:start!important;scroll-snap-stop:always!important;
+  }
+}
 .hw-day-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;transition:border-color .2s,background .2s;min-height:72px}
 .hw-day-card:hover{border-color:rgba(232,255,71,.35);background:rgba(232,255,71,.04)}
 .hw-day-lbl{font-family:monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:5px;text-transform:uppercase}
@@ -11881,11 +11896,26 @@ ${dueToday.length ? `
     const _intelConsistencyNote = _intelPlanned > 0 ? `${intel.thisWeek?.length||0} logged · ${_intelPlanned} planned this week` : intelConsistency;
     const topMuscle=Object.entries(intel.loggedMuscles||{}).sort((a,b)=>b[1]-a[1])[0];
 
-    // Sleep avg with editable target
+    // Sleep avg — use Apple Health sync summary (same source as the stat strip) and divide by 7
     const healthRowsH = typeof loadHealthEntries === 'function' ? loadHealthEntries() : [];
     const last7Health = healthRowsH.filter(r => Date.now() - new Date(r.date+'T12:00:00').getTime() < 7*86400000);
     const _sleepGoal = (getGoals().sleep)||8;
-    const avgSleep7 = last7Health.length ? last7Health.reduce((a,r) => a + (Number(r.sleepHours)||0), 0) / last7Health.length : null;
+    // Pull today's AH sleep from localStorage so a fresh sync is reflected immediately
+    const _ahSleepSum = (()=>{ try{ return JSON.parse(localStorage.getItem('vertexAppleHealthSleepSummary')||'null'); }catch(e){ return null; }})();
+    const todayStr = new Date().toISOString().split('T')[0];
+    const rowsForAvg = [...last7Health];
+    if(_ahSleepSum && _ahSleepSum.latestMinutes){
+      const ahHours = _ahSleepSum.latestMinutes / 60;
+      const hasToday = rowsForAvg.some(r => r.date === todayStr);
+      if(hasToday){
+        rowsForAvg.forEach(r=>{ if(r.date===todayStr) r = Object.assign({}, r, {sleepHours: ahHours}); });
+      } else {
+        rowsForAvg.unshift({date:todayStr, sleepHours: ahHours});
+      }
+    }
+    // Divide by 7 (not row count) so days without logs don't inflate the average
+    const totalSleep = rowsForAvg.reduce((a,r) => a + Math.max(0, Number(r.sleepHours)||0), 0);
+    const avgSleep7 = rowsForAvg.length ? totalSleep / 7 : null;
     const sleepDebt = avgSleep7 != null ? Math.max(0, Math.round((_sleepGoal - avgSleep7) * 7 * 10) / 10) : null;
     const sleepAvgStr = avgSleep7 != null ? avgSleep7.toFixed(1)+'h' : '—';
 
@@ -12833,25 +12863,28 @@ function bindAuthButtons(){/* Auth is bound inline through window.VertexAuth to 
   });
 }
 
-// v20260526-a4.1 — Weekly Intelligence toggle guard
-// Dedicated capture handler prevents intermittent missed/double accordion toggles
-// after mobile rail cleanup. Scope: intelAcc only; no render/routing changes.
+// v20260606 — Weekly Intelligence toggle: touchend+click dual handler for iOS reliability
 (function initWeeklyIntelToggleGuard(){
   if(window.__vertexWeeklyIntelToggleGuard) return;
   window.__vertexWeeklyIntelToggleGuard = true;
-  document.addEventListener('click', function(e){
-    const head = e.target && e.target.closest && e.target.closest('#intelAcc .acc-head');
+  var _lastToggle = 0;
+  function doToggle(e){
+    var head = e.target && e.target.closest && e.target.closest('#intelAcc .acc-head');
     if(!head) return;
-    const acc = head.closest('#intelAcc');
+    var acc = head.closest('#intelAcc');
     if(!acc) return;
-    e.preventDefault();
-    e.stopPropagation();
+    var now = Date.now();
+    if(now - _lastToggle < 350) return; // debounce — ignore rapid repeat events
+    _lastToggle = now;
+    e.preventDefault(); e.stopPropagation();
     if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    const willOpen = !acc.classList.contains('open');
+    var willOpen = !acc.classList.contains('open');
     acc.classList.toggle('open', willOpen);
     try{ localStorage.setItem('vertex_acc_intelAcc', willOpen ? '1' : '0'); }catch(err){}
     if(typeof updateAccordionHints === 'function') updateAccordionHints();
-  }, true);
+  }
+  document.addEventListener('touchend', doToggle, true);
+  document.addEventListener('click', doToggle, true);
 })();
 // ── Settings ──────────────────────────────────────────────────
 function vertexGetSettings(){
@@ -15246,7 +15279,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260604-6a87-nutrition-health-tab';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a88-home-fixes';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

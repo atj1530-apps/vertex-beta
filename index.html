@@ -100,8 +100,8 @@ body.theme-light{
 }
 body.theme-light .btn.acc,body.theme-light button.btn.acc{background:#e8ff47!important;color:#000!important;border-color:#e8ff47!important}
 body.theme-light input,body.theme-light select,body.theme-light textarea{color-scheme:light}
-body.theme-light .nav-bar,body.theme-light nav{background:var(--panel)!important;border-bottom:1px solid var(--line)!important}
-body.theme-light .modal{background:rgba(0,0,0,.55)!important}
+body.theme-light #app-header{background:var(--panel)!important;border-bottom:1px solid var(--line)!important}
+body.theme-light .app-mobile-header{background:var(--panel)!important;border-bottom:1px solid var(--line)!important}
 body.theme-light canvas{background:transparent!important}
 body.theme-light .account-menu{background:var(--panel)!important;border-color:var(--line)!important;box-shadow:0 8px 32px rgba(0,0,0,.15)!important}
 body.theme-light .account-menu .acct-row{border-color:var(--line)!important}
@@ -4359,8 +4359,7 @@ function updatePlannerHeader(){
 .hw-view-modal-row{font-size:13px;color:var(--text);padding:7px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
 .hw-view-modal-row:last-child{border-bottom:none}
 /* 6A65: Option A layout — today left + 3x2 grid right */
-.hw-planner-layout{display:grid;grid-template-columns:1fr 1.8fr;gap:8px;align-items:stretch}
-@media(max-width:768px){.hw-planner-layout{display:block}.hw-today-card{margin-bottom:10px}}
+/* hw-planner: stacked by default; 2-col only on desktop with mouse (pointer:fine) */
 .hw-today-card{border:2px solid rgba(232,255,71,.45)!important;min-height:160px;display:flex;flex-direction:column}
 .hw-today-btns{display:flex;flex-direction:column;gap:6px;margin-top:auto}
 .hw-btn-start{width:100%!important;display:block;text-align:center}
@@ -4387,15 +4386,11 @@ body.app-page-home #plannerAcc{display:none!important}
 .hw-planner-layout{display:block}
 .hw-today-card{margin-bottom:10px}
 .hw-day-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-@media(min-width:1200px){
+@media(min-width:1200px) and (pointer:fine){
   .hw-planner-layout{display:grid!important;grid-template-columns:1fr 1.8fr!important;gap:8px!important;align-items:stretch!important}
   .hw-today-card{margin-bottom:0!important}
 }
-@media(max-width:1023px){
-  .hw-planner-layout{display:block!important}
-  .hw-today-card{margin-bottom:10px!important}
-  .hw-day-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important;overflow-x:visible!important}
-}
+
 .hw-day-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;transition:border-color .2s,background .2s;min-height:72px}
 .hw-day-card:hover{border-color:rgba(232,255,71,.35);background:rgba(232,255,71,.04)}
 .hw-day-lbl{font-family:monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:5px;text-transform:uppercase}
@@ -15302,7 +15297,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a90-auto-theme';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a91-light-fixes';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

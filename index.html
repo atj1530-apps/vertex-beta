@@ -4382,9 +4382,13 @@ body.app-page-home #plannerAcc{display:none!important}
 .hw-btn:hover{border-color:var(--acc);color:var(--acc)}
 .hw-btn-start{background:var(--acc)!important;color:#000!important;border-color:var(--acc)!important;font-weight:800}
 .hw-btn-start:hover{opacity:.88!important}
-.hw-planner-layout{display:grid;grid-template-columns:1fr 1.8fr;gap:8px;align-items:stretch}
-@media(max-width:768px){.hw-planner-layout{display:block}.hw-today-card{margin-bottom:10px}}
+.hw-planner-layout{display:block}
+.hw-today-card{margin-bottom:10px}
 .hw-day-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(min-width:1200px){
+  .hw-planner-layout{display:grid!important;grid-template-columns:1fr 1.8fr!important;gap:8px!important;align-items:stretch!important}
+  .hw-today-card{margin-bottom:0!important}
+}
 @media(max-width:1023px){
   .hw-planner-layout{display:block!important}
   .hw-today-card{margin-bottom:10px!important}
@@ -15285,7 +15289,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a89-light-theme';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a89b-layout-default-stack';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

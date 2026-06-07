@@ -4385,7 +4385,7 @@ body.app-page-home #plannerAcc{display:none!important}
 .hw-btn-start:hover{opacity:.88!important}
 .hw-planner-layout{display:block}
 .hw-today-card{margin-bottom:10px}
-.hw-day-grid{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.hw-day-grid{display:grid;grid-template-columns:repeat(3,minmax(220px,1fr));gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .hw-day-grid::-webkit-scrollbar{display:none}
 /* Light theme: today card border — use dark olive accent instead of invisible yellow */
 body.theme-light .hw-today-card{border-color:var(--acc)!important;background:rgba(78,114,0,.08)!important}
@@ -15300,7 +15300,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a94-wider-cards';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a95-220px-cards';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

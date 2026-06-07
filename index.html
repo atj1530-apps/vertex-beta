@@ -5080,7 +5080,7 @@ window.vertexFinishBootstrap=function(){
     <section class="accordion" id="savedWorkoutsAcc"><div class="acc-head"><span class="acc-title">Saved Workouts <span id="savedWorkoutsCount" style="color:var(--acc);font-weight:600;margin-left:6px"></span></span><span class="acc-hint">▶ EXPAND</span></div><div class="acc-body"><div id="savedWorkoutsPanel"><p style="color:var(--dim);text-align:center">No saved workouts yet</p></div></div></section>
   </aside>
 </div>
-<div id="assignModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Template Loaded</div><h2>Assign Workout?</h2><p>The workout is loaded in the builder. Choose whether to assign it to the weekly planner.</p><select id="assignDay"><option value="monday">Monday</option><option value="tuesday">Tuesday</option><option value="wednesday">Wednesday</option><option value="thursday">Thursday</option><option value="friday">Friday</option><option value="saturday">Saturday</option><option value="sunday">Sunday</option></select><div class="modal-grid"><button id="assignToday" class="btn acc">Assign to Today</button><button id="assignChoose" class="btn">Choose Day</button><button id="assignJust" class="btn">Just Load</button><button id="assignCancel" class="btn red">Cancel</button></div></div></div>
+<div id="assignModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Template Loaded</div><h2>Assign Workout?</h2><p>The workout is loaded in the builder. Choose whether to assign it to the weekly planner.</p><select id="assignDay"><option value="monday">Monday</option><option value="tuesday">Tuesday</option><option value="wednesday">Wednesday</option><option value="thursday">Thursday</option><option value="friday">Friday</option><option value="saturday">Saturday</option><option value="sunday">Sunday</option></select><div class="modal-grid"><button id="assignToday" class="btn acc">Assign to Today</button><button id="assignChoose" class="btn">Save</button><button id="assignJust" class="btn">Just Load</button><button id="assignCancel" class="btn red">Cancel</button></div></div></div>
 
 <!-- v13.63 Exercise Demo Modal — YouTube embed + form cues -->
 <div id="vertex-auth-loader"><div style="font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:8px;color:#e8ff47;opacity:.9">VERTEX</div></div>
@@ -5227,7 +5227,7 @@ window.vertexFinishBootstrap=function(){
 <div id="tplActionModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Workout Template</div><h2 id="tplActionTitle">Push Day</h2><p id="tplActionDesc" style="color:var(--muted);font-size:13px;margin:4px 0 16px"></p><div class="modal-grid" style="grid-template-columns:1fr 1fr"><button id="tplStartNow" class="btn acc">▶ Start Now</button><button id="tplEditFirst" class="btn">✏ Edit First</button><button id="tplAddPlanner" class="btn" style="grid-column:1/-1">📅 Add to Weekly Planner</button><button id="tplCancel" class="btn red" style="grid-column:1/-1">Cancel</button></div></div></div>
 
 
-<div id="libraryModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)" id="libraryModalLabel">Add Exercise to Library</div><h2 id="libraryModalTitle">Add Exercise</h2><p id="libraryModalDesc">Create a new exercise and keep it in your library going forward. Custom exercises are saved in this browser.</p><div class="manual-grid"><label><span class="label">Category</span><select id="libraryEnv"><option value="home">Home</option><option value="gym">Gym</option></select></label><label><span class="label">Training Focus</span><select id="libraryTraining"><option>Strength</option><option>Kettlebell</option><option>Yoga / Pilates</option><option>Cardio</option><option>Recovery / Mobility</option></select></label><label class="wide"><span class="label">Exercise Name</span><input id="libraryName" placeholder="e.g., Band Face Pull"></label><label><span class="label">Muscle Group / Subcategory</span><select id="libraryMuscle"></select></label><label><span class="label">Equipment</span><select id="libraryEquip"><option>Dumbbells</option><option>Bodyweight</option><option>Band</option><option>Bench</option><option>Pull-Up Bar</option><option>Kettlebell</option><option>Mat</option><option>Cable</option><option>Machine</option><option>Barbell</option><option>Bike</option><option>Treadmill</option><option>Rower</option><option>None</option><option>Other</option></select></label><label><span class="label">Movement Type</span><select id="libraryKind"><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="core">Core</option><option value="cardio">Cardio</option><option value="recovery">Recovery</option><option value="stretch">Stretch</option><option value="kettlebell">Kettlebell</option><option value="mobility">Mobility</option><option value="custom">Custom</option></select></label></div><div class="manual-help">Saved exercises appear in the sidebar after refresh and follow the same filters as built-in exercises.</div><div class="modal-grid"><button id="librarySave" class="btn acc">Save to Library</button><button id="libraryCancel" class="btn red">Cancel</button></div></div></div>
+<div id="libraryModal" class="modal-overlay"><div class="modal"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px"><div><div class="label" style="color:var(--acc)" id="libraryModalLabel">Add Exercise to Library</div><h2 id="libraryModalTitle">Add Exercise</h2></div><button onclick="document.getElementById('libraryModal').classList.remove('on')" style="background:transparent;border:1px solid var(--line2);color:var(--muted);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:16px;line-height:1;flex-shrink:0;margin-top:2px">✕</button></div><p id="libraryModalDesc">Create a new exercise and keep it in your library going forward. Custom exercises are saved in this browser.</p><div class="manual-grid"><label><span class="label">Category</span><select id="libraryEnv"><option value="home">Home</option><option value="gym">Gym</option></select></label><label><span class="label">Training Focus</span><select id="libraryTraining"><option>Strength</option><option>Kettlebell</option><option>Yoga / Pilates</option><option>Cardio</option><option>Recovery / Mobility</option></select></label><label class="wide"><span class="label">Exercise Name</span><input id="libraryName" placeholder="e.g., Band Face Pull"></label><label><span class="label">Muscle Group / Subcategory</span><select id="libraryMuscle"></select></label><label><span class="label">Equipment</span><select id="libraryEquip"><option>Dumbbells</option><option>Bodyweight</option><option>Band</option><option>Bench</option><option>Pull-Up Bar</option><option>Kettlebell</option><option>Mat</option><option>Cable</option><option>Machine</option><option>Barbell</option><option>Bike</option><option>Treadmill</option><option>Rower</option><option>None</option><option>Other</option></select></label><label><span class="label">Movement Type</span><select id="libraryKind"><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="core">Core</option><option value="cardio">Cardio</option><option value="recovery">Recovery</option><option value="stretch">Stretch</option><option value="kettlebell">Kettlebell</option><option value="mobility">Mobility</option><option value="custom">Custom</option></select></label></div><div class="manual-help">Saved exercises appear in the sidebar after refresh and follow the same filters as built-in exercises.</div><div class="modal-grid"><button id="librarySave" class="btn acc">Save to Library</button><button id="libraryCancel" class="btn red">Cancel</button></div></div></div>
 <div id="manualModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Lightweight Manual Entry</div><h2>Add Custom Move</h2><p>Add a one-off exercise without expanding the library. Good for substitutes, rehab moves, carries, machine variants, or quick notes.</p><div class="manual-grid"><label class="wide"><span class="label">Exercise Name</span><input id="manualName" placeholder="e.g., Seated Cable Row"></label><label><span class="label">Muscle Group</span><select id="manualMuscle"><option>Chest</option><option>Back</option><option>Shoulders + Traps</option><option>Legs</option><option>Biceps</option><option>Triceps</option><option>Core</option><option>Recovery</option></select></label><label><span class="label">Equipment</span><input id="manualEquip" placeholder="Dumbbells, Machine, Bodyweight"></label><label><span class="label">Sets</span><input id="manualSets" type="number" min="1" max="12" value="3"></label><label><span class="label">Reps</span><input id="manualReps" type="number" min="0" max="200" value="8"></label><label><span class="label">Weight</span><input id="manualWeight" placeholder="optional"></label><label><span class="label">Type</span><select id="manualKind"><option value="custom">Custom</option><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="recovery">Recovery</option></select></label></div><div class="manual-help">This adds directly to the current workout only. It does not permanently change the main exercise library.</div><div class="modal-grid"><button id="manualAdd" class="btn acc">Add to Workout</button><button id="manualCancel" class="btn red">Cancel</button></div></div></div>
 
 <div id="equipmentModal" class="modal-overlay" data-close-on-backdrop="1"><div class="modal"><div class="label" style="color:var(--acc)">⚡ Home Equipment</div><h2>Available Equipment</h2><p>Toggle the equipment you have access to. The exercise list updates to match.</p><div id="equipmentModalBody" style="margin-top:14px"></div><div class="modal-grid"><button id="equipmentAllOn" class="btn">All On</button><button id="equipmentClearAll" class="btn red">Clear All</button><button id="equipmentDone" class="btn acc">Done</button></div></div></div>
@@ -5542,7 +5542,7 @@ function markUnsaved(){ if(!hasWorkout()){ refreshSyncStatus(); return; } if(aut
 const EXERCISES=[
 {name:'Alternating Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Bench Press',muscle:'Chest',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
-{name:'Bench Press (Normal)',muscle:'Chest',equip:'Barbell',env:'home',kind:'push',training:'Strength'},
+{name:'Dumbbell Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Incline Bench Press',muscle:'Chest',equip:'Barbell',env:'home',kind:'push',training:'Strength'},
 {name:'Decline Bench Press',muscle:'Chest',equip:'Barbell',env:'home',kind:'push',training:'Strength'},
 {name:'Dumbbell Fly',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
@@ -5551,8 +5551,7 @@ const EXERCISES=[
 {name:'Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
 {name:'Wide-Grip Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
 {name:'Close-Grip Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
-{name:'Lat Pulldown',muscle:'Back',equip:'Machine',env:'gym',kind:'pull',training:'Strength'},
-{name:'Hammer Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+{name:'Lat Pulldown (Machine)',muscle:'Back',equip:'Machine',env:'gym',kind:'pull',training:'Strength'},
 {name:'Alternating Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Goblet Squat',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
 {name:'RDL',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
@@ -5896,6 +5895,48 @@ const V13540_HOME_STRENGTH=[,
 {name:'Dumbbell Front Squat',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'}
 ];
 V13540_HOME_STRENGTH.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERCISES.push(ex);});
+
+// v6A97 — Exercise library completion: gym staples, home gaps, naming fixes.
+const V6A97_ADDITIONS=[
+// Back — gym staples
+{name:'Chin-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
+{name:'Neutral-Grip Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
+// Back — restore Hammer Curl that was removed in dedup
+{name:'Hammer Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
+// Chest — gym
+{name:'Pec Deck',muscle:'Chest',equip:'Machine',env:'gym',kind:'push',training:'Strength'},
+{name:'Cable Fly',muscle:'Chest',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
+{name:'Incline Cable Fly',muscle:'Chest',equip:'Cable',env:'gym',kind:'push',training:'Strength'},
+{name:'Incline Barbell Bench Press',muscle:'Chest',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
+{name:'Decline Barbell Bench Press',muscle:'Chest',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
+// Shoulders — gym
+{name:'Barbell Overhead Press',muscle:'Shoulders + Traps',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
+{name:'Face Pull',muscle:'Shoulders + Traps',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
+{name:'Behind-the-Neck Press',muscle:'Shoulders + Traps',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
+// Legs — gym
+{name:'Barbell Deadlift',muscle:'Legs',equip:'Barbell',env:'gym',kind:'legs',training:'Strength'},
+{name:'Romanian Deadlift',muscle:'Legs',equip:'Barbell',env:'gym',kind:'legs',training:'Strength'},
+{name:'Sumo Deadlift',muscle:'Legs',equip:'Barbell',env:'gym',kind:'legs',training:'Strength'},
+{name:'Seated Calf Raise',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
+{name:'Smith Machine Squat',muscle:'Legs',equip:'Machine',env:'gym',kind:'legs',training:'Strength'},
+{name:'Nordic Hamstring Curl',muscle:'Legs',equip:'Bodyweight',env:'gym',kind:'legs',training:'Strength'},
+// Legs — home
+{name:'Sumo Squat',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
+{name:'Single-Leg Calf Raise',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
+{name:'Sissy Squat',muscle:'Legs',equip:'Bodyweight',env:'home',kind:'legs',training:'Strength'},
+// Biceps — gym
+{name:'Barbell Curl',muscle:'Biceps',equip:'Barbell',env:'gym',kind:'pull',training:'Strength'},
+{name:'Cable Bar Curl',muscle:'Biceps',equip:'Cable',env:'gym',kind:'pull',training:'Strength'},
+// Triceps — gym
+{name:'Close-Grip Bench Press',muscle:'Triceps',equip:'Barbell',env:'gym',kind:'push',training:'Strength'},
+// Core — home
+{name:'Crunch',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
+{name:'Leg Raise',muscle:'Core',equip:'Bodyweight',env:'home',kind:'core',training:'Strength'},
+{name:'Ab Wheel Rollout',muscle:'Core',equip:'Wheel',env:'home',kind:'core',training:'Strength'},
+// Core — gym
+{name:'Woodchop',muscle:'Core',equip:'Cable',env:'gym',kind:'core',training:'Strength'},
+];
+V6A97_ADDITIONS.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERCISES.push(ex);});
 
 
 // v20260601-6a50 chest/triceps library cleanup — user-requested taxonomy and additions.
@@ -7153,6 +7194,7 @@ function saveLibraryExercise(){
     state.training=ex.training; state.env=ex.env; state.muscle=ex.muscle;
     renderAll();
     toast('Exercise updated');
+    document.getElementById('libraryModal')?.classList.remove('on');
   } else {
     // Add mode
     if(EXERCISES.some(e=>e.name.toLowerCase()===ex.name.toLowerCase())) return toast('That exercise is already in the library');
@@ -12594,6 +12636,7 @@ function renderPlannerSaveContext(w=state.current){
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn acc small" data-save-day="${day}">Save to ${DAY_LABEL[day]}</button>
       <button class="btn small" id="btn-save-later">Save for Later</button>
+      <button class="btn small" onclick="navigateTo('planner')">Go to Planner</button>
     </div>
   </div>`;
 }
@@ -12847,7 +12890,7 @@ function toast(msg){
   if(!el){
     el=document.createElement('div');
     el.id='vertex-toast';
-    el.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:max(90px,calc(80px + env(safe-area-inset-bottom)));z-index:300;background:#181818;border:1px solid var(--acc);color:var(--text);border-radius:8px;padding:12px 18px;font-weight:800;box-shadow:0 12px 40px rgba(0,0,0,.55);max-width:320px;width:max-content;text-align:center;font-size:13px';
+    el.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:max(90px,calc(80px + env(safe-area-inset-bottom)));z-index:300;background:var(--panel);border:1px solid var(--acc);color:var(--text);border-radius:8px;padding:12px 18px;font-weight:800;box-shadow:0 12px 40px rgba(0,0,0,.35);max-width:320px;width:max-content;text-align:center;font-size:13px';
     document.body.appendChild(el);
   }
   el.textContent=msg;
@@ -13929,7 +13972,7 @@ document.addEventListener('click',async e=>{
     const addBtn=t.classList.contains('ex-add-btn')?t:t.closest('.ex-item')?.querySelector('.ex-add-btn');
     if(addBtn){addBtn.classList.add('added'); addBtn.textContent='✓'; setTimeout(()=>{addBtn.classList.remove('added'); addBtn.textContent='+';},800);}
     return;
-  } const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){openTemplateActionModal(tpl); return} const sd=t.getAttribute('data-save-day'); if(sd){await saveDay(sd); return} const ail=t.getAttribute('data-ai-load'); if(ail){if(typeof window.vertexLoadAiWorkout==='function') window.vertexLoadAiWorkout(); return}
+  } const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){openTemplateActionModal(tpl); return} const sd=t.getAttribute('data-save-day'); if(sd){commitWorkoutNameEdit(); await saveDay(sd); return} const ail=t.getAttribute('data-ai-load'); if(ail){if(typeof window.vertexLoadAiWorkout==='function') window.vertexLoadAiWorkout(); return}
  const aie=t.getAttribute('data-ai-env'); if(aie){
   // Fill selected button, outline the other
   document.querySelectorAll('[data-ai-env]').forEach(b=>{

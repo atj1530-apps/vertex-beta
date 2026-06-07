@@ -104,6 +104,8 @@ body.theme-light #app-header{background:var(--panel)!important;border-bottom:1px
 body.theme-light .app-mobile-header{background:var(--panel)!important;border-bottom:1px solid var(--line)!important}
 body.theme-light canvas{background:transparent!important}
 body.theme-light .account-menu{background:var(--panel)!important;border-color:var(--line)!important;box-shadow:0 8px 32px rgba(0,0,0,.15)!important}
+body.theme-light .sidebar{background:var(--panel)!important}
+body.theme-light .right{background:var(--panel)!important}
 body.theme-light .account-menu .acct-row{border-color:var(--line)!important}
 /* ─────────────────────────────────────────────────────────── */
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -11181,7 +11183,7 @@ function renderProtoDayModal(){
 
   const slots = ['Morning','Afternoon','Evening','Pre-Workout','Post-Workout','With Food','Bedtime'];
   const bySlot = {};
-  due.forEach(s => { const sl = s.timing||'Morning'; if(!bySlot[sl]) bySlot[sl]=[]; bySlot[sl].push(s); });
+  due.filter(s => !vertexIsAsNeeded(s)).forEach(s => { const sl = s.timing||'Morning'; if(!bySlot[sl]) bySlot[sl]=[]; bySlot[sl].push(s); });
   const orderedSlots = slots.filter(s => bySlot[s]);
 
   const doseRow = (s, slot) => {
@@ -15300,7 +15302,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260606-6a95-220px-cards';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260607-6a96-light-workout-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

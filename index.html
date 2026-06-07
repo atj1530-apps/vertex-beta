@@ -13729,7 +13729,7 @@ function renderGoalTracker(){
       return `<div style="flex:1;min-width:90px;text-align:center">
         <div style="font-size:9px;font-family:monospace;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:2px">${g.label.split(' · ')[0]}${g.unit!=='sessions'?' · Goal: '+g.target+' '+g.unit:''}</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--text);line-height:1">${typeof g.current==='number'?g.current.toFixed(g.step<1?1:0):g.current}</div>
-        <div style="font-size:8px;font-family:monospace;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-top:1px">${g.unit!=='sessions'?'current':''}</div>
+        <div style="font-size:8px;font-family:monospace;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-top:1px">${g.unit!=='sessions'?'current':'&nbsp;'}</div>
         <div style="font-size:10px;color:${fill};font-weight:700;margin:2px 0">${status}</div>
         <div style="height:3px;background:var(--line);border-radius:999px;margin:4px 0"><div style="height:100%;width:${pct.toFixed(1)}%;background:${fill};border-radius:999px"></div></div>
         <div style="font-size:9px;color:var(--dim)">Goal: ${g.target}${g.unit==='sessions'?' /wk':' '+g.unit} <span class="vertex-goal-edit" onclick="vertexEditGoal('${g.key}','${g.label}',${g.target},${g.min},${g.max},${g.step})" style="color:var(--acc)">Edit</span></div>
@@ -15302,7 +15302,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260607-6a96-light-workout-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260607-6a97-goal-tracker-align';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en" style="background:#070707">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <script>
-/* Early theme injection — runs before CSS to prevent black flash on light/auto theme */
+/* Early theme injection — runs before CSS to prevent black flash on any theme */
 (function(){
   try{
     var s=JSON.parse(localStorage.getItem('vertex_settings')||'{}');
@@ -12,13 +12,16 @@
     if(t==='auto'){var h=new Date().getHours();t=(h>=7&&h<20)?'light':'dark';}
     if(t==='light'){
       document.documentElement.style.background='#f0f2ed';
-      document.documentElement.setAttribute('data-early-theme','light');
     } else if(t==='darker'){
       document.documentElement.style.background='#020202';
     } else if(t==='navy'){
       document.documentElement.style.background='#020810';
+    } else {
+      document.documentElement.style.background='#070707';
     }
-  }catch(e){}
+  }catch(e){
+    document.documentElement.style.background='#070707';
+  }
 })();
 </script>
 <script>
@@ -15366,7 +15369,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260608-6a98-ui-fixes';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260608-6a98b-flash-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -2732,7 +2732,7 @@ html.vertex-oauth-callback-boot body::before{
   position:fixed;
   inset:0;
   z-index:2147483000;
-  background:radial-gradient(circle at 72% 18%,rgba(232,255,71,.14),transparent 32%),var(--bg);
+  background:var(--bg);
   pointer-events:auto;
 }
 html.vertex-oauth-callback-boot body::after{
@@ -15374,7 +15374,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260608-6a98f-flash-fix5';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260608-6a98g-flash-fix6';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

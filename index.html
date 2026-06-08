@@ -137,7 +137,7 @@ body.theme-light .account-menu .acct-row{border-color:var(--line)!important}
 @font-face{font-family:'Bebas Neue';font-display:block;src:local('Bebas Neue'),local('BebasNeue-Regular')}button,input,textarea{font-family:inherit}.mono{font-family:monospace}.title{font-family:'Bebas Neue',sans-serif;letter-spacing:3px}
 /* v20260525-z */
 html.vertex-auth-booting body{
-  background:#070707 !important;
+  background:var(--bg) !important;
 }
 html.vertex-auth-booting .login-screen,
 html.vertex-auth-booting #app,
@@ -150,14 +150,14 @@ html.vertex-auth-booting #app-header{
   position:fixed;
   inset:0;
   z-index:100000;
-  background:#070707;
+  background:var(--bg);
   display:flex;
   align-items:center;
   justify-content:center;
   flex-direction:column;
   gap:14px;
   opacity:1;
-  transition:opacity .45s cubic-bezier(0.16,1,0.3,1);
+  transition:opacity .25s cubic-bezier(0.16,1,0.3,1);
 }
 #vertex-bootstrap-screen.fade-out{
   opacity:0;
@@ -4545,7 +4545,7 @@ window.vertexFinishBootstrap=function(){
   const el=document.getElementById('vertex-bootstrap-screen');
   if(el){
     el.classList.add('fade-out');
-    setTimeout(()=>{ try{el.remove();}catch(e){} },500);
+    setTimeout(()=>{ try{el.remove();}catch(e){} },280);
   }
 };
 </script>
@@ -15374,7 +15374,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260608-6a98g-flash-fix6';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260608-6a98h-flash-fix7';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

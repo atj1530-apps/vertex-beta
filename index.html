@@ -11,7 +11,14 @@
     var t=s.theme||'dark';
     if(t==='auto'){var h=new Date().getHours();t=(h>=7&&h<20)?'light':'dark';}
     if(t==='light'){
-      document.documentElement.style.background='#f0f2ed';
+      document.documentElement.classList.add('vertex-theme-light-boot');
+      document.documentElement.style.background='#f6f7f2';
+      document.documentElement.style.setProperty('--bg','#f6f7f2');
+      document.documentElement.style.setProperty('--panel','#ffffff');
+      document.documentElement.style.setProperty('--panel2','#f3f5f1');
+      document.documentElement.style.setProperty('--text','#111411');
+      document.documentElement.style.setProperty('--muted','#5f6f5d');
+      document.documentElement.style.setProperty('--acc','#4e7200');
     } else if(t==='darker'){
       document.documentElement.style.background='#020202';
     } else if(t==='navy'){
@@ -53,6 +60,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
+<!-- v20260608-6a99-light-auth-transition: smoother warm light-mode auth curtain + cache bump -->
 <!-- v20260601-6a50: chest/triceps library cleanup — removed Squeeze Press duplicate; added requested dumbbell chest/triceps movements -->
 <!-- v20260601-6a49: Planner edit save choices — Save to day or Save for Later from builder -->
 <!-- v20260601-6a46: workout history restored to bottom + local/cloud log merge for visible delete/manage workflow -->
@@ -256,7 +264,10 @@ html.vertex-auth-booting #app-header{
 .progress-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;-webkit-overflow-scrolling:touch}.progress-tab{background:var(--panel2);border:1px solid var(--line2);color:var(--muted);border-radius:6px;padding:6px 14px;font-size:12px;font-weight:800;letter-spacing:1px;cursor:pointer;transition:background .15s,color .15s}.progress-tab.on{background:var(--acc);color:#000;border-color:var(--acc)}
 .rest-btn-inline{background:rgba(72,255,138,.08);border:1px solid rgba(72,255,138,.25);color:var(--acc);border-radius:5px;padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;margin-left:6px;letter-spacing:.5px}.rest-btn-inline:hover{background:rgba(72,255,138,.18)}.session-card{width:min(760px,100%);max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:28px}.session-title{font-family:'Bebas Neue';font-size:50px;letter-spacing:4px}.timer{font-family:'Bebas Neue';font-size:82px;color:var(--acc);line-height:1}.session-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.tracking-pill{display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(72,255,138,.06);border:1px solid rgba(72,255,138,.2);border-radius:6px;margin-bottom:12px;font-size:12px;color:var(--muted)}.tracking-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse-dot 1.8s ease-in-out infinite}@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.35}}
 
-#vertex-auth-loader{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .3s ease}#vertex-auth-loader.fade{opacity:0;pointer-events:none}
+#vertex-auth-loader{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% 18%,rgba(232,255,71,.10),transparent 34%),var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;transition:opacity .52s cubic-bezier(0.22,1,0.36,1),visibility 0s linear .52s}#vertex-auth-loader.fade{opacity:0;visibility:hidden;pointer-events:none}.vertex-auth-loader-logo{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:8px;color:var(--acc);opacity:.92;line-height:1}.vertex-auth-loader-sub{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);opacity:.82;animation:vertexCallbackPulse 1.6s ease-in-out infinite}
+html.vertex-theme-light-boot{background:#f6f7f2;--bg:#f6f7f2;--panel:#ffffff;--panel2:#f3f5f1;--text:#111411;--muted:#5f6f5d;--acc:#4e7200;color-scheme:light}
+html.vertex-theme-light-boot body,body.theme-light.auth-resolving{background:#f6f7f2!important}
+html.vertex-theme-light-boot #vertex-auth-loader,body.theme-light #vertex-auth-loader{background:radial-gradient(circle at 50% 18%,rgba(78,114,0,.10),transparent 38%),linear-gradient(180deg,#fbfbf7 0%,#f6f7f2 100%)!important}.login-screen{position:fixed;inset:0;z-index:200;background:radial-gradient(circle at top right,rgba(232,255,71,.11),transparent 34%),var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;transition:opacity .36s cubic-bezier(0.22,1,0.36,1),visibility 0s linear .36s}.login-card{transition:opacity .36s cubic-bezier(0.22,1,0.36,1),transform .36s cubic-bezier(0.22,1,0.36,1)}body.theme-light .login-screen,html.vertex-theme-light-boot .login-screen{background:radial-gradient(circle at top right,rgba(78,114,0,.10),transparent 34%),linear-gradient(180deg,#fbfbf7 0%,#f6f7f2 100%)!important}body.authenticated .login-screen .login-card{opacity:0;transform:scale(.985) translateY(3px)}
 .login-screen{position:fixed;inset:0;z-index:200;background:radial-gradient(circle at top right,rgba(232,255,71,.11),transparent 34%),var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}.login-card{width:min(420px,100%);background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:38px 32px;box-shadow:0 24px 80px rgba(0,0,0,.55);text-align:center}.login-brand{font-family:'Bebas Neue';font-size:64px;letter-spacing:8px;color:var(--acc);line-height:1;margin:0}.login-tagline{font-family:'DM Mono';font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin:10px 0 32px}.login-card .btn{width:100%}.login-form-fields{margin-top:16px;text-align:left}.login-form-fields input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:12px;border-radius:6px;margin-bottom:9px;font-size:15px}.login-divider{display:flex;align-items:center;gap:10px;margin:20px 0 14px;color:var(--dim);font-family:'DM Mono';font-size:10px;letter-spacing:2px}.login-divider:before,.login-divider:after{content:'';height:1px;background:var(--line);flex:1}.login-error{font-family:'DM Mono';font-size:10px;color:var(--red);min-height:15px;margin-top:8px;text-align:center}.login-footer{margin-top:18px;color:var(--dim);font-size:11px;line-height:1.55;text-align:center}body.auth-done .login-screen{opacity:1}/* login-screen hide handled by v13.61 transitions below */
 body.shared-view #app-header .nav{display:none}
 body.shared-view #app-header #btn-save,body.shared-view #app-header #btn-log,body.shared-view #app-header #btn-share,body.shared-view #app-header #syncStatus{display:none!important}
@@ -5104,7 +5115,7 @@ window.vertexFinishBootstrap=function(){
 <div id="assignModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Template Loaded</div><h2>Assign Workout?</h2><p>The workout is loaded in the builder. Choose whether to assign it to the weekly planner.</p><select id="assignDay"><option value="monday">Monday</option><option value="tuesday">Tuesday</option><option value="wednesday">Wednesday</option><option value="thursday">Thursday</option><option value="friday">Friday</option><option value="saturday">Saturday</option><option value="sunday">Sunday</option></select><div class="modal-grid"><button id="assignToday" class="btn acc">Assign to Today</button><button id="assignChoose" class="btn">Save</button><button id="assignJust" class="btn">Just Load</button><button id="assignCancel" class="btn red">Cancel</button></div></div></div>
 
 <!-- v13.63 Exercise Demo Modal — YouTube embed + form cues -->
-<div id="vertex-auth-loader"><div style="font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:8px;color:var(--acc);opacity:.9">VERTEX</div></div>
+<div id="vertex-auth-loader"><div class="vertex-auth-loader-logo">VERTEX</div><div class="vertex-auth-loader-sub">Signing you in…</div></div>
 <div id="settingsModal" class="modal-overlay">
   <div class="modal settings-modal-card" style="max-width:640px;width:min(640px,calc(100vw - 32px));max-height:86vh;overflow-y:auto;box-sizing:border-box">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
@@ -8766,16 +8777,13 @@ function vertexRevealAuthenticatedShell(){
   document.body.classList.add('authenticated');
   document.body.classList.remove('auth-resolving','auth-ready');
   document.body.classList.add('auth-done');
-  // Remove loader immediately if session was already cached (no OAuth flow)
+  // Keep the auth curtain long enough to fade smoothly in both light and dark themes.
   const isOAuthFlow = document.documentElement.classList.contains('vertex-oauth-callback-boot');
   const loader = document.getElementById('vertex-auth-loader');
-  if(loader && !isOAuthFlow){
-    loader.remove();
-  }
   requestAnimationFrame(()=>{
     requestAnimationFrame(()=>{
       document.body.classList.add('auth-show-app');
-      if(loader && isOAuthFlow){ loader.classList.add('fade'); setTimeout(()=>{ try{loader.remove();}catch(e){} },360); }
+      if(loader){ loader.classList.add('fade'); setTimeout(()=>{ try{loader.remove();}catch(e){} },560); }
       try{ sessionStorage.removeItem('vertex_oauth_pending'); }catch(e){}
       if(isOAuthFlow){
         document.body.classList.add('oauth-callback-leaving');

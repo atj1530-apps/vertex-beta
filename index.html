@@ -10092,29 +10092,16 @@ async function loadStack(){
 
     let rows = [];
 
-    // Primary path: current user's stack for today.
+    // Load all stack rows for this user, latest per compound via dedup below.
     try {
       rows = await runQuery(
         supa.from('peptide_stack')
           .select('*')
           .eq('user_id', authUser.id)
-          .eq('checkin_date', today)
-          .order('name')
+          .order('checkin_date', {ascending:false})
+          .limit(100)
       );
     } catch(e) { rows = []; }
-
-    // Fallback: current user's latest stack rows.
-    if(!rows.length){
-      try {
-        rows = await runQuery(
-          supa.from('peptide_stack')
-            .select('*')
-            .eq('user_id', authUser.id)
-            .order('checkin_date', {ascending:false})
-            .limit(100)
-        );
-      } catch(e) { rows = []; }
-    }
 
     // Fallback for older rows / test rows where user_id may be missing or mismatched.
     if(!rows.length){
@@ -11623,7 +11610,7 @@ async function saveSupplement(){
     units_per_vial: mgPerVial || null,
     bac_water_ml: parseFloat(document.getElementById('suppBacWater')?.value) || null,
     low_inventory_alert: alertThreshold,
-    cycle_start_date: document.getElementById('suppCycleStart')?.value || null,
+    cycle_start_date: document.getElementById('suppCycleStart')?.value || (_scheduleDays ? today : null),
     cycle_end_date: document.getElementById('suppCycleEnd')?.value || null,
     notes: notesClean || null,
     cost_per_dose: _costPerDose,
@@ -11944,7 +11931,7 @@ ${dueToday.length ? `
       return `<span class="home-proto-chip ${done?'done':''}"><b>${escapeHtml(s.name)}</b> ${escapeHtml(s.dose||'')}${escapeHtml(s.unit||'')}</span>`;
     }).join('')}
   </div>
-  <div style="margin-top:6px"><a href="#" onclick="if(typeof setPage==='function')setPage('wellness');return false;" style="font-size:11px;color:var(--acc);text-decoration:none;font-family:monospace;letter-spacing:.5px">Log doses →</a></div>
+  <div style="margin-top:6px"><a href="#" onclick="if(typeof setPage==='function')setPage('wellness');if(typeof setWellnessTab==='function')setWellnessTab('protocol');return false;" style="font-size:11px;color:var(--acc);text-decoration:none;font-family:monospace;letter-spacing:.5px">Log doses →</a></div>
 </div>` : ''}
 <div id="vertex-daily-brief-card"></div>
 <div id="vertex-goal-tracker-card"></div>

@@ -9725,7 +9725,19 @@ function wcRenderDashboard(){
   const progPct=Math.min(100,(totalLost/journey*100)).toFixed(1);
   const weeksLeft=rolling&&rolling>0?((projAnchorWeight-TARGET)/rolling).toFixed(0):'—';
   const progEl=document.getElementById('wc-dash-progress');
-  if(progEl)progEl.innerHTML=`<div class="wc-row-kv"><span class="k">Start → Goal</span><span class="v">${WC_START_WEIGHT} → ${TARGET} lb</span></div><div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px"><span>0%</span><span>${progPct}%</span><span>100%</span></div><div class="wc-progress-track"><div class="wc-progress-fill" style="width:${progPct}%"></div></div></div><div class="wc-row-kv"><span class="k">Est. weeks left</span><span class="v" style="color:var(--acc)">${weeksLeft}</span></div><div class="wc-row-kv"><span class="k">Weeks on protocol</span><span class="v">${weeksOn.toFixed(1)}</span></div>`;
+    // 30d and journey calcs for wellness dashboard
+  const _wc30DaysAgo = new Date(); _wc30DaysAgo.setDate(_wc30DaysAgo.getDate()-30);
+  const _wc30Str = _wc30DaysAgo.toISOString().slice(0,10);
+  const _wcAllW = [];
+  Object.keys(localStorage).filter(k=>k.startsWith('vertex_health_entries')).forEach(k=>{try{JSON.parse(localStorage.getItem(k)||'[]').forEach(r=>{if(r&&r.bodyWeight&&r.date)_wcAllW.push({date:r.date,w:Number(r.bodyWeight)});});}catch(e){}});
+  sorted.forEach(e=>{if(e.date&&e.weight)_wcAllW.push({date:e.date,w:Number(e.weight)});});
+  const _wcWMap={}; _wcAllW.forEach(r=>{_wcWMap[r.date]=r.w;});
+  const _wcWRows=Object.entries(_wcWMap).sort((a,b)=>a[0].localeCompare(b[0]));
+  const _wcCurrent=_wcWRows.length?_wcWRows[_wcWRows.length-1][1]:latest.weight;
+  const _wcRows30=_wcWRows.filter(r=>r[0]>=_wc30Str);
+  const _wcLost30=_wcRows30.length>1?parseFloat((_wcRows30[0][1]-_wcCurrent).toFixed(1)):null;
+  const _wcJourneyLost=parseFloat((WC_START_WEIGHT-_wcCurrent).toFixed(1));
+  if(progEl)progEl.innerHTML=`<div class="wc-row-kv"><span class="k">Start → Goal</span><span class="v">${WC_START_WEIGHT} → ${TARGET} lb</span></div><div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px"><span>0%</span><span>${progPct}%</span><span>100%</span></div><div class="wc-progress-track"><div class="wc-progress-fill" style="width:${progPct}%"></div></div></div><div class="wc-row-kv"><span class="k">Est. weeks left</span><span class="v" style="color:var(--acc)">${weeksLeft}</span></div><div class="wc-row-kv"><span class="k">Weeks on protocol</span><span class="v">${weeksOn.toFixed(1)}</span></div><div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line2);font-size:9px;font-family:monospace;line-height:1.8">${_wcLost30!=null?'<span style="color:'+(_wcLost30>0?'var(--green)':'var(--red)')+'">'+(_wcLost30>0?'▼':'▲')+' '+Math.abs(_wcLost30)+' lb · last 30 days</span><br>':''}<span style="color:'+(_wcJourneyLost>0?'var(--green)':'var(--muted)')+'">'+(_wcJourneyLost>0?'▼':'▲')+' '+Math.abs(_wcJourneyLost)+' lb total journey</span></div>`;
 
   // Vitals snap
   const vsEl=document.getElementById('wc-dash-vitals-snap');
@@ -11827,7 +11839,14 @@ function renderHomeDashboard(){
           if(_pace < 0){ _etaStr = 'Trend rising'; }
           else { const _rem = _wLatest[1] - _goal; _etaStr = _rem > 0 ? Math.ceil(_rem/_pace)+' wks to goal' : 'At goal'; }
         }
-        _weightCardHtml = `<div id="vertex-home-weight" style="width:100%;box-sizing:border-box;border:1px solid rgba(232,255,71,.3);background:rgba(232,255,71,.04);border-radius:10px;padding:10px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px"><div style="font-family:monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase">Weight</div><div style="display:flex;gap:16px;flex-wrap:wrap;align-items:baseline"><div><span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--acc)">${Number(_wLatest[1]).toFixed(1)}</span><span style="font-size:10px;color:var(--muted);margin-left:3px">lb now</span></div><div><span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--muted)">${_paceStr}</span><span style="font-size:10px;color:var(--muted);margin-left:3px">avg pace</span></div><div><span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green)">${_etaStr}</span></div><div><span style="font-size:10px;color:var(--muted)">Goal: ${_goal} lb</span></div></div></div>`;
+        const _30DaysAgo = new Date(); _30DaysAgo.setDate(_30DaysAgo.getDate()-30);
+        const _30Str = _30DaysAgo.toISOString().slice(0,10);
+        const _wRows30 = _wRows.filter(r=>r[0]>=_30Str);
+        const _lost30 = _wRows30.length>1 ? parseFloat((_wRows30[0][1] - _wLatest[1]).toFixed(1)) : null;
+        const _JOURNEY_START = 301.4;
+        const _journeyLost = parseFloat((_JOURNEY_START - Number(_wLatest[1])).toFixed(1));
+        const _lostLine = `<div style="font-size:9px;font-family:monospace;margin-top:2px;line-height:1.6">${_lost30!=null?'<span style="color:'+(_lost30>0?'var(--green)':'var(--red)')+'">'+(_lost30>0?'▼':'▲')+' '+Math.abs(_lost30)+' lb · 30d</span>':''} ${_lost30!=null?' | ':''} <span style="color:'+(_journeyLost>0?'var(--green)':'var(--muted)')+'">'+(_journeyLost>0?'▼':'▲')+' '+Math.abs(_journeyLost)+' lb total</span></div>`;
+        _weightCardHtml = `<div id="vertex-home-weight" style="width:100%;box-sizing:border-box;border:1px solid rgba(232,255,71,.3);background:rgba(232,255,71,.04);border-radius:10px;padding:10px 16px;display:flex;flex-direction:column;justify-content:center;gap:8px"><div style="font-family:monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase">Weight</div><div style="display:flex;gap:16px;flex-wrap:wrap;align-items:baseline"><div><span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--acc)">${Number(_wLatest[1]).toFixed(1)}</span><span style="font-size:10px;color:var(--muted);margin-left:3px">lb now</span></div><div><span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--muted)">${_paceStr}</span><span style="font-size:10px;color:var(--muted);margin-left:3px">avg pace</span></div><div><span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green)">${_etaStr}</span></div><div><span style="font-size:10px;color:var(--muted)">Goal: ${_goal} lb</span></div></div>${_lostLine}</div>`;
       }
     } catch(e) {}
 
@@ -15352,7 +15371,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260610-weight-journey';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260610-weight-all-cards';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

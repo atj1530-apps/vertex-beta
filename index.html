@@ -13723,6 +13723,13 @@ function renderGoalTracker(){
   const currentWeight=wRows.length?parseFloat(wRows[wRows.length-1][1]):null;
   const startWeight=wRows.length>1?parseFloat(wRows[0][1]):null;
   const totalLost=startWeight&&currentWeight?parseFloat((startWeight-currentWeight).toFixed(1)):null;
+  const thirtyDaysAgo=new Date(); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate()-30);
+  const thirtyStr=thirtyDaysAgo.toISOString().slice(0,10);
+  const wRows30=wRows.filter(r=>r[0]>=thirtyStr);
+  const weight30Start=wRows30.length>1?parseFloat(wRows30[0][1]):null;
+  const lost30=weight30Start&&currentWeight?parseFloat((weight30Start-currentWeight).toFixed(1)):null;
+  const JOURNEY_START=301.4;
+  const journeyLost=currentWeight?parseFloat((JOURNEY_START-currentWeight).toFixed(1)):null;
   const logs=typeof progressRows==='function'?progressRows():[];
   const sum=typeof progressSummary==='function'?progressSummary(logs):{};
   const currentSessions=sum.thisWeek?.length??0;
@@ -13772,7 +13779,7 @@ function renderGoalTracker(){
         <div style="font-size:9px;font-family:monospace;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:2px">${g.label.split(' · ')[0]}${g.unit!=='sessions'?' · Goal: '+g.target+' '+g.unit:''}</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--text);line-height:1">${typeof g.current==='number'?g.current.toFixed(g.step<1?1:0):g.current}</div>
         <div style="font-size:8px;font-family:monospace;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-top:1px">${g.unit!=='sessions'?'current':'current'}</div>
-        ${g.key==='weight'&&totalLost!=null?`<div style="font-size:9px;color:${totalLost>0?'var(--green)':'var(--muted)'};font-family:monospace;margin-top:1px">${totalLost>0?'▼ '+totalLost+' lb lost':totalLost<0?'▲ '+(Math.abs(totalLost))+' lb gained':'—'}</div>`:'<div style="font-size:9px;opacity:0">&nbsp;</div>'}
+        ${g.key==='weight'?`<div style="font-size:9px;font-family:monospace;margin-top:2px;line-height:1.6">${lost30!=null?'<span style="color:'+(lost30>0?'var(--green)':'var(--red)')+'">'+(lost30>0?'▼':'▲')+' '+Math.abs(lost30)+' lb · 30d</span>':''} ${lost30!=null&&journeyLost!=null?' | ':''} ${journeyLost!=null?'<span style="color:'+(journeyLost>0?'var(--green)':'var(--muted)')+'">'+(journeyLost>0?'▼':'▲')+' '+Math.abs(journeyLost)+' lb total</span>':''}</div>`:'<div style="font-size:9px;opacity:0">&nbsp;</div>'}
         <div style="font-size:10px;color:${fill};font-weight:700;margin:2px 0">${status}</div>
         <div style="height:3px;background:var(--line);border-radius:999px;margin:4px 0"><div style="height:100%;width:${pct.toFixed(1)}%;background:${fill};border-radius:999px"></div></div>
         <div style="font-size:9px;color:var(--dim)">Goal: ${g.target}${g.unit==='sessions'?' /wk':' '+g.unit} <span class="vertex-goal-edit" onclick="vertexEditGoal('${g.key}','${g.label}',${g.target},${g.min},${g.max},${g.step})" style="color:var(--acc)">Edit</span></div>
@@ -15345,7 +15352,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260609-protocol-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260610-weight-journey';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

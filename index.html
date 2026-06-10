@@ -9655,7 +9655,24 @@ function wcRenderDashboard(){
       const st=latestH.steps!=null?Number(latestH.steps).toLocaleString():null; if(st||avg7H('steps')!=null) cards.push(buildMetricCard('Steps', st, 'today', avg7H('steps'), '', 'steps'));
       const ac=fmtInt(latestH.activeCalories); if(ac!=null||avg7H('activeCalories')!=null) cards.push(buildMetricCard('Active Cal', ac!=null?ac+' kcal':null, 'burned today', avg7H('activeCalories'), ' kcal', 'activeCalories'));
       const ex=fmtInt(latestH.exerciseMinutes); if(ex!=null||avg7H('exerciseMinutes')!=null) cards.push(buildMetricCard('Exercise', ex!=null?ex+' min':null, 'today', avg7H('exerciseMinutes'), ' min', 'exerciseMinutes'));
-      const wt=fmt1(latestH.bodyWeight); if(wt!=null||avg7H('bodyWeight')!=null) cards.push(buildMetricCard('Weight', wt!=null?wt+' lb':null, 'body weight', avg7H('bodyWeight'), ' lb', 'bodyWeight'));
+      const wt=fmt1(latestH.bodyWeight); if(wt!=null||avg7H('bodyWeight')!=null){
+        const _wtCard = buildMetricCard('Weight', wt!=null?wt+' lb':null, 'body weight', avg7H('bodyWeight'), ' lb', 'bodyWeight');
+        // Append 30d/journey lost line to weight card
+        const _wt30Ago = new Date(); _wt30Ago.setDate(_wt30Ago.getDate()-30);
+        const _wt30Str = _wt30Ago.toISOString().slice(0,10);
+        const _wtAllW=[]; Object.keys(localStorage).filter(k=>k.startsWith('vertex_health_entries')).forEach(k=>{try{JSON.parse(localStorage.getItem(k)||'[]').forEach(r=>{if(r&&r.bodyWeight&&r.date)_wtAllW.push({date:r.date,w:Number(r.bodyWeight)});});}catch(e){}});
+        if(Array.isArray(window.wcLogs))window.wcLogs.forEach(r=>{if(r&&r.weight)_wtAllW.push({date:r.date,w:Number(r.weight)});});
+        const _wtMap={}; _wtAllW.forEach(r=>{_wtMap[r.date]=r.w;});
+        const _wtRows=Object.entries(_wtMap).sort((a,b)=>a[0].localeCompare(b[0]));
+        const _wtCurrent=_wtRows.length?_wtRows[_wtRows.length-1][1]:(wt?parseFloat(wt):null);
+        const _wtRows30=_wtRows.filter(r=>r[0]>=_wt30Str);
+        const _wtLost30=_wtRows30.length>1&&_wtCurrent?parseFloat((_wtRows30[0][1]-_wtCurrent).toFixed(1)):null;
+        const _wtJourney=_wtCurrent?parseFloat((301.4-_wtCurrent).toFixed(1)):null;
+        const _wtL30Html=_wtLost30!=null?'<span style="color:'+(_wtLost30>0?'var(--green)':'var(--red)')+'">'+(_wtLost30>0?'▼':'▲')+' '+Math.abs(_wtLost30)+' lb · 30d</span>':'';
+        const _wtJHtml=_wtJourney!=null?'<span style="color:'+(_wtJourney>0?'var(--green)':'var(--muted)')+'">'+(_wtJourney>0?'▼':'▲')+' '+Math.abs(_wtJourney)+' lb total</span>':'';
+        const _wtLostLine='<div style="font-size:9px;font-family:monospace;margin-top:4px;line-height:1.6">'+_wtL30Html+(_wtLost30!=null&&_wtJourney!=null?' | ':'')+_wtJHtml+'</div>';
+        cards.push(_wtCard.replace('</div>', _wtLostLine+'</div>'));
+      }
       const bf=fmt1(latestH.bodyFatPct); if(bf!=null||avg7H('bodyFatPct')!=null) cards.push(buildMetricCard('Body Fat', bf!=null?bf+'%':null, 'est. · Apple Health', avg7H('bodyFatPct'), '%', 'bodyFatPct'));
       const lm=fmt1(latestH.leanMass); if(lm!=null||avg7H('leanMass')!=null) cards.push(buildMetricCard('Lean Mass', lm!=null?lm+' lb':null, 'muscle + bone', avg7H('leanMass'), ' lb', 'leanMass'));
       const v2=fmt1(latestH.vo2Max); if(v2!=null||avg7H('vo2Max')!=null) cards.push(buildMetricCard('Cardio Fit', v2!=null?v2+' ml/kg':null, 'VO₂ max est.', avg7H('vo2Max'), '', 'vo2Max'));
@@ -15368,7 +15385,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260610-weight-fixes';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260610-weight-final';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -17473,7 +17490,16 @@ window.vertexImportHKWorkout = async function(idx) {
       }
       const now = Number(latest.weight).toFixed(1).replace(/\.0$/,'');
       const goal = Number(goalWt).toFixed(0);
-      return `<div class="vertex-home-weight-row"><span class="vertex-home-weight-stat"><span class="vertex-home-weight-val">${esc(now)}</span><span class="vertex-home-weight-lbl">lb now</span></span><span class="vertex-home-weight-stat"><span class="vertex-home-weight-val" style="color:var(--muted)">${esc(paceStr)}</span><span class="vertex-home-weight-lbl">avg pace</span></span><span class="vertex-home-weight-stat"><span class="vertex-home-weight-val" style="color:var(--green)">${esc(etaStr)}</span></span><span class="vertex-home-weight-stat"><span class="vertex-home-weight-lbl">Goal: ${esc(goal)} lb</span></span></div>`;
+      // 30d and journey lost
+      const _w30Ago = new Date(); _w30Ago.setDate(_w30Ago.getDate()-30);
+      const _w30Str = _w30Ago.toISOString().slice(0,10);
+      const rows30 = rows.filter(r=>r.date>=_w30Str);
+      const lost30 = rows30.length>1 ? parseFloat((rows30[0].weight - latest.weight).toFixed(1)) : null;
+      const journeyLost = parseFloat((301.4 - latest.weight).toFixed(1));
+      const l30Html = lost30!=null ? '<span style="color:'+(lost30>0?'var(--green)':'var(--red)')+'">'+( lost30>0?'▼':'▲')+' '+Math.abs(lost30)+' lb · 30d</span>' : '';
+      const ljHtml = '<span style="color:'+(journeyLost>0?'var(--green)':'var(--muted)')+'">'+( journeyLost>0?'▼':'▲')+' '+Math.abs(journeyLost)+' lb total</span>';
+      const lostLine = '<div style="font-size:9px;font-family:monospace;margin-top:4px;line-height:1.6">'+l30Html+(lost30!=null?' | ':'')+ljHtml+'</div>';
+      return `<div class="vertex-home-weight-row"><span class="vertex-home-weight-stat"><span class="vertex-home-weight-val">${esc(now)}</span><span class="vertex-home-weight-lbl">lb now</span></span><span class="vertex-home-weight-stat"><span class="vertex-home-weight-val" style="color:var(--muted)">${esc(paceStr)}</span><span class="vertex-home-weight-lbl">avg pace</span></span><span class="vertex-home-weight-stat"><span class="vertex-home-weight-val" style="color:var(--green)">${esc(etaStr)}</span></span><span class="vertex-home-weight-stat"><span class="vertex-home-weight-lbl">Goal: ${esc(goal)} lb</span></span></div>${lostLine}`;
     }catch(e){
       console.warn('Vertex weight projection render failed', e);
       return '';

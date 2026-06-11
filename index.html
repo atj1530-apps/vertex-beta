@@ -15439,7 +15439,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611d-squeeze';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611e-flatcard';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -23521,10 +23521,11 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
 })();
 </script>
 <style id="vertex-phase2d-adaptive-decision-css">
-/* Phase 2E — Adaptive Coaching Polish. Tone refinement only; architecture locked. */
+/* Phase 2E — flat card matching theme; left accent border replaces dark gradient */
 #progressPage .vertex-b2-card.vertex-phase2d-decision{
-  border-color:rgba(232,255,71,.42)!important;
-  background:linear-gradient(135deg,rgba(232,255,71,.075),rgba(24,24,24,.98))!important;
+  border-color:var(--line2)!important;
+  background:var(--panel)!important;
+  border-left:3px solid var(--acc)!important;
 }
 #progressPage .vertex-phase2d-chip{
   display:inline-flex;
@@ -23532,7 +23533,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   gap:6px;
   margin-top:8px;
   padding:5px 8px;
-  border:1px solid rgba(255,255,255,.12);
+  border:1px solid var(--line2);
   border-radius:999px;
   font-family:monospace;
   font-size:10px;

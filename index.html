@@ -4094,8 +4094,8 @@ body.app-page-progress #progressPage .vertex-b2-section-label{
   margin-bottom:12px!important;
 }
 body.app-page-progress #progressPage .vertex-b2-card{
-  border-color:rgba(255,255,255,.12)!important;
-  box-shadow:0 0 0 1px rgba(255,255,255,.015) inset!important;
+  border-color:var(--line)!important;
+  box-shadow:none!important;
 }
 body.app-page-progress #progressPage .vertex-b2-card.vertex-phase2d-decision{
   box-shadow:0 0 0 1px rgba(232,255,71,.18) inset!important;
@@ -4181,8 +4181,8 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
 
 <style id="vertex-phase5a7-from-5a6-css">
 #progressPage .vertex-training-snapshot{
-  border:1px solid rgba(255,255,255,.11);
-  background:rgba(255,255,255,.025);
+  border:1px solid var(--line);
+  background:var(--panel2);
   border-radius:18px;
   padding:18px 20px;
   margin:0 0 18px;
@@ -4200,12 +4200,12 @@ body.app-page-progress #progressPage #progressSummary .progress-kpi span{
   font-size:10px;
   letter-spacing:2.6px;
   text-transform:uppercase;
-  color:rgba(255,255,255,.58);
+  color:var(--muted);
 }
 #progressPage .vertex-snapshot-track{
   height:8px;
   border-radius:999px;
-  background:rgba(255,255,255,.08);
+  background:var(--line2);
   overflow:hidden;
 }
 #progressPage .vertex-snapshot-track span{
@@ -4672,7 +4672,7 @@ window.vertexFinishBootstrap=function(){
   </div>
   <div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck" aria-label="Progress intelligence cards"></div>
 </section>
-<section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none" ontouchstart="window.vertexSyncAppleHealth&&window.vertexSyncAppleHealth()">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
+<section id="wellnessPage" class="page-panel" style="background:transparent!important;border:none!important;box-shadow:none!important;padding:16px!important" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none" ontouchstart="window.vertexSyncAppleHealth&&window.vertexSyncAppleHealth()">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:monospace"></span>
@@ -15441,7 +15441,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611k-polish';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611l-theme';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

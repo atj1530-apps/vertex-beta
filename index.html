@@ -990,6 +990,14 @@ body.welcome-active #app-header{ visibility:hidden !important; }
 @media(max-width:600px){.wc-dash-grid,.wc-trend-grid{grid-template-columns:1fr}.wc-kpi-grid{grid-template-columns:repeat(2,1fr)}.progress-summary{grid-template-columns:repeat(2,1fr)}.wc-field-row{grid-template-columns:1fr;gap:4px}.wc-field-row input,.wc-field-row select{width:100%}}
 .dx-field{display:flex;flex-direction:column;gap:4px}.dx-field span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.dx-field input{background:var(--panel);border:1px solid var(--line2);border-radius:6px;color:var(--text);font-size:13px;padding:6px 10px;outline:none;width:100%}.dx-field input:focus{border-color:var(--acc)}
 .proto-dose-btn{width:32px;height:32px;border-radius:50%;border:2px solid var(--line2);background:var(--panel2);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}.proto-dose-btn.logged{border-color:var(--acc);background:rgba(72,255,138,.15);color:var(--acc)}.proto-dose-btn:hover{border-color:var(--acc);color:var(--acc)}
+.home-proto-strip{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:12px 14px;margin:12px 0}
+.home-proto-label{font-size:11px;font-family:monospace;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.home-proto-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.home-proto-chip{font-size:12px;background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:3px 9px;color:var(--muted)}
+.home-proto-chip.done{border-color:var(--acc);color:var(--acc);background:rgba(72,255,138,.08)}
+.home-proto-log-status{font-size:11px;font-family:monospace;letter-spacing:.5px}
+.home-proto-log-status.logged{color:var(--acc)}
+.home-proto-log-status.pending{color:var(--muted)}
 
 html, body {
   padding-left: env(safe-area-inset-left);
@@ -4623,7 +4631,7 @@ window.vertexFinishBootstrap=function(){
 <header id="app-header">
   <div class="logo"><span class="logo-main">ATJ</span><span class="logo-sub">/ WORKOUT BUILDER</span></div>
   <div class="nav-row">
-    <nav class="nav"><button data-nav="home">Home</button><button data-nav="workout" class="on">Workout</button><button data-nav="progress">Progress</button><button data-nav="wellness">Wellness</button><button data-nav="ai">✦ AI Plan</button></nav>
+    <nav class="nav"><button data-nav="home">Home</button><button data-nav="workout" class="on">Workout</button><button data-nav="wellness">Wellness</button><button data-nav="progress">Progress</button><button data-nav="ai">✦ AI Plan</button></nav>
     <button class="btn small nav-hamburger" id="btn-account" aria-label="Account menu">&#9776;</button>
   </div>
   <div class="hdr-actions"><div id="syncStatus" class="sync-pill local" style="cursor:pointer" onclick="if(this.classList.contains('failed')){window.vertexRetrySync&&window.vertexRetrySync()}" title="Click to retry sync"><span class="sync-dot"></span><span id="syncStatusText">Local mode</span></div><button id="btn-save" class="btn small hdr-workout-btn">Save</button><button id="btn-log" class="btn acc small hdr-workout-btn">Log Workout</button><button class="btn small hdr-account-desktop" id="btn-account-desktop" aria-label="Account menu">Account</button></div>
@@ -4667,7 +4675,7 @@ window.vertexFinishBootstrap=function(){
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:monospace"></span>
   </div>
   <div id="hkWorkoutList" style="display:flex;flex-direction:column;gap:8px;overflow:hidden;width:100%;box-sizing:border-box"></div>
-</div><div class="progress-tabs"><button class="progress-tab on" data-wtab="dashboard">Dashboard</button><button class="progress-tab" data-wtab="health">Health</button><button class="progress-tab" data-wtab="protocol">Protocol</button><button class="progress-tab" data-wtab="checkin">Check-In</button><button class="progress-tab" data-wtab="history">History</button><button class="progress-tab" data-wtab="dexa">Body Metrics</button><button class="progress-tab" data-wtab="bodycomp">Body Comp</button><button class="progress-tab" data-wtab="stack">Peptide/Supplement Stack</button></div>
+</div><div class="progress-tabs"><button class="progress-tab on" data-wtab="dashboard">Dashboard</button><button class="progress-tab" data-wtab="health">Health</button><button class="progress-tab" data-wtab="protocol">Protocol</button><button class="progress-tab" data-wtab="checkin">Check-In</button><button class="progress-tab" data-wtab="dexa">Body Metrics</button><button class="progress-tab" data-wtab="bodycomp">Body Comp</button><button class="progress-tab" data-wtab="history">History</button><button class="progress-tab" data-wtab="stack">Peptide/Supplement Stack</button></div>
 
 <!-- HEALTH SUB-TAB -->
 <div id="wtab-health"><div id="healthSummary" class="progress-summary" style="display:none"></div>
@@ -10076,9 +10084,16 @@ async function saveCheckin(){
     notes:null
   };
   try{
-    const{error}=await supa.from('checkin_logs').upsert(row,{onConflict:'user_id,date'});
-    if(error) throw error;
-    toast('Check-in saved');
+    let {error}=await supa.from('checkin_logs').upsert(row,{onConflict:'user_id,date'});
+    if(error){
+      console.warn('saveCheckin full row failed, retrying core columns:',error.message);
+      const coreRow={user_id:row.user_id,date:row.date,weight:row.weight,hunger_am:row.hunger_am,hunger_pm:row.hunger_pm,cravings:row.cravings,energy:row.energy,sleep:row.sleep,recovery:row.recovery,strength:row.strength,training:row.training,protein:row.protein,gi:row.gi,nausea:row.nausea,libido:row.libido,breakthrough:row.breakthrough,notes:row.notes};
+      const res2=await supa.from('checkin_logs').upsert(coreRow,{onConflict:'user_id,date'});
+      if(res2.error) throw res2.error;
+      toast('Check-in saved (run DB migration to unlock all fields)');
+    } else {
+      toast('Check-in saved');
+    }
     await loadCheckinLogs(); await loadWcLogs();
     renderCheckinHistory();
     ciPillValues={}; renderCiPills();
@@ -11971,7 +11986,12 @@ ${dueToday.length ? `
       return `<span class="home-proto-chip ${done?'done':''}"><b>${escapeHtml(s.name)}</b> ${escapeHtml(s.dose||'')}${escapeHtml(s.unit||'')}</span>`;
     }).join('')}
   </div>
-  <div style="margin-top:6px"><a href="#" onclick="if(typeof setPage==='function')setPage('wellness');if(typeof setWellnessTab==='function')setWellnessTab('protocol');return false;" style="font-size:11px;color:var(--acc);text-decoration:none;font-family:monospace;letter-spacing:.5px">Log doses →</a></div>
+  <div style="margin-top:6px">
+    ${loggedNames.size >= dueToday.length && dueToday.length > 0
+      ? `<span class="home-proto-log-status logged">✓ Doses logged</span>`
+      : `<a href="#" onclick="if(typeof setPage==='function')setPage('wellness');if(typeof setWellnessTab==='function')setWellnessTab('protocol');return false;" class="home-proto-log-status pending">Log doses →</a>`
+    }
+  </div>
 </div>` : ''}
 <div id="vertex-daily-brief-card"></div>
 <div id="vertex-goal-tracker-card"></div>
@@ -15385,7 +15405,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260610-weight-final';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611-checkin-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

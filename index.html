@@ -990,14 +990,17 @@ body.welcome-active #app-header{ visibility:hidden !important; }
 @media(max-width:600px){.wc-dash-grid,.wc-trend-grid{grid-template-columns:1fr}.wc-kpi-grid{grid-template-columns:repeat(2,1fr)}.progress-summary{grid-template-columns:repeat(2,1fr)}.wc-field-row{grid-template-columns:1fr;gap:4px}.wc-field-row input,.wc-field-row select{width:100%}}
 .dx-field{display:flex;flex-direction:column;gap:4px}.dx-field span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.dx-field input{background:var(--panel);border:1px solid var(--line2);border-radius:6px;color:var(--text);font-size:13px;padding:6px 10px;outline:none;width:100%}.dx-field input:focus{border-color:var(--acc)}
 .proto-dose-btn{width:32px;height:32px;border-radius:50%;border:2px solid var(--line2);background:var(--panel2);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}.proto-dose-btn.logged{border-color:var(--acc);background:rgba(72,255,138,.15);color:var(--acc)}.proto-dose-btn:hover{border-color:var(--acc);color:var(--acc)}
-.home-proto-strip{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:12px 14px;margin:12px 0}
-.home-proto-label{font-size:11px;font-family:monospace;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.home-proto-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
-.home-proto-chip{font-size:12px;background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:3px 9px;color:var(--muted)}
-.home-proto-chip.done{border-color:var(--acc);color:var(--acc);background:rgba(72,255,138,.08)}
-.home-proto-log-status{font-size:11px;font-family:monospace;letter-spacing:.5px}
+.home-proto-strip{margin:8px 0 4px}
+.home-proto-label{font-size:12px;color:var(--muted);margin-bottom:4px}
+.home-proto-chips{display:inline}
+.home-proto-chip{font-size:14px;color:var(--text);font-weight:normal}
+.home-proto-chip::after{content:", "}
+.home-proto-chip:last-child::after{content:""}
+.home-proto-chip.done{color:var(--text)}
+.home-proto-log-status{font-size:11px;font-family:monospace;letter-spacing:.5px;display:block;margin-top:2px}
 .home-proto-log-status.logged{color:var(--acc)}
-.home-proto-log-status.pending{color:var(--muted)}
+.home-proto-log-status.pending{color:var(--acc);text-decoration:none}
+.home-proto-log-status.pending:hover{text-decoration:underline}
 
 html, body {
   padding-left: env(safe-area-inset-left);
@@ -7454,9 +7457,17 @@ async function deleteSavedWorkout(i){
 }
 
 function clearedDaysKey(){return authUser?`vertex_cleared_days_${authUser.id}`:'vertex_cleared_days_guest';}
-function loadClearedDays(){try{return JSON.parse(localStorage.getItem(clearedDaysKey())||'[]');}catch{return [];}}
-function markDayCleared(day){const c=loadClearedDays(); if(!c.includes(day)){c.push(day); localStorage.setItem(clearedDaysKey(),JSON.stringify(c));}}
-function unmarkDayCleared(day){const c=loadClearedDays().filter(d=>d!==day); localStorage.setItem(clearedDaysKey(),JSON.stringify(c));}
+// Tombstones stored as {day:isoTimestamp}. A tombstone only wins over a cloud row if its timestamp
+// is NEWER than the cloud row's updated_at — so re-saving a day always beats a stale clear.
+function loadClearedDays(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(clearedDaysKey())||'{}');
+    if(Array.isArray(raw)){const m={};raw.forEach(d=>{m[d]=new Date(0).toISOString();});localStorage.setItem(clearedDaysKey(),JSON.stringify(m));return m;}
+    return raw||{};
+  }catch{return {};}
+}
+function markDayCleared(day){const c=loadClearedDays();c[day]=new Date().toISOString();localStorage.setItem(clearedDaysKey(),JSON.stringify(c));}
+function unmarkDayCleared(day){const c=loadClearedDays();delete c[day];localStorage.setItem(clearedDaysKey(),JSON.stringify(c));}
 
 async function hydratePlannerFromCloud(){
   const local = loadPlanner(); // 6A53: never destroy local on failure
@@ -7464,20 +7475,36 @@ async function hydratePlannerFromCloud(){
   const supa=getSupa();
   // No timeout — let Supabase respond in its own time (cold starts can take 5-15s on free tier)
   let data=null, error=null;
-  try { ({data,error} = await supa.from('vertex_planner_days').select('day,workout_payload').eq('user_id',authUser.id)); }
+  try { ({data,error} = await supa.from('vertex_planner_days').select('day,workout_payload,updated_at').eq('user_id',authUser.id)); }
   catch(e){ error = e; }
   if(error){ console.warn('Vertex cloud planner read failed; keeping local copy:',error); state.planner = local; return false; }
   // 6A53: merge — start from local so a day saved locally but not yet synced is never dropped, then overlay cloud.
   const cloudPlanner = Object.assign(emptyPlanner(), local);
-  (data||[]).forEach(row=>{ if(DAYS.includes(row.day) && row.workout_payload) cloudPlanner[row.day]=row.workout_payload; });
-  // Apply tombstones — days the user explicitly cleared win over stale cloud/local rows.
-  // Safety: only apply tombstones if the list is non-empty AND was written within the last 30 days.
-  // An empty tombstone list (e.g. after a hard browser reset) must never delete cloud data.
-  const cleared=loadClearedDays();
+  const cloudUpdatedAt = {};
+  (data||[]).forEach(row=>{
+    if(DAYS.includes(row.day) && row.workout_payload){
+      cloudPlanner[row.day]=row.workout_payload;
+      cloudUpdatedAt[row.day]=row.updated_at||new Date(0).toISOString();
+    }
+  });
+  // Apply tombstones — ONLY if the tombstone timestamp is NEWER than the cloud row's updated_at.
+  // This means re-saving a day always beats any prior clear, even across browser resets.
+  const cleared=loadClearedDays(); // now an object {day: isoTimestamp}
   const retryDeletes=[];
-  if(cleared.length > 0){
-    cleared.forEach(day=>{
-      if(cloudPlanner[day]!==null){ cloudPlanner[day]=null; retryDeletes.push(day); }
+  const clearedKeys=Object.keys(cleared);
+  if(clearedKeys.length > 0){
+    clearedKeys.forEach(day=>{
+      const tombstoneTime=new Date(cleared[day]||0).getTime();
+      const cloudTime=new Date(cloudUpdatedAt[day]||0).getTime();
+      // Tombstone wins only if it's newer than the last cloud save
+      if(tombstoneTime > cloudTime && cloudPlanner[day]!==null){
+        cloudPlanner[day]=null;
+        retryDeletes.push(day);
+      } else if(tombstoneTime <= cloudTime && cloudUpdatedAt[day]){
+        // Cloud row is newer — the day was re-saved after the clear; remove stale tombstone
+        unmarkDayCleared(day);
+        console.log('Stale tombstone removed for',day,'— cloud row is newer');
+      }
     });
   }
   state.planner=cloudPlanner;
@@ -11989,23 +12016,16 @@ function renderHomeDashboard(){
 
 ${typeof buildHomePlannerHTML==='function'?buildHomePlannerHTML():''}
 
+
 ${dueToday.length ? `
 <div class="home-proto-strip">
-  <div class="home-proto-label">💊 Today’s Protocol</div>
-  <div class="home-proto-chips">
-    ${dueToday.map(s => {
-      const done = loggedNames.has(s.name);
-      return `<span class="home-proto-chip ${done?'done':''}"><b>${escapeHtml(s.name)}</b> ${escapeHtml(s.dose||'')}${escapeHtml(s.unit||'')}</span>`;
-    }).join('')}
-  </div>
-  <div style="margin-top:6px">
-    ${loggedNames.size >= dueToday.length && dueToday.length > 0
-      ? `<span class="home-proto-log-status logged">✓ Doses logged</span>`
-      : `<a href="#" onclick="if(typeof setPage==='function')setPage('wellness');if(typeof setWellnessTab==='function')setWellnessTab('protocol');return false;" class="home-proto-log-status pending">Log doses →</a>`
-    }
-  </div>
+  <div class="home-proto-label">💊 Today's Protocol</div>
+  <div style="font-size:14px;color:var(--text);margin-bottom:3px">${dueToday.map(s=>`<b>${escapeHtml(s.name)}</b> ${escapeHtml(s.dose||'')}${escapeHtml(s.unit||'')}`).join(' ')}</div>
+  ${loggedNames.size >= dueToday.length
+    ? `<span class="home-proto-log-status logged">✓ Doses logged</span>`
+    : `<a href="#" onclick="if(typeof setPage==='function')setPage('wellness');if(typeof setWellnessTab==='function')setWellnessTab('protocol');return false;" class="home-proto-log-status pending">Log doses →</a>`
+  }
 </div>` : ''}
-<div id="vertex-daily-brief-card"></div>
 <div id="vertex-goal-tracker-card"></div>
 `;
     // Weekly Intelligence
@@ -15417,7 +15437,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611b-proto-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611c-tombstone';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

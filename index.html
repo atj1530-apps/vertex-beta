@@ -3818,7 +3818,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 #vertexB2ProgressDeck{margin:14px 0 18px;}
 .vertex-b2-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px;}
 .vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin-top:2px;}
-.vertex-b2-card{border:1px solid var(--line);background:var(--panel2);border-radius:18px;padding:16px;min-height:132px;box-sizing:border-box;overflow:hidden;}
+.vertex-b2-card{border:1px solid rgba(72,255,138,.35);background:var(--panel);border-radius:18px;padding:16px;min-height:132px;box-sizing:border-box;overflow:hidden;}
 .vertex-b2-card .label{margin-bottom:12px;}
 .vertex-b2-value{font-size:18px;font-weight:800;color:var(--green);line-height:1.15;margin-bottom:10px;}
 .vertex-b2-line{color:var(--muted);font-size:13px;line-height:1.45;margin-top:3px;}
@@ -3862,7 +3862,7 @@ body.app-page-home #vertexWorkoutHistoryPanel{display:none!important;}
 #progressPage #vertexB2ProgressDeck:empty{display:none!important;}
 #progressPage .vertex-b2-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px;}
 #progressPage .vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin-top:2px;}
-#progressPage .vertex-b2-card{border:1px solid var(--line);background:var(--panel2);border-radius:18px;padding:16px;min-height:132px;box-sizing:border-box;overflow:hidden;}
+#progressPage .vertex-b2-card{border:1px solid rgba(72,255,138,.35);background:var(--panel);border-radius:18px;padding:16px;min-height:132px;box-sizing:border-box;overflow:hidden;}
 #progressPage .vertex-b2-card .label{margin-bottom:12px;}
 #progressPage .vertex-b2-value{font-size:18px;font-weight:800;color:var(--green);line-height:1.15;margin-bottom:10px;}
 #progressPage .vertex-b2-line{color:var(--muted);font-size:13px;line-height:1.45;margin-top:3px;}
@@ -15439,7 +15439,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611f-cards';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611g-progress';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -21970,11 +21970,11 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
 <style id="vertex-phase3a-predictive-intelligence-css">
 /* Phase 3A — predictive intelligence layer; DOM-safe overlay, no auth/SW/cache/rail rewrites. */
 #progressPage .vertex-phase3a-narrative{
-  border-color:rgba(232,255,71,.36)!important;
-  background:linear-gradient(135deg,rgba(232,255,71,.06),rgba(24,24,24,.98))!important;
+  border-color:rgba(72,255,138,.45)!important;
+  background:var(--panel)!important;
 }
 #vertexB2ProgressDeck .vertex-phase2d-chip{font-size:9px!important;padding:5px 8px!important;margin-top:2px!important;}
-#vertexB2ProgressDeck .vertex-b2-card .vertex-b2-line[style]{font-size:12px!important;line-height:1.35!important;color:rgba(242,242,242,.62)!important;}
+#vertexB2ProgressDeck .vertex-b2-card .vertex-b2-line[style]{font-size:12px!important;line-height:1.35!important;color:var(--muted)!important;}
 #vertexB2ProgressDeck .vertex-b2-card .vertex-b2-value{line-height:1.08!important;}
 </style>
 <script id="vertex-phase3a-predictive-intelligence">
@@ -23712,9 +23712,10 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     var cnsLoad=Math.max(0,Math.min(100,Math.round(density+ramp+recPenalty+imbalancePenalty+repeatPenalty+stalePenalty)));
     var trend=buildTrendMemory(rs,r,sessions,prev,cnsLoad);
     var confidence=trend.confidence;
-    var state='Maintain', tone='maintain', action='Stay The Course';
-    var reason='Training and recovery are balanced.';
-    var guide='Complete today’s planned workout and keep momentum moving.';
+    // Default depends on session history — no sessions = Build Consistency, not Maintain
+    var state=sessions<=0?'Build':'Maintain', tone=sessions<=0?'rec':'maintain', action=sessions<=0?'Build Consistency':'Stay The Course';
+    var reason=sessions<=0?'No sessions logged yet this week. Start with one solid moderate session.':'Training and recovery are balanced.';
+    var guide=sessions<=0?'Pick any planned workout and complete it. Volume and intensity can grow from there.':'Complete today’s planned workout and keep momentum moving.';
     var deload='Not indicated';
     if(trend.state==='Accumulated Fatigue'){ state='Recover'; tone='recover'; action='Protect recovery'; reason='Fatigue has been building across recent sessions.'; guide='Keep today lighter and leave a few reps in reserve.'; deload='Recommended'; }
     else if(r!==null && r<50){ state='Recover'; tone='recover'; action='Focus On Recovery'; reason='Recovery is below normal, so forcing a hard session is not the best move today.'; guide='Keep it light with mobility, easy cardio, or technique work. Skip PR attempts.'; deload='Prioritize Recovery'; }
@@ -23778,12 +23779,19 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   }
   var oldPage=window.renderProgressPage;
   if(typeof oldPage==='function' && !oldPage.__vertexPhase2D1Wrapped){
-    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); setTimeout(function(){inject(); enhanceCoachFeed();},120); setTimeout(function(){inject(); enhanceCoachFeed();},620); return out; };
+    var pageWrapped=function(){ var out=oldPage.apply(this,arguments); debouncedInject(350); return out; };
     pageWrapped.__vertexPhase2D1Wrapped=true;
     window.renderProgressPage=pageWrapped;
   }
-  [120,520,1200,2400].forEach(function(ms){ setTimeout(function(){ inject(); enhanceCoachFeed(); },ms); });
-  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(function(){inject(); enhanceCoachFeed();},180); setTimeout(function(){inject(); enhanceCoachFeed();},700); } },true);
+  // Debounced inject — prevents flash from multiple staggered renders overwriting each other
+  var _injectTimer=null;
+  function debouncedInject(ms){
+    if(_injectTimer) clearTimeout(_injectTimer);
+    _injectTimer=setTimeout(function(){ inject(); enhanceCoachFeed(); _injectTimer=null; },ms||80);
+  }
+  // Single deferred render after page load — wait for data to settle
+  setTimeout(function(){ inject(); enhanceCoachFeed(); },400);
+  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ debouncedInject(300); } },true);
   window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject,enhanceCoachFeed:enhanceCoachFeed};
 })();
 </script>

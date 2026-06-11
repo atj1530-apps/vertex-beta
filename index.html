@@ -6471,8 +6471,10 @@ function getExerciseDemo(name){
     "paused push-up": "Bodyweight",
     "tempo push-up": "Bodyweight",
     "single-arm assisted push-up": "Bodyweight",
-    "squeeze press": "Dumbbells"
+    "squeeze press": "Dumbbells",  // alias kept for legacy log display only — not injected into exercise list
   };
+  // Remove squeeze press from map so it is never added as a selectable exercise (Hex Press is the canonical name)
+  delete chestMap["squeeze press"];
 
   const ensureExercise = (name, muscle, equip, training="Strength") => {
     const key = String(name).toLowerCase();
@@ -6504,7 +6506,7 @@ function getExerciseDemo(name){
   list.forEach(ex => {
     const n = String(ex?.name || "").toLowerCase();
     const isChest =
-      /bench|chest press|push[- ]?up|fly|hex press|squeeze press|dip/.test(n) ||
+      /bench|chest press|push[- ]?up|fly|hex press|dip/.test(n) ||
       String(ex?.muscle || "").toLowerCase() === "chest";
     if (isChest) {
       ex.training = ex.training || "Strength";
@@ -6543,7 +6545,7 @@ function getExerciseDemo(name){
     {re:/lat pulldown|pull-up|pull up|chin-up|chin up|row|pullover|meadows row|t-bar|inverted row/i, muscle:"Back"},
     {re:/squat|lunge|leg press|deadlift|rdl|romanian|calf|step-up|step up|hack squat|belt squat|split squat|hip thrust|glute bridge|hamstring curl|leg extension/i, muscle:"Legs"},
     {re:/plank|dead bug|crunch|leg raise|russian twist|sit-up|hollow|bird dog|pallof|woodchop/i, muscle:"Core"},
-    {re:/bench press|chest press|push[- ]?up|fly|hex press|squeeze press|chest dip|dip/i, muscle:"Chest"},
+    {re:/bench press|chest press|push[- ]?up|fly|hex press|chest dip|dip/i, muscle:"Chest"},
   ];
 
   const equipmentRules = [
@@ -6707,7 +6709,7 @@ function getExerciseDemo(name){
     else if(/lat pulldown|pull-up|pull up|chin-up|chin up|row|pullover|meadows|t-bar|inverted row/.test(n)) setCat(ex,"Back",/cable|pulldown|seated/.test(n)?"Cable":(/barbell|t-bar/.test(n)?"Barbell":(/pull|chin|inverted/.test(n)?"Bodyweight":"Dumbbells")));
     else if(/squat|lunge|leg press|deadlift|romanian|rdl|calf|step-up|step up|split squat|hip thrust|glute bridge|hamstring curl|leg extension/.test(n)) setCat(ex,"Legs",/dumbbell|goblet/.test(n)?"Dumbbells":(/machine|leg press|hack/.test(n)?"Machine":(/bodyweight|lunge|step/.test(n)?"Bodyweight":"Barbell")));
     else if(/plank|dead bug|crunch|leg raise|russian twist|sit-up|hollow|bird dog|pallof|woodchop/.test(n)) setCat(ex,"Core",/cable|pallof|woodchop/.test(n)?"Cable":"Bodyweight");
-    else if(/bench press|chest press|push[- ]?up|fly|hex press|squeeze press|chest dip|bench dip|dip/.test(n)) {
+    else if(/bench press|chest press|push[- ]?up|fly|hex press|chest dip|bench dip|dip/.test(n)) {
       let eq="Barbell";
       if(/dumbbell|hex|fly|floor|squeeze/.test(n)) eq="Dumbbells";
       else if(/cable/.test(n)) eq="Cable";
@@ -15437,7 +15439,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611c-tombstone';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611d-squeeze';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

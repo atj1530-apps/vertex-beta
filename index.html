@@ -8193,16 +8193,13 @@ async function clearLoadedWorkout(){
   const day=state.current && state.current.assignedDay;
   const hasAssignedDay=day && state.planner && state.planner[day];
   if(hasAssignedDay){
-    const ok=await vertexConfirm(`Remove "${state.planner[day].name}" from ${DAY_LABEL[day]} and clear the builder?`);
-    if(!ok) return;
-    state.planner[day]=null;
-    savePlanner();
-    markDayCleared(day);
-    await deletePlannerDayCloud(day);
+    // Workout is already saved to planner — just clear the builder, keep the planner day intact
+    clearCurrent();
+    toast(DAY_LABEL[day]+' is saved. Builder cleared for a new workout.');
   } else {
     if(hasWorkout() && !await vertexConfirm('Clear the current workout from the builder?')) return;
+    clearCurrent();
   }
-  clearCurrent();
 }
 async function clearDay(day){
   const w=state.planner[day];
@@ -12759,7 +12756,7 @@ function renderBuilder(){
   // actionBar only shown for non-strength types — for strength, Save/Log in header is sufficient
   const isStrengthMode = !w.type || w.type==='strength';
   const assignedDay = state.current && state.current.assignedDay;
-  const clearLabel = assignedDay && DAY_LABEL[assignedDay] ? `Clear ${DAY_LABEL[assignedDay]}` : 'Clear Workout';
+  const clearLabel = 'New Workout'; // Clears builder only — planner day is preserved
   const actionBar = isStrengthMode
     ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><button class="btn acc small" data-start-current="1">▶ Start Workout</button><button class="btn red small" data-clear-current="1">${clearLabel}</button></div>`
     : `<div class="flow-card" style="padding:12px 14px;margin-bottom:12px"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="label">Manual Workout Controls · Performance Tracking</div><div style="color:var(--muted);font-size:12px;margin-top:4px">Last-set history and PR flags appear from logged workouts.</div></div><div style="display:flex;gap:8px;flex-wrap:wrap">${state.tracking?'':`<button class="btn acc" data-start-current="1">▶ Start Workout</button>`}<button class="btn red" data-clear-current="1">${clearLabel}</button></div></div></div>`;
@@ -15454,7 +15451,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611p-assign';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611q-newwkt';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

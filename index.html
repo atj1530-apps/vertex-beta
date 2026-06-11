@@ -8702,6 +8702,8 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
     ])
   ];
 
+  // Placeholder for Adaptive Decision — replaced by phase2D inject() after debounce
+  const adaptivePlaceholder='<section class="vertex-b2-card vertex-phase2d-decision vertex-phase2d-maintain" id="vertex-adaptive-decision-placeholder"><div class="label">Adaptive Decision</div><div class="vertex-b2-value" style="color:var(--muted);font-size:14px">Calculating...</div></section>';
   const intelligenceCards=[
     card('Recovery Trend', recoveryTrend, [
       readiness!==null?recoveryLine:'Connect or log recovery data.',
@@ -8739,7 +8741,7 @@ function renderVertexB2ProgressDeck(rows,sum,perf){
       <div class="vertex-snapshot-row"><div class="vertex-snapshot-label">Fatigue Level</div><div class="vertex-snapshot-track"><span style="width:${Math.min(100,Math.max(10,Math.round((sessions||0)/5*100)))}%"></span></div></div>
     </div>`,
     '<div class="vertex-b2-section-label">Training Intelligence</div>',
-    `<div class="vertex-b2-row vertex-b2-row-intelligence">${intelligenceCards.join('')}</div>`
+    `<div class="vertex-b2-row vertex-b2-row-intelligence">${adaptivePlaceholder}${intelligenceCards.join('')}</div>`
   ].join('');
 }
 
@@ -15439,7 +15441,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611h-noflash';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611i-noflash2';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -23753,7 +23755,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
       try{
         var row=document.querySelector('#vertexB2ProgressDeck .vertex-b2-row-intelligence');
         if(!row) return;
-        var existing=row.querySelector('.vertex-phase2d-decision');
+        var existing=row.querySelector('#vertex-adaptive-decision-placeholder')||row.querySelector('.vertex-phase2d-decision');
         if(existing) existing.outerHTML=decisionCard(); else row.insertAdjacentHTML('afterbegin',decisionCard());
       }catch(e){ console.warn('[Vertex Phase2D.1] decision card injection failed',e); }
     },600); // 600ms — long enough for all engines to queue, only last one wins

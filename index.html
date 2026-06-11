@@ -15441,7 +15441,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611i-noflash2';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611j-final';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -22083,11 +22083,11 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) button[data-train
   function sync(){refineCards(); refineInsights();}
   var old=window.renderProgressPage;
   if(typeof old==='function'&&!old.__vertexPhase3AWrapped){
-    var wrapped=function(){var out=old.apply(this,arguments); [180,560,1200].forEach(function(ms){setTimeout(sync,ms);}); return out;};
+    var wrapped=function(){var out=old.apply(this,arguments); setTimeout(sync,500); return out;};
     wrapped.__vertexPhase3AWrapped=true; window.renderProgressPage=wrapped;
   }
-  [220,850,1700,3400].forEach(function(ms){setTimeout(sync,ms);});
-  document.addEventListener('click',function(e){if(e.target&&(e.target.closest('[data-nav]')||e.target.closest('[data-ptab]')||e.target.closest('#btn-refresh-progress'))){setTimeout(sync,240);setTimeout(sync,900);}},true);
+  setTimeout(sync,600);
+  document.addEventListener('click',function(e){if(e.target&&(e.target.closest('[data-nav]')||e.target.closest('[data-ptab]')||e.target.closest('#btn-refresh-progress'))){setTimeout(sync,500);}},true);
   window.VertexPhase3APredictiveIntelligence={sync:sync,maturity:maturity,forecast:forecast};
 })();
 </script>
@@ -23512,21 +23512,30 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   function sync(){ render(); addTooltips(); }
   var oldRender=window.renderProgressPage;
   if(typeof oldRender==='function' && !oldRender.__vertexPhase2BWrapped){
-    var wrapped=function(){ var out=oldRender.apply(this,arguments); setTimeout(sync,140); setTimeout(sync,520); return out; };
+    var wrapped=function(){ var out=oldRender.apply(this,arguments); setTimeout(sync,500); return out; };
     wrapped.__vertexPhase2BWrapped=true;
     window.renderProgressPage=wrapped;
   }
-  [160,650,1300,2600,4200].forEach(function(ms){ setTimeout(sync,ms); });
-  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-ptab]') || e.target.closest('[data-nav]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(sync,220); setTimeout(sync,700); } },true);
+  setTimeout(sync,600);
+  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-ptab]') || e.target.closest('[data-nav]') || e.target.closest('#btn-refresh-progress'))){ setTimeout(sync,500); } },true);
   try{ var mo=new MutationObserver(function(){ clearTimeout(window.__vertexPhase2BTimer); window.__vertexPhase2BTimer=setTimeout(addTooltips,120); }); document.addEventListener('DOMContentLoaded',function(){ if(document.body) mo.observe(document.body,{childList:true,subtree:true}); }); }catch(e){}
   window.VertexPhase2BCoachIntelligence={render:render,sync:sync,build:build};
 })();
 </script>
 <style id="vertex-phase2d-adaptive-decision-css">
-/* Phase 2E — matches all other cards, accent green border to signal primary card */
+/* Phase 2E — Adaptive Decision matches Today card on home; other cards match day cards */
 #progressPage .vertex-b2-card.vertex-phase2d-decision{
-  border-color:rgba(72,255,138,.45)!important;
-  background:var(--panel)!important;
+  border:2px solid var(--acc)!important;
+  background:rgba(78,114,0,.06)!important;
+}
+body.theme-light #progressPage .vertex-b2-card.vertex-phase2d-decision{
+  border-color:var(--acc)!important;
+  background:rgba(78,114,0,.08)!important;
+}
+/* All other progress intelligence cards match home day card style */
+#progressPage .vertex-b2-card:not(.vertex-phase2d-decision){
+  border:1px solid var(--line)!important;
+  background:var(--panel2)!important;
 }
 #progressPage .vertex-phase2d-chip{
   display:inline-flex;
@@ -23827,11 +23836,10 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     return {readiness:readiness,sessions:sessions,sets:sets,volume:volume,baseline:baseline,risk:risk,debt:debt,window:window,forecast:forecast};
   }
   function decisionCardSync(s){
-    var c=findCard('Adaptive Decision'); if(!c) return;
-    var chips='<div class="vertex-phase2d-chip"><strong>Fatigue</strong> 0/100</div>'+
-      '<div class="vertex-phase2d-chip"><strong>Baseline Phase</strong></div>'+
-      '<div class="vertex-phase2d-chip"><strong>Forecast</strong> '+esc(s.risk)+'</div>';
-    c.innerHTML='<div class="label">Adaptive Decision <button class="vertex-i" type="button" aria-label="Info" data-tip="Predictive decision combines readiness, training rhythm, recovery debt, and progression-window risk.">i</button></div>'+ '<div class="vertex-b2-value">Maintain · Stay The Course</div>'+ '<div class="vertex-b2-line">Training and recovery are balanced.</div>'+ '<div class="vertex-b2-line"><b style="color:var(--text)">Next move:</b> Complete today’s planned workout and keep momentum moving.</div>'+ chips+ '<div class="vertex-b2-line" style="margin-top:8px">'+esc(s.debt)+' · '+esc(s.window)+' · readiness '+esc(s.readiness)+'</div>';
+    // Defer to the global debounced inject() — never write directly to avoid flash
+    if(window.VertexPhase2DAdaptiveDecision && typeof window.VertexPhase2DAdaptiveDecision.inject==='function'){
+      window.VertexPhase2DAdaptiveDecision.inject();
+    }
   }
   function narrativeSync(s){
     var wrap=document.getElementById('progressInsights'); if(!wrap) return;
@@ -23855,11 +23863,11 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   }
   var old=window.renderProgressPage;
   if(typeof old==='function' && !old.__vertexPhase3BWrapped){
-    var wrapped=function(){var out=old.apply(this,arguments); [160,520,1100].forEach(function(ms){setTimeout(sync,ms);}); return out;};
+    var wrapped=function(){var out=old.apply(this,arguments); setTimeout(sync,500); return out;};
     wrapped.__vertexPhase3BWrapped=true; window.renderProgressPage=wrapped;
   }
-  [220,900,1800,3600].forEach(function(ms){setTimeout(sync,ms);});
-  document.addEventListener('click',function(e){if(e.target&&(e.target.closest('[data-nav]')||e.target.closest('[data-ptab]')||e.target.closest('#btn-refresh-progress'))){setTimeout(sync,220);setTimeout(sync,900);}},true);
+  setTimeout(sync,600);
+  document.addEventListener('click',function(e){if(e.target&&(e.target.closest('[data-nav]')||e.target.closest('[data-ptab]')||e.target.closest('#btn-refresh-progress'))){setTimeout(sync,500);}},true);
   window.VertexPhase3BForecastingRiskEngine={sync:sync,state:state};
 })();
 </script>

@@ -4672,7 +4672,7 @@ window.vertexFinishBootstrap=function(){
   </div>
   <div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck" aria-label="Progress intelligence cards"></div>
 </section>
-<section id="wellnessPage" class="page-panel" style="background:transparent!important;border:none!important;box-shadow:none!important;padding:16px!important" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none" ontouchstart="window.vertexSyncAppleHealth&&window.vertexSyncAppleHealth()">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
+<section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none" ontouchstart="window.vertexSyncAppleHealth&&window.vertexSyncAppleHealth()">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:monospace"></span>
@@ -15441,7 +15441,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611l-theme';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611m-lightfix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -22958,6 +22958,150 @@ body.app-page-progress #home-dashboard,body.app-page-progress #homePage,body.app
 body.app-page-wellness #home-dashboard,body.app-page-wellness #homePage,body.app-page-wellness #progressPage,body.app-page-wellness #aiPage{display:none!important;}
 body.app-page-home #home-dashboard{display:block!important;}
 </style>
+<style id="vertex-light-theme-overrides">
+/* Light theme overrides — corrects all hardcoded dark rgba(255,255,255,...) values */
+body.theme-light {
+
+  /* Page panels — remove white box, blend with page bg like Home tab */
+  #wellnessPage.page-panel,
+  #aiPage.page-panel {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 16px !important;
+  }
+
+  /* Progress/Wellness subtab buttons */
+  .progress-tab,
+  .wellness-tabs button,
+  #wellness-tabs button,
+  #wellnessPage [data-wtab] {
+    border-color: var(--line) !important;
+  }
+
+  /* All card types — match home day card style */
+  .progress-card,
+  .wc-card,
+  .wc-section,
+  .roadmap-card,
+  .health-input {
+    border-color: var(--line) !important;
+    background: var(--panel2) !important;
+  }
+
+  /* Health manual entry accordion */
+  #healthManualEntryAcc {
+    background: var(--panel2) !important;
+    border-color: var(--line) !important;
+  }
+  #healthManualEntryAcc .acc-head {
+    background: var(--panel2) !important;
+  }
+
+  /* Recovery center cards */
+  .vertex-rec-card {
+    border-color: var(--line) !important;
+  }
+  .vertex-rec-source {
+    border-color: var(--line2) !important;
+    background: var(--panel2) !important;
+  }
+  .vertex-rec-driver {
+    border-color: var(--line2) !important;
+    background: var(--panel2) !important;
+  }
+
+  /* Progress page hierarchy block */
+  body.app-page-progress #progressPage.progress-page {
+    background: transparent !important;
+  }
+  body.app-page-progress #progressPage #progressTabContent {
+    border-top-color: var(--line) !important;
+  }
+  body.app-page-progress #progressPage #ptab-overview::before {
+    color: var(--acc) !important;
+  }
+  body.app-page-progress #progressPage #ptab-overview .progress-card {
+    background: var(--panel2) !important;
+    border-color: var(--line) !important;
+  }
+  body.app-page-progress #progressPage #ptab-overview .progress-card .label {
+    color: var(--muted) !important;
+  }
+  body.app-page-progress #progressPage #progressWeeks .empty-note,
+  body.app-page-progress #progressPage #progressMuscles .empty-note {
+    background: transparent !important;
+    border-color: var(--line2) !important;
+    color: var(--muted) !important;
+  }
+  body.app-page-progress #progressPage #progressSummary .progress-kpi {
+    background: var(--panel2) !important;
+    border-color: var(--line) !important;
+  }
+  body.app-page-progress #progressPage #progressSummary .progress-kpi b {
+    color: var(--acc) !important;
+  }
+  body.app-page-progress #progressPage #progressSummary .progress-kpi span {
+    color: var(--muted) !important;
+  }
+
+  /* Week pill */
+  .vertex-week-pill {
+    background: var(--panel2) !important;
+    border-color: var(--line) !important;
+  }
+
+  /* Mobile right panel */
+  .right {
+    border-top-color: var(--line) !important;
+  }
+  .right .panel,
+  .right .coach-card,
+  .right .saved-item,
+  .right .stat-box {
+    border-color: var(--line) !important;
+  }
+
+  /* Wellness history detail */
+  .vertex-history-detail {
+    background: var(--panel2) !important;
+  }
+  .vertex-history-ex {
+    border-color: var(--line) !important;
+    background: var(--panel2) !important;
+  }
+
+  /* Inline panel cards (progress/AI coach inline cards) */
+  [style*="background:rgba(255,255,255,.02)"] {
+    background: var(--panel2) !important;
+  }
+
+  /* AI Coach score card */
+  .vertex-score-card {
+    border-color: var(--line) !important;
+    background: var(--panel2) !important;
+  }
+
+  /* Phase 2B/3A/3B narrative cards */
+  .vertex-phase3b-narrative,
+  .vertex-phase3a-narrative {
+    border-color: var(--line2) !important;
+    background: var(--panel2) !important;
+  }
+
+  /* Insight cards */
+  .insight {
+    border-color: rgba(78,114,0,.3) !important;
+    background: rgba(78,114,0,.04) !important;
+  }
+
+  /* whero separator */
+  .whero-sep {
+    background: var(--line) !important;
+  }
+}
+</style>
+
 </body>
 </html>
 

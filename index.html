@@ -125,6 +125,8 @@ body.theme-light{
   --bg:#f0f2ee;--panel:#ffffff;--panel2:#f3f5f1;--panel3:#e8ece6;
   --line:#ced6ca;--line2:#dce3d8;--text:#111411;--muted:#526852;--dim:#8a9e8a;
   --acc:#4e7200;--green:#1a7a35;--red:#cc2020;--blue:#1a5fa0;--orange:#b86000;
+  --border-subtle:#ced6ca;--border-standard:#b8c4b4;
+  --card-pad:16px;
   color-scheme:light;
 }
 body.theme-light .btn.acc,body.theme-light button.btn.acc{background:#e8ff47!important;color:#000!important;border-color:#e8ff47!important}
@@ -15441,7 +15443,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611m-lightfix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611n-borders';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

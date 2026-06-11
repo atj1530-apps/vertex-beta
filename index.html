@@ -245,14 +245,14 @@ html.vertex-auth-booting #app-header{
   opacity:.86;
 }
 .progress-kpi{
-  background:#121212!important;
+  background:var(--panel2)!important;
 }
 
 .empty-cta{border:1px dashed var(--line2);border-radius:var(--r);padding:28px 22px;text-align:center;color:var(--muted);line-height:1.6;display:flex;flex-direction:column;align-items:center;gap:12px}
 .empty-cta-icon{font-size:28px;margin-bottom:4px}
 .empty-cta-title{font-size:14px;font-weight:700;color:var(--text)}
 .empty-cta-desc{font-size:12px;color:var(--muted);max-width:280px}
-.coach-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-top:14px}.coach-card{border:1px solid var(--border-subtle);background:var(--panel2);border-radius:var(--r);padding:var(--card-pad)}.coach-status{font-family:'Bebas Neue';font-size:42px;letter-spacing:3px;color:var(--acc);line-height:1}.coach-list{display:grid;gap:8px;margin-top:10px}.coach-item{border:1px solid rgba(232,255,71,.22);background:rgba(232,255,71,.035);border-radius:7px;padding:10px 12px}.coach-item b{display:block;margin-bottom:3px}.coach-item span{color:var(--muted);font-size:12px;line-height:1.45}.coach-warning{border-color:rgba(255,176,71,.45);background:rgba(255,176,71,.045)}.coach-red{border-color:rgba(255,77,77,.42);background:rgba(255,77,77,.04)}@media(max-width:800px){.coach-grid{grid-template-columns:1fr}}
+.coach-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-top:14px}.coach-card{border:1px solid var(--line);background:var(--panel2);border-radius:var(--r);padding:var(--card-pad)}.coach-status{font-family:'Bebas Neue';font-size:42px;letter-spacing:3px;color:var(--acc);line-height:1}.coach-list{display:grid;gap:8px;margin-top:10px}.coach-item{border:1px solid rgba(232,255,71,.22);background:rgba(232,255,71,.035);border-radius:7px;padding:10px 12px}.coach-item b{display:block;margin-bottom:3px}.coach-item span{color:var(--muted);font-size:12px;line-height:1.45}.coach-warning{border-color:rgba(255,176,71,.45);background:rgba(255,176,71,.045)}.coach-red{border-color:rgba(255,77,77,.42);background:rgba(255,77,77,.04)}@media(max-width:800px){.coach-grid{grid-template-columns:1fr}}
 @media(max-width:800px){.progress-summary{grid-template-columns:1fr 1fr}.progress-layout{grid-template-columns:1fr}.history-row{grid-template-columns:1fr}.progress-head{display:block}}
 
 .perf-strip{border-top:1px solid var(--line);background:rgba(232,255,71,.025);padding:8px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}.perf-pill{font-family:'DM Mono';font-size:10px;border:1px solid var(--line2);border-radius:999px;padding:4px 8px;color:var(--muted);text-transform:uppercase}.perf-pill.acc{color:#000;background:var(--acc);border-color:var(--acc)}.perf-pill.green{color:var(--green);border-color:rgba(72,255,138,.45)}.perf-pill.blue{color:var(--blue);border-color:rgba(75,189,255,.45)}.perf-note{color:var(--muted);font-size:12px;line-height:1.35}.perf-pr{color:var(--green);font-weight:800}.demo-in-strip{display:inline-flex}.ex-head .demo-trigger{display:none!important}.health-form{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.health-input{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:12px}.health-input input,.health-input select{width:100%;margin-top:8px;background:var(--panel3);border:1px solid var(--line2);border-radius:6px;color:var(--text);padding:9px}.roadmap-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.roadmap-card{border:1px solid rgba(232,255,71,.22);background:rgba(232,255,71,.035);border-radius:8px;padding:12px}.roadmap-card b{display:block;margin-bottom:4px}.roadmap-card span{color:var(--muted);font-size:12px;line-height:1.45}@media(max-width:800px){.health-form,.roadmap-row{grid-template-columns:1fr}}
@@ -3818,7 +3818,7 @@ body.app-page-workout .sidebar #training-seg:not(.user-picked) .seg-btn.on:hover
 #vertexB2ProgressDeck{margin:14px 0 18px;}
 .vertex-b2-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px;}
 .vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin-top:2px;}
-.vertex-b2-card{border:1px solid rgba(72,255,138,.35);background:var(--panel);border-radius:18px;padding:16px;min-height:132px;box-sizing:border-box;overflow:hidden;}
+.vertex-b2-card{border:1px solid var(--line);background:var(--panel2);border-radius:18px;padding:16px;min-height:132px;box-sizing:border-box;overflow:hidden;}
 .vertex-b2-card .label{margin-bottom:12px;}
 .vertex-b2-value{font-size:18px;font-weight:800;color:var(--green);line-height:1.15;margin-bottom:10px;}
 .vertex-b2-line{color:var(--muted);font-size:13px;line-height:1.45;margin-top:3px;}
@@ -3862,7 +3862,7 @@ body.app-page-home #vertexWorkoutHistoryPanel{display:none!important;}
 #progressPage #vertexB2ProgressDeck:empty{display:none!important;}
 #progressPage .vertex-b2-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px;}
 #progressPage .vertex-b2-full-stack{display:grid;grid-template-columns:1fr;gap:12px;margin-top:2px;}
-#progressPage .vertex-b2-card{border:1px solid rgba(72,255,138,.35);background:var(--panel);border-radius:18px;padding:16px;min-height:132px;box-sizing:border-box;overflow:hidden;}
+#progressPage .vertex-b2-card{border:1px solid var(--line);background:var(--panel2);border-radius:18px;padding:16px;min-height:132px;box-sizing:border-box;overflow:hidden;}
 #progressPage .vertex-b2-card .label{margin-bottom:12px;}
 #progressPage .vertex-b2-value{font-size:18px;font-weight:800;color:var(--green);line-height:1.15;margin-bottom:10px;}
 #progressPage .vertex-b2-line{color:var(--muted);font-size:13px;line-height:1.45;margin-top:3px;}
@@ -5092,7 +5092,7 @@ window.vertexFinishBootstrap=function(){
   </div>
 </div>
 
-</section><section id="aiPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">AI Coach</h1><p class="page-copy">Coaching from your training history, recovery data, and Apple Health metrics.</p></div><button id="btn-refresh-ai" class="btn small" style="color:var(--text);border-color:rgba(255,255,255,.25)">Refresh Coach</button></div><div id="aiCoachSummary" class="progress-summary"></div><div class="coach-grid"><section class="coach-card"><div class="label">Daily Recommendation</div><div id="aiDailyCoach"></div></section><section class="coach-card"><div class="label">Training Warnings</div><div id="aiWarnings"></div></section><section class="coach-card"><div class="label">Smart Suggestions</div><div id="aiSuggestions"></div></section><section class="coach-card"><div class="label">Weekly Focus</div><div id="aiWeeklyFocus"></div></section></div></section>
+</section><section id="aiPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">AI Coach</h1><p class="page-copy">Coaching from your training history, recovery data, and Apple Health metrics.</p></div><button id="btn-refresh-ai" class="btn small">Refresh Coach</button></div><div id="aiCoachSummary" class="progress-summary"></div><div class="coach-grid"><section class="coach-card"><div class="label">Daily Recommendation</div><div id="aiDailyCoach"></div></section><section class="coach-card"><div class="label">Training Warnings</div><div id="aiWarnings"></div></section><section class="coach-card"><div class="label">Smart Suggestions</div><div id="aiSuggestions"></div></section><section class="coach-card"><div class="label">Weekly Focus</div><div id="aiWeeklyFocus"></div></section></div></section>
     <section id="today" class="panel hl today-card"></section>
     <section id="plannerAcc" class="panel planner-panel open"><div class="acc-body" style="display:block"><div class="planner-week-header"><span class="planner-week-label" id="plannerWeekLabel">THIS WEEK</span><span class="planner-week-dates" id="plannerWeekDates"></span></div><div style="overflow-x:auto;margin:0 -8px;padding:0 8px 0 8px;box-sizing:border-box"><div id="planner" class="planner-grid"></div></div></div></section>
 
@@ -15441,7 +15441,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611j-final';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611k-polish';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -16892,8 +16892,8 @@ window.vertexImportHKWorkout = async function(idx) {
   margin-bottom:4px;
 }
 .vertex-score-card{
-  border:1px solid rgba(232,255,71,.45);
-  background:linear-gradient(135deg,rgba(232,255,71,.10),rgba(232,255,71,.02));
+  border:1px solid var(--line2);
+  background:var(--panel2);
   border-radius:10px;
   padding:14px;
   margin:12px 0;

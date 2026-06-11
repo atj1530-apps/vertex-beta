@@ -5114,7 +5114,7 @@ window.vertexFinishBootstrap=function(){
     <div id="planWeekCta" style="display:none"></div>
     <div id="coachBar" class="coachbar">Ready: Push intensity today.</div>
     <section id="autoCoachAcc" class="accordion open"><div class="acc-head"><span class="acc-title">Auto Coach</span><span class="acc-hint">▼ COLLAPSE</span></div><div class="acc-body"><div id="autoCoachBody"><div class="label" style="color:var(--acc)">Auto Coach</div><p style="color:var(--muted);margin:4px 0 12px">Optional plan guidance based on recovery, workout type, and live performance signals.</p><div class="panel" style="margin:0"><b>Recovery signal is favorable.</b><br><span style="color:var(--muted)">Add a small load or rep increase where form is stable.</span></div></div></div></section>
-    <div class="wkt-name-row"><h1 id="wkt-title" class="title" onclick="beginWorkoutNameEdit()" style="cursor:pointer" title="Click to rename">NAME YOUR WORKOUT</h1><button id="btn-share" class="btn small hdr-workout-btn" style="margin-left:auto">↗ Share</button></div>
+    <div class="wkt-name-row"><h1 id="wkt-title" class="title" onclick="beginWorkoutNameEdit()" style="cursor:pointer" title="Click to rename">NAME YOUR WORKOUT</h1><button id="btn-edit-name" class="btn small" style="font-size:11px;padding:4px 8px;opacity:.6" title="Rename workout">✏</button><button id="btn-share" class="btn small hdr-workout-btn" style="margin-left:auto">↗ Share</button></div>
     <div id="wkt-meta" class="meta"></div>
     <section id="builder"></section>
   </main>
@@ -5593,8 +5593,8 @@ const EXERCISES=[
 {name:'Lateral Raise',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Overhead Tricep Extension',muscle:'Triceps',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
 {name:'Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
-{name:'Wide-Grip Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
-{name:'Close-Grip Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
+{name:'Wide-Grip Pull-Up',muscle:'Back',equip:'Bodyweight',env:'home',kind:'pull',training:'Strength'},
+{name:'Close-Grip Pull-Up',muscle:'Back',equip:'Bodyweight',env:'home',kind:'pull',training:'Strength'},
 {name:'Lat Pulldown (Machine)',muscle:'Back',equip:'Machine',env:'gym',kind:'pull',training:'Strength'},
 {name:'Alternating Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 {name:'Goblet Squat',muscle:'Legs',equip:'Dumbbells',env:'home',kind:'legs',training:'Strength'},
@@ -5923,7 +5923,7 @@ V13540_HOME_STRENGTH.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERC
 const V6A97_ADDITIONS=[
 // Back — gym staples
 {name:'Chin-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
-{name:'Neutral-Grip Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'},
+{name:'Neutral-Grip Pull-Up',muscle:'Back',equip:'Bodyweight',env:'home',kind:'pull',training:'Strength'},
 // Back — restore Hammer Curl that was removed in dedup
 {name:'Hammer Curl',muscle:'Biceps',equip:'Dumbbells',env:'home',kind:'pull',training:'Strength'},
 // Chest — gym
@@ -5994,7 +5994,7 @@ V6A97_ADDITIONS.forEach(ex=>{if(!EXERCISES.some(e=>e.name===ex.name)) EXERCISES.
     {name:'Decline Dumbbell Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
     {name:'Incline Dumbbell Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
     {name:'Static Dumbbell Bench Press',muscle:'Chest',equip:'Dumbbells',env:'home',kind:'push',training:'Strength'},
-    {name:'Reverse Grip Pull-Up',muscle:'Back',equip:'Pull-Up Bar',env:'home',kind:'pull',training:'Strength'}
+    {name:'Reverse Grip Pull-Up',muscle:'Back',equip:'Bodyweight',env:'home',kind:'pull',training:'Strength'}
   );
 })();
 
@@ -12722,16 +12722,27 @@ function renderIntel(){
 }
 function renderPlannerSaveContext(w=state.current){
   const day=w&&w.assignedDay;
-  if(!day || !DAY_LABEL[day]) return '';
+  if(day && DAY_LABEL[day]){
+    return `<div class="panel hl" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <div class="label" style="color:var(--acc)">Planner Edit · ${DAY_LABEL[day]}</div>
+        <div style="color:var(--muted);font-size:13px;line-height:1.45;margin-top:4px">Editing ${DAY_LABEL[day]}. Save to update the planner, or save a reusable copy.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn acc small" data-save-day="${day}">Save to ${DAY_LABEL[day]}</button>
+        <button class="btn small" id="btn-save-later">Save for Later</button>
+      </div>
+    </div>`;
+  }
+  if(!hasWorkout(w)) return '';
   return `<div class="panel hl" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
     <div>
-      <div class="label" style="color:var(--acc)">Planner Edit</div>
-      <div style="color:var(--muted);font-size:13px;line-height:1.45;margin-top:4px">Editing ${DAY_LABEL[day]}. Save this workout to ${DAY_LABEL[day]}, or save a reusable copy for later.</div>
+      <div class="label" style="color:var(--acc)">Add to Planner</div>
+      <div style="color:var(--muted);font-size:13px;line-height:1.45;margin-top:4px">Assign this workout to a day in the weekly planner, or save as a reusable template.</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn acc small" data-save-day="${day}">Save to ${DAY_LABEL[day]}</button>
+      <button class="btn acc small" onclick="commitWorkoutNameEdit();openAssign(state.current)">&#128197; Assign to Day</button>
       <button class="btn small" id="btn-save-later">Save for Later</button>
-      <button class="btn small" onclick="setPage('home');setTimeout(function(){var p=document.getElementById('plannerAcc');if(p)p.scrollIntoView({behavior:'smooth'});},300)">Go to Planner</button>
     </div>
   </div>`;
 }
@@ -15443,7 +15454,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611n-borders';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611o-planner';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

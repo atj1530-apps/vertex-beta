@@ -15439,7 +15439,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611g-progress';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260611h-noflash';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -23744,16 +23744,19 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   function progressionInsight(d){
     return '<div class="insight vertex-phase2d-feed vertex-phase2d1-progression"><div class="vertex-phase2b-title"><b>Progression Prescription</b><button class="vertex-i" type="button" aria-label="Info" data-tip="This turns today’s recovery and fatigue picture into a simple loading decision.">i</button></div><div class="vertex-phase2b-action">'+esc(d.progression)+'</div><div class="vertex-phase2b-why">'+esc(d.trend.memoryLine)+' Deload status: '+esc(d.deload)+'.</div><div class="vertex-phase2b-meta">'+esc(d.trend.state)+' · '+esc(d.confidence)+' · recovery '+esc(d.trend.recoveryTrend)+'</div></div>';
   }
+  // Global debounce — shared across ALL render engines so only the final settled state renders
+  if(!window.__vertexDecisionDebounceTimer) window.__vertexDecisionDebounceTimer=null;
   function inject(){
-    try{
-      var row=document.querySelector('#vertexB2ProgressDeck .vertex-b2-row-intelligence');
-      if(!row) return;
-      var existing=row.querySelector('.vertex-phase2d-decision');
-      if(existing) existing.outerHTML=decisionCard(); else row.insertAdjacentHTML('afterbegin',decisionCard());
-      if(window.VertexPhase2BCoachIntelligence && typeof window.VertexPhase2BCoachIntelligence.sync==='function'){
-        setTimeout(function(){ try{ window.VertexPhase2BCoachIntelligence.sync(); }catch(e){} },80);
-      }
-    }catch(e){ console.warn('[Vertex Phase2D.1] decision card injection failed',e); }
+    if(window.__vertexDecisionDebounceTimer) clearTimeout(window.__vertexDecisionDebounceTimer);
+    window.__vertexDecisionDebounceTimer=setTimeout(function(){
+      window.__vertexDecisionDebounceTimer=null;
+      try{
+        var row=document.querySelector('#vertexB2ProgressDeck .vertex-b2-row-intelligence');
+        if(!row) return;
+        var existing=row.querySelector('.vertex-phase2d-decision');
+        if(existing) existing.outerHTML=decisionCard(); else row.insertAdjacentHTML('afterbegin',decisionCard());
+      }catch(e){ console.warn('[Vertex Phase2D.1] decision card injection failed',e); }
+    },600); // 600ms — long enough for all engines to queue, only last one wins
   }
   function enhanceCoachFeed(){
     try{
@@ -23773,7 +23776,7 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
   }
   var old=window.renderVertexB2ProgressDeck;
   if(typeof old==='function' && !old.__vertexPhase2D1Wrapped){
-    var wrapped=function(){ var out=old.apply(this,arguments); setTimeout(inject,40); setTimeout(inject,220); return out; };
+    var wrapped=function(){ var out=old.apply(this,arguments); inject(); return out; }; // inject() is now globally debounced
     wrapped.__vertexPhase2D1Wrapped=true;
     window.renderVertexB2ProgressDeck=wrapped;
   }
@@ -23783,15 +23786,8 @@ body.app-page-progress #vertexProgressIntelligenceHolder,
     pageWrapped.__vertexPhase2D1Wrapped=true;
     window.renderProgressPage=pageWrapped;
   }
-  // Debounced inject — prevents flash from multiple staggered renders overwriting each other
-  var _injectTimer=null;
-  function debouncedInject(ms){
-    if(_injectTimer) clearTimeout(_injectTimer);
-    _injectTimer=setTimeout(function(){ inject(); enhanceCoachFeed(); _injectTimer=null; },ms||80);
-  }
-  // Single deferred render after page load — wait for data to settle
-  setTimeout(function(){ inject(); enhanceCoachFeed(); },400);
-  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ debouncedInject(300); } },true);
+  // inject() uses global debounce — no additional timers needed here
+  document.addEventListener('click',function(e){ if(e.target && (e.target.closest('[data-nav]') || e.target.closest('[data-ptab]') || e.target.closest('#btn-refresh-progress'))){ inject(); enhanceCoachFeed(); } },true);
   window.VertexPhase2DAdaptiveDecision={build:buildDecision,inject:inject,enhanceCoachFeed:enhanceCoachFeed};
 })();
 </script>

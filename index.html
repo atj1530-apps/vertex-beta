@@ -9556,7 +9556,10 @@ function renderDailyNutrition(){
         +(subtitle ? '<div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:monospace">'+subtitle+'</div>' : '')
         +(!hasAnyActual ? '<div style="font-size:10px;color:var(--muted);margin-top:4px">Sync a food tracking app via Apple Health to see actuals</div>' : '')
       +'</div>'
-      +'<button onclick="window.vertexOpenMacroConfig&&window.vertexOpenMacroConfig()" style="background:none;border:1px solid var(--line2);border-radius:6px;color:var(--muted);font-size:10px;padding:5px 10px;cursor:pointer;font-family:monospace;letter-spacing:.5px;white-space:nowrap;flex-shrink:0;margin-left:12px">⚙ Configure</button>'
+      +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:12px">'
+        +(hasAnyActual ? '<span class="vertex-wellness-recovery-source">Source · Apple Health</span>' : '')
+        +'<button onclick="window.vertexOpenMacroConfig&&window.vertexOpenMacroConfig()" style="background:none;border:1px solid var(--line2);border-radius:6px;color:var(--muted);font-size:10px;padding:5px 10px;cursor:pointer;font-family:monospace;letter-spacing:.5px;white-space:nowrap">⚙ Configure</button>'
+      +'</div>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+cards+'</div>';
 }

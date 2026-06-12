@@ -11867,6 +11867,7 @@ function renderHomeDashboard(){
     const todayStr = todayIso();
     const activeProto = (typeof stackItems !== 'undefined' ? stackItems : []).filter(s => typeof vertexIsProtocolActive === 'function' && vertexIsProtocolActive(s));
     const dueToday = activeProto.filter(s => typeof vertexIsDueOnDate === 'function' && vertexIsDueOnDate(s, todayStr));
+    const asNeededToday = activeProto.filter(s => typeof vertexIsAsNeeded === 'function' && vertexIsAsNeeded(s));
     const loggedToday = (typeof protocolLogs !== 'undefined' ? protocolLogs : []).filter(l => l.logged_at?.startsWith(todayStr));
     const loggedNames = new Set(loggedToday.map(l => l.compound_name));
 
@@ -12020,13 +12021,13 @@ function renderHomeDashboard(){
 ${typeof buildHomePlannerHTML==='function'?buildHomePlannerHTML():''}
 
 
-${dueToday.length ? `
+${(dueToday.length || asNeededToday.length) ? `
 <div class="home-proto-strip">
   <div class="home-proto-label">💊 Today's Protocol</div>
-  <div style="font-size:14px;color:var(--text);margin-bottom:3px">${dueToday.map(s=>`<b>${escapeHtml(s.name)}</b> ${escapeHtml(s.dose||'')}${escapeHtml(s.unit||'')}`).join(' ')}</div>
-  ${loggedNames.size >= dueToday.length
+  <div style="font-size:14px;color:var(--text);margin-bottom:3px">${dueToday.map(s=>`<b>${escapeHtml(s.name)}</b> ${escapeHtml(s.dose||'')}${escapeHtml(s.unit||'')}`).join(' ')}${dueToday.length && asNeededToday.length ? ' · ' : ''}${asNeededToday.map(s=>`<b>${escapeHtml(s.name)}</b> ${escapeHtml(s.dose||'')}${escapeHtml(s.unit||'')} <span style="font-size:11px;color:var(--muted)">(as needed)</span>`).join(' ')}</div>
+  ${loggedNames.size >= dueToday.length && dueToday.length > 0
     ? `<span class="home-proto-log-status logged">✓ Doses logged</span>`
-    : `<a href="#" onclick="if(typeof setPage==='function')setPage('wellness');if(typeof setWellnessTab==='function')setWellnessTab('protocol');return false;" class="home-proto-log-status pending">Log doses →</a>`
+    : `<a href="#" onclick="window.protoSelectedDate=typeof todayIso==='function'?todayIso():new Date().toISOString().split('T')[0];if(typeof showProtoDayModal==='function')showProtoDayModal();return false;" class="home-proto-log-status pending">Log doses →</a>`
   }
 </div>` : ''}
 <div id="vertex-goal-tracker-card"></div>

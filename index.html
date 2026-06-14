@@ -11373,6 +11373,7 @@ window.protoCloseDayModal = function(){
   if(modal) modal.style.display = 'none';
   document.body.style.overflow = '';
 };
+window.showProtoDayModal = showProtoDayModal;
 window.renderProtoDayModal = renderProtoDayModal;
 
 // ── RESTOCK MODAL ──────────────────────────────────────────────
@@ -12025,13 +12026,15 @@ ${typeof buildHomePlannerHTML==='function'?buildHomePlannerHTML():''}
 
 
 ${(dueToday.length || asNeededToday.length) ? `
-<div class="home-proto-strip">
-  <div class="home-proto-label">💊 Today's Protocol</div>
-  <div style="font-size:14px;color:var(--text);margin-bottom:3px">${dueToday.map(s=>`<b>${escapeHtml(s.name)}</b> ${escapeHtml(s.dose||'')}${escapeHtml(s.unit||'')}`).join(' ')}${dueToday.length && asNeededToday.length ? ' · ' : ''}${asNeededToday.map(s=>`<b>${escapeHtml(s.name)}</b> ${escapeHtml(s.dose||'')}${escapeHtml(s.unit||'')} <span style="font-size:11px;color:var(--muted)">(as needed)</span>`).join(' ')}</div>
-  ${loggedNames.size >= dueToday.length && dueToday.length > 0
-    ? `<span class="home-proto-log-status logged">✓ Doses logged</span>`
-    : `<a href="#" onclick="window.protoSelectedDate=typeof todayIso==='function'?todayIso():new Date().toISOString().split('T')[0];if(typeof showProtoDayModal==='function')showProtoDayModal();return false;" class="home-proto-log-status pending">Log doses →</a>`
-  }
+<div class="home-proto-strip" style="background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;margin:8px 0 4px;cursor:pointer" data-action="home-log-doses">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <div class="home-proto-label" style="margin-bottom:0">💊 Today's Protocol</div>
+    ${loggedNames.size >= dueToday.length && dueToday.length > 0
+      ? `<span style="font-size:10px;font-family:monospace;color:var(--acc)">✓ logged</span>`
+      : `<span style="font-size:10px;font-family:monospace;color:var(--acc)">Tap to log →</span>`
+    }
+  </div>
+  <div style="font-size:13px;color:var(--text);line-height:1.5">${dueToday.map(s=>`<b>${escapeHtml(s.name)}</b> ${escapeHtml(s.dose||'')}${escapeHtml(s.unit||'')}`).join(' · ')}${dueToday.length && asNeededToday.length ? ' · ' : ''}${asNeededToday.map(s=>`<b>${escapeHtml(s.name)}</b> ${escapeHtml(s.dose||'')}${escapeHtml(s.unit||'')} <span style="font-size:11px;color:var(--muted)">(as needed)</span>`).join(' · ')}</div>
 </div>` : ''}
 <div id="vertex-goal-tracker-card"></div>
 `;
@@ -14287,7 +14290,16 @@ if(!window.vertexSyncAppleHealth){
  });
  document.addEventListener('focusout',async e=>{if(e.target.id==='wkt-name-input'){await commitWorkoutNameAndSave(); return}});
  document.addEventListener('keydown',async e=>{if(e.target.id==='wkt-name-input' && e.key==='Enter'){e.preventDefault(); await commitWorkoutNameAndSave(); return} if(e.target.id==='wkt-name-input' && e.key==='Escape'){e.preventDefault(); cancelWorkoutNameEdit(); return}});
- // Quick-add button handler — delegated, no inline onclick
+ // Home protocol card — delegated tap to open today's dose modal
+document.addEventListener('click', e => {
+  const card = e.target.closest('[data-action="home-log-doses"]');
+  if(!card) return;
+  e.preventDefault();
+  window.protoSelectedDate = typeof todayIso === 'function' ? todayIso() : new Date().toISOString().split('T')[0];
+  if(typeof window.showProtoDayModal === 'function') window.showProtoDayModal();
+});
+
+// Quick-add button handler — delegated, no inline onclick
 document.addEventListener('click',e=>{
   const btn=e.target.closest('.quick-btn');
   if(!btn) return;

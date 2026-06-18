@@ -60,6 +60,7 @@
 <meta name="theme-color" content="#e8ff47" />
 <meta name="screen-orientation" content="portrait">
 <title>Vertex — Build · Track · Improve</title>
+<!-- v20260618-proto-asneeded: Home "Tap to log" now opens the dose popup from any tab (modal re-parented out of #wellnessPage); Today's Protocol on the Protocol tab now always shows an As Needed section (e.g. PT-141) instead of hiding it -->
 <!-- v20260608-6a99-light-auth-transition: smoother warm light-mode auth curtain + cache bump -->
 <!-- v20260601-6a50: chest/triceps library cleanup — removed Squeeze Press duplicate; added requested dumbbell chest/triceps movements -->
 <!-- v20260601-6a49: Planner edit save choices — Save to day or Save for Later from builder -->
@@ -10696,46 +10697,62 @@ function renderProtoToday(){
   if(!due.length && isPastDate && active.length){
     due = active.filter(s => !vertexIsAsNeeded(s));
   }
-  if(!due.length){
-    const asNeeded = active.filter(vertexIsAsNeeded);
-    el.innerHTML = `<div class="empty-note">No scheduled protocol items for ${escapeHtml(selectedLabel)}.${asNeeded.length ? '<br><br>As-needed items stay in Active Protocols and only appear here after you log or move them to this date.' : ''}</div>`;
+  // As-needed compounds get their own always-visible section below (same as
+  // the day-tap popup), so pull them out of the scheduled list here — otherwise
+  // a logged as-needed dose would show up twice.
+  due = due.filter(s => !vertexIsAsNeeded(s));
+  const asNeededActive = active.filter(vertexIsAsNeeded);
+
+  if(!due.length && !asNeededActive.length){
+    el.innerHTML = `<div class="empty-note">No scheduled protocol items for ${escapeHtml(selectedLabel)}.</div>`;
     return;
   }
 
-  const slots = ['Morning','Afternoon','Evening','Pre-Workout','Post-Workout','With Food','Bedtime','As Needed'];
+  const slots = ['Morning','Afternoon','Evening','Pre-Workout','Post-Workout','With Food','Bedtime'];
   const bySlot = {};
   due.forEach(s => {
-    const slot = s.timing || (vertexIsAsNeeded(s) ? 'As Needed' : 'Morning');
+    const slot = s.timing || 'Morning';
     if(!bySlot[slot]) bySlot[slot] = [];
     bySlot[slot].push(s);
   });
 
   const orderedSlots = slots.filter(s => bySlot[s]);
 
-  el.innerHTML = orderedSlots.map(slot => {
+  const protoTodayRow = (s, slot) => {
+    const isLogged = selectedLogs.some(l => l.compound_name === s.name && l.time_slot === slot);
+    const color = SUPP_TYPE_COLORS[s.supplement_type||'Peptide']||'#888';
+    const inv = calcInventorySummary(s);
+    const lowAlert = inv && inv.status !== 'ok';
+    return `<div class="vertex-proto-row" style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line2);flex-wrap:wrap">
+      <button class="proto-dose-btn ${isLogged?'logged':''}" data-proto-log="${escapeAttr(s.name)}" data-proto-slot="${escapeAttr(slot)}" data-proto-date="${escapeAttr(selectedStr)}" data-proto-dose="${s.dose||0}" data-proto-unit="${escapeAttr(s.unit||'')}" data-proto-type="${escapeAttr(s.supplement_type||'Peptide')}" title="${isLogged?'Logged — tap to undo':'Tap to log dose'}">
+        ${isLogged ? '✓' : '○'}
+      </button>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:13px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${color};margin-right:5px"></span>${escapeHtml(s.name)}</div>
+        <div style="font-size:11px;color:var(--muted)">${s.dose||'—'} ${escapeHtml(s.unit||'')} · ${escapeHtml(s.supplement_type||'')} · ${escapeHtml(vertexFrequencyLabel(s))}</div>
+        <div class="vertex-proto-inventory">${renderInventoryMini(s)}</div>
+      </div>
+      ${lowAlert ? `<span class="vertex-inventory-pill ${inv.status}">${escapeHtml(inv.statusText)}</span>` : ''}
+      ${inv ? `<span style="font-size:11px;color:var(--muted)">${escapeHtml(inv.compact)}</span>` : ''}
+    </div>`;
+  };
+
+  let protoTodayHtml = orderedSlots.map(slot => {
     const compounds = bySlot[slot];
     return `<div style="margin-bottom:16px">
       <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--line2)">${slot}</div>
-      ${compounds.map(s => {
-        const isLogged = selectedLogs.some(l => l.compound_name === s.name && l.time_slot === slot);
-        const color = SUPP_TYPE_COLORS[s.supplement_type||'Peptide']||'#888';
-        const inv = calcInventorySummary(s);
-        const lowAlert = inv && inv.status !== 'ok';
-        return `<div class="vertex-proto-row" style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line2);flex-wrap:wrap">
-          <button class="proto-dose-btn ${isLogged?'logged':''}" data-proto-log="${escapeAttr(s.name)}" data-proto-slot="${escapeAttr(slot)}" data-proto-date="${escapeAttr(selectedStr)}" data-proto-dose="${s.dose||0}" data-proto-unit="${escapeAttr(s.unit||'')}" data-proto-type="${escapeAttr(s.supplement_type||'Peptide')}" title="${isLogged?'Logged — tap to undo':'Tap to log dose'}">
-            ${isLogged ? '✓' : '○'}
-          </button>
-          <div style="flex:1">
-            <div style="font-weight:700;font-size:13px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${color};margin-right:5px"></span>${escapeHtml(s.name)}</div>
-            <div style="font-size:11px;color:var(--muted)">${s.dose||'—'} ${escapeHtml(s.unit||'')} · ${escapeHtml(s.supplement_type||'')} · ${escapeHtml(vertexFrequencyLabel(s))}</div>
-            <div class="vertex-proto-inventory">${renderInventoryMini(s)}</div>
-          </div>
-          ${lowAlert ? `<span class="vertex-inventory-pill ${inv.status}">${escapeHtml(inv.statusText)}</span>` : ''}
-          ${inv ? `<span style="font-size:11px;color:var(--muted)">${escapeHtml(inv.compact)}</span>` : ''}
-        </div>`;
-      }).join('')}
+      ${compounds.map(s => protoTodayRow(s, slot)).join('')}
     </div>`;
   }).join('');
+
+  if(asNeededActive.length){
+    protoTodayHtml += `<div style="margin-bottom:16px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--line2)">As Needed — tap to log if taken</div>
+      ${asNeededActive.map(s => protoTodayRow(s, 'As Needed')).join('')}
+    </div>`;
+  }
+
+  el.innerHTML = protoTodayHtml;
 }
 
 function vertexNum(v){
@@ -11294,6 +11311,12 @@ body.app-page-workout .sidebar #training-seg.user-picked button[data-training].o
 function showProtoDayModal(){
   const modal = document.getElementById('protoDayModal');
   if(!modal) return;
+  // protoDayModal is markup-nested inside #wellnessPage, which the hard-lock CSS
+  // forces to display:none on every other tab (Home/Progress/Workout). A
+  // display:none ancestor hides this modal completely even though it's
+  // position:fixed with z-index:9999, so re-parent it to <body> once so it can
+  // open from any tab, not just Wellness/Protocol.
+  if(modal.parentElement !== document.body) document.body.appendChild(modal);
   renderProtoDayModal();
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -14295,8 +14318,12 @@ document.addEventListener('click', e => {
   const card = e.target.closest('[data-action="home-log-doses"]');
   if(!card) return;
   e.preventDefault();
-  window.protoSelectedDate = typeof todayIso === 'function' ? todayIso() : new Date().toISOString().split('T')[0];
-  if(typeof window.showProtoDayModal === 'function') window.showProtoDayModal();
+  const dateStr = typeof todayIso === 'function' ? todayIso() : new Date().toISOString().split('T')[0];
+  // Use the same function the Protocol-tab calendar uses, so Home opens the
+  // identical popup (this also fixes protoSelectedDate, a separate lexical
+  // variable that `window.protoSelectedDate =` was missing entirely).
+  if(typeof window.protoSelectDate === 'function') window.protoSelectDate(dateStr);
+  else if(typeof window.showProtoDayModal === 'function') window.showProtoDayModal();
 });
 
 // Quick-add button handler — delegated, no inline onclick
@@ -15467,7 +15494,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260611q-newwkt';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260618-proto-asneeded';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -16419,9 +16446,6 @@ window.vertexImportHKWorkout = async function(idx) {
         var rows = Array.from(sec.querySelectorAll('[data-supp-index], [data-protocol-index], .history-row, .saved-item, .vertex-proto-row'));
         rows.forEach(function(row){
           var t = txt(row);
-          if(/PT-?141/i.test(t) && /as needed|prn/i.test(t)){
-            row.style.display = 'none';
-          }
           if(/Retatrutide|Reta/i.test(t) && /weekly/i.test(t)){
             // Hide weekly rows on days that are not explicitly scheduled today.
             // Without reliable saved weekday metadata, safer to hide from Today than show daily.

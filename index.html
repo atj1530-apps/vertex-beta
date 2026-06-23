@@ -5394,6 +5394,10 @@ window.vertexFinishBootstrap=function(){
       <div class="supp-field-label" style="color:var(--acc);margin-bottom:10px">Peptide Protocol Fields</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
         <div>
+          <div class="supp-field-label">Starting Vials <span style="color:var(--muted);font-weight:400">(per kit)</span></div>
+          <input id="suppStartingVials" type="number" min="0" step="1" placeholder="e.g. 10" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
+        </div>
+        <div>
           <div class="supp-field-label">Vials on Hand</div>
           <input id="suppVials" type="number" min="0" step="1" placeholder="e.g. 3" oninput="vertexCalcDosesRemaining()" onchange="vertexCalcDosesRemaining()" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
         </div>
@@ -10853,6 +10857,12 @@ async function toggleProtoDose(btn){
   const todayStr = selectedDate;
   const isLogged = protocolLogs.some(l => l.compound_name===name && l.time_slot===slot && l.logged_at?.startsWith(todayStr));
 
+  // Find the matching stack item so Vials on Hand can auto-adjust with this dose.
+  const stackItem = stackItems.find(x => x.name === name);
+  const vialMg = stackItem ? vertexNum(stackItem.units_per_vial) : null;
+  const doseMg = (dose!=null) ? vertexUnitToMg(dose, unit) : null;
+  const vialsPerDose = (stackItem && vialMg && doseMg) ? (doseMg / vialMg) : null;
+
   if(isLogged){
     // Undo — delete today's log for this compound+slot
     try{
@@ -10860,6 +10870,12 @@ async function toggleProtoDose(btn){
         .eq('user_id',_u.id).eq('compound_name',name).eq('time_slot',slot)
         .gte('logged_at', todayStr+'T00:00:00').lte('logged_at', todayStr+'T23:59:59');
       if(error) throw error;
+      // Give back the vial fraction this dose had consumed.
+      if(stackItem && vialsPerDose){
+        const restored = Math.round(((vertexNum(stackItem.vials_on_hand)||0) + vialsPerDose) * 1000) / 1000;
+        stackItem.vials_on_hand = restored;
+        await supa.from('peptide_stack').update({vials_on_hand: restored}).eq('id', stackItem.id);
+      }
       toast('Dose removed');
     }catch(e){toast('Error');console.error(e);}
   } else {
@@ -10870,6 +10886,12 @@ async function toggleProtoDose(btn){
         dose, unit, time_slot:slot, logged_at:(todayStr + 'T' + new Date().toTimeString().slice(0,8) + 'Z')
       });
       if(error) throw error;
+      // Auto-decrement Vials on Hand by the fraction of a vial this dose used.
+      if(stackItem && vialsPerDose){
+        const remaining = Math.max(0, Math.round(((vertexNum(stackItem.vials_on_hand)||0) - vialsPerDose) * 1000) / 1000);
+        stackItem.vials_on_hand = remaining;
+        await supa.from('peptide_stack').update({vials_on_hand: remaining}).eq('id', stackItem.id);
+      }
       toast(`${name} logged`);
     }catch(e){toast('Error');console.error(e);}
   }
@@ -11558,7 +11580,7 @@ document.addEventListener('pointerup', function(e){
 function openAddSupplement(){
   document.getElementById('supplementModalTitle').textContent='Add to Stack';
   document.getElementById('suppEditId').value='';
-  ['suppName','suppDose','suppInventory','suppNotes','suppCostPerDose','suppVials','suppUnitsPerVial','suppBacWater','suppCycleStart','suppCycleEnd'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['suppName','suppDose','suppInventory','suppNotes','suppCostPerDose','suppStartingVials','suppVials','suppUnitsPerVial','suppBacWater','suppCycleStart','suppCycleEnd'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('suppLowAlert').value='7';
   document.getElementById('suppCycle').value='on';
   const onRadio = document.getElementById('suppCycleOn');
@@ -11634,6 +11656,7 @@ function openEditSupplement(idx){
   if(costEl) costEl.value=s.purchase_price||'';
   // Peptide-specific
   document.getElementById('suppVials').value=s.vials_on_hand||'';
+  document.getElementById('suppStartingVials').value=(s.starting_vials!=null && s.starting_vials!=='') ? s.starting_vials : (s.vials_on_hand||'');
   document.getElementById('suppUnitsPerVial').value=s.units_per_vial||'';
   document.getElementById('suppBacWater').value=s.bac_water_ml||'';
   document.getElementById('suppLowAlert').value=s.low_inventory_alert||'7';
@@ -11726,6 +11749,7 @@ async function saveSupplement(){
     on_cycle: onCycleBool,
     timing: document.getElementById('suppTiming')?.value || null,
     vials_on_hand: vialsVal || null,
+    starting_vials: (parseFloat(document.getElementById('suppStartingVials')?.value) || vialsVal || null),
     units_per_vial: mgPerVial || null,
     bac_water_ml: parseFloat(document.getElementById('suppBacWater')?.value) || null,
     low_inventory_alert: alertThreshold,
@@ -15498,7 +15522,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260622-freq-price-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260622b-auto-vials';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

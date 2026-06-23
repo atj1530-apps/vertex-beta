@@ -11599,10 +11599,14 @@ function openEditSupplement(idx){
     let label = 'Daily';
 
     if (freq === 0 || freq === '0') label = 'As Needed';
+    else if (freq === 14 || freq === '14') label = 'Twice Daily';
     else if (freq === 7 || freq === '7') label = 'Daily';
     else if (freq === 1 || freq === '1') label = 'Weekly';
-    else if (freq === 2 || freq === '2') label = 'Twice Daily';
+    else if (freq === 2 || freq === '2') label = '2x/Week';
     else if (freq === 3 || freq === '3') label = '3x/Week';
+    else if (freq === 4 || freq === '4') label = '4x/Week';
+    else if (freq === 5 || freq === '5') label = '5x/Week';
+    else if (freq === 3.5 || freq === '3.5') label = 'Every Other Day';
     else if (typeof freq === 'string' && freq.trim()) label = freq;
 
     document.getElementById('suppFrequency').value = label;
@@ -11627,7 +11631,7 @@ function openEditSupplement(idx){
   document.getElementById('suppInventory').value=s.inventory||'';
   document.getElementById('suppNotes').value=s.notes||'';
   const costEl=document.getElementById('suppCostPerDose');
-  if(costEl) costEl.value=s.cost_per_dose||'';
+  if(costEl) costEl.value=s.purchase_price||'';
   // Peptide-specific
   document.getElementById('suppVials').value=s.vials_on_hand||'';
   document.getElementById('suppUnitsPerVial').value=s.units_per_vial||'';
@@ -15494,7 +15498,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260618-proto-asneeded';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260622-freq-price-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

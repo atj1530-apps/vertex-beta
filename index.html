@@ -7067,6 +7067,10 @@ normalizeVertexExerciseLibrary();
     'bench dip':{muscle:'Triceps'},                     // was under Chest
     'dumbbell pullover':{muscle:'Chest',equip:'Dumbbells'}, // was under Back, tagged Bodyweight
     'stability ball hamstring curl':{muscle:'Legs',equip:'Stability Ball'}, // was caught by the Biceps "curl" regex
+    'alternating bench press':{equip:'Dumbbells'}, // tagged Barbell despite being a dumbbell press
+
+    // --- Confirmed renames ---
+    'bench cohen curl':{rename:'Cohen Curl'},
   };
 
   list.forEach(ex=>{
@@ -7075,13 +7079,26 @@ normalizeVertexExerciseLibrary();
     if(!fix) return;
     if(fix.equip){ ex.equip=fix.equip; ex.equipment=fix.equip; ex.equipment_type=fix.equip; }
     if(fix.muscle){ ex.muscle=fix.muscle; ex.category=fix.muscle; ex.target=fix.muscle; ex.targetArea=fix.muscle; ex.primary_muscle=fix.muscle; }
+    if(fix.rename){ ex.name=fix.rename; }
   });
 
-  // 3) Remove exercises for equipment you don't own.
-  const REMOVE=new Set(['ez bar curl']);
+  // 3) Remove exercises: equipment you don't own, confirmed duplicates, and items merged elsewhere.
+  const REMOVE=new Set(['ez bar curl','static dumbbell bench press','band tricep extension','bodyweight tricep extension']);
   for(let i=list.length-1;i>=0;i--){
     if(REMOVE.has(norm(list[i] && list[i].name))) list.splice(i,1);
   }
+
+  // 4) Confirmed additions.
+  const ADD=[
+    {name:'Dumbbell Twist Bench',muscle:'Chest',equip:'Dumbbells',training:'Strength',env:'home'},
+    {name:'Tricep Extension',muscle:'Triceps',equip:'Dumbbells',training:'Strength',env:'home'},
+    {name:'Reverse Grip Dumbbell Bench Press',muscle:'Chest',equip:'Dumbbells',training:'Strength',env:'home'},
+  ];
+  ADD.forEach(a=>{
+    if(!list.some(e=>norm(e.name)===norm(a.name))){
+      list.push(Object.assign({category:a.muscle,target:a.muscle,targetArea:a.muscle,primary_muscle:a.muscle,equipment:a.equip,equipment_type:a.equip},a));
+    }
+  });
 
   window.VERTEX_PHASE6A13_AUDIT={
     phase:'6A.13',
@@ -15636,7 +15653,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260708b-exercise-audit-sync';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260708c-audit-confirmed-edits';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

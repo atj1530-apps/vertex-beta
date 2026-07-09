@@ -7234,17 +7234,6 @@ function saveEquipmentProfile(){try{localStorage.setItem('vertex_home_equipment_
 /* 6A34: re-apply settings into live state + UI after a cloud pull overwrites localStorage. */
 window.vertexRehydrateAfterSettingsPull=function(){
   try{ state.equipment=loadEquipmentProfile(); }catch(e){}
-  try{
-    // Merge any custom exercises pulled from another device into the live library.
-    if(typeof loadCustomExercises==='function' && typeof normalizeCustomExercise==='function' && typeof EXERCISES!=='undefined'){
-      loadCustomExercises().forEach(function(ex){
-        var clean=normalizeCustomExercise(ex);
-        if(clean.name && !EXERCISES.some(function(e){ return e.name.toLowerCase()===clean.name.toLowerCase(); })){
-          EXERCISES.push(clean);
-        }
-      });
-    }
-  }catch(e){}
   try{ if(typeof vertexApplySettings==='function') vertexApplySettings(); }catch(e){}
   try{ if(typeof renderGoalTracker==='function') renderGoalTracker(); }catch(e){}
   try{ if(typeof renderEquipmentModalBody==='function') renderEquipmentModalBody(); }catch(e){}
@@ -7266,8 +7255,65 @@ window.vertexApplyOnboarding=function(sel){
   }catch(e){ console.warn('applyOnboarding:', e); }
 };
 function loadCustomExercises(){try{var arr=JSON.parse(localStorage.getItem('vertex_custom_exercises_v1')||'[]').filter(x=>x&&x.name&&x.training); var seen={}, out=[]; arr.forEach(function(x){ x.name=canonicalExerciseName(x.name); var k=String(x.name).toLowerCase(); if(seen[k]) return; seen[k]=1; out.push(x); }); return out;}catch{return []}}
-function saveCustomExercises(rows){try{localStorage.setItem('vertex_custom_exercises_v1',JSON.stringify(rows||[]))}catch{} try{window.VertexSettingsSync&&window.VertexSettingsSync.pushSoon()}catch(e){}}
+function saveCustomExercises(rows){try{localStorage.setItem('vertex_custom_exercises_v1',JSON.stringify(rows||[]))}catch{}}
 function normalizeCustomExercise(ex){return {name:String(ex.name||'').trim(),muscle:ex.muscle||'Custom',equip:ex.equip||'Other',env:ex.env||'home',kind:ex.kind||'custom',training:ex.training||'Strength',custom:true}}
+
+// Merge a set of custom exercise rows into the live in-memory library (update if present, push if new).
+function applyCustomExercisesToLibrary(rows){
+  (rows||[]).forEach(function(raw){
+    const clean=normalizeCustomExercise(raw);
+    if(!clean.name) return;
+    const idx=EXERCISES.findIndex(function(e){ return e.name.toLowerCase()===clean.name.toLowerCase(); });
+    if(idx===-1) EXERCISES.push(clean); else EXERCISES[idx]=clean;
+  });
+}
+
+// Cloud is authoritative for custom exercises. Local storage is the offline cache/queue only —
+// on every successful cloud read, we overwrite the local cache to match, not the other way around.
+async function loadCustomExercisesFromCloud(){
+  if(!cloudEnabled()) return loadCustomExercises();
+  try{
+    const {data,error}=await getSupa().from('custom_exercises').select('name,muscle,equip,training,env,kind').eq('user_id',authUser.id).is('tombstoned_at',null);
+    if(error) throw error;
+    const rows=(data||[]).map(r=>normalizeCustomExercise(r));
+    saveCustomExercises(rows); // mirror into local cache for offline use
+    applyCustomExercisesToLibrary(rows);
+    return rows;
+  }catch(err){
+    console.warn('Custom exercise cloud load failed, using local cache:',err);
+    const local=loadCustomExercises();
+    applyCustomExercisesToLibrary(local);
+    return local;
+  }
+}
+window.loadCustomExercisesFromCloud=loadCustomExercisesFromCloud;
+
+async function saveCustomExerciseToSupabase(ex){
+  if(!cloudEnabled()) return false;
+  const {error}=await getSupa().from('custom_exercises').upsert({
+    user_id:authUser.id,
+    name:ex.name,
+    muscle:ex.muscle,
+    equip:ex.equip,
+    training:ex.training,
+    env:ex.env,
+    kind:ex.kind,
+    tombstoned_at:null,
+    updated_at:new Date().toISOString()
+  },{onConflict:'user_id,name'});
+  if(error){ console.error('Custom exercise cloud save failed:',error); return false; }
+  return true;
+}
+window.saveCustomExerciseToSupabase=saveCustomExerciseToSupabase;
+
+async function deleteCustomExerciseFromCloud(name){
+  if(!cloudEnabled()) return false;
+  const {error}=await getSupa().from('custom_exercises').update({tombstoned_at:new Date().toISOString()}).eq('user_id',authUser.id).eq('name',name);
+  if(error){ console.error('Custom exercise cloud delete failed:',error); return false; }
+  return true;
+}
+window.deleteCustomExerciseFromCloud=deleteCustomExerciseFromCloud;
+
 loadCustomExercises().forEach(ex=>{const clean=normalizeCustomExercise(ex); if(clean.name && !EXERCISES.some(e=>e.name.toLowerCase()===clean.name.toLowerCase())) EXERCISES.push(clean);});
 function isEquipmentAllowed(e){
   if(state.env!=='home') return true;
@@ -7336,6 +7382,11 @@ function saveLibraryExercise(){
     // Update EXERCISES array in place
     const exIdx=EXERCISES.findIndex(e=>e.name===editingName && e.custom);
     if(exIdx!==-1) EXERCISES[exIdx]=ex;
+    if(cloudEnabled()){
+      saveCustomExerciseToSupabase(ex).then(ok=>{ if(!ok) window.vertexQueueWrite&&window.vertexQueueWrite('customExercise',ex); }).catch(()=>{ window.vertexQueueWrite&&window.vertexQueueWrite('customExercise',ex); });
+    } else {
+      window.vertexQueueWrite&&window.vertexQueueWrite('customExercise',ex);
+    }
     document.getElementById('libraryModal')?.classList.remove('on');
     document.getElementById('libraryModal')._editingName=null;
     state.training=ex.training; state.env=ex.env; state.muscle=ex.muscle;
@@ -7346,6 +7397,11 @@ function saveLibraryExercise(){
     // Add mode
     if(EXERCISES.some(e=>e.name.toLowerCase()===ex.name.toLowerCase())) return toast('That exercise is already in the library');
     rows.push(ex); saveCustomExercises(rows); EXERCISES.push(ex);
+    if(cloudEnabled()){
+      saveCustomExerciseToSupabase(ex).then(ok=>{ if(!ok) window.vertexQueueWrite&&window.vertexQueueWrite('customExercise',ex); }).catch(()=>{ window.vertexQueueWrite&&window.vertexQueueWrite('customExercise',ex); });
+    } else {
+      window.vertexQueueWrite&&window.vertexQueueWrite('customExercise',ex);
+    }
     document.getElementById('libraryModal')?.classList.remove('on');
     const input=document.getElementById('libraryName'); if(input) input.value='';
     state.training=ex.training; state.env=ex.env; state.muscle=ex.muscle;
@@ -7763,7 +7819,7 @@ async function signIn(email,password){
     authUser=authFromUser(data.user);
     window.authUser=authUser;
     document.body.classList.add('authenticated');
-    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
+    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadCustomExercisesFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
   }
   return '';
 }
@@ -7776,7 +7832,7 @@ async function createAccount(email,password){
   if(error) return error.message;
   if(data.user && data.session){
     if(typeof applyAuthenticatedSession==='function') await applyAuthenticatedSession(data.session);
-    else { authUser=authFromUser(data.user); window.authUser=authUser; document.body.classList.add('authenticated'); await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); }
+    else { authUser=authFromUser(data.user); window.authUser=authUser; document.body.classList.add('authenticated'); await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadCustomExercisesFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); }
     return '';
   }
   return 'Account created. Check your email to confirm, then sign in.';
@@ -14847,6 +14903,7 @@ async function vertexDrainOfflineQueue(){
     let ok=false;
     try{
       if(item.type==='saveWorkout') ok=await saveWorkoutToSupabase(item.payload);
+      else if(item.type==='customExercise') ok=await saveCustomExerciseToSupabase(item.payload);
       else if(item.type==='plannerDay') ok=await persistPlannerDay(item.payload.day,item.payload.workout);
       else if(item.type==='logWorkout'){const r=await getSupa().from('vertex_workout_logs').insert(item.payload);ok=!r.error;}
       else if(item.type==='deletePlannerDay'){const r=await getSupa().from('vertex_planner_days').delete().eq('user_id',authUser.id).eq('day',item.payload.day);ok=!r.error;}
@@ -14854,6 +14911,7 @@ async function vertexDrainOfflineQueue(){
     if(ok){const dt=db.transaction('writes','readwrite');dt.objectStore('writes').delete(item.id);}
   }
   try{await loadSavedWorkoutsFromCloud();}catch(e){}
+  try{await loadCustomExercisesFromCloud();}catch(e){}
   try{await hydratePlannerFromCloud();savePlanner();renderPlanner();renderToday();}catch(e){}
   setSyncStatus('synced','Supabase synced');
   toast('Offline changes synced');
@@ -15653,7 +15711,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260708c-audit-confirmed-edits';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260708d-custom-exercises-cloud';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -24286,7 +24344,7 @@ body.app-page-home #home-dashboard{display:block!important;}
 (function(){
   'use strict';
   var TABLE = 'vertex_user_settings';
-  var LS_KEYS = ['vertex_goals','vertex_home_equipment_v1','vertex_settings','wc_goal_weight','vertex_custom_exercises_v1'];
+  var LS_KEYS = ['vertex_goals','vertex_home_equipment_v1','vertex_settings','wc_goal_weight'];
 
   function supa(){ try{ return (typeof window.getSupa==='function') ? window.getSupa() : (window._supa||null); }catch(e){ return null; } }
   function uid(){ try{ return (window.authUser && window.authUser.id) ? window.authUser.id : null; }catch(e){ return null; } }

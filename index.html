@@ -7002,7 +7002,96 @@ normalizeVertexExerciseLibrary();
   };
 })();
 
-// Phase 6B.2 — Media Mapping Layer
+// Phase 6A.13 — Home Audit Corrections (Shoulders+Traps fold, equipment tags, category fixes)
+// This runs LAST, after every prior classification patch, so nothing downstream can re-break it.
+(function vertexPhase6A13HomeAuditCorrections(){
+  const list=(typeof EXERCISES!=='undefined' && Array.isArray(EXERCISES)) ? EXERCISES : (Array.isArray(window.EXERCISES)?window.EXERCISES:null);
+  if(!list) return;
+  const norm=s=>String(s||'').toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+
+  // 1) Fold the "Shoulders" bucket back into the canonical "Shoulders + Traps" filter
+  //    for every Strength-training exercise. This is what made Lateral Raise, Arnold Press,
+  //    Front Raise, Rear Delt Fly, etc. disappear from the Shoulders + Traps chip.
+  list.forEach(ex=>{
+    if(ex && ex.training==='Strength' && ex.muscle==='Shoulders'){
+      ex.muscle='Shoulders + Traps'; ex.category='Shoulders + Traps';
+      ex.target='Shoulders + Traps'; ex.targetArea='Shoulders + Traps'; ex.primary_muscle='Shoulders + Traps';
+    }
+  });
+
+  // 2) Explicit equipment / muscle-category corrections, from a manual pass against what's
+  //    actually in the home gym. Keyed by normalized exercise name. Anything not listed here
+  //    is left exactly as the earlier phases set it.
+  const CORRECTIONS={
+    // --- Legs: equipment corrections ---
+    'air squat':{equip:'Dumbbells'},
+    'balance board calf raise':{equip:'Bodyweight'},
+    'balance board squat':{equip:'Bodyweight'},
+    'bulgarian split squat':{equip:'Bodyweight'},
+    'calf stretch':{equip:'Bodyweight'},
+    'cossack squat':{equip:'Dumbbells'},
+    'curtsy lunge':{equip:'Bodyweight'},
+    'glute bridge':{equip:'Bodyweight'},
+    'hip thrust step':{equip:'Bodyweight'},
+    'jump squats':{equip:'Bodyweight'},
+    'kettlebell clean squat press':{equip:'Kettlebell'},
+    'kettlebell deadlift':{equip:'Kettlebell'},
+    'kettlebell goblet squat':{equip:'Kettlebell'},
+    'kettlebell lunge':{equip:'Kettlebell'},
+    'kettlebell reverse lunge':{equip:'Kettlebell'},
+    'kettlebell squat to press':{equip:'Kettlebell'},
+    'kettlebell step up':{equip:'Kettlebell'},
+    'lateral step up':{equip:'Bodyweight'},
+    'lunge':{equip:'Bodyweight'},
+    'marching glute bridge':{equip:'Bodyweight'},
+    'reverse lunge':{equip:'Bodyweight'},
+    'single leg calf raise':{equip:'Bodyweight'},
+    'single leg rdl':{equip:'Dumbbells'},
+    'stability ball glute bridge':{equip:'Bodyweight'},
+    'stability ball wall squat':{equip:'Stability Ball'},
+    'standing calf raise':{equip:'Bodyweight'},
+    'step up':{equip:'Bodyweight'},
+    'sumo squat':{equip:'Bodyweight'},
+    'walking lunge':{equip:'Bodyweight'},
+
+    // --- Back: equipment corrections ---
+    'band row':{equip:'Band'},
+    'band straight arm pulldown':{equip:'Band'},
+    'kettlebell renegade row':{equip:'Kettlebell'},
+    'kettlebell row':{equip:'Kettlebell'},
+
+    // --- Triceps: equipment correction ---
+    'dumbbell skull crushers':{equip:'Dumbbells'},
+
+    // --- Category corrections (moving an exercise to the right muscle group) ---
+    'bench dip':{muscle:'Triceps'},                     // was under Chest
+    'dumbbell pullover':{muscle:'Chest',equip:'Dumbbells'}, // was under Back, tagged Bodyweight
+    'stability ball hamstring curl':{muscle:'Legs',equip:'Stability Ball'}, // was caught by the Biceps "curl" regex
+  };
+
+  list.forEach(ex=>{
+    if(!ex||!ex.name) return;
+    const fix=CORRECTIONS[norm(ex.name)];
+    if(!fix) return;
+    if(fix.equip){ ex.equip=fix.equip; ex.equipment=fix.equip; ex.equipment_type=fix.equip; }
+    if(fix.muscle){ ex.muscle=fix.muscle; ex.category=fix.muscle; ex.target=fix.muscle; ex.targetArea=fix.muscle; ex.primary_muscle=fix.muscle; }
+  });
+
+  // 3) Remove exercises for equipment you don't own.
+  const REMOVE=new Set(['ez bar curl']);
+  for(let i=list.length-1;i>=0;i--){
+    if(REMOVE.has(norm(list[i] && list[i].name))) list.splice(i,1);
+  }
+
+  window.VERTEX_PHASE6A13_AUDIT={
+    phase:'6A.13',
+    shouldersFolded:list.filter(e=>e.training==='Strength' && e.muscle==='Shoulders + Traps').map(e=>e.name),
+    correctionsApplied:Object.keys(CORRECTIONS).length,
+    removed:[...REMOVE]
+  };
+})();
+
+
 // Infrastructure only: creates one master media record per exercise for Bunny thumbnails/videos.
 function vertexBunnyFolderForExercise(ex){
   const cat=String(ex&&ex.media_category||vertexMediaCategory(ex&&ex.training)||'strength').toLowerCase();
@@ -7128,11 +7217,23 @@ function saveEquipmentProfile(){try{localStorage.setItem('vertex_home_equipment_
 /* 6A34: re-apply settings into live state + UI after a cloud pull overwrites localStorage. */
 window.vertexRehydrateAfterSettingsPull=function(){
   try{ state.equipment=loadEquipmentProfile(); }catch(e){}
+  try{
+    // Merge any custom exercises pulled from another device into the live library.
+    if(typeof loadCustomExercises==='function' && typeof normalizeCustomExercise==='function' && typeof EXERCISES!=='undefined'){
+      loadCustomExercises().forEach(function(ex){
+        var clean=normalizeCustomExercise(ex);
+        if(clean.name && !EXERCISES.some(function(e){ return e.name.toLowerCase()===clean.name.toLowerCase(); })){
+          EXERCISES.push(clean);
+        }
+      });
+    }
+  }catch(e){}
   try{ if(typeof vertexApplySettings==='function') vertexApplySettings(); }catch(e){}
   try{ if(typeof renderGoalTracker==='function') renderGoalTracker(); }catch(e){}
   try{ if(typeof renderEquipmentModalBody==='function') renderEquipmentModalBody(); }catch(e){}
   try{ if(typeof renderSidebar==='function') renderSidebar(); }catch(e){}
   try{ if(typeof window.renderHomeDashboard==='function') window.renderHomeDashboard(); }catch(e){}
+  try{ if(state.page==='workout' && typeof renderAll==='function') renderAll(); }catch(e){}
   // 6A36: if the Settings modal is open during a live pull, re-render it so the
   // values update in place without the user having to close and reopen it.
   try{ var sm=document.getElementById('settingsModal'); if(sm && sm.classList.contains('on') && typeof openSettingsModal==='function') openSettingsModal(); }catch(e){}
@@ -7148,7 +7249,7 @@ window.vertexApplyOnboarding=function(sel){
   }catch(e){ console.warn('applyOnboarding:', e); }
 };
 function loadCustomExercises(){try{var arr=JSON.parse(localStorage.getItem('vertex_custom_exercises_v1')||'[]').filter(x=>x&&x.name&&x.training); var seen={}, out=[]; arr.forEach(function(x){ x.name=canonicalExerciseName(x.name); var k=String(x.name).toLowerCase(); if(seen[k]) return; seen[k]=1; out.push(x); }); return out;}catch{return []}}
-function saveCustomExercises(rows){try{localStorage.setItem('vertex_custom_exercises_v1',JSON.stringify(rows||[]))}catch{}}
+function saveCustomExercises(rows){try{localStorage.setItem('vertex_custom_exercises_v1',JSON.stringify(rows||[]))}catch{} try{window.VertexSettingsSync&&window.VertexSettingsSync.pushSoon()}catch(e){}}
 function normalizeCustomExercise(ex){return {name:String(ex.name||'').trim(),muscle:ex.muscle||'Custom',equip:ex.equip||'Other',env:ex.env||'home',kind:ex.kind||'custom',training:ex.training||'Strength',custom:true}}
 loadCustomExercises().forEach(ex=>{const clean=normalizeCustomExercise(ex); if(clean.name && !EXERCISES.some(e=>e.name.toLowerCase()===clean.name.toLowerCase())) EXERCISES.push(clean);});
 function isEquipmentAllowed(e){
@@ -15535,7 +15636,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260708-fwm-theme-nav';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260708b-exercise-audit-sync';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -24168,7 +24269,7 @@ body.app-page-home #home-dashboard{display:block!important;}
 (function(){
   'use strict';
   var TABLE = 'vertex_user_settings';
-  var LS_KEYS = ['vertex_goals','vertex_home_equipment_v1','vertex_settings','wc_goal_weight'];
+  var LS_KEYS = ['vertex_goals','vertex_home_equipment_v1','vertex_settings','wc_goal_weight','vertex_custom_exercises_v1'];
 
   function supa(){ try{ return (typeof window.getSupa==='function') ? window.getSupa() : (window._supa||null); }catch(e){ return null; } }
   function uid(){ try{ return (window.authUser && window.authUser.id) ? window.authUser.id : null; }catch(e){ return null; } }

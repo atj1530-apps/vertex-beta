@@ -4715,7 +4715,7 @@ window.vertexFinishBootstrap=function(){
       <h3>Daily Health Entry — Biometrics Only</h3>
       <button id="btn-close-health-modal" class="btn small">Close</button>
     </div>
-<div class="health-form"><label class="health-input"><span class="label">Date</span><input id="healthDate" type="date"></label><label class="health-input"><span class="label">Sleep Hours</span><input id="healthSleep" type="number" step="0.1" min="0" max="24" placeholder="e.g., 7.2"></label><label class="health-input"><span class="label">Steps</span><input id="healthSteps" type="number" min="0" placeholder="e.g., 8500"></label><label class="health-input"><span class="label">Active Calories</span><input id="healthCalories" type="number" min="0" placeholder="e.g., 620"></label><label class="health-input"><span class="label">Workout Minutes</span><input id="healthWorkoutMinutes" type="number" min="0" placeholder="e.g., 45"></label><label class="health-input"><span class="label">Resting HR</span><input id="healthRestingHr" type="number" min="20" max="220" placeholder="e.g., 58"></label><label class="health-input"><span class="label">HRV</span><input id="healthHrv" type="number" min="0" placeholder="e.g., 42"></label><label class="health-input"><span class="label">Body Weight</span><input id="healthWeight" type="number" step="0.1" min="0" placeholder="optional"></label><label class="health-input wide" style="grid-column:1/-1"><span class="label">Notes</span><input id="healthNotes" placeholder="Optional: override notes, data source"></label></div><div class="modal-grid" style="margin-top:14px"><button id="btn-save-health" class="btn acc">Save Entry</button><button id="btn-clear-health-form" class="btn">Clear</button></div>
+<div class="health-form"><label class="health-input"><span class="label">Date</span><input id="healthDate" type="date"></label><label class="health-input"><span class="label">Sleep Hours</span><input id="healthSleep" type="number" step="0.1" min="0" max="24" placeholder="e.g., 7.2"></label><label class="health-input"><span class="label">Steps</span><input id="healthSteps" type="number" min="0" placeholder="e.g., 8500"></label><label class="health-input"><span class="label">Active Calories</span><input id="healthCalories" type="number" min="0" placeholder="e.g., 620"></label><label class="health-input"><span class="label">Workout Minutes</span><input id="healthWorkoutMinutes" type="number" min="0" placeholder="e.g., 45"></label><label class="health-input"><span class="label">Resting HR</span><input id="healthRestingHr" type="number" min="20" max="220" placeholder="e.g., 58"></label><label class="health-input"><span class="label">HRV</span><input id="healthHrv" type="number" min="0" placeholder="e.g., 42"></label><label class="health-input"><span class="label">Body Weight</span><input id="healthWeight" type="number" step="0.1" min="0" placeholder="optional"></label><label class="health-input"><span class="label">BP Systolic</span><input id="healthBpSystolic" type="number" min="0" max="300" placeholder="e.g., 120"></label><label class="health-input"><span class="label">BP Diastolic</span><input id="healthBpDiastolic" type="number" min="0" max="200" placeholder="e.g., 80"></label><label class="health-input wide" style="grid-column:1/-1"><span class="label">Notes</span><input id="healthNotes" placeholder="Optional: override notes, data source"></label></div><div class="modal-grid" style="margin-top:14px"><button id="btn-save-health" class="btn acc">Save Entry</button><button id="btn-clear-health-form" class="btn">Clear</button></div>
   </div>
 </div>
 <div id="vertexNutritionActuals" style="margin-top:16px"></div>
@@ -9237,17 +9237,17 @@ function calcReadiness(entry){
   return calculateReadiness(entry).score;
 }
 function clearHealthForm(){
-  ['healthSleep','healthSteps','healthCalories','healthWorkoutMinutes','healthRestingHr','healthHrv','healthWeight','healthNotes'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  ['healthSleep','healthSteps','healthCalories','healthWorkoutMinutes','healthRestingHr','healthHrv','healthWeight','healthBpSystolic','healthBpDiastolic','healthNotes'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
   ['healthSoreness','healthEnergy','healthStress','healthReadiness'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
   const d=document.getElementById('healthDate'); if(d) d.value=todayIso();
 }
 function hydrateHealthForm(entry){
   const d=document.getElementById('healthDate'); if(d) d.value=entry?.date||todayIso();
-  const pairs={healthSleep:'sleepHours',healthSteps:'steps',healthCalories:'activeCalories',healthWorkoutMinutes:'workoutMinutes',healthRestingHr:'restingHr',healthHrv:'hrv',healthWeight:'bodyWeight',healthSoreness:'soreness',healthEnergy:'energy',healthStress:'stress',healthReadiness:'readiness',healthNotes:'notes'};
+  const pairs={healthSleep:'sleepHours',healthSteps:'steps',healthCalories:'activeCalories',healthWorkoutMinutes:'workoutMinutes',healthRestingHr:'restingHr',healthHrv:'hrv',healthWeight:'bodyWeight',healthBpSystolic:'bpSystolic',healthBpDiastolic:'bpDiastolic',healthSoreness:'soreness',healthEnergy:'energy',healthStress:'stress',healthReadiness:'readiness',healthNotes:'notes'};
   Object.entries(pairs).forEach(([id,key])=>{const el=document.getElementById(id); if(el) el.value=entry?.[key]??'';});
 }
 function collectHealthEntry(){
-  const entry={date:strVal('healthDate')||todayIso(),sleepHours:numVal('healthSleep'),steps:numVal('healthSteps'),activeCalories:numVal('healthCalories'),workoutMinutes:numVal('healthWorkoutMinutes'),restingHr:numVal('healthRestingHr'),hrv:numVal('healthHrv'),bodyWeight:numVal('healthWeight'),soreness:numVal('healthSoreness'),energy:numVal('healthEnergy'),stress:numVal('healthStress'),readiness:numVal('healthReadiness'),notes:strVal('healthNotes'),updatedAt:new Date().toISOString().split('.')[0] + 'Z'};
+  const entry={date:strVal('healthDate')||todayIso(),sleepHours:numVal('healthSleep'),steps:numVal('healthSteps'),activeCalories:numVal('healthCalories'),workoutMinutes:numVal('healthWorkoutMinutes'),restingHr:numVal('healthRestingHr'),hrv:numVal('healthHrv'),bodyWeight:numVal('healthWeight'),bpSystolic:numVal('healthBpSystolic'),bpDiastolic:numVal('healthBpDiastolic'),soreness:numVal('healthSoreness'),energy:numVal('healthEnergy'),stress:numVal('healthStress'),readiness:numVal('healthReadiness'),notes:strVal('healthNotes'),updatedAt:new Date().toISOString().split('.')[0] + 'Z'};
   entry.readinessScore=calcReadiness(entry); return entry;
 }
 function saveHealthEntry(){
@@ -9281,6 +9281,8 @@ function metricToHealthEntry(row){
     restingHr: fmtInt(resting),
     hrv: fmt1(hrv),
     bodyWeight: fmt1(weight),
+    bpSystolic: fmtInt(row.bp_systolic ?? raw?.bp_systolic),
+    bpDiastolic: fmtInt(row.bp_diastolic ?? raw?.bp_diastolic),
     bodyFatPct: fmt1(row.body_fat_pct ?? raw?.body_fat_pct),
     leanMass: fmt1(row.lean_mass ?? raw?.lean_mass),
     vo2Max: fmt1(row.vo2_max ?? raw?.vo2_max),
@@ -9341,6 +9343,8 @@ async function loadHealthMetricsFromCloud(){
           restingHr: fmtInt(row.resting_hr ?? row.restingHr ?? row.resting_heart_rate),
           hrv: fmt1(row.hrv ?? row.hrv_sdnn),
           bodyWeight: fmt1(weight),
+          bpSystolic: fmtInt(row.bp_systolic ?? row.bpSystolic),
+          bpDiastolic: fmtInt(row.bp_diastolic ?? row.bpDiastolic),
           bodyFatPct: fmt1(row.body_fat_pct ?? row.bodyFatPct),
           leanMass: fmt1(row.lean_mass ?? row.leanMass),
           vo2Max: fmt1(row.vo2_max ?? row.vo2Max),
@@ -9906,6 +9910,8 @@ function wcRenderDashboard(){
         const _wtLostLine='<div style="font-size:9px;font-family:monospace;margin-top:4px;line-height:1.6">'+_wtL30Html+(_wtLost30!=null&&_wtJourney!=null?' | ':'')+_wtJHtml+'</div>';
         cards.push(_wtCard.replace('</div>', _wtLostLine+'</div>'));
       }
+      const bpS=fmtInt(latestH.bpSystolic), bpD=fmtInt(latestH.bpDiastolic);
+      if(bpS!=null||bpD!=null) cards.push(buildMetricCard('Blood Pressure', (bpS!=null&&bpD!=null)?bpS+'/'+bpD:(bpS??bpD), 'mmHg', null, '', null));
       const bf=fmt1(latestH.bodyFatPct); if(bf!=null||avg7H('bodyFatPct')!=null) cards.push(buildMetricCard('Body Fat', bf!=null?bf+'%':null, 'est. · Apple Health', avg7H('bodyFatPct'), '%', 'bodyFatPct'));
       const lm=fmt1(latestH.leanMass); if(lm!=null||avg7H('leanMass')!=null) cards.push(buildMetricCard('Lean Mass', lm!=null?lm+' lb':null, 'muscle + bone', avg7H('leanMass'), ' lb', 'leanMass'));
       const v2=fmt1(latestH.vo2Max); if(v2!=null||avg7H('vo2Max')!=null) cards.push(buildMetricCard('Cardio Fit', v2!=null?v2+' ml/kg':null, 'VO₂ max est.', avg7H('vo2Max'), '', 'vo2Max'));
@@ -12075,6 +12081,7 @@ function renderHomeDashboard(){
     const ahHrv = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthHRVSummary')||'null'); if(s&&s.latest) return Math.round(s.latest); }catch(e){} const v=_homeLatest?.hrv; return v!=null?Math.round(Number(v)):null; })();
     const ahRhr = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthRestingHRSummary')||'null'); if(s&&s.latest) return Math.round(s.latest); }catch(e){} const v=_homeLatest?.restingHr; return v!=null?Math.round(Number(v)):null; })();
     const ahWeight = _homeLatest?.bodyWeight!=null ? Math.round(Number(_homeLatest.bodyWeight)*10)/10 : null;
+    const ahBp = (() => { try{ const s=JSON.parse(localStorage.getItem('vertexAppleHealthBPSummary')||'null'); if(s&&s.latest) return s.latest; }catch(e){} const bs=_homeLatest?.bpSystolic, bd=_homeLatest?.bpDiastolic; return (bs!=null&&bd!=null)?Math.round(Number(bs))+'/'+Math.round(Number(bd)):null; })();
 
     // Motivational context line
     try {
@@ -12193,7 +12200,7 @@ function renderHomeDashboard(){
 </div>
 
 <!-- Desktop: single 6-card stat strip -->
-<div class="home-stat-strip home-stat-strip-desktop" style="grid-template-columns:repeat(6,1fr)">
+<div class="home-stat-strip home-stat-strip-desktop" style="grid-template-columns:repeat(7,1fr)">
   <div class="home-stat-box">
     <div class="home-stat-val">${sum.thisWeek.length}</div>
     <div class="home-stat-lbl">Sessions<br>This Week</div>
@@ -12223,6 +12230,11 @@ function renderHomeDashboard(){
     <div class="home-rec-val">${ahRhr !== null ? ahRhr+' bpm' : '—'}</div>
     <div class="home-rec-lbl">Resting HR</div>
   </div>
+  <div class="home-rec-card">
+    <div class="home-rec-icon">🩺</div>
+    <div class="home-rec-val">${ahBp !== null ? ahBp : '—'}</div>
+    <div class="home-rec-lbl">Blood Pressure</div>
+  </div>
 </div>
 <!-- Motivational context line -->
 <div id="home-context-line" style="font-size:11px;color:var(--muted);text-align:center;padding:4px 0 8px;font-family:monospace;letter-spacing:.3px"></div>
@@ -12240,6 +12252,12 @@ function renderHomeDashboard(){
     <span class="home-mobile-stat-val">${ahHrv !== null ? ahHrv+' ms' : '—'}</span>
     <span class="home-mobile-stat-lbl">HRV</span>
     ${_hrvAvg7 !== null ? `<span class="home-mobile-stat-avg">7D ${_hrvAvg7} ms</span>` : ''}
+  </span>
+  <span class="home-mobile-stat-div">·</span>
+  <span class="home-mobile-stat">
+    <span class="home-mobile-stat-icon">🩺</span>
+    <span class="home-mobile-stat-val">${ahBp !== null ? ahBp : '—'}</span>
+    <span class="home-mobile-stat-lbl">BP</span>
   </span>
   <span class="home-mobile-stat-div">·</span>
   <span class="home-mobile-stat">
@@ -14149,6 +14167,7 @@ function vertexShowSyncDiag(){
     {label:'HRV',key:'vertexAppleHealthHRVSummary',valFn:d=>d?.latest?Math.round(d.latest)+' ms':null},
     {label:'Resting HR',key:'vertexAppleHealthRestingHRSummary',valFn:d=>d?.latest?Math.round(d.latest)+' bpm':null},
     {label:'Weight',key:'vertexAppleHealthWeightSummary',valFn:d=>d?.latest?Number(d.latest).toFixed(1)+' lb':null},
+    {label:'Blood Pressure',key:'vertexAppleHealthBPSummary',valFn:d=>d?.latest?d.latest+' mmHg':null},
     {label:'Standing Min',key:'vertexAppleHealthStandingSummary',valFn:d=>d?.latest!=null?d.latest+' min':null},
   ];
   const rows=metrics.map(m=>{
@@ -14365,6 +14384,7 @@ document.addEventListener('click',async e=>{
       if(metrics.hrv!=null) localStorage.setItem('vertexAppleHealthHRVSummary',JSON.stringify({latest:Math.round(metrics.hrv*10)/10,avg7:Math.round((metrics.hrv_7d_avg||metrics.hrv)*10)/10}));
       if(metrics.resting_hr!=null) localStorage.setItem('vertexAppleHealthRestingHRSummary',JSON.stringify({latest:Math.round(metrics.resting_hr),avg7:Math.round(metrics.resting_hr_7d_avg||metrics.resting_hr)}));
       if(metrics.weight!=null) localStorage.setItem('vertexAppleHealthWeightSummary',JSON.stringify({latest:Math.round(metrics.weight*10)/10}));
+      if(metrics.bp_systolic!=null||metrics.bp_diastolic!=null) localStorage.setItem('vertexAppleHealthBPSummary',JSON.stringify({latest:(metrics.bp_systolic!=null?Math.round(metrics.bp_systolic):null)+'/'+(metrics.bp_diastolic!=null?Math.round(metrics.bp_diastolic):null)}));
       localStorage.setItem('vertexAppleHealthRecoveryLastSync',new Date().toISOString());
       // Write to Supabase so dashboard cards update
       try{
@@ -14379,6 +14399,8 @@ document.addEventListener('click',async e=>{
             resting_hr:metrics.resting_hr!=null?Math.round(Number(metrics.resting_hr)):null,
             hrv:metrics.hrv!=null?Math.round(metrics.hrv*10)/10:null,
             body_weight:metrics.weight!=null?Math.round(metrics.weight*10)/10:null,
+            bp_systolic:metrics.bp_systolic!=null?Math.round(Number(metrics.bp_systolic)):null,
+            bp_diastolic:metrics.bp_diastolic!=null?Math.round(Number(metrics.bp_diastolic)):null,
             body_fat_pct:metrics.body_fat_pct!=null?Math.round(metrics.body_fat_pct*1000)/10:null,
             lean_mass:metrics.lean_mass!=null?Math.round(metrics.lean_mass*10)/10:null,
             respiratory_rate:metrics.respiratory_rate!=null?Math.round(metrics.respiratory_rate*10)/10:null,
@@ -15711,7 +15733,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260708d-custom-exercises-cloud';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260711a-blood-pressure';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -18057,7 +18079,7 @@ window.vertexImportHKWorkout = async function(idx) {
       title:'Apple Health',
       html:`<p>Apple Health sync is available in the native iPhone app. Metrics sync automatically; workouts require a one-tap import decision.</p>
       <h3>Setup</h3><ul><li>Open Wellness tab.</li><li>Tap <b>Sync Apple Health</b>.</li><li>Approve Health permissions on first run.</li></ul>
-      <h3>Synced metrics</h3><p>Sleep, HRV, Resting HR, Respiratory Rate, SpO₂, Steps, Active Calories, Exercise Minutes, Body Weight, Body Fat %, Lean Mass, VO₂ Max, Wrist Temp Deviation, and Standing Minutes. All saved to Supabase and visible on PWA.</p>
+      <h3>Synced metrics</h3><p>Sleep, HRV, Resting HR, Blood Pressure, Respiratory Rate, SpO₂, Steps, Active Calories, Exercise Minutes, Body Weight, Body Fat %, Lean Mass, VO₂ Max, Wrist Temp Deviation, and Standing Minutes. All saved to Supabase and visible on PWA.</p>
       <h3>Workout import</h3><p>After syncing, Apple Watch workouts from the last 14 days appear as a card. Tap <b>Import</b> to add to your Vertex logs — counts toward weekly sessions and appears in Progress. Tap <b>✕</b> to dismiss workouts you don’t want.</p>`
     },
     ai: {

@@ -12001,9 +12001,13 @@ function setPage(page){
   // Sidebar (library) — Workout tab only
   // Right panel (saved workouts/stats) — Workout tab only (on Home, Saved Workouts is moved into main)
   document.querySelectorAll('.sidebar').forEach(el=>{el.style.display=onWorkout?'':'none';});
-  document.querySelectorAll('.right').forEach(el=>{el.style.display=(onWorkout && hasWorkout())?'':'none';});
-  // On Home, hide the builder-tied sections of the right panel (Coach Reco / Volume Stats / Muscle Volume).
-  document.querySelectorAll('.right .home-hide').forEach(el=>{el.style.display=onHome?'none':'';});
+  // v20260719-sw-access — Saved Workouts must stay reachable even with an empty builder,
+  // so the .right sidebar itself is no longer gated on hasWorkout(). Only the builder-tied
+  // sections inside it (Coach Reco / Volume Stats / Muscle Volume) stay content-gated below.
+  document.querySelectorAll('.right').forEach(el=>{el.style.display=onWorkout?'':'none';});
+  // On Home, and on Workout when the builder is empty, hide the builder-tied sections of the
+  // right panel (Coach Reco / Volume Stats / Muscle Volume). Saved Workouts is untouched.
+  document.querySelectorAll('.right .home-hide').forEach(el=>{el.style.display=(onHome || !hasWorkout())?'none':'';});
   // v13.63 — Saved Workouts lives in the right column on Workout tab only.
   // Make sure it's parented to the right aside (not main) regardless of any prior page state.
   const sw=document.getElementById('savedWorkoutsAcc');
@@ -12381,7 +12385,10 @@ function vertexApplyWorkoutEmptyState(){
   const guide=document.getElementById('workoutStartGuide');
   if(guide) guide.style.display=(onWorkout && !hasContent)?'block':'none';
   document.querySelectorAll('.coachbar, #autoCoachAcc, .wkt-name-row, #wkt-meta, #builder').forEach(el=>{el.style.display=(onWorkout && hasContent)?'':'none';});
-  document.querySelectorAll('.right').forEach(el=>{el.style.display=(onWorkout && hasContent)?'':'none';});
+  // v20260719-sw-access — do not hide the .right sidebar itself here; that would re-hide
+  // Saved Workouts on an empty builder. The right sidebar's own visibility is handled by
+  // setPage(), and the builder-tied sections inside it are gated separately via .home-hide.
+  document.querySelectorAll('.right').forEach(el=>{el.style.display=onWorkout?'':'none';});
 }
 
 
@@ -15733,7 +15740,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260711a-blood-pressure';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260719a-saved-workouts-access';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

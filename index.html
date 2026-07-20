@@ -2162,6 +2162,31 @@ input[type="date"] {
     min-width: 0 !important;
   }
 
+  /* v20260720 — "Log Today's Protocol" header (Wellness > Protocol tab): the ← Today
+     link and date label were getting squeezed to near-zero width by the long title
+     next to them, and the global overflow-wrap:anywhere safety rule above then wrapped
+     "Today" one letter per line. Give it the same compact grid treatment as #todayAcc. */
+  #protoTodayAcc .acc-head {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+  }
+  #protoTodayAcc .acc-title {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  #protoTodayAcc .acc-head > div {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+  }
+  #proto-back-today,
+  #proto-date-label {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+
   /* Reconstitution and lower sections */
   #reconstitutionAcc,
   .reconstitution-calculator,
@@ -9977,8 +10002,14 @@ function wcRenderDashboard(){
   if(wcEl)_wcCharts['wc-dc-weight']=new Chart(wcEl.getContext('2d'),{type:'line',data:{labels:projLabels,datasets:_wcDatasets},options:{...WC_CHART_OPTS,plugins:{...WC_CHART_OPTS.plugins,legend:{display:_hasProjection,labels:{color:'#8a8778',font:{family:'DM Mono',size:10},boxWidth:10}}}}});
 
   // Progress
+  // v20260720 fix: progPct previously used totalLost (WC_START_WEIGHT - latest.weight),
+  // where "latest" only looks at manually-logged Check-In entries. If the most recent
+  // weight came from an Apple Health sync instead of a Check-In log, that newer weight
+  // was ignored and the bar showed stale progress. projAnchorWeight already merges both
+  // sources and picks the chronologically latest one (it's what the weight chart itself
+  // anchors to), so use that here for consistency.
   const journey=WC_START_WEIGHT-TARGET;
-  const progPct=Math.min(100,(totalLost/journey*100)).toFixed(1);
+  const progPct=Math.min(100,((WC_START_WEIGHT-projAnchorWeight)/journey*100)).toFixed(1);
   const weeksLeft=rolling&&rolling>0?((projAnchorWeight-TARGET)/rolling).toFixed(0):'—';
   const progEl=document.getElementById('wc-dash-progress');
   // 30d and journey calcs for wellness dashboard progress card
@@ -15740,7 +15771,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260719a-saved-workouts-access';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260720a-protocol-header-phase-pct-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

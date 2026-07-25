@@ -5347,7 +5347,7 @@ window.vertexFinishBootstrap=function(){
       </div>
       <div>
         <div class="supp-field-label">Unit</div>
-        <select id="suppUnit" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
+        <select id="suppUnit" onchange="vertexCalcDosesRemaining()" style="width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none">
           <option value="mg">mg</option><option value="mcg">mcg</option><option value="g">g</option><option value="IU">IU</option><option value="ml">ml</option><option value="oz">oz</option><option value="capsule">capsule</option><option value="scoop">scoop</option><option value="tablet">tablet</option>
         </select>
       </div>
@@ -11776,7 +11776,16 @@ function vertexCalcDosesRemaining(){
     el.textContent = 'Enter vials, mg/vial, and dose above';
     return;
   }
-  const total = Math.floor((vials * mgPerVial) / dose);
+  // 20260724a: dose is entered in suppUnit (mcg/mg/g) but mgPerVial is always mg.
+  // Convert dose to mg before dividing, or 500 mcg reads as 500 mg and returns 0 doses.
+  const _druUnit = (document.getElementById('suppUnit')?.value || 'mg').toLowerCase();
+  const doseMg = _druUnit === 'mcg' ? dose / 1000 : _druUnit === 'g' ? dose * 1000 : dose;
+  if(!doseMg || doseMg <= 0){
+    el.style.color = 'var(--muted)';
+    el.textContent = 'Enter vials, mg/vial, and dose above';
+    return;
+  }
+  const total = Math.floor((vials * mgPerVial) / doseMg);
   const threshold = Math.max(3, Math.round(total * 0.2));
   const color = total <= threshold ? 'var(--red)' : total <= threshold * 2 ? '#ffd048' : 'var(--green)';
   el.style.color = color;
@@ -11912,7 +11921,10 @@ async function saveSupplement(){
   const vialsVal = parseFloat(document.getElementById('suppVials')?.value) || 0;
   const mgPerVial = parseFloat(document.getElementById('suppUnitsPerVial')?.value) || 0;
   const doseVal = parseFloat(document.getElementById('suppDose')?.value) || 0;
-  const totalDoses = (vialsVal && mgPerVial && doseVal) ? Math.floor((vialsVal * mgPerVial) / doseVal) : null;
+  // 20260724a: convert dose to mg before dividing by vial mg (see vertexCalcDosesRemaining)
+  const _sdUnit = (document.getElementById('suppUnit')?.value || 'mg').toLowerCase();
+  const doseValMg = _sdUnit === 'mcg' ? doseVal / 1000 : _sdUnit === 'g' ? doseVal * 1000 : doseVal;
+  const totalDoses = (vialsVal && mgPerVial && doseValMg) ? Math.floor((vialsVal * mgPerVial) / doseValMg) : null;
   // Alert when 20% of total doses remain, minimum 3
   const alertThreshold = totalDoses ? Math.max(3, Math.round(totalDoses * 0.2)) : 7;
 
@@ -14576,9 +14588,16 @@ if(!window.vertexSyncAppleHealth){
     const dose=parseFloat(document.getElementById('suppDose')?.value)||0;
     const preview=document.getElementById('suppCostPreview');
     if(preview && price>0 && units>0 && dose>0){
-      const cpd=Math.round((price/(units/dose))*100)/100;
-      const dpw=parseFloat(document.getElementById('suppFrequency')?.value)||1;
-      preview.textContent=`= $${cpd.toFixed(2)}/dose · ~$${(cpd*dpw*4.33).toFixed(2)}/month`;
+      // 20260724a: convert dose to mg, and derive doses/week from the frequency
+      // label instead of parseFloat("Daily") which was silently returning 1.
+      const _cpUnit=(document.getElementById('suppUnit')?.value||'mg').toLowerCase();
+      const _cpDoseMg=_cpUnit==='mcg'?dose/1000:_cpUnit==='g'?dose*1000:dose;
+      const cpd=Math.round((price/(units/_cpDoseMg))*100)/100;
+      const _cpFreq=(document.getElementById('suppFrequency')?.value||'').toLowerCase();
+      const dpw=_cpFreq.includes('needed')?0:_cpFreq.includes('twice')?14:_cpFreq.includes('daily')?7:_cpFreq.includes('every other')?3.5:_cpFreq.includes('weekly')?1:(parseFloat(_cpFreq)||1);
+      preview.textContent=dpw>0
+        ? `= $${cpd.toFixed(2)}/dose · ~$${(cpd*dpw*4.33).toFixed(2)}/month`
+        : `= $${cpd.toFixed(2)}/dose`;
     } else if(preview){ preview.textContent=''; }
   }
  const dci=t.getAttribute('data-delete-ci'); if(dci){await deleteCheckin(dci); return}
@@ -15771,7 +15790,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260720a-protocol-header-phase-pct-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260724a-dose-unit-conversion-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

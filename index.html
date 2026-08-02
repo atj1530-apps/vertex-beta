@@ -15790,7 +15790,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260724a-dose-unit-conversion-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260802a-off-cycle-status-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
@@ -16704,7 +16704,7 @@ window.vertexImportHKWorkout = async function(idx) {
     if(!item) return false;
     if(isAsNeeded(item)) return false;
 
-    var status = norm(item.on_cycle || item.cycle_status || item.status);
+    var status = norm(item.on_cycle != null && item.on_cycle !== '' ? item.on_cycle : (item.cycle_status || item.status));
     var active = status === 'on' || status === 'continuous' || status === 'on cycle' || status === '';
     if(!active) return false;
 

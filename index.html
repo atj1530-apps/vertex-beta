@@ -4700,7 +4700,7 @@ window.vertexFinishBootstrap=function(){
   </div>
   <div id="vertexB2ProgressDeck" class="vertex-b2-progress-deck" aria-label="Progress intelligence cards"></div>
 </section>
-<section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none" ontouchstart="window.vertexSyncAppleHealth&&window.vertexSyncAppleHealth()">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
+<section id="wellnessPage" class="page-panel" style="display:none"><div class="progress-head"><div><h1 class="page-title">Wellness</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button id="btn-apple-health-sync" class="btn acc small" style="display:none">Sync Apple Health</button><button id="btn-wellness-refresh" class="btn small">Refresh</button><span id="vertex-sync-timestamp" style="display:none;font-family:monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;align-self:center"></span></div></div><div id="appleHealthWorkoutCard" class="progress-card wide" style="margin-top:16px;display:none;overflow:hidden;max-width:100%;box-sizing:border-box">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="label" style="margin:0">🍎 Apple Health Workouts</div>
     <span id="hkWorkoutSyncTime" style="font-size:10px;color:var(--muted);font-family:monospace"></span>
@@ -10407,6 +10407,7 @@ async function loadStack(){
           .select('*')
           .eq('user_id', authUser.id)
           .order('checkin_date', {ascending:false})
+          .order('id', {ascending:false})
           .limit(100)
       );
     } catch(e) { rows = []; }
@@ -10418,6 +10419,7 @@ async function loadStack(){
           supa.from('peptide_stack')
             .select('*')
             .order('checkin_date', {ascending:false})
+            .order('id', {ascending:false})
             .limit(100)
         );
       } catch(e) { rows = []; }
@@ -10555,7 +10557,7 @@ async function renderStackHistory(){
   const el=document.getElementById('stackHistory'); if(!el) return;
   const supa=getSupa(); if(!supa||!authUser){el.innerHTML='<div class="empty-note">Sign in to see stack history.</div>';return;}
   try{
-    const {data}=await supa.from('peptide_stack').select('*').eq('user_id',authUser.id).order('checkin_date',{ascending:false}).limit(100);
+    const {data}=await supa.from('peptide_stack').select('*').eq('user_id',authUser.id).order('checkin_date',{ascending:false}).order('id',{ascending:false}).limit(100);
     if(!data||!data.length){el.innerHTML='<div class="empty-note">No stack history yet.</div>';return;}
     // Group by checkin_date
     const byDate={};
@@ -15790,12 +15792,20 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260802b-off-cycle-load-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260802d-auto-update';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
       .then(reg => console.log('SW registered:', reg.scope, VERTEX_SW_CACHE_NAME))
       .catch(err => console.log('SW failed:', err));
+  });
+  // Auto-refresh once when a new service worker takes control, so an already-open
+  // tab picks up a fresh deploy without the user having to close and reopen it.
+  let vertexSwRefreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (vertexSwRefreshing) return;
+    vertexSwRefreshing = true;
+    window.location.reload();
   });
 }
 </script>

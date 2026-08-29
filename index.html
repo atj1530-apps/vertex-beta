@@ -5436,7 +5436,7 @@ window.vertexFinishBootstrap=function(){
         </div>
         <div>
           <div class="supp-field-label">Doses Remaining</div>
-          <div id="suppDosesRemaining" style="padding:10px 12px;background:var(--panel);border:1px solid var(--line2);border-radius:8px;font-size:13px;color:var(--muted);min-height:42px;display:flex;align-items:center">Fill dose, vials &amp; mg/vial</div>
+          <div id="suppDosesRemaining" style="padding:10px 12px;background:var(--panel);border:1px solid var(--line2);border-radius:8px;font-size:13px;color:var(--muted);min-height:42px;display:flex;align-items:center;flex-wrap:wrap">Fill dose, vials &amp; mg/vial</div>
           <input type="hidden" id="suppLowAlert" value="7">
         </div>
       </div>
@@ -11791,7 +11791,7 @@ function vertexCalcDosesRemaining(){
   const threshold = Math.max(3, Math.round(total * 0.2));
   const color = total <= threshold ? 'var(--red)' : total <= threshold * 2 ? '#ffd048' : 'var(--green)';
   el.style.color = color;
-  el.innerHTML = `<b style="font-size:16px">${total}</b>&nbsp;<span style="font-size:11px;color:var(--muted)">total doses in inventory &nbsp;·&nbsp; reorder at ${threshold}</span>`;
+  el.innerHTML = `<b style="font-size:16px;white-space:nowrap;flex-shrink:0">${total}</b>&nbsp;<span style="font-size:11px;color:var(--muted);overflow-wrap:normal;word-break:normal;min-width:0">total doses in inventory &nbsp;·&nbsp; reorder at ${threshold}</span>`;
 }
 window.vertexCalcDosesRemaining = vertexCalcDosesRemaining;
 // Catch spinner arrow clicks (pointerup fires after value changes from arrows)
@@ -14556,7 +14556,7 @@ document.addEventListener('click',async e=>{
 if(!window.vertexSyncAppleHealth){
   window.vertexSyncAppleHealth=function(){const b=document.getElementById('btn-apple-health-sync');if(b)b.click();};
 }
- if(t.id==='btn-wellness-refresh'){await refreshAppleHealthMetrics(); renderWellnessPage(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderGoalTracker==='function') renderGoalTracker(); if(typeof toast==='function'){ const _rNow=new Date(); localStorage.setItem('vertex_last_refresh',_rNow.toISOString()); toast('Refreshed ' + _rNow.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})); } return} if(t.id==='btn-home-refresh-metrics'){
+ if(t.id==='btn-wellness-refresh'){await refreshAppleHealthMetrics(); const _rNow=new Date(); localStorage.setItem('vertex_last_refresh',_rNow.toISOString()); renderWellnessPage(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderGoalTracker==='function') renderGoalTracker(); if(typeof toast==='function'){ toast('Refreshed ' + _rNow.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})); } return} if(t.id==='btn-home-refresh-metrics'){
   await refreshAppleHealthMetrics();
   if(typeof renderHomeDashboard==='function') renderHomeDashboard();
   // After data loads, patch weight card in-place without full re-render

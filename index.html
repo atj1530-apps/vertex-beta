@@ -7096,6 +7096,10 @@ normalizeVertexExerciseLibrary();
 
     // --- Confirmed renames ---
     'bench cohen curl':{rename:'Cohen Curl'},
+
+    // --- Training overrides: Phase 6A.5's cardioRe matches "walk" in the name and force-sets
+    //     training to Cardio, even for strength carries. Restore the correct classification. ---
+    'farmers walk':{training:'Strength',muscle:'Shoulders + Traps',equip:'Dumbbells',env:'both'},
   };
 
   list.forEach(ex=>{
@@ -7104,8 +7108,12 @@ normalizeVertexExerciseLibrary();
     if(!fix) return;
     if(fix.equip){ ex.equip=fix.equip; ex.equipment=fix.equip; ex.equipment_type=fix.equip; }
     if(fix.muscle){ ex.muscle=fix.muscle; ex.category=fix.muscle; ex.target=fix.muscle; ex.targetArea=fix.muscle; ex.primary_muscle=fix.muscle; }
+    if(fix.training){ ex.training=fix.training; delete ex.media_category; delete ex.bunny_path; delete ex.thumbnail_path; }
+    if(fix.env){ ex.env=fix.env; }
     if(fix.rename){ ex.name=fix.rename; }
   });
+  // Recompute media fields for anything whose training was just corrected above.
+  if(typeof normalizeVertexExerciseLibrary==='function') normalizeVertexExerciseLibrary();
 
   // 3) Remove exercises: equipment you don't own, confirmed duplicates, and items merged elsewhere.
   const REMOVE=new Set(['ez bar curl','static dumbbell bench press','band tricep extension','bodyweight tricep extension']);

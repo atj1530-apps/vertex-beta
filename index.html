@@ -13423,22 +13423,57 @@ function fwmRender(){
    "8 reps at 185", "bodyweight for 12", or a bare "10" (reps only, keeps
    existing weight) into {weight, reps}. No network call — runs entirely
    on-device via the browser's SpeechRecognition API. */
+/* 6A75 — Word-number normalization. iOS speech-to-text often transcribes
+   small numbers as words ("two", "eight", "twenty") rather than digits,
+   which silently broke voice set logging. Converting words to digits before
+   parsing fixes it. */
+const VERTEX_NUM_WORDS={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+function fwmWordNumbersToDigits(text){
+  let out=text.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)[\s-]+(one|two|three|four|five|six|seven|eight|nine)\b/g,
+    (_,tens,ones)=>String(VERTEX_NUM_WORDS[tens]+VERTEX_NUM_WORDS[ones]));
+  out=out.replace(/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|zero)\b/g,
+    (w)=>String(VERTEX_NUM_WORDS[w]));
+  return out;
+}
 function fwmParseVoiceSet(transcript){
-  const text=String(transcript||'').toLowerCase().trim();
+  let text=String(transcript||'').toLowerCase().trim();
+  text=fwmWordNumbersToDigits(text);
   const isBodyweight=/body\s*weight|\bbw\b/.test(text);
-  const nums=(text.match(/\d+(\.\d+)?/g)||[]).map(Number);
   if(isBodyweight){
-    return {weight:0, reps: nums.length?nums[0]:null};
+    const bwNums=(text.match(/\d+(\.\d+)?/g)||[]).map(Number);
+    return {weight:0, reps: bwNums.length?bwNums[0]:null};
   }
+  // Prefer explicit units ("50 lbs" / "8 reps") wherever they land in the
+  // sentence — this is what "50 lbs 2 reps" (no connector word) needs.
+  const weightMatch=text.match(/(\d+(?:\.\d+)?)\s*(?:lbs?|pounds?)/);
+  const repsMatch=text.match(/(\d+)\s*reps?\b/);
+  if(weightMatch && repsMatch) return {weight:parseFloat(weightMatch[1]), reps:parseInt(repsMatch[1],10)};
   let m=text.match(/(\d+(?:\.\d+)?)\s*(?:lbs?|pounds?)?\s*(?:for|x|by)\s*(\d+)/);
   if(m) return {weight:parseFloat(m[1]), reps:parseInt(m[2],10)};
   m=text.match(/(\d+)\s*reps?\s*(?:at|for|with)\s*(\d+(?:\.\d+)?)/);
   if(m) return {weight:parseFloat(m[2]), reps:parseInt(m[1],10)};
+  if(weightMatch) return {weight:parseFloat(weightMatch[1]), reps:null};
+  if(repsMatch) return {weight:null, reps:parseInt(repsMatch[1],10)};
+  const nums=(text.match(/\d+(\.\d+)?/g)||[]).map(Number);
   if(nums.length>=2) return {weight:nums[0], reps:nums[1]};
   if(nums.length===1) return {weight:null, reps:nums[0]};
   return {weight:null, reps:null};
 }
+const fwmVoiceState={}; // set index -> {rec, timeoutId}
+function fwmVoiceCleanup(j){
+  const entry=fwmVoiceState[j];
+  if(entry){ clearTimeout(entry.timeoutId); delete fwmVoiceState[j]; }
+  const btn=document.querySelector(`[data-fwm-voice="${j}"]`);
+  if(btn){ btn.classList.remove('listening'); btn.textContent='🎤'; }
+}
 function fwmVoiceLogSet(j){
+  // Tapping the mic again while it's already listening cancels it —
+  // this is the fix for the button getting stuck lit up with no way off.
+  if(fwmVoiceState[j]){
+    try{ fwmVoiceState[j].rec.abort(); }catch(e){}
+    fwmVoiceCleanup(j);
+    return;
+  }
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){
     vertexConfirm('Voice input isn\'t supported on this device/browser. Try Safari or Chrome, or enter the set manually.');
@@ -13450,23 +13485,30 @@ function fwmVoiceLogSet(j){
   rec.lang='en-US';
   rec.interimResults=false;
   rec.maxAlternatives=1;
-  const stopListening=()=>{ if(btn){ btn.classList.remove('listening'); btn.textContent='🎤'; } };
+  // Hard 8-second safety timeout — if the device's speech engine never
+  // fires a result/error/end event at all, this guarantees the button
+  // still comes back to normal instead of staying lit forever.
+  const timeoutId=setTimeout(()=>{
+    try{ rec.abort(); }catch(e){}
+    fwmVoiceCleanup(j);
+    vertexConfirm('Didn\'t hear anything back. Voice input can be unreliable outside of Safari — try again in Safari directly, or enter the set manually.');
+  },8000);
+  fwmVoiceState[j]={rec,timeoutId};
   rec.onresult=(ev)=>{
     const transcript=ev.results?.[0]?.[0]?.transcript||'';
     const parsed=fwmParseVoiceSet(transcript);
+    fwmVoiceCleanup(j);
     if(parsed.weight==null && parsed.reps==null){
-      stopListening();
       vertexConfirm(`Didn't catch a number in "${transcript}". Try again, e.g. "185 for 8".`);
       return;
     }
     if(parsed.weight!=null) fwmUpdateSet(j,'weight',String(parsed.weight));
     if(parsed.reps!=null) fwmUpdateSet(j,'reps',String(parsed.reps));
-    stopListening();
     fwmRender();
   };
-  rec.onerror=()=>{ stopListening(); };
-  rec.onend=()=>{ stopListening(); };
-  try{ rec.start(); }catch(e){ stopListening(); }
+  rec.onerror=()=>{ fwmVoiceCleanup(j); };
+  rec.onend=()=>{ fwmVoiceCleanup(j); };
+  try{ rec.start(); }catch(e){ fwmVoiceCleanup(j); }
 }
 function fwmUpdateSet(j,field,val){
   if(!fwm.setStates[fwm.exIdx]) return;
@@ -16074,7 +16116,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260904b-my-templates';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260904d-voice-wordnum-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

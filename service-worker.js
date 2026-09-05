@@ -3,7 +3,7 @@
    Network-first for HTML so deploys are visible immediately.
    Workout History scoped to Progress only; delete tombstones prevent deleted rows from returning.
 */
-const CACHE_NAME = 'vertex-v20260904e-ai-voice-interpret';
+const CACHE_NAME = 'vertex-v20260905a-interpret-fix';
 const APP_SHELL = [
   './',
   './index.html',

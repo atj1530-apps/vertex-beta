@@ -13068,7 +13068,7 @@ function vertexVoiceCleanup(key,btn){
   if(entry){ clearTimeout(entry.timeoutId); delete vertexVoiceState[key]; }
   if(btn) btn.classList.remove('listening');
 }
-function vertexVoiceCapture(key,btn,onResult){
+function vertexVoiceCapture(key,btn,onResult,onFail){
   if(vertexVoiceState[key]){
     try{ vertexVoiceState[key].rec.abort(); }catch(e){}
     vertexVoiceCleanup(key,btn);
@@ -13079,16 +13079,35 @@ function vertexVoiceCapture(key,btn,onResult){
   if(btn) btn.classList.add('listening');
   const rec=new SR();
   rec.lang='en-US'; rec.interimResults=false; rec.maxAlternatives=1;
-  const timeoutId=setTimeout(()=>{ try{ rec.abort(); }catch(e){} vertexVoiceCleanup(key,btn); },8000);
+  let settled=false;
+  const finish=(fn)=>{ if(settled) return; settled=true; fn(); };
+  const timeoutId=setTimeout(()=>{
+    finish(()=>{ try{ rec.abort(); }catch(e){} vertexVoiceCleanup(key,btn); if(onFail) onFail('No response — try again.'); });
+  },8000);
   vertexVoiceState[key]={rec,timeoutId};
   rec.onresult=(ev)=>{
     const transcript=ev.results?.[0]?.[0]?.transcript||'';
-    vertexVoiceCleanup(key,btn);
-    onResult(transcript);
+    finish(()=>{
+      vertexVoiceCleanup(key,btn);
+      if(!transcript.trim()){ if(onFail) onFail("Didn't catch anything — try again."); return; }
+      onResult(transcript);
+    });
   };
-  rec.onerror=()=>{ vertexVoiceCleanup(key,btn); };
-  rec.onend=()=>{ vertexVoiceCleanup(key,btn); };
-  try{ rec.start(); }catch(e){ vertexVoiceCleanup(key,btn); }
+  rec.onerror=(ev)=>{
+    finish(()=>{
+      vertexVoiceCleanup(key,btn);
+      const reason=ev&&ev.error;
+      let msg="Voice input didn't work — try again.";
+      if(reason==='not-allowed'||reason==='service-not-allowed') msg="Microphone access is blocked for this site. Check your browser's site permissions and allow the microphone, then try again.";
+      else if(reason==='no-speech') msg="Didn't hear anything — try again, a bit louder or closer to the mic.";
+      else if(reason==='network') msg='Network issue during voice recognition — check your connection and try again.';
+      if(onFail) onFail(msg);
+    });
+  };
+  rec.onend=()=>{
+    finish(()=>{ vertexVoiceCleanup(key,btn); if(onFail) onFail("Didn't catch anything — try again."); });
+  };
+  try{ rec.start(); }catch(e){ finish(()=>{ vertexVoiceCleanup(key,btn); if(onFail) onFail('Could not start voice input — try again.'); }); }
 }
 
 /* 6A76 — Voice-fill for "Add Exercise to Library". Sends the spoken
@@ -15232,11 +15251,14 @@ document.addEventListener('click', e=>{
       const si=document.getElementById('search'); if(!si) return;
       si.value=transcript.trim();
       si.dispatchEvent(new Event('input',{bubbles:true}));
-    });
+    },(msg)=>{ vertexConfirm(msg); });
     return;
   }
   if(t.id==='btn-library-voice'){
-    vertexVoiceCapture('library',t,(transcript)=>{ libraryVoiceFill(transcript); });
+    vertexVoiceCapture('library',t,(transcript)=>{ libraryVoiceFill(transcript); },(msg)=>{
+      const statusEl=document.getElementById('libraryVoiceStatus');
+      if(statusEl){ statusEl.style.display='block'; statusEl.innerHTML=`<div class="wc-banner warn"><div class="wc-banner-dot"></div><div>${escapeHtml(msg)}</div></div>`; }
+    });
     return;
   }
   const editCustom=t.getAttribute('data-edit-custom'); if(editCustom){e.preventDefault(); e.stopPropagation(); openEditCustomExercise(editCustom); return;}
@@ -16327,7 +16349,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260905b-interpret-close';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260905c-voice-feedback-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

@@ -220,6 +220,11 @@ html.vertex-auth-booting #app-header{
 .search{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px;border-radius:5px;margin:8px 0}.ex-list{display:flex;flex-direction:column;gap:4px}.ex-item{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:border-color .15s}.ex-item:active{border-color:var(--acc)}.ex-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.ex-info{flex:1;min-width:0}.ex-name{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ex-meta{font-size:11px;color:var(--muted);margin-top:2px}.ex-add-btn{width:32px;height:32px;border-radius:var(--r-pill);border:1px solid var(--line2);background:none;color:var(--acc);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:300;transition:background .15s,color .15s,border-color .15s}
 .ex-last{font-size:10px;color:var(--muted);margin-top:2px;font-family:monospace;letter-spacing:.3px}
 .ex-add-btn.added{background:var(--green);border-color:var(--green);color:#000}
+.ex-item.ms-picked{border-color:var(--acc);background:rgba(232,255,71,.08)}
+.ms-pick-btn.picked{background:var(--acc);border-color:var(--acc);color:#000;font-weight:700}
+.my-tpl-pill{display:inline-flex;align-items:center;gap:2px;flex-shrink:0}
+.my-tpl-del{background:none;border:1px solid var(--line2);color:var(--muted);border-radius:var(--r-pill);width:22px;height:22px;font-size:11px;line-height:1;cursor:pointer;flex-shrink:0}
+.multiselect-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line2);padding:10px 0 4px;margin-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);z-index:5}
 .ex-group-label{font-family:'DM Mono';font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:12px 0 6px;position:sticky;top:0;background:var(--bg);z-index:1}
 .accordion{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-bottom:12px;overflow:hidden}.acc-head{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 14px;background:var(--panel2);cursor:pointer}.acc-title{font-weight:800}.acc-hint{font-family:'DM Mono';font-size:10px;letter-spacing:1px;color:var(--acc)}.acc-body{display:none;padding:14px}.accordion.open .acc-body{display:block}
 .today-card{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px}.today-title{font-size:17px;font-weight:800}.today-sub{color:var(--muted);font-size:13px;margin-top:4px}.planner-grid{display:grid;grid-template-columns:repeat(7,minmax(155px,1fr));gap:8px;padding-right:8px}.day-card{min-height:150px;border:1px solid var(--line);background:var(--panel2);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:8px}.day-card.today{border-color:var(--acc)}.day-name{font-family:'DM Mono';font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}.day-count{float:right;color:var(--dim);letter-spacing:0}.day-workout{font-weight:800;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.day-preview{font-size:12px;color:var(--muted);line-height:1.35;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.day-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:auto}.day-actions .btn{padding:7px 8px;overflow:visible;text-overflow:clip}.templates{display:flex;overflow-x:scroll;gap:8px;padding:4px 0 10px;scrollbar-width:none;-ms-overflow-style:none;flex-wrap:nowrap;height:40px;align-items:center}.templates::-webkit-scrollbar{display:none}.tpl-pill{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:var(--r-pill);padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s,border-color .15s;display:inline-flex;align-items:center;height:34px;box-sizing:border-box}.tpl-pill:active{background:var(--acc);border-color:var(--acc);color:#000}.tpl{border:1px solid var(--line);background:var(--panel2);border-radius:7px;padding:12px;min-height:165px;display:flex;flex-direction:column}.tpl h3{margin:0 0 8px;font-size:15px}.tpl p{margin:0;color:var(--muted);font-size:12px;line-height:1.45;flex:1}.tpl .btn{margin-top:12px;width:100%}
@@ -4675,14 +4680,24 @@ window.vertexFinishBootstrap=function(){
     <div id="equipmentPanel" style="margin-bottom:14px"></div>
     <div class="label">Pre-Built Programs</div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="program-seg"><button class="seg-btn" data-program="3-Day">3-Day</button><button class="seg-btn" data-program="Upper/Lower">Upper/Lower</button><button class="seg-btn" data-program="5-Day">5-Day</button><button class="seg-btn" data-program="Push/Pull/Legs">Push/Pull/Legs</button><button class="seg-btn" data-program="7-Day">7-Day</button></div></div>
     <div class="label">Workout Templates</div><div class="pill-fade-wrap"><div id="tpl-grid" class="segment pill-scroll"><button class="seg-btn" data-load-tpl="push">💪 Push Day</button><button class="seg-btn" data-load-tpl="pull">🔄 Pull Day</button><button class="seg-btn" data-load-tpl="legs">🦵 Legs Day</button><button class="seg-btn" data-load-tpl="kenpo">🥋 Kenpo X</button><button class="seg-btn" data-load-tpl="plyo">⚡ Plyometrics X</button><button class="seg-btn" data-load-tpl="yogaX">🧘 Yoga X</button><button class="seg-btn" data-load-tpl="stretch">🌀 Full Body Stretch</button><button class="seg-btn" data-load-tpl="coreMobility">🎯 Core + Mobility</button></div></div>
+    <div class="label">My Templates <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Your Saved Splits</span></div><div class="pill-fade-wrap"><div id="myTplGrid" class="segment pill-scroll"></div></div>
     <div class="label">Training Focus <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Choose Your Style</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery / Mobility">♧ Recovery / Mobility</button></div></div>
     <div class="label">Muscle Group <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Optional</span></div><div class="pill-fade-wrap"><div id="muscles" class="muscles"></div></div>
     <div class="label">Equipment <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Quick Jump</span></div><div class="pill-fade-wrap"><div id="equipmentSubFilter" class="muscles"></div></div>
     <input id="search" class="search" placeholder="Search exercises..." />
+    <button id="btn-multiselect-toggle" class="btn" style="width:100%;margin:0 0 8px">☑ Select Multiple to Build</button>
     <button id="btn-add-library" class="btn acc" style="width:100%;margin:0 0 8px">+ Add Exercise to Library</button>
     <button id="btn-manual-entry" class="btn acc" style="width:100%;margin:0 0 10px">+ Lightweight Manual Entry</button>
     <div class="label">Click to add (<span id="ex-count">0</span>)</div>
     <div id="exercise-list" class="ex-list"></div>
+    <div id="multiSelectBar" class="multiselect-bar" style="display:none">
+      <span id="multiSelectCount">0 selected</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="msAddAll" class="btn small acc">Add All</button>
+        <button id="msSaveTpl" class="btn small">Save as Template</button>
+        <button id="msCancel" class="btn small red">Cancel</button>
+      </div>
+    </div>
   </aside>
   <main class="main">
     <section id="homePage" class="page-panel" style="display:none"><h1 class="page-title">Home</h1><p class="page-copy">Your command center for building, planning, and starting the day’s workout. Keep the weekly plan clean and intentional.</p><div class="page-grid"><div class="page-tile"><b>Today</b><span>See the planned workout and start without hunting through templates.</span></div><div class="page-tile"><b>Planner</b><span>Assign strength, mobility, yoga, cardio, and recovery days.</span></div><div class="page-tile"><b>Templates</b><span>Load prebuilt sessions or build your own from scratch.</span></div></div></section>
@@ -5608,7 +5623,7 @@ function getSupa(){
    instead of minting their own GoTrueClient on the same storage key. */
 try{ window.getSupa = getSupa; }catch(e){}
 function defaultPage(){return 'home';}
-const state={page:defaultPage(),env:'',muscle:'',search:'',program:'Manual',training:'Strength',current:{name:'Name Your Workout',type:'strength',exercises:[],source:'manual',assignedDay:null},tracking:false,activePhase:0,planner:emptyPlanner(),pendingTemplate:null,session:{steps:[],idx:0},savedWorkouts:[],progressLogs:[],equipment:loadEquipmentProfile(),restTimerDefault:60};
+const state={page:defaultPage(),env:'',muscle:'',search:'',program:'Manual',training:'Strength',current:{name:'Name Your Workout',type:'strength',exercises:[],source:'manual',assignedDay:null},tracking:false,activePhase:0,planner:emptyPlanner(),pendingTemplate:null,session:{steps:[],idx:0},savedWorkouts:[],progressLogs:[],equipment:loadEquipmentProfile(),restTimerDefault:60,multiSelect:false,multiSelectPicks:[]};
 /* 6A34: expose canonical state so out-of-closure blocks (workout memory, settings sync)
    read Supabase-hydrated data instead of device-local scrapes. */
 try{ window.state = state; }catch(e){}
@@ -7348,6 +7363,63 @@ async function deleteCustomExerciseFromCloud(name){
 window.deleteCustomExerciseFromCloud=deleteCustomExerciseFromCloud;
 
 loadCustomExercises().forEach(ex=>{const clean=normalizeCustomExercise(ex); if(clean.name && !EXERCISES.some(e=>e.name.toLowerCase()===clean.name.toLowerCase())) EXERCISES.push(clean);});
+
+/* 6A74 — My Templates. User-saved, ordered exercise groups (distinct from the
+   hardcoded TEMPLATES/loadTemplate system above). Cloud-first with the same
+   offline-queue fallback used for custom exercises. */
+function loadMyTemplates(){try{return JSON.parse(localStorage.getItem('vertex_my_templates_v1')||'[]');}catch{return [];}}
+function saveMyTemplatesLocal(rows){try{localStorage.setItem('vertex_my_templates_v1',JSON.stringify(rows||[]));}catch{}}
+
+async function loadMyTemplatesFromCloud(){
+  if(!cloudEnabled()) return loadMyTemplates();
+  try{
+    const {data:tpls,error:tErr}=await getSupa().from('workout_templates').select('id,name,updated_at').eq('user_id',authUser.id).order('updated_at',{ascending:false});
+    if(tErr) throw tErr;
+    const ids=(tpls||[]).map(t=>t.id);
+    let exRows=[];
+    if(ids.length){
+      const {data:exs,error:eErr}=await getSupa().from('workout_template_exercises').select('template_id,exercise_id,exercise_source,order_index,target_sets,target_reps,target_weight').in('template_id',ids).order('order_index',{ascending:true});
+      if(eErr) throw eErr;
+      exRows=exs||[];
+    }
+    const rows=(tpls||[]).map(t=>({
+      id:t.id, name:t.name, updated_at:t.updated_at,
+      exercises: exRows.filter(x=>x.template_id===t.id).map(x=>({name:x.exercise_id, source:x.exercise_source, sets:x.target_sets, reps:x.target_reps, weight:x.target_weight}))
+    }));
+    saveMyTemplatesLocal(rows);
+    return rows;
+  }catch(err){
+    console.warn('My Templates cloud load failed, using local cache:',err);
+    return loadMyTemplates();
+  }
+}
+window.loadMyTemplatesFromCloud=loadMyTemplatesFromCloud;
+
+async function saveMyTemplateToSupabase(tpl){
+  if(!cloudEnabled()) return false;
+  try{
+    const {error:upErr}=await getSupa().from('workout_templates').upsert({id:tpl.id,user_id:authUser.id,name:tpl.name,updated_at:new Date().toISOString()});
+    if(upErr) throw upErr;
+    const {error:delErr}=await getSupa().from('workout_template_exercises').delete().eq('template_id',tpl.id);
+    if(delErr) throw delErr;
+    const rows=(tpl.exercises||[]).map((ex,idx)=>({template_id:tpl.id,exercise_id:ex.name,exercise_source:ex.source||'built_in',order_index:idx,target_sets:ex.sets||null,target_reps:ex.reps||null,target_weight:ex.weight||null}));
+    if(rows.length){
+      const {error:insErr}=await getSupa().from('workout_template_exercises').insert(rows);
+      if(insErr) throw insErr;
+    }
+    return true;
+  }catch(err){ console.error('My Template cloud save failed:',err); return false; }
+}
+window.saveMyTemplateToSupabase=saveMyTemplateToSupabase;
+
+async function deleteMyTemplateFromCloud(id){
+  if(!cloudEnabled()) return false;
+  const {error}=await getSupa().from('workout_templates').delete().eq('user_id',authUser.id).eq('id',id);
+  if(error){ console.error('My Template cloud delete failed:',error); return false; }
+  return true;
+}
+window.deleteMyTemplateFromCloud=deleteMyTemplateFromCloud;
+
 function isEquipmentAllowed(e){
   if(state.env!=='home') return true;
   const equip=String(e.equip||e.equipment||e.equipment_type||'Other');
@@ -7852,7 +7924,7 @@ async function signIn(email,password){
     authUser=authFromUser(data.user);
     window.authUser=authUser;
     document.body.classList.add('authenticated');
-    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadCustomExercisesFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
+    await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadCustomExercisesFromCloud(); await loadMyTemplatesFromCloud().then(()=>renderMyTemplates()); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180);
   }
   return '';
 }
@@ -7865,7 +7937,7 @@ async function createAccount(email,password){
   if(error) return error.message;
   if(data.user && data.session){
     if(typeof applyAuthenticatedSession==='function') await applyAuthenticatedSession(data.session);
-    else { authUser=authFromUser(data.user); window.authUser=authUser; document.body.classList.add('authenticated'); await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadCustomExercisesFromCloud(); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); }
+    else { authUser=authFromUser(data.user); window.authUser=authUser; document.body.classList.add('authenticated'); await hydratePlannerFromCloud(); await loadSavedWorkoutsFromCloud(); await loadCustomExercisesFromCloud(); await loadMyTemplatesFromCloud().then(()=>renderMyTemplates()); await loadProgressLogs(); loadCheckinLogs().catch(()=>{}); loadStack().catch(()=>{}); loadWcLogs().catch(()=>{}); loadWcDexa().catch(()=>{}); loadProtocolLogs().catch(()=>{}); setSyncStatus('synced','Supabase synced'); clearCurrent(); renderAccountMenu(); syncAuthShell(); renderAll(); setTimeout(()=>{ try{window.vertexFinishBootstrap&&window.vertexFinishBootstrap();}catch(e){} },180); }
     return '';
   }
   return 'Account created. Check your email to confirm, then sign in.';
@@ -12780,6 +12852,94 @@ function exerciseSearchScore(q,e){
   if(fuzzyTextMatch(qq,e.equip)||fuzzyTextMatch(qq,e.muscle)) return 8;
   return 9;
 }
+/* 6A74 — Multi-select workout builder. Lets Andre pick exercises across
+   multiple body parts in one pass (order of tap = load order), then either
+   add them all at once or save the selection as a reusable template. */
+function msTogglePick(name){
+  if(!state.multiSelectPicks) state.multiSelectPicks=[];
+  const idx=state.multiSelectPicks.findIndex(p=>p.name===name);
+  if(idx>-1) state.multiSelectPicks.splice(idx,1);
+  else{
+    const ex=EXERCISES.find(e=>e.name===name);
+    state.multiSelectPicks.push({name, source: ex&&ex.custom ? 'custom' : 'built_in'});
+  }
+  renderSidebar();
+  msUpdateBar();
+}
+function msUpdateBar(){
+  const bar=document.getElementById('multiSelectBar');
+  const cnt=document.getElementById('multiSelectCount');
+  if(!bar||!cnt) return;
+  const n=(state.multiSelectPicks||[]).length;
+  bar.style.display=state.multiSelect?'flex':'none';
+  cnt.textContent=n+(n===1?' selected':' selected');
+}
+function msEnter(){
+  state.multiSelect=true; state.multiSelectPicks=[];
+  const btn=document.getElementById('btn-multiselect-toggle'); if(btn) btn.textContent='✕ Cancel Selection';
+  renderSidebar(); msUpdateBar();
+}
+function msExit(){
+  state.multiSelect=false; state.multiSelectPicks=[];
+  const btn=document.getElementById('btn-multiselect-toggle'); if(btn) btn.textContent='☑ Select Multiple to Build';
+  renderSidebar(); msUpdateBar();
+}
+function msAddAllToWorkout(){
+  const picks=state.multiSelectPicks||[];
+  if(!picks.length) return toast('Nothing selected yet');
+  picks.forEach(p=>addExerciseByName(p.name));
+  msExit();
+  toast(picks.length+' exercises added');
+}
+async function msSaveAsTemplate(){
+  const picks=state.multiSelectPicks||[];
+  if(!picks.length) return toast('Nothing selected yet');
+  const name=(prompt('Name this template (e.g. "Push Day")')||'').trim();
+  if(!name) return;
+  const tpl={
+    id:(window.crypto&&crypto.randomUUID)?crypto.randomUUID():('tpl_'+Date.now()+'_'+Math.random().toString(36).slice(2)),
+    name, exercises:picks.map(p=>({name:p.name,source:p.source})), updated_at:new Date().toISOString()
+  };
+  const rows=loadMyTemplates();
+  rows.unshift(tpl);
+  saveMyTemplatesLocal(rows);
+  renderMyTemplates();
+  if(cloudEnabled()){
+    saveMyTemplateToSupabase(tpl).then(ok=>{ if(!ok) window.vertexQueueWrite&&window.vertexQueueWrite('myTemplate',tpl); }).catch(()=>{ window.vertexQueueWrite&&window.vertexQueueWrite('myTemplate',tpl); });
+  } else {
+    window.vertexQueueWrite&&window.vertexQueueWrite('myTemplate',tpl);
+  }
+  msExit();
+  toast('Template "'+name+'" saved');
+}
+function msLoadTemplate(id){
+  const tpl=loadMyTemplates().find(t=>t.id===id);
+  if(!tpl){ toast('Template not found'); return; }
+  const missing=[];
+  (tpl.exercises||[]).forEach(ex=>{
+    if(!EXERCISES.some(e=>e.name===ex.name)){ missing.push(ex.name); return; }
+    addExerciseByName(ex.name);
+  });
+  if(missing.length) toast(missing.length+' exercise(s) no longer available: '+missing.join(', '));
+  else toast('"'+tpl.name+'" loaded');
+}
+async function msDeleteTemplate(id){
+  const tpl=loadMyTemplates().find(t=>t.id===id);
+  const ok=await vertexConfirm('Delete "'+(tpl?tpl.name:'this template')+'"? This can\'t be undone.');
+  if(!ok) return;
+  const rows=loadMyTemplates().filter(t=>t.id!==id);
+  saveMyTemplatesLocal(rows);
+  renderMyTemplates();
+  if(cloudEnabled()) deleteMyTemplateFromCloud(id).catch(()=>{});
+  toast('Template deleted');
+}
+function renderMyTemplates(){
+  const grid=document.getElementById('myTplGrid');
+  if(!grid) return;
+  const rows=loadMyTemplates();
+  if(!rows.length){ grid.innerHTML='<span style="color:var(--dim);font-size:11px;padding:4px 2px;display:block">None yet — tap "Select Multiple to Build" below, pick your exercises, then Save as Template.</span>'; return; }
+  grid.innerHTML=rows.map(t=>`<div class="my-tpl-pill"><button class="seg-btn" data-load-my-tpl="${escapeAttr(t.id)}" title="Load this template">📋 ${escapeHtml(t.name)}</button><button class="my-tpl-del" data-del-my-tpl="${escapeAttr(t.id)}" title="Delete template">✕</button></div>`).join('');
+}
 function renderSidebar(){
   const ep=document.getElementById('equipmentPanel');
   if(ep){
@@ -12871,14 +13031,18 @@ function renderSidebar(){
     const editBtn=e.custom?`<button class="ex-edit-btn" data-edit-custom="${escapeAttr(e.name)}" title="Edit">✎</button>`:'';
     const lastEntry=recentMap[e.name];
     const lastHint=showLast&&lastEntry?`<div class="ex-last">${lastEntry.weight>0?lastEntry.weight+' lb × ':'' }${lastEntry.reps} reps · ${daysAgo(lastEntry.when)}</div>`:'';
-    return `<div class="ex-item" data-ex-detail="${escapeAttr(e.name)}">
+    const msIdx=state.multiSelect?(state.multiSelectPicks||[]).findIndex(p=>p.name===e.name):-1;
+    const addBtnHtml=state.multiSelect
+      ? `<button class="ex-add-btn ms-pick-btn${msIdx>-1?' picked':''}" data-add="${escapeAttr(e.name)}" title="${msIdx>-1?'Selected — tap to remove':'Tap to select'}">${msIdx>-1?(msIdx+1):'+'}</button>`
+      : `<button class="ex-add-btn" data-add="${escapeAttr(e.name)}" title="Add">+</button>`;
+    return `<div class="ex-item${msIdx>-1?' ms-picked':''}" data-ex-detail="${escapeAttr(e.name)}">
       <div class="ex-dot" style="background:${dot};border-radius:50%"></div>
       <div class="ex-info">
         <div class="ex-name">${escapeHtml(e.name)}${editBtn}</div>
         <div class="ex-meta">${escapeHtml(e.muscle||'')} · ${escapeHtml(e.equip||'')}</div>
         ${lastHint}
       </div>
-      <button class="ex-add-btn" data-add="${escapeAttr(e.name)}" title="Add">+</button>
+      ${addBtnHtml}
     </div>`;
   }
   // Recently used — top 5 exercises from logs that match current filter
@@ -12913,6 +13077,8 @@ function renderSidebar(){
     });
   }
   document.getElementById('exercise-list').innerHTML=html;
+  renderMyTemplates();
+  msUpdateBar();
 }
   if(!window.vertexEquipmentJumpBound){
     window.vertexEquipmentJumpBound=true;
@@ -14485,6 +14651,7 @@ document.addEventListener('click',async e=>{
     document.getElementById('account-menu')?.classList.toggle('on');
     return
   } if(t.id==='btn-open-settings'){document.getElementById('account-menu')?.classList.remove('on'); openSettingsModal(); return} if(t.id==='settings-goals-save'){ const g=getGoals(); const gw=parseFloat(document.getElementById('settings-goal-weight')?.value); const gbf=parseFloat(document.getElementById('settings-goal-bf')?.value); const gs=parseFloat(document.getElementById('settings-goal-sessions')?.value); const gsl=parseFloat(document.getElementById('settings-goal-sleep')?.value); if(!isNaN(gw)) g.weight=gw; if(!isNaN(gbf)) g.bf=gbf; if(!isNaN(gs)) g.sessions=gs; if(!isNaN(gsl)) g.sleep=gsl; saveGoals(g); if(typeof renderGoalTracker==='function') renderGoalTracker(); toast('Goals saved'); return} if(t.id==='settings-clear-cache'){ if(await vertexConfirm('Clear cached data and reload? Your Supabase data is safe.')){ ['vertex_daily_brief_cache','vertexAppleHealthSleepSummary','vertexAppleHealthHRVSummary','vertexAppleHealthRestingHRSummary','vertexAppleHealthWeightSummary','vertexAppleHealthRecoveryLastSync','vertex_hk_imported'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}}); if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());window.location.reload(true)});}else{window.location.reload(true);} } return} if(t.id==='btn-generate-pdf-report'){document.getElementById('account-menu')?.classList.remove('on'); generateVertexPDFReport(); return} if(t.id==='btn-sync-diag'){document.getElementById('account-menu')?.classList.remove('on'); vertexShowSyncDiag(); return} if(t.id==='btn-clear-cache'){document.getElementById('account-menu')?.classList.remove('on'); vertexClearCacheAndReload(); return} if(t.id==='settingsModalClose'){document.getElementById('settingsModal')?.classList.remove('on'); return} if(t.id==='settings-unit-lb'){vertexSetSetting('unit','lb'); return} if(t.id==='settings-unit-kg'){vertexSetSetting('unit','kg'); return} if(t.id==='settings-week-sunday'){vertexSetSetting('weekStart','sunday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-week-monday'){vertexSetSetting('weekStart','monday'); openSettingsModal(); if(typeof renderHomeDashboard==='function') renderHomeDashboard(); if(typeof renderProgressPage==='function') renderProgressPage(); return} if(t.id==='settings-theme-dark'){vertexSetSetting('theme','dark'); return} if(t.id==='settings-theme-darker'){vertexSetSetting('theme','darker'); return} if(t.id==='settings-theme-navy'){vertexSetSetting('theme','navy'); return} if(t.id==='settings-theme-light'){vertexSetSetting('theme','light'); return} if(t.id==='settings-theme-auto'){vertexSetSetting('theme','auto'); return} if(t.id==='landing-google'){const err=await signInGoogle(t); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; return} if(t.id==='landing-signin'||t.id==='landing-create'){const email=document.getElementById('landing-email')?.value||''; const pass=document.getElementById('landing-pass')?.value||''; const err=t.id==='landing-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('landing-error'); if(ebox) ebox.textContent=err; syncAuthShell(); return} if(t.id==='btn-manual-entry'){document.getElementById('manualModal')?.classList.add('on'); return} if(t.id==='manualAdd'){addManualEntry(); return} if(t.id==='btn-start-bottom'){if(hasWorkout()) openFocusedWorkoutMode(state.current); return} if(t.id==='programCancel'){state.pendingProgram=null; document.getElementById('programModal')?.classList.remove('on'); return} if(t.id==='programLoad'){await loadPendingProgram(); return} if(t.id==='programStartToday'){await programStartTodayWorkout(); return} if(t.id==='programEditFirst'){await programEditFirstWorkout(); return} if(t.id==='tplCancel'){state.pendingTemplate=null; document.getElementById('tplActionModal')?.classList.remove('on'); return} if(t.id==='tplStartNow'){await tplStartNow(); return} if(t.id==='tplEditFirst'){tplEditFirst(); return} if(t.id==='tplAddPlanner'){tplAddToPlanner(); return} if(t.id==='manualCancel'){document.getElementById('manualModal')?.classList.remove('on'); return} if(t.id==='acct-google'){const err=await signInGoogle(t); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signin'||t.id==='acct-create'){const email=document.getElementById('acct-email')?.value||''; const pass=document.getElementById('acct-pass')?.value||''; const err=t.id==='acct-signin'?await signIn(email,pass):await createAccount(email,pass); const ebox=document.getElementById('acct-error'); if(ebox) ebox.textContent=err; return} if(t.id==='acct-signout'){await signOut(); return} const nav=t.getAttribute('data-nav'); if(nav){setPage(nav); return} const prog=t.getAttribute('data-program'); if(prog){t.closest('.segment,.pill-fade-wrap')?.classList.add('user-picked'); selectProgram(prog); return} const tr=t.getAttribute('data-training'); if(tr){t.closest('.segment,.pill-fade-wrap')?.classList.add('user-picked'); state.training=tr; state.muscle='All'; state.search=''; const si=document.getElementById('search'); if(si) si.value=''; if(state.page!=='workout'){state.page='workout'; renderAll(); document.querySelectorAll('.sidebar,.right').forEach(el=>el.style.display=''); window.scrollTo({top:0,behavior:'smooth'});}else{renderAll();} return} const accHead=e.target&&e.target.closest&&e.target.closest('.acc-head'); if(accHead){const acc=accHead.closest('.accordion')||accHead.parentElement; if(!acc) return; acc.classList.toggle('open'); try{if(acc.id) localStorage.setItem('vertex_acc_'+acc.id, acc.classList.contains('open')?'1':'0');}catch(e){} updateAccordionHints(); return} const exDetail=t.getAttribute('data-ex-detail'); if(exDetail){
+    if(state.multiSelect){ msTogglePick(exDetail); return; }
     if(typeof openExerciseMediaDetail==='function') openExerciseMediaDetail(exDetail);
     return;
   }
@@ -14495,12 +14662,19 @@ document.addEventListener('click',async e=>{
   }
   if(t.id==='mediaDetailClose'){ if(typeof closeExerciseMediaDetail==='function') closeExerciseMediaDetail(); return }
   const add=t.getAttribute('data-add'); if(add){
+    if(state.multiSelect){ msTogglePick(add); return; }
     addExerciseByName(add);
     // Flash the + button green
     const addBtn=t.classList.contains('ex-add-btn')?t:t.closest('.ex-item')?.querySelector('.ex-add-btn');
     if(addBtn){addBtn.classList.add('added'); addBtn.textContent='✓'; setTimeout(()=>{addBtn.classList.remove('added'); addBtn.textContent='+';},800);}
     return;
-  } const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){openTemplateActionModal(tpl); return} const sd=t.getAttribute('data-save-day'); if(sd){commitWorkoutNameEdit(); await saveDay(sd); return} const ail=t.getAttribute('data-ai-load'); if(ail){if(typeof window.vertexLoadAiWorkout==='function') window.vertexLoadAiWorkout(); return}
+  }
+  if(t.id==='btn-multiselect-toggle'){ if(state.multiSelect) msExit(); else msEnter(); return; }
+  if(t.id==='msAddAll'){ msAddAllToWorkout(); return; }
+  if(t.id==='msSaveTpl'){ await msSaveAsTemplate(); return; }
+  if(t.id==='msCancel'){ msExit(); return; }
+  const loadMyTpl=t.getAttribute('data-load-my-tpl'); if(loadMyTpl){ msLoadTemplate(loadMyTpl); return; }
+  const delMyTpl=t.getAttribute('data-del-my-tpl'); if(delMyTpl){ await msDeleteTemplate(delMyTpl); return; } const tpl=t.getAttribute('data-template')||t.getAttribute('data-load-tpl'); if(tpl){openTemplateActionModal(tpl); return} const sd=t.getAttribute('data-save-day'); if(sd){commitWorkoutNameEdit(); await saveDay(sd); return} const ail=t.getAttribute('data-ai-load'); if(ail){if(typeof window.vertexLoadAiWorkout==='function') window.vertexLoadAiWorkout(); return}
  const aie=t.getAttribute('data-ai-env'); if(aie){
   // Fill selected button, outline the other
   document.querySelectorAll('[data-ai-env]').forEach(b=>{
@@ -15091,6 +15265,7 @@ async function vertexDrainOfflineQueue(){
     try{
       if(item.type==='saveWorkout') ok=await saveWorkoutToSupabase(item.payload);
       else if(item.type==='customExercise') ok=await saveCustomExerciseToSupabase(item.payload);
+      else if(item.type==='myTemplate') ok=await saveMyTemplateToSupabase(item.payload);
       else if(item.type==='plannerDay') ok=await persistPlannerDay(item.payload.day,item.payload.workout);
       else if(item.type==='logWorkout'){const r=await getSupa().from('vertex_workout_logs').insert(item.payload);ok=!r.error;}
       else if(item.type==='deletePlannerDay'){const r=await getSupa().from('vertex_planner_days').delete().eq('user_id',authUser.id).eq('day',item.payload.day);ok=!r.error;}
@@ -15099,6 +15274,7 @@ async function vertexDrainOfflineQueue(){
   }
   try{await loadSavedWorkoutsFromCloud();}catch(e){}
   try{await loadCustomExercisesFromCloud();}catch(e){}
+  try{await loadMyTemplatesFromCloud(); renderMyTemplates();}catch(e){}
   try{await hydratePlannerFromCloud();savePlanner();renderPlanner();renderToday();}catch(e){}
   setSyncStatus('synced','Supabase synced');
   toast('Offline changes synced');
@@ -15898,7 +16074,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260904a-voice-fuzzysearch';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260904b-my-templates';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

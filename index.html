@@ -10220,24 +10220,27 @@ function wcFormatAnalyticsForPrompt(a){
   const projLine=a.projection?`At the current body-fat% trend, projected to reach the ${a.projection.targetBf}% goal around ${a.projection.projectedDate} (~${a.projection.weeksToGoal} weeks out).`:'No body-fat-% goal set, or not enough consistent downward trend to project a target date.';
   return `TOTAL CHANGE (first scan ${a.first.date} → latest scan ${a.latest.date}, ${a.overall.totalWeeks} weeks):\nTotal weight Δ ${a.overall.totalWeightDelta??'—'}lb, fat mass Δ ${a.overall.fatMassDelta??'—'}lb, lean mass Δ ${a.overall.leanMassDelta??'—'}lb, body fat % Δ ${a.overall.bodyFatPctDelta??'—'}, visceral fat Δ ${a.overall.visceralFatDelta??'—'}lb, A/G ratio Δ ${a.overall.agRatioDelta??'—'}, ALMI Δ ${a.overall.almiDelta??'—'}, FFMI Δ ${a.overall.ffmiDelta??'—'}\n\nSCAN-BY-SCAN HISTORY:\n${scanTable}\n\nPACE BETWEEN SCANS (already computed — cite these exact numbers, do not recalculate):\n${paceLines}\n\nREGIONAL BREAKDOWN (first vs latest, already computed):\n${regionalLines}\n\nSYMMETRY (already computed):\n${symmetryLine}\n\nGOAL PROJECTION (already computed — cite this exact figure, do not recalculate):\n${projLine}`;
 }
+function wcInterpretHeader(metaText){
+  return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px"><div class="wc-interpret-meta" style="margin-bottom:0">${metaText}</div><button onclick="document.getElementById('wc-interpret-panel').style.display='none'" style="background:none;border:1px solid var(--line2);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:13px;line-height:1;cursor:pointer;flex-shrink:0" title="Close">✕</button></div>`;
+}
 async function wcInterpretBodyComp(force){
   const panel=document.getElementById('wc-interpret-panel');
   const btn=document.getElementById('btn-wc-interpret');
   if(!panel||!btn) return;
   if(!wcDexaScans.length && !wcLogs.length){
     panel.style.display='block';
-    panel.innerHTML='<div class="wc-interpret-meta">No data yet</div>Add a DEXA scan or a weekly check-in first, then tap Interpret.';
+    panel.innerHTML=wcInterpretHeader('No data yet')+'Add a DEXA scan or a weekly check-in first, then tap Interpret.';
     return;
   }
   const cacheKey=wcInterpretCacheKey();
   let cached=null; try{cached=JSON.parse(localStorage.getItem('vertex_wc_interpret_cache')||'null');}catch(e){}
   if(!force && cached && cached.key===cacheKey){
     panel.style.display='block';
-    panel.innerHTML=`<div class="wc-interpret-meta">Cached · ${new Date(cached.at).toLocaleDateString()}</div>${escapeHtml(cached.text)}<div style="margin-top:10px"><button class="btn small" onclick="wcInterpretBodyComp(true)">↻ Regenerate</button></div>`;
+    panel.innerHTML=wcInterpretHeader(`Cached · ${new Date(cached.at).toLocaleDateString()}`)+`${escapeHtml(cached.text)}<div style="margin-top:10px"><button class="btn small" onclick="wcInterpretBodyComp(true)">↻ Regenerate</button></div>`;
     return;
   }
   panel.style.display='block';
-  panel.innerHTML='<div class="wc-interpret-meta">Analyzing…</div>Reading your DEXA history and recent check-ins…';
+  panel.innerHTML=wcInterpretHeader('Analyzing…')+'Reading your DEXA history and recent check-ins…';
   btn.disabled=true; const origLabel=btn.textContent; btn.textContent='Analyzing…';
   try{
     const analytics=wcComputeDexaAnalytics();
@@ -10249,10 +10252,10 @@ async function wcInterpretBodyComp(force){
     const data=await response.json();
     const text=(data.content||[]).map(i=>i.text||'').join('').trim()||'No interpretation returned.';
     localStorage.setItem('vertex_wc_interpret_cache',JSON.stringify({key:cacheKey,text,at:Date.now()}));
-    panel.innerHTML=`<div class="wc-interpret-meta">Generated just now · Not medical advice</div>${escapeHtml(text)}`;
+    panel.innerHTML=wcInterpretHeader('Generated just now · Not medical advice')+escapeHtml(text);
   }catch(err){
     console.error('Body comp interpret failed:',err);
-    panel.innerHTML=`<div class="wc-interpret-meta">Failed</div>Couldn't generate an interpretation: ${escapeHtml(err.message)}`;
+    panel.innerHTML=wcInterpretHeader('Failed')+`Couldn't generate an interpretation: ${escapeHtml(err.message)}`;
   }finally{
     btn.disabled=false; btn.textContent=origLabel;
   }
@@ -16324,7 +16327,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260905a-interpret-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260905b-interpret-close';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

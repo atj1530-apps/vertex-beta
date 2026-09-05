@@ -225,6 +225,10 @@ html.vertex-auth-booting #app-header{
 .my-tpl-pill{display:inline-flex;align-items:center;gap:2px;flex-shrink:0}
 .my-tpl-del{background:none;border:1px solid var(--line2);color:var(--muted);border-radius:var(--r-pill);width:22px;height:22px;font-size:11px;line-height:1;cursor:pointer;flex-shrink:0}
 .multiselect-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line2);padding:10px 0 4px;margin-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);z-index:5}
+#wc-interpret-panel{background:rgba(232,255,71,.05);border:1px solid var(--line2);border-radius:12px;padding:14px;margin-bottom:12px;font-size:13px;line-height:1.55;color:var(--txt,#e8e8e0);white-space:pre-wrap}
+#wc-interpret-panel .wc-interpret-meta{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.voice-mic-btn{width:38px;height:38px;border-radius:var(--r-pill);border:1px solid var(--line2);background:none;color:var(--muted);font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.voice-mic-btn.listening{background:var(--acc);border-color:var(--acc);color:#000;animation:fwmPulse 1s ease-in-out infinite}
 .ex-group-label{font-family:'DM Mono';font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:12px 0 6px;position:sticky;top:0;background:var(--bg);z-index:1}
 .accordion{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);margin-bottom:12px;overflow:hidden}.acc-head{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 14px;background:var(--panel2);cursor:pointer}.acc-title{font-weight:800}.acc-hint{font-family:'DM Mono';font-size:10px;letter-spacing:1px;color:var(--acc)}.acc-body{display:none;padding:14px}.accordion.open .acc-body{display:block}
 .today-card{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px}.today-title{font-size:17px;font-weight:800}.today-sub{color:var(--muted);font-size:13px;margin-top:4px}.planner-grid{display:grid;grid-template-columns:repeat(7,minmax(155px,1fr));gap:8px;padding-right:8px}.day-card{min-height:150px;border:1px solid var(--line);background:var(--panel2);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:8px}.day-card.today{border-color:var(--acc)}.day-name{font-family:'DM Mono';font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}.day-count{float:right;color:var(--dim);letter-spacing:0}.day-workout{font-weight:800;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.day-preview{font-size:12px;color:var(--muted);line-height:1.35;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.day-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:auto}.day-actions .btn{padding:7px 8px;overflow:visible;text-overflow:clip}.templates{display:flex;overflow-x:scroll;gap:8px;padding:4px 0 10px;scrollbar-width:none;-ms-overflow-style:none;flex-wrap:nowrap;height:40px;align-items:center}.templates::-webkit-scrollbar{display:none}.tpl-pill{border:1px solid var(--line2);background:var(--panel2);color:var(--text);border-radius:var(--r-pill);padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s,border-color .15s;display:inline-flex;align-items:center;height:34px;box-sizing:border-box}.tpl-pill:active{background:var(--acc);border-color:var(--acc);color:#000}.tpl{border:1px solid var(--line);background:var(--panel2);border-radius:7px;padding:12px;min-height:165px;display:flex;flex-direction:column}.tpl h3{margin:0 0 8px;font-size:15px}.tpl p{margin:0;color:var(--muted);font-size:12px;line-height:1.45;flex:1}.tpl .btn{margin-top:12px;width:100%}
@@ -4684,7 +4688,10 @@ window.vertexFinishBootstrap=function(){
     <div class="label">Training Focus <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Choose Your Style</span></div><div class="pill-fade-wrap"><div class="segment pill-scroll" id="training-seg"><button class="seg-btn" data-training="Strength">🏋️ Strength</button><button class="seg-btn" data-training="Kettlebell">⚫ Kettlebell</button><button class="seg-btn" data-training="Yoga / Pilates">🧘 Yoga / Pilates</button><button class="seg-btn" data-training="Cardio">⚡ Cardio</button><button class="seg-btn" data-training="Recovery / Mobility">♧ Recovery / Mobility</button></div></div>
     <div class="label">Muscle Group <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Optional</span></div><div class="pill-fade-wrap"><div id="muscles" class="muscles"></div></div>
     <div class="label">Equipment <span style="font-family:'DM Mono';font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:400;text-transform:uppercase">— Quick Jump</span></div><div class="pill-fade-wrap"><div id="equipmentSubFilter" class="muscles"></div></div>
-    <input id="search" class="search" placeholder="Search exercises..." />
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:0">
+      <input id="search" class="search" placeholder="Search exercises..." style="flex:1;margin-bottom:0" />
+      <button id="btn-search-voice" class="voice-mic-btn" title="Search by voice">🎤</button>
+    </div>
     <button id="btn-multiselect-toggle" class="btn" style="width:100%;margin:0 0 8px">☑ Select Multiple to Build</button>
     <button id="btn-add-library" class="btn acc" style="width:100%;margin:0 0 8px">+ Add Exercise to Library</button>
     <button id="btn-manual-entry" class="btn acc" style="width:100%;margin:0 0 10px">+ Lightweight Manual Entry</button>
@@ -4934,6 +4941,11 @@ window.vertexFinishBootstrap=function(){
 <!-- BODY COMP SUB-TAB -->
 <div id="wtab-bodycomp" style="display:none">
   <div id="wc-dexa-dashboard">
+    <div class="wc-dash-card" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div><div class="wc-dash-card-label" style="margin-bottom:2px">AI Interpretation</div><div style="font-size:11px;color:var(--muted)">Plain-language read on your DEXA scans + weekly check-ins</div></div>
+      <button id="btn-wc-interpret" class="btn acc" style="flex-shrink:0">🧠 Interpret</button>
+    </div>
+    <div id="wc-interpret-panel" style="display:none"></div>
     <div class="wc-kpi-grid" id="wc-dexa-kpis" style="grid-template-columns:repeat(3,1fr)"></div>
     <div class="wc-dash-card" style="margin-bottom:12px"><div class="wc-dash-card-label">Scan-over-scan comparison</div><div id="wc-dexa-comparison"></div></div>
     <div class="wc-dash-grid" style="margin-bottom:12px">
@@ -5313,7 +5325,7 @@ window.vertexFinishBootstrap=function(){
 <div id="tplActionModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Workout Template</div><h2 id="tplActionTitle">Push Day</h2><p id="tplActionDesc" style="color:var(--muted);font-size:13px;margin:4px 0 16px"></p><div class="modal-grid" style="grid-template-columns:1fr 1fr"><button id="tplStartNow" class="btn acc">▶ Start Now</button><button id="tplEditFirst" class="btn">✏ Edit First</button><button id="tplAddPlanner" class="btn" style="grid-column:1/-1">📅 Add to Weekly Planner</button><button id="tplCancel" class="btn red" style="grid-column:1/-1">Cancel</button></div></div></div>
 
 
-<div id="libraryModal" class="modal-overlay"><div class="modal"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px"><div><div class="label" style="color:var(--acc)" id="libraryModalLabel">Add Exercise to Library</div><h2 id="libraryModalTitle">Add Exercise</h2></div><button onclick="document.getElementById('libraryModal').classList.remove('on')" style="background:transparent;border:1px solid var(--line2);color:var(--muted);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:16px;line-height:1;flex-shrink:0;margin-top:2px">✕</button></div><p id="libraryModalDesc">Create a new exercise and keep it in your library going forward. Custom exercises are saved in this browser.</p><div class="manual-grid"><label><span class="label">Category</span><select id="libraryEnv"><option value="home">Home</option><option value="gym">Gym</option></select></label><label><span class="label">Training Focus</span><select id="libraryTraining"><option>Strength</option><option>Kettlebell</option><option>Yoga / Pilates</option><option>Cardio</option><option>Recovery / Mobility</option></select></label><label class="wide"><span class="label">Exercise Name</span><input id="libraryName" placeholder="e.g., Band Face Pull"></label><label><span class="label">Muscle Group / Subcategory</span><select id="libraryMuscle"></select></label><label><span class="label">Equipment</span><select id="libraryEquip"><option>Dumbbells</option><option>Bodyweight</option><option>Band</option><option>Bench</option><option>Pull-Up Bar</option><option>Kettlebell</option><option>Mat</option><option>Cable</option><option>Machine</option><option>Barbell</option><option>Bike</option><option>Treadmill</option><option>Rower</option><option>None</option><option>Other</option></select></label><label><span class="label">Movement Type</span><select id="libraryKind"><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="core">Core</option><option value="cardio">Cardio</option><option value="recovery">Recovery</option><option value="stretch">Stretch</option><option value="kettlebell">Kettlebell</option><option value="mobility">Mobility</option><option value="custom">Custom</option></select></label></div><div class="manual-help">Saved exercises appear in the sidebar after refresh and follow the same filters as built-in exercises.</div><div class="modal-grid"><button id="librarySave" class="btn acc">Save to Library</button><button id="libraryCancel" class="btn red">Cancel</button></div></div></div>
+<div id="libraryModal" class="modal-overlay"><div class="modal"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px"><div><div class="label" style="color:var(--acc)" id="libraryModalLabel">Add Exercise to Library</div><h2 id="libraryModalTitle">Add Exercise</h2></div><button onclick="document.getElementById('libraryModal').classList.remove('on')" style="background:transparent;border:1px solid var(--line2);color:var(--muted);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:16px;line-height:1;flex-shrink:0;margin-top:2px">✕</button></div><p id="libraryModalDesc">Create a new exercise and keep it in your library going forward. Custom exercises are saved in this browser.</p><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><button id="btn-library-voice" class="voice-mic-btn" title="Describe the exercise by voice">🎤</button><span style="font-size:11px;color:var(--muted)">Tap and describe it — e.g. "Cable face pull, rear delts and upper back, cable machine"</span></div><div id="libraryVoiceStatus" style="display:none;margin-bottom:10px"></div><div class="manual-grid"><label><span class="label">Category</span><select id="libraryEnv"><option value="home">Home</option><option value="gym">Gym</option></select></label><label><span class="label">Training Focus</span><select id="libraryTraining"><option>Strength</option><option>Kettlebell</option><option>Yoga / Pilates</option><option>Cardio</option><option>Recovery / Mobility</option></select></label><label class="wide"><span class="label">Exercise Name</span><input id="libraryName" placeholder="e.g., Band Face Pull"></label><label><span class="label">Muscle Group / Subcategory</span><select id="libraryMuscle"></select></label><label><span class="label">Equipment</span><select id="libraryEquip"><option>Dumbbells</option><option>Bodyweight</option><option>Band</option><option>Bench</option><option>Pull-Up Bar</option><option>Kettlebell</option><option>Mat</option><option>Cable</option><option>Machine</option><option>Barbell</option><option>Bike</option><option>Treadmill</option><option>Rower</option><option>None</option><option>Other</option></select></label><label><span class="label">Movement Type</span><select id="libraryKind"><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="core">Core</option><option value="cardio">Cardio</option><option value="recovery">Recovery</option><option value="stretch">Stretch</option><option value="kettlebell">Kettlebell</option><option value="mobility">Mobility</option><option value="custom">Custom</option></select></label></div><div class="manual-help">Saved exercises appear in the sidebar after refresh and follow the same filters as built-in exercises.</div><div class="modal-grid"><button id="librarySave" class="btn acc">Save to Library</button><button id="libraryCancel" class="btn red">Cancel</button></div></div></div>
 <div id="manualModal" class="modal-overlay"><div class="modal"><div class="label" style="color:var(--acc)">Lightweight Manual Entry</div><h2>Add Custom Move</h2><p>Add a one-off exercise without expanding the library. Good for substitutes, rehab moves, carries, machine variants, or quick notes.</p><div class="manual-grid"><label class="wide"><span class="label">Exercise Name</span><input id="manualName" placeholder="e.g., Seated Cable Row"></label><label><span class="label">Muscle Group</span><select id="manualMuscle"><option>Chest</option><option>Back</option><option>Shoulders + Traps</option><option>Legs</option><option>Biceps</option><option>Triceps</option><option>Core</option><option>Recovery</option></select></label><label><span class="label">Equipment</span><input id="manualEquip" placeholder="Dumbbells, Machine, Bodyweight"></label><label><span class="label">Sets</span><input id="manualSets" type="number" min="1" max="12" value="3"></label><label><span class="label">Reps</span><input id="manualReps" type="number" min="0" max="200" value="8"></label><label><span class="label">Weight</span><input id="manualWeight" placeholder="optional"></label><label><span class="label">Type</span><select id="manualKind"><option value="custom">Custom</option><option value="push">Push</option><option value="pull">Pull</option><option value="legs">Legs</option><option value="recovery">Recovery</option></select></label></div><div class="manual-help">This adds directly to the current workout only. It does not permanently change the main exercise library.</div><div class="modal-grid"><button id="manualAdd" class="btn acc">Add to Workout</button><button id="manualCancel" class="btn red">Cancel</button></div></div></div>
 
 <div id="equipmentModal" class="modal-overlay" data-close-on-backdrop="1"><div class="modal"><div class="label" style="color:var(--acc)">⚡ Home Equipment</div><h2>Available Equipment</h2><p>Toggle the equipment you have access to. The exercise list updates to match.</p><div id="equipmentModalBody" style="margin-top:14px"></div><div class="modal-grid"><button id="equipmentAllOn" class="btn">All On</button><button id="equipmentClearAll" class="btn red">Clear All</button><button id="equipmentDone" class="btn acc">Done</button></div></div></div>
@@ -10142,6 +10154,47 @@ function wcRenderDashboard(){
   wcGetFlags(latest).forEach(f=>add('warn',`⚠ ${f}`));}
 }
 
+// ── WC AI INTERPRETATION ────────────────────────────────────
+function wcInterpretCacheKey(){
+  return 'v1|'+wcDexaScans.map(s=>s.date).join(',')+'|'+wcLogs.map(l=>l.date).join(',');
+}
+async function wcInterpretBodyComp(force){
+  const panel=document.getElementById('wc-interpret-panel');
+  const btn=document.getElementById('btn-wc-interpret');
+  if(!panel||!btn) return;
+  if(!wcDexaScans.length && !wcLogs.length){
+    panel.style.display='block';
+    panel.innerHTML='<div class="wc-interpret-meta">No data yet</div>Add a DEXA scan or a weekly check-in first, then tap Interpret.';
+    return;
+  }
+  const cacheKey=wcInterpretCacheKey();
+  let cached=null; try{cached=JSON.parse(localStorage.getItem('vertex_wc_interpret_cache')||'null');}catch(e){}
+  if(!force && cached && cached.key===cacheKey){
+    panel.style.display='block';
+    panel.innerHTML=`<div class="wc-interpret-meta">Cached · ${new Date(cached.at).toLocaleDateString()}</div>${escapeHtml(cached.text)}<div style="margin-top:10px"><button class="btn small" onclick="wcInterpretBodyComp(true)">↻ Regenerate</button></div>`;
+    return;
+  }
+  panel.style.display='block';
+  panel.innerHTML='<div class="wc-interpret-meta">Analyzing…</div>Reading your DEXA history and recent check-ins…';
+  btn.disabled=true; const origLabel=btn.textContent; btn.textContent='Analyzing…';
+  try{
+    const scanSummary=wcDexaScans.slice(-6).map(s=>`${s.date}: weight ${s.totalWeight??'—'}lb, fat mass ${s.fatMassLbs??'—'}lb, lean mass ${s.leanMassLbs??'—'}lb, body fat ${s.bodyFatPct??'—'}%, visceral fat ${s.visceralFatLbs??'—'}lb, A/G ratio ${s.agRatio??'—'}`).join('\n');
+    const logSummary=[...wcLogs].sort((a,b)=>a.date.localeCompare(b.date)).slice(-8).map(e=>`${e.date}: weight ${e.weight??'—'}lb, energy ${e.energy??'—'}, sleep ${e.sleep??'—'}, recovery ${e.recovery??'—'}, hunger AM/PM ${e.hungerAm??'—'}/${e.hungerPm??'—'}, training ${e.training??'—'}`).join('\n');
+    const promptText=`You are a knowledgeable fitness/body-composition coach reviewing a client's own tracked data. Give a concise, plain-language interpretation — what's trending well, what's stalling or worth watching, and 1-2 practical suggestions. Do not diagnose medical conditions or give medication advice. Keep it under 200 words, no markdown headers or bullet points, just clear prose in short paragraphs.\n\nDEXA scan history (most recent last):\n${scanSummary||'None recorded'}\n\nWeekly check-in history (most recent last):\n${logSummary||'None recorded'}`;
+    const response=await fetch('/api/anthropic-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:500,messages:[{role:'user',content:promptText}]})});
+    if(!response.ok){const errBody=await response.json().catch(()=>({}));throw new Error(errBody.error?.message||`HTTP ${response.status}`);}
+    const data=await response.json();
+    const text=(data.content||[]).map(i=>i.text||'').join('').trim()||'No interpretation returned.';
+    localStorage.setItem('vertex_wc_interpret_cache',JSON.stringify({key:cacheKey,text,at:Date.now()}));
+    panel.innerHTML=`<div class="wc-interpret-meta">Generated just now · Not medical advice</div>${escapeHtml(text)}`;
+  }catch(err){
+    console.error('Body comp interpret failed:',err);
+    panel.innerHTML=`<div class="wc-interpret-meta">Failed</div>Couldn't generate an interpretation: ${escapeHtml(err.message)}`;
+  }finally{
+    btn.disabled=false; btn.textContent=origLabel;
+  }
+}
+window.wcInterpretBodyComp=wcInterpretBodyComp;
 // ── WC HISTORY ───────────────────────────────────────────────
 function wcRenderHistory(){
   const countEl=document.getElementById('wc-history-count');
@@ -12940,6 +12993,85 @@ function renderMyTemplates(){
   if(!rows.length){ grid.innerHTML='<span style="color:var(--dim);font-size:11px;padding:4px 2px;display:block">None yet — tap "Select Multiple to Build" below, pick your exercises, then Save as Template.</span>'; return; }
   grid.innerHTML=rows.map(t=>`<div class="my-tpl-pill"><button class="seg-btn" data-load-my-tpl="${escapeAttr(t.id)}" title="Load this template">📋 ${escapeHtml(t.name)}</button><button class="my-tpl-del" data-del-my-tpl="${escapeAttr(t.id)}" title="Delete template">✕</button></div>`).join('');
 }
+/* 6A76 — Shared voice-capture helper. Any mic button can reuse this: pass a
+   unique key, the button element, and a callback that receives the spoken
+   transcript. Same tap-to-cancel + 8s-timeout safety as the set-logging mic. */
+const vertexVoiceState={};
+function vertexVoiceCleanup(key,btn){
+  const entry=vertexVoiceState[key];
+  if(entry){ clearTimeout(entry.timeoutId); delete vertexVoiceState[key]; }
+  if(btn) btn.classList.remove('listening');
+}
+function vertexVoiceCapture(key,btn,onResult){
+  if(vertexVoiceState[key]){
+    try{ vertexVoiceState[key].rec.abort(); }catch(e){}
+    vertexVoiceCleanup(key,btn);
+    return;
+  }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ vertexConfirm('Voice input isn\'t supported on this device/browser. Try Safari or Chrome.'); return; }
+  if(btn) btn.classList.add('listening');
+  const rec=new SR();
+  rec.lang='en-US'; rec.interimResults=false; rec.maxAlternatives=1;
+  const timeoutId=setTimeout(()=>{ try{ rec.abort(); }catch(e){} vertexVoiceCleanup(key,btn); },8000);
+  vertexVoiceState[key]={rec,timeoutId};
+  rec.onresult=(ev)=>{
+    const transcript=ev.results?.[0]?.[0]?.transcript||'';
+    vertexVoiceCleanup(key,btn);
+    onResult(transcript);
+  };
+  rec.onerror=()=>{ vertexVoiceCleanup(key,btn); };
+  rec.onend=()=>{ vertexVoiceCleanup(key,btn); };
+  try{ rec.start(); }catch(e){ vertexVoiceCleanup(key,btn); }
+}
+
+/* 6A76 — Voice-fill for "Add Exercise to Library". Sends the spoken
+   description to the same /api/anthropic-proxy endpoint the DEXA PDF parser
+   uses, gets back structured JSON, and pre-fills the form for review. */
+async function libraryVoiceFill(transcript){
+  const statusEl=document.getElementById('libraryVoiceStatus');
+  if(statusEl){ statusEl.style.display='block'; statusEl.innerHTML='<div class="wc-banner warn"><div class="wc-banner-dot"></div><div>⟳ Parsing with Claude — please wait…</div></div>'; }
+  try{
+    const trainingOptions=['Strength','Kettlebell','Yoga / Pilates','Cardio','Recovery / Mobility'];
+    const equipOptions=['Dumbbells','Bodyweight','Band','Bench','Pull-Up Bar','Kettlebell','Mat','Cable','Machine','Barbell','Bike','Treadmill','Rower','None','Other'];
+    const kindOptions=['push','pull','legs','core','cardio','recovery','stretch','kettlebell','mobility','custom'];
+    const promptText=`You are filling out a form to add a new exercise to a fitness app's exercise library, based on a spoken description. Return ONLY valid JSON, no markdown, no backticks, no explanation. The spoken description is: "${transcript.replace(/"/g,"'")}"\n\nReturn this exact JSON shape:\n{"name":"Clean, properly capitalized exercise name","training":"one of: ${trainingOptions.join(', ')}","muscle":"the closest matching option from the muscle list for the chosen training below","equip":"one of: ${equipOptions.join(', ')}","kind":"one of: ${kindOptions.join(', ')}"}\n\nMuscle group options by training focus:\n${JSON.stringify(FILTER_GROUPS)}\n\nIf the description doesn't clearly state something, make your best reasonable guess rather than leaving it blank.`;
+    const response=await fetch('/api/anthropic-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:300,messages:[{role:'user',content:promptText}]})});
+    if(!response.ok){const errBody=await response.json().catch(()=>({}));throw new Error(errBody.error?.message||`HTTP ${response.status}`);}
+    const data=await response.json();
+    const rawText=(data.content||[]).map(i=>i.text||'').join('');
+    const jStart=rawText.indexOf('{'); const jEnd=rawText.lastIndexOf('}');
+    if(jStart===-1||jEnd===-1) throw new Error('No JSON in response');
+    const parsed=JSON.parse(rawText.substring(jStart,jEnd+1));
+    const nameEl=document.getElementById('libraryName'); if(nameEl && parsed.name) nameEl.value=parsed.name;
+    const trainSel=document.getElementById('libraryTraining');
+    if(trainSel && parsed.training){
+      const match=Array.from(trainSel.options).find(o=>o.value.toLowerCase()===String(parsed.training).toLowerCase());
+      if(match) trainSel.value=match.value;
+    }
+    if(typeof populateLibraryMuscles==='function') populateLibraryMuscles();
+    const muscSel=document.getElementById('libraryMuscle');
+    if(muscSel && parsed.muscle){
+      const match=Array.from(muscSel.options).find(o=>o.value.toLowerCase()===String(parsed.muscle).toLowerCase());
+      if(match) muscSel.value=match.value;
+    }
+    const equipSel=document.getElementById('libraryEquip');
+    if(equipSel && parsed.equip){
+      const match=Array.from(equipSel.options).find(o=>o.value.toLowerCase()===String(parsed.equip).toLowerCase());
+      if(match) equipSel.value=match.value;
+    }
+    const kindSel=document.getElementById('libraryKind');
+    if(kindSel && parsed.kind){
+      const match=Array.from(kindSel.options).find(o=>o.value.toLowerCase()===String(parsed.kind).toLowerCase());
+      if(match) kindSel.value=match.value;
+    }
+    if(statusEl) statusEl.innerHTML='<div class="wc-banner green"><div class="wc-banner-dot"></div><div><strong>Filled from voice.</strong> Review fields and save.</div></div>';
+  }catch(err){
+    console.error('Library voice fill failed:',err);
+    if(statusEl) statusEl.innerHTML=`<div class="wc-banner warn"><div class="wc-banner-dot"></div><div><strong>Parse failed:</strong> ${escapeHtml(err.message)}. Fill fields manually.</div></div>`;
+  }
+}
+window.libraryVoiceFill=libraryVoiceFill;
 function renderSidebar(){
   const ep=document.getElementById('equipmentPanel');
   if(ep){
@@ -15028,6 +15160,19 @@ document.addEventListener('click', e=>{
   // v13.63 — ⚡ Home Equipment accordion toggle (lives in sidebar above program selector)
   const t=e.target.closest('button'); if(!t) return;
   if(t.id==='btn-add-library'){e.preventDefault(); openLibraryModal(); return;}
+  if(t.id==='btn-wc-interpret'){ wcInterpretBodyComp(false); return; }
+  if(t.id==='btn-search-voice'){
+    vertexVoiceCapture('search',t,(transcript)=>{
+      const si=document.getElementById('search'); if(!si) return;
+      si.value=transcript.trim();
+      si.dispatchEvent(new Event('input',{bubbles:true}));
+    });
+    return;
+  }
+  if(t.id==='btn-library-voice'){
+    vertexVoiceCapture('library',t,(transcript)=>{ libraryVoiceFill(transcript); });
+    return;
+  }
   const editCustom=t.getAttribute('data-edit-custom'); if(editCustom){e.preventDefault(); e.stopPropagation(); openEditCustomExercise(editCustom); return;}
   if(t.id==='btn-equipment-open'){e.preventDefault(); openEquipmentModal(); return;}
   if(t.id==='btn-equipment-all'){e.preventDefault(); EQUIPMENT_OPTIONS.forEach(eq=>state.equipment[equipmentKey(eq)]=true); saveEquipmentProfile(); renderEquipmentModalBody(); renderAll(); return;}
@@ -16116,7 +16261,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260904d-voice-wordnum-fix';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260904e-ai-voice-interpret';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))

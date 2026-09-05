@@ -225,7 +225,7 @@ html.vertex-auth-booting #app-header{
 .my-tpl-pill{display:inline-flex;align-items:center;gap:2px;flex-shrink:0}
 .my-tpl-del{background:none;border:1px solid var(--line2);color:var(--muted);border-radius:var(--r-pill);width:22px;height:22px;font-size:11px;line-height:1;cursor:pointer;flex-shrink:0}
 .multiselect-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line2);padding:10px 0 4px;margin-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);z-index:5}
-#wc-interpret-panel{background:rgba(232,255,71,.05);border:1px solid var(--line2);border-radius:12px;padding:14px;margin-bottom:12px;font-size:13px;line-height:1.55;color:var(--txt,#e8e8e0);white-space:pre-wrap}
+#wc-interpret-panel{background:rgba(232,255,71,.05);border:1px solid var(--line2);border-radius:12px;padding:14px;margin-bottom:12px;font-size:13px;line-height:1.55;color:var(--text);white-space:pre-wrap}
 #wc-interpret-panel .wc-interpret-meta{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
 .voice-mic-btn{width:38px;height:38px;border-radius:var(--r-pill);border:1px solid var(--line2);background:none;color:var(--muted);font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .voice-mic-btn.listening{background:var(--acc);border-color:var(--acc);color:#000;animation:fwmPulse 1s ease-in-out infinite}
@@ -10156,7 +10156,69 @@ function wcRenderDashboard(){
 
 // ── WC AI INTERPRETATION ────────────────────────────────────
 function wcInterpretCacheKey(){
-  return 'v1|'+wcDexaScans.map(s=>s.date).join(',')+'|'+wcLogs.map(l=>l.date).join(',');
+  return 'v2|'+wcDexaScans.map(s=>s.date).join(',')+'|'+wcLogs.map(l=>l.date).join(',');
+}
+/* 6A77 — All the arithmetic (deltas, weekly pace, regional breakdown,
+   symmetry, goal projection) is computed here in JS, not by the model.
+   Haiku is only asked to write the narrative around numbers that are
+   already correct — this is what fixed the shallow, math-heavy-on-a-small-
+   model version of this feature. */
+function wcComputeDexaAnalytics(){
+  const scans=[...wcDexaScans].sort((a,b)=>a.date.localeCompare(b.date));
+  if(!scans.length) return null;
+  const first=scans[0], latest=scans[scans.length-1];
+  const daysBetween=(a,b)=>Math.max(1,Math.round((new Date(b)-new Date(a))/86400000));
+  const totalWeeks=daysBetween(first.date,latest.date)/7;
+  const delta=(key)=>(first[key]!=null && latest[key]!=null)?+(latest[key]-first[key]).toFixed(2):null;
+  const overall={
+    totalWeightDelta:delta('totalWeight'), fatMassDelta:delta('fatMassLbs'), leanMassDelta:delta('leanMassLbs'),
+    bodyFatPctDelta:delta('bodyFatPct'), visceralFatDelta:delta('visceralFatLbs'), agRatioDelta:delta('agRatio'),
+    almiDelta:delta('almi'), ffmiDelta:delta('ffmi'), totalWeeks:+totalWeeks.toFixed(1)
+  };
+  const pace=[];
+  for(let i=1;i<scans.length;i++){
+    const a=scans[i-1], b=scans[i];
+    const weeks=daysBetween(a.date,b.date)/7;
+    pace.push({
+      from:a.date, to:b.date, weeks:+weeks.toFixed(1),
+      fatRate:(a.fatMassLbs!=null&&b.fatMassLbs!=null)?+((b.fatMassLbs-a.fatMassLbs)/weeks).toFixed(2):null,
+      leanRate:(a.leanMassLbs!=null&&b.leanMassLbs!=null)?+((b.leanMassLbs-a.leanMassLbs)/weeks).toFixed(2):null
+    });
+  }
+  const regional={
+    trunkFatDelta:delta('trunkFatLbs'), trunkLeanDelta:delta('trunkLeanLbs'),
+    legsFatDelta:delta('legsFatLbs'), legsLeanDelta:delta('legsLeanLbs'),
+    armsFatDelta:delta('armsFatLbs'), armsLeanDelta:delta('armsLeanLbs')
+  };
+  const symmetry={
+    armDiff:(latest.leftArmLeanLbs!=null&&latest.rightArmLeanLbs!=null)?+Math.abs(latest.leftArmLeanLbs-latest.rightArmLeanLbs).toFixed(2):null,
+    legDiff:(latest.leftLegLeanLbs!=null&&latest.rightLegLeanLbs!=null)?+Math.abs(latest.leftLegLeanLbs-latest.rightLegLeanLbs).toFixed(2):null
+  };
+  let projection=null;
+  const goals=(typeof getGoals==='function')?getGoals():{};
+  if(goals && goals.bf!=null && latest.bodyFatPct!=null && scans.length>=2){
+    const a=scans[scans.length-2];
+    if(a.bodyFatPct!=null){
+      const weeks=daysBetween(a.date,latest.date)/7;
+      const bfRatePerWeek=(latest.bodyFatPct-a.bodyFatPct)/weeks;
+      if(bfRatePerWeek<-0.01){
+        const weeksToGoal=(latest.bodyFatPct-goals.bf)/Math.abs(bfRatePerWeek);
+        if(weeksToGoal>0 && weeksToGoal<1000){
+          projection={targetBf:goals.bf, weeksToGoal:Math.round(weeksToGoal), projectedDate:new Date(Date.now()+weeksToGoal*7*86400000).toISOString().split('T')[0]};
+        }
+      }
+    }
+  }
+  return {scans, first, latest, overall, pace, regional, symmetry, projection};
+}
+function wcFormatAnalyticsForPrompt(a){
+  if(!a) return 'No DEXA scans recorded yet.';
+  const scanTable=a.scans.map(s=>`${s.date}: total ${s.totalWeight??'—'}lb, fat mass ${s.fatMassLbs??'—'}lb, lean mass ${s.leanMassLbs??'—'}lb, body fat ${s.bodyFatPct??'—'}%, visceral fat ${s.visceralFatLbs??'—'}lb, A/G ratio ${s.agRatio??'—'}, ALMI ${s.almi??'—'}, FFMI ${s.ffmi??'—'}`).join('\n');
+  const paceLines=a.pace.length?a.pace.map(p=>`${p.from} → ${p.to} (${p.weeks} wks): fat mass ${p.fatRate!=null?(p.fatRate>0?'+':'')+p.fatRate+' lb/wk':'—'}, lean mass ${p.leanRate!=null?(p.leanRate>0?'+':'')+p.leanRate+' lb/wk':'—'}`).join('\n'):'Only one scan — no pace to compare yet.';
+  const regionalLines=`Trunk fat Δ ${a.regional.trunkFatDelta??'—'}lb, trunk lean Δ ${a.regional.trunkLeanDelta??'—'}lb; Legs fat Δ ${a.regional.legsFatDelta??'—'}lb, legs lean Δ ${a.regional.legsLeanDelta??'—'}lb; Arms fat Δ ${a.regional.armsFatDelta??'—'}lb, arms lean Δ ${a.regional.armsLeanDelta??'—'}lb (Δ = change from first scan to latest)`;
+  const symmetryLine=`Latest scan symmetry — arm lean L/R difference: ${a.symmetry.armDiff??'—'}lb; leg lean L/R difference: ${a.symmetry.legDiff??'—'}lb`;
+  const projLine=a.projection?`At the current body-fat% trend, projected to reach the ${a.projection.targetBf}% goal around ${a.projection.projectedDate} (~${a.projection.weeksToGoal} weeks out).`:'No body-fat-% goal set, or not enough consistent downward trend to project a target date.';
+  return `TOTAL CHANGE (first scan ${a.first.date} → latest scan ${a.latest.date}, ${a.overall.totalWeeks} weeks):\nTotal weight Δ ${a.overall.totalWeightDelta??'—'}lb, fat mass Δ ${a.overall.fatMassDelta??'—'}lb, lean mass Δ ${a.overall.leanMassDelta??'—'}lb, body fat % Δ ${a.overall.bodyFatPctDelta??'—'}, visceral fat Δ ${a.overall.visceralFatDelta??'—'}lb, A/G ratio Δ ${a.overall.agRatioDelta??'—'}, ALMI Δ ${a.overall.almiDelta??'—'}, FFMI Δ ${a.overall.ffmiDelta??'—'}\n\nSCAN-BY-SCAN HISTORY:\n${scanTable}\n\nPACE BETWEEN SCANS (already computed — cite these exact numbers, do not recalculate):\n${paceLines}\n\nREGIONAL BREAKDOWN (first vs latest, already computed):\n${regionalLines}\n\nSYMMETRY (already computed):\n${symmetryLine}\n\nGOAL PROJECTION (already computed — cite this exact figure, do not recalculate):\n${projLine}`;
 }
 async function wcInterpretBodyComp(force){
   const panel=document.getElementById('wc-interpret-panel');
@@ -10178,10 +10240,11 @@ async function wcInterpretBodyComp(force){
   panel.innerHTML='<div class="wc-interpret-meta">Analyzing…</div>Reading your DEXA history and recent check-ins…';
   btn.disabled=true; const origLabel=btn.textContent; btn.textContent='Analyzing…';
   try{
-    const scanSummary=wcDexaScans.slice(-6).map(s=>`${s.date}: weight ${s.totalWeight??'—'}lb, fat mass ${s.fatMassLbs??'—'}lb, lean mass ${s.leanMassLbs??'—'}lb, body fat ${s.bodyFatPct??'—'}%, visceral fat ${s.visceralFatLbs??'—'}lb, A/G ratio ${s.agRatio??'—'}`).join('\n');
+    const analytics=wcComputeDexaAnalytics();
+    const analyticsBlock=wcFormatAnalyticsForPrompt(analytics);
     const logSummary=[...wcLogs].sort((a,b)=>a.date.localeCompare(b.date)).slice(-8).map(e=>`${e.date}: weight ${e.weight??'—'}lb, energy ${e.energy??'—'}, sleep ${e.sleep??'—'}, recovery ${e.recovery??'—'}, hunger AM/PM ${e.hungerAm??'—'}/${e.hungerPm??'—'}, training ${e.training??'—'}`).join('\n');
-    const promptText=`You are a knowledgeable fitness/body-composition coach reviewing a client's own tracked data. Give a concise, plain-language interpretation — what's trending well, what's stalling or worth watching, and 1-2 practical suggestions. Do not diagnose medical conditions or give medication advice. Keep it under 200 words, no markdown headers or bullet points, just clear prose in short paragraphs.\n\nDEXA scan history (most recent last):\n${scanSummary||'None recorded'}\n\nWeekly check-in history (most recent last):\n${logSummary||'None recorded'}`;
-    const response=await fetch('/api/anthropic-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:500,messages:[{role:'user',content:promptText}]})});
+    const promptText=`You are a knowledgeable fitness/body-composition coach reviewing a client's own tracked data in their fitness app. Write a clear, structured interpretation using ONLY the pre-computed numbers below — do NOT recompute deltas, rates, or projections yourself, just cite the numbers given, they are already correct.\n\nStructure your response in plain text — no markdown asterisks, no bold syntax, use "•" for bullets:\n1. One-sentence headline on the overall story.\n2. "The big picture" — bullet the positive trends with actual numbers.\n3. What needs attention (e.g. lean mass loss alongside fat loss, plateauing metrics, regional imbalances, asymmetry) — bullet with actual numbers.\n4. A short note on pace/deceleration between scans and what it means.\n5. A bottom-line, one-paragraph practical recommendation.\nStay grounded only in the data given. Do not diagnose medical conditions or give medication advice. Do not end by asking a question or offering to build a feature — end with the recommendation itself. Aim for 250-400 words.\n\nDEXA ANALYTICS:\n${analyticsBlock}\n\nWEEKLY CHECK-IN HISTORY (most recent last):\n${logSummary||'None recorded'}`;
+    const response=await fetch('/api/anthropic-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:900,messages:[{role:'user',content:promptText}]})});
     if(!response.ok){const errBody=await response.json().catch(()=>({}));throw new Error(errBody.error?.message||`HTTP ${response.status}`);}
     const data=await response.json();
     const text=(data.content||[]).map(i=>i.text||'').join('').trim()||'No interpretation returned.';
@@ -16261,7 +16324,7 @@ document.addEventListener('DOMContentLoaded',function(){
 /* 6A40: this MUST match CACHE_NAME in service-worker.js. Bumping it changes the
    registration URL (?cache=...), which forces the browser to install the new worker
    and is what the "SW registered:" console line reports. Move both together every deploy. */
-const VERTEX_SW_CACHE_NAME = 'vertex-v20260904e-ai-voice-interpret';
+const VERTEX_SW_CACHE_NAME = 'vertex-v20260905a-interpret-fix';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js?cache=' + encodeURIComponent(VERTEX_SW_CACHE_NAME))
